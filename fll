@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+CWD=$(dirname $(readlink -f ${0}))
+
+if [ -f ${CWD}/fll.py ]; then
+	exec /usr/bin/python ${CWD}/fll.py --share ${CWD} ${@}
+fi
+
+if [ -f /usr/share/fll/fll.py ]; then
+	exec /usr/bin/python /usr/share/fll/fll.py ${@}
+fi
+
+echo "Error locating fll.py, aborting." >&2
+exit 1

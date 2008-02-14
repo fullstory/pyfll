@@ -1,0 +1,42 @@
+kver = 2.6.24-2.6.24.2.slh.4
+name = sidux
+
+[ 'distro' ]
+FLL_DISTRO_NAME      = "$name"
+FLL_IMAGE_DIR        = "$name"
+FLL_IMAGE_FILE       = "$name"
+FLL_IMAGE_LOCATION   = "$FLL_IMAGE_DIR/$FLL_IMAGE_FILE"
+FLL_MOUNTPOINT       = "/fll/$name"
+FLL_MEDIA_NAME       = "$name.iso"
+FLL_LIVE_USER        = "$name"
+FLL_LIVE_USER_GROUPS = "dialout dip fuse cdrom sudo audio video plugdev users floppy netdev powerdev scanner"
+FLL_DISTRO_MODE      = $([ -d "$FLL_MOUNTPOINT" ] && echo live || echo installed)
+FLL_WALLPAPER        = "/usr/share/wallpapers/sidux-eros-1600x1200.png"
+FLL_IRC_SERVER       = "irc.oftc.net"
+FLL_IRC_PORT         = "6667"
+FLL_IRC_CHANNEL      = "#$name"
+FLL_CDROM_INDEX      = "$name release notes"
+FLL_CDROM_INDEX_ICON = "release/release-notes"
+
+[ 'chroot' ]
+i386  = $kver-$name-686
+amd64 = $kver-$name-amd64
+
+[ 'packages' ]
+profile = kde-lite
+
+[ 'apt' ]
+    [[ 'debian' ]]
+    label      = debian
+    uri        = http://ftp.debian.org/debian/
+    cached     =
+    suite      = sid
+    components = main
+
+    [[ 'sidux' ]]
+    label      = sidux
+    uri        = http://sidux.com/debian/
+    cached     =
+    suite      = sid
+    components = main
+    gpgkeyid   = F80994F6
