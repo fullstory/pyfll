@@ -112,6 +112,12 @@ class FLLBuilder:
                      help = 'Enable debug mode. Extra output will be ' +
                      'to assist in development. Default: %default')
 
+        p.add_option('-g', '--gid', dest = 'g', action = 'store',
+                     type = 'string', metavar = '<group id>',
+                     help = 'Group ID of user doing the build. This ' +
+                     'should not normally be required, the wrapper script ' +
+                     'will take care of this for you.')
+
         p.add_option('-o', '--output', dest = 'o', action = 'store',
                      type = 'string', metavar = '<directory>',
                      help = 'Output directory, where the product of this ' +
@@ -129,6 +135,12 @@ class FLLBuilder:
                      type = 'string', metavar = '<directory>',
                      help = 'Share directory directory containing data ' +
                      'required for the program to function.')
+
+        p.add_option('-u', '--uid', dest = 'u', action = 'store',
+                     type = 'string', metavar = '<user id>',
+                     help = 'User ID of user doing the build. This ' +
+                     'should not normally be required, the wrapper script ' +
+                     'will take care of this for you.')
 
         p.add_option('-v', '--verbose', dest = 'v', action = 'store_true',
                      help = 'Enable verbose mode. All messages will be ' +
