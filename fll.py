@@ -187,29 +187,6 @@ class FLLBuilder:
         pass
 
 
-    def sourceDefaults(self, f='/etc/default/distro'):
-        """Source distro-defaults in a subprocess, build a dict from
-        FLL shell variable namespace and return it."""
-        if self.opts.v:
-            print "Parsing distro-defaults config..."
-        cmd = "source %s && for v in ${!FLL*}; do echo ${v}=${!v}; done" % f
-        try:
-            p = Popen(['/bin/bash', '-c', cmd], stdout = PIPE)
-            p.wait()
-        except:
-            raise Exception("subprocess failed attempting to " +
-                    "source file: %s" % f)
-
-        if p.returncode != 0:
-            raise Exception("failed to source distro-defaults, " +
-                    "return value: %d" % pret)
-
-        self.defs = dict([l.rstrip().split('=') for l in p.stdout.readlines()])
-
-        if self.opts.d:
-            print "defs: ", self.defs
-
-
     def stageBuildArea(self):
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
         if not self.opts.p:
