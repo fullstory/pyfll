@@ -15,41 +15,6 @@ import shutil
 import tempfile
 
 
-def ensureUmounted(chroot, verbose = False):
-    """Umount common mount points in a chroot dir."""
-    for dir in ['proc/sys/fs/binfmt_misc/status', 'proc', 'dev/pts', 'dev',
-                'sys']:
-        if os.path.ismount(os.path.join(chroot, dir)):
-            if verbose:
-                print " * umounting: %s" % os.path.join(chroot, dir)
-            retv = call(["umount", os.path.join(chroot, dir)])
-            if retv != 0:
-                raise Exception("umount failed for dir: %s" %
-                                os.path.join(chroot, dir))
-
-
-def nukeDir(dir, verbose = False):
-    """Nuke dir tree."""
-    if not os.path.isdir(dir):
-        return
-
-    for d in os.listdir(dir):
-        if not os.path.isdir(os.path.join(dir, d)):
-            continue
-        try:
-            ensureUmounted(os.path.join(dir, d), verbose = verbose)
-        except:
-            raise Exception("failed to umount virtual filesystems in dir: %s" %
-                            os.path.join(dir, d))
-
-    if verbose:
-        print " * nuking directory: %s" % dir
-    try:
-        shutil.rmtree(dir)
-    except:
-        raise Exception("unable to remove dir: %s" % dir)
-
-
 class FLLBuilder:
     def __init__(self):
         self.conf = None
@@ -280,10 +245,50 @@ class FLLBuilder:
                   os.path.join(self.temp, 'staging')
 
 
-    def cleanup(self):
+    def _umount(self, chrootdir):
+        """Umount any mount points in a given chroot directory."""
+        # Thanks to update-manager authours for the _umount function
+        # http://ftp.ubuntu.com/ubuntu/pool/main/u/update-manager/
+        umount_list = []
+        for line in open("/proc/mounts"):
+            (dev, mnt, fs, options, d, p) = line.split()
+            if mnt.startswith(chrootdir):
+                umount_list.append(mnt)
+        
+        # Reverse sort the mount points based on path length and
+        # umount longest -> shortest
+        umount_list.sort(key=len)
+        umount_list.reverse()
+        
+        for mpoint in umount_list:
+            if self.opts.v:
+                print " * umount %s" % mpoint
+            retv = call(["umount", mpoint])
+            if retv != 0:
+                raise Exception("umount failed for: %s" % mpoint)
+
+
+    def _nukeDir(self, dir):
+        """Nuke directory tree."""
         if self.opts.v:
-            print 'Cleaning up...'
-        nukeDir(self.temp, verbose = self.opts.v)
+            print " * nuking directory: %s" % dir
+        try:
+            shutil.rmtree(dir)
+        except:
+            raise Exception("unable to remove dir: %s" % dir)
+
+    
+    def cleanup(self):
+        """Clean up the build area."""
+        for arch in self.conf['chroot'].keys():
+            if self.opts.v:
+                print "Cleaning up %s chroot..." % arch
+            self._umount(os.path.join(self.temp, arch))
+            self._nukeDir(os.path.join(self.temp, arch))
+        
+        if self.opts.v:
+            print 'Cleaning up temp dir...'
+        self._nukeDir(self.temp)
 
 
     def main(self):
