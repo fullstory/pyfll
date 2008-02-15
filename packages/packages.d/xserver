@@ -1,0 +1,24 @@
+packages = """
+	dmz-cursor-theme
+	fluxbox
+	fontconfig
+	libgl1-mesa-dri
+	menu
+	mesa-utils
+	sux
+	ttf-bitstream-vera
+	ttf-dejavu
+	ttf-freefont
+	xfonts-base
+	xfonts-75dpi
+	xfonts-75dpi-transcoded
+	xfonts-100dpi
+	xfonts-100dpi-transcoded
+	xresprobe
+	xserver-xorg
+	xserver-xorg-input-all
+	xserver-xorg-video-all
+	xserver-xorg-video-radeonhd
+	xutils
+"""
+

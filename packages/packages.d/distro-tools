@@ -1,0 +1,12 @@
+packages = """
+	capi-isdnconf
+	ceni
+	configure-dsl
+	configure-ndiswrapper
+	infobash
+	modemlink
+	ppp-scripts
+	sshstart
+	startsyslog
+"""
+

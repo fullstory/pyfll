@@ -1,0 +1,7 @@
+packages = """
+	apt-conf-sidux
+	apt-utils
+	distro-defaults
+	debconf
+"""
+

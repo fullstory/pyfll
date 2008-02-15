@@ -1,0 +1,87 @@
+#!/bin/bash -e
+
+#
+# Convert old package bash modules into new configobj ini modules
+#
+# Options:
+# -u  Update only modules existing in new folder
+# -n  Path to new packages module folder
+# -o  Path to old packages module folder (with the .bm files)
+#
+
+#new=/home/kel/svn/fullstory/fll-builder/branches/pyfll/packages/
+#old=/home/kel/svn/fullstory/fll-builder/trunk/etc/fll-builder/packages/
+
+while getopts n:o:u opt; do
+	case "${opt}" in
+		n)
+			new=${OPTARG}
+			;;
+		o)
+			old=${OPTARG}
+			;;
+		u)
+			((UPDATE++))
+			;;
+		\?)
+			echo "wtf is '${opt}' ?"
+			exit 1
+			;;
+	esac
+done
+
+[[ -d ${new} ]] || {
+	echo "Path to new folder does not exist: ${new:-none given}"
+	exit 1
+}
+
+[[ -d ${old} ]] || {
+	echo "Path to old folder does not exist: ${new:-none given}"
+	exit 1
+}
+
+mkdir -p ${new}/packages.d
+
+bm2ini() {
+	awk '
+	{
+	  if (/^FLL_PACKAGES/)
+	    print "packages = \"\"\""
+	  else if (/^FLL_PACKAGE_DEPMODS/)
+	    print "deps = \"\"\""
+	  else if (/FLL_BUILD_ARCH/)
+	    print $5 " = \"\"\""
+	  else if (/^[ \t]*)/)
+	    print "\"\"\"\n"
+	  else if (/^[ \t]*#/)
+	    broken[i++] = $0
+	  else if ($1 ~ /^(FLL.+|if|fi)$/)
+	    next
+	  else if ($1)
+	    print "\t" $1
+	}
+	
+	END {
+	  for (p in broken)
+	    print broken[p]
+	}' ${1}
+}
+
+pushd ${old} >/dev/null
+
+	for bm in *.bm packages.d/*.bm;	do
+		if [[ -f ${bm} ]]; then
+			newm=${new}/${bm%.bm}
+		else
+			continue
+		fi
+
+		if [[ ${UPDATE} ]]; then
+			[[ -f ${newm} ]] || continue
+		fi
+		
+		echo "Converting $(basename ${bm}) to ini format..."
+		bm2ini ${bm} > ${newm}
+	done
+
+popd >/dev/null

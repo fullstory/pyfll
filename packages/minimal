@@ -1,0 +1,6 @@
+deps = """
+	distro
+	hwsupport-essential
+	utils-essential
+"""
+

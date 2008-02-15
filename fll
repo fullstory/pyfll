@@ -3,29 +3,40 @@
 # Copyright: (C) 2008 Kel Modderman <kel@otaku42.de>
 # License:   GPLv2 or any later version
 
+# By default we execute this as root user
+ROOTEXEC=yes
+
 # Locate directory we are called from
 THIS_DIR=$(dirname $(readlink -f ${0}))
-
-# Get callers uid and gid for permission adjustment
-USER_UID=$(getent passwd ${USER} | cut -d\: -f3)
-USER_GID=$(getent passwd ${USER} | cut -d\: -f4)
+DEFAULTD="/usr/share/fll"
 
 # Locate the real program
 if [ -f ${THIS_DIR}/fll.py ]; then
 	FLL="${THIS_DIR}/fll.py --share ${THIS_DIR}"
 elif [ -f /usr/share/fll/fll.py ]; then
-	FLL="/usr/share/fll/fll.py"
+	FLL="${DEFAULTD}/fll.py --share ${DEFAULTD}"
 else
 	echo "Error locating fll.py, aborting." >&2
 	exit 1
 fi
 
-# If --help option is wanted, don't exec as root
-if echo ${*} | egrep -q -w '\-\-help|\-h'; then
-	exec /usr/bin/python ${FLL} --help
-fi
+# Get callers uid and gid for permission adjustment
+USER_UID=$(getent passwd ${USER} | cut -d\: -f3)
+USER_GID=$(getent passwd ${USER} | cut -d\: -f4)
 
-# Exec program as root...
-echo "Requires root!"
-exec su root --command \
-	"/usr/bin/python ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${*}"
+for arg in "${@}"; do
+	case "${arg}" in
+		--help|-h|-n|--non-root)
+			ROOTEXEC=no
+			break
+			;;
+	esac
+done
+
+if [ "${ROOTEXEC}" = yes ]; then
+	echo "Requires root!"
+	ROOT_CMD="/usr/bin/python ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
+	exec su root --command "${ROOT_CMD}"
+else
+	exec /usr/bin/python ${FLL} ${@}
+fi

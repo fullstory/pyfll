@@ -1,0 +1,14 @@
+packages = """
+	apt-conf-sidux
+	desktop-defaults-common
+	fll-live-initscripts
+	gfxboot-theme-sidux
+	grub-gfxboot
+	lilo
+	sidux-art-wallpaper
+	sidux-art-wallpaper-eros
+	sidux-keyrings
+	sidux-scripts
+	udev-config-sidux
+"""
+

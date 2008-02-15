@@ -1,0 +1,40 @@
+packages = """
+	build-essential
+	cdebootstrap
+	cdrdao
+	cryptsetup
+	debhelper
+	dvd+rw-tools
+	dvb-utils
+	dosfstools
+	ftp
+	fuse-utils
+	genisoimage
+	iproute
+	jfsutils
+	man-db
+	manpages
+	memtest86+
+	mlocate
+	module-assistant
+	ntpdate
+	ntfs-3g
+	ntfsprogs
+	nmap
+	openssh-client
+	pwgen
+	reiserfsprogs
+	sshfs
+	smbclient
+	smbfs
+	strace
+	traceroute
+	xfsprogs
+	unzip
+	vpnc
+	wodim
+	zip
+"""
+
+#	resolvconf	# clobbers host when installed in chroot
+#	testdisk	# libntfs9 --> libntfs10, FTBS.

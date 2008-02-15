@@ -113,7 +113,7 @@ class FLLBuilder:
                      'to assist in development. Default: %default')
 
         p.add_option('-g', '--gid', dest = 'g', action = 'store',
-                     type = 'string', metavar = '<group id>',
+                     type = 'int', metavar = '<group id>',
                      help = 'Group ID of user doing the build. This ' +
                      'should not normally be required, the wrapper script ' +
                      'will take care of this for you.')
@@ -127,6 +127,9 @@ class FLLBuilder:
                      help = 'Preserve build directory. Disable automatic ' +
                      'cleanup of the build area at exit.')
 
+        p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
+                     help = 'Start as noon root user (for debugging).')
+
         p.add_option('-q', '--quiet', dest = 'v', action = 'store_false',
                      help = 'Enable quiet mode. Only high priority messages ' +
                      'will be generated, such as announcing current')
@@ -137,7 +140,7 @@ class FLLBuilder:
                      'required for the program to function.')
 
         p.add_option('-u', '--uid', dest = 'u', action = 'store',
-                     type = 'string', metavar = '<user id>',
+                     type = 'int', metavar = '<user id>',
                      help = 'User ID of user doing the build. This ' +
                      'should not normally be required, the wrapper script ' +
                      'will take care of this for you.')
@@ -146,8 +149,9 @@ class FLLBuilder:
                      help = 'Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
 
-        p.set_defaults(d = False, b = os.getcwd(), o = os.getcwd(), p = False,
-                       s = '/usr/share/fll/', v = True)
+        p.set_defaults(d = False, b = os.getcwd(), g = os.getgid(), n = False,
+                       o = os.getcwd(), p = False, s = '/usr/share/fll/',
+                       u = os.getuid(), v = True)
 
         self.opts = p.parse_args()[0]
         self.processOpts()
@@ -194,22 +198,86 @@ class FLLBuilder:
             print "conf:", self.conf
 
 
+    def _profileToLists(self, archs, profile, depdir):
+        """Return a dict, arch string as keys and package list as values."""
+        list = {}
+
+        if self.opts.v:
+            print " * processing profile: %s" % profile
+        pfile = ConfigObj(profile)
+
+        for arch in archs:
+            if 'packages' in pfile:
+                list[arch] = [p.strip() for p in pfile['packages'].splitlines()
+                              if p]
+            if arch in pfile:
+                list[arch].extend([p.strip() for p in
+                                  pfile[arch].splitlines() if p])
+
+        if not 'deps' in pfile:
+            raise Exception("no dependencies defined in file: %s" % pfile)
+
+        deps = [d.strip() for d in pfile['deps'].splitlines() if d]
+        for dep in deps:
+            if self.opts.v:
+                print " * processing depfile: %s" % os.path.join(depdir, dep)
+            if not os.path.isfile(os.path.join(depdir, dep)):
+                raise Exception("no such dep file: %s" %
+                                os.path.join(depdir, dep))
+            
+            dfile = ConfigObj(os.path.join(depdir, dep))
+            for arch in archs:
+                list[arch].extend([p.strip() for p in
+                              dfile['packages'].splitlines() if p])
+                if arch in dfile:
+                    list[arch].extend([p.strip() for p in
+                                      dfile[arch].splitlines() if p])
+
+        for arch in archs:
+            list[arch].sort()
+            if self.opts.v:
+                print " * package list for arch: %s" % arch
+                for p in list[arch]:
+                    print "   > %s" % p
+
+        return list
+
+
     def parsePkgs(self):
         """Parse packages profile file(s)."""
-        pass
+        dir = os.path.join(self.opts.s, 'packages')
+        deps = os.path.join(dir, 'packages.d')
+        file = os.path.join(dir, self.conf['packages']['profile'])
+
+        if not os.path.isfile(file):
+            raise Exception("no such package profile file: %s" % file)
+        
+        if self.opts.v:
+            print "Processing package profile..."
+        
+        a = self.conf['chroot'].keys()
+        self.pkgs = self._profileToLists(a, file, deps)
 
 
     def stageBuildArea(self):
+        """Prepare temporary directory to prepare chroots and stage result."""
+        if self.opts.v:
+            print 'Staging build area...'
+
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
         if not self.opts.p:
             atexit.register(self.cleanup)
-        if self.opts.v:
-            print " * creating directory: %s" % self.temp
 
         for arch in self.conf['chroot'].keys():
             os.mkdir(os.path.join(self.temp, arch))
+            if self.opts.v:
+                print " * creating directory: %s" % \
+                      os.path.join(self.temp, arch)
 
         os.mkdir(os.path.join(self.temp, 'staging'))
+        if self.opts.v:
+            print " * creating directory: %s" % \
+                  os.path.join(self.temp, 'staging')
 
 
     def cleanup(self):

@@ -1,0 +1,21 @@
+packages = """
+	cupsys
+	cupsys-client
+	cupsys-bsd
+	cupsys-driver-gutenprint
+	foomatic-db
+	foomatic-db-engine
+	foomatic-db-gutenprint
+	foomatic-db-hpijs
+	foomatic-filters
+	foomatic-filters-ppds
+	hpijs-ppds
+	hplip
+	linuxprinting.org-ppds
+	min12xxw
+	pnm2ppa
+	sane
+	sane-utils
+	libsane-extras
+"""
+

@@ -1,0 +1,28 @@
+packages = """
+	configure-cups
+	fix-fonts
+	fll-live-xorgconfig
+	gparted
+	gprsconnect
+	hplip-gui
+	install-gui
+	install-usb-gui
+	install-meta
+	libxine1-x
+	libxine1-xvdr
+	powersaved
+	sidux-browser
+	sidux-irc
+	sidux-manual-en
+	sidux-searchplugins
+	setpassword
+	tvtime
+	xsane
+	zenity
+"""
+
+i386 = """
+	virtualbox-ose-guest-utils
+	xserver-xorg-video-amd
+"""
+

@@ -1,0 +1,17 @@
+packages = """
+	alsa-utils
+	dmidecode
+	dmsetup
+	hwinfo
+	laptop-detect
+	libsmbios-bin
+	lirc
+	pm-utils
+	powersaved
+	vbetool
+"""
+
+i386 = """
+	libc6-i686
+"""
+

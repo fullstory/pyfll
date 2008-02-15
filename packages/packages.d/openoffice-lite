@@ -1,0 +1,9 @@
+packages = """
+	openoffice.org-calc
+	openoffice.org-core
+	openoffice.org-draw
+	openoffice.org-impress
+	openoffice.org-math
+	openoffice.org-writer
+"""
+

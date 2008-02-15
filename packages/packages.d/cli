@@ -1,0 +1,12 @@
+packages = """
+	elinks
+	gpm
+	htop
+	mc
+	most
+	rcconf
+	screen
+	unp
+	vim
+"""
+
