@@ -169,34 +169,31 @@ class FLLBuilder:
 
         if self.opts.v:
             print " * processing profile: %s" % profile
+
         pfile = ConfigObj(profile)
-
-        for arch in archs:
-            if 'packages' in pfile:
-                list[arch] = [p.strip() for p in pfile['packages'].splitlines()
-                              if p]
-            if arch in pfile:
-                list[arch].extend([p.strip() for p in
-                                  pfile[arch].splitlines() if p])
-
-        if not 'deps' in pfile:
-            raise Exception("no dependencies defined in file: %s" % pfile)
-
-        deps = [d.strip() for d in pfile['deps'].splitlines() if d]
-        for dep in deps:
-            if self.opts.v:
-                print " * processing depfile: %s" % os.path.join(depdir, dep)
-            if not os.path.isfile(os.path.join(depdir, dep)):
-                raise Exception("no such dep file: %s" %
-                                os.path.join(depdir, dep))
-            
-            dfile = ConfigObj(os.path.join(depdir, dep))
+        if 'packages' in pfile:
             for arch in archs:
-                list[arch].extend([p.strip() for p in
-                              dfile['packages'].splitlines() if p])
-                if arch in dfile:
+                list[arch] = [p.strip() for p in
+                              pfile['packages'].splitlines() if p]
+                if arch in pfile:
                     list[arch].extend([p.strip() for p in
-                                      dfile[arch].splitlines() if p])
+                                       pfile[arch].splitlines() if p])
+
+        if 'deps' in pfile:
+            for dep in [d.strip() for d in pfile['deps'].splitlines() if d]:
+                depfile = os.path.join(depdir, dep)
+                if not os.path.isfile(depfile):
+                    raise Exception("no such dep file: %s" % depfile)
+                elif self.opts.v:
+                    print " * processing depfile: %s" % depfile
+
+                dfile = ConfigObj(depfile)
+                for arch in archs:
+                    list[arch].extend([p.strip() for p in
+                                       dfile['packages'].splitlines() if p])
+                    if arch in dfile:
+                        list[arch].extend([p.strip() for p in
+                                           dfile[arch].splitlines() if p])
 
         for arch in archs:
             list[arch].sort()
@@ -216,10 +213,10 @@ class FLLBuilder:
 
         if not os.path.isfile(file):
             raise Exception("no such package profile file: %s" % file)
-        
+
         if self.opts.v:
             print "Processing package profile..."
-        
+
         a = self.conf['chroot'].keys()
         self.pkgs = self._profileToLists(a, file, deps)
 
@@ -254,12 +251,12 @@ class FLLBuilder:
             (dev, mnt, fs, options, d, p) = line.split()
             if mnt.startswith(chrootdir):
                 umount_list.append(mnt)
-        
+
         # Reverse sort the mount points based on path length and
         # umount longest -> shortest
         umount_list.sort(key=len)
         umount_list.reverse()
-        
+
         for mpoint in umount_list:
             if self.opts.v:
                 print " * umount %s" % mpoint
@@ -277,7 +274,7 @@ class FLLBuilder:
         except:
             raise Exception("unable to remove dir: %s" % dir)
 
-    
+
     def cleanup(self):
         """Clean up the build area."""
         for arch in self.conf['chroot'].keys():
@@ -285,7 +282,7 @@ class FLLBuilder:
                 print "Cleaning up %s chroot..." % arch
             self._umount(os.path.join(self.temp, arch))
             self._nukeDir(os.path.join(self.temp, arch))
-        
+
         if self.opts.v:
             print 'Cleaning up temp dir...'
         self._nukeDir(self.temp)
