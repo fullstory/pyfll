@@ -290,14 +290,11 @@ class FLLBuilder:
         self._nukeDir(self.temp)
 
 
-    def main(self):
-        # Init()
-        self.parseOpts()
-        self.parseConf()
-        self.parsePkgs()
-        # Build()
-        self.stageBuildArea()
-
-
 if __name__ == "__main__":
-    FLLBuilder().main()
+    fll = FLLBuilder()
+    
+    fll.parseOpts()
+    fll.parseConf()
+    fll.parsePkgs()
+
+    fll.stageBuildArea()
