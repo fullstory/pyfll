@@ -159,6 +159,12 @@ class FLLBuilder:
             print("conf:", self.conf)
 
 
+    def _lines2list(self, lines):
+        """Return a list of stripped strings given a group of line
+        separated strings"""
+        return [s.strip() for s in lines.splitlines() if s]
+
+
     def _profileToLists(self, archs, profile, depdir):
         """Return a dict, arch string as keys and package list as values."""
         list = {}
@@ -171,28 +177,27 @@ class FLLBuilder:
         pfile = ConfigObj(profile)
         if 'packages' in pfile:
             for arch in archs:
-                list[arch] = [p.strip() for p in
-                              pfile['packages'].splitlines() if p]
-                if arch in pfile:
-                    list[arch].extend([p.strip() for p in
-                                       pfile[arch].splitlines() if p])
+                list[arch].extend(self._lines2list(pfile['packages']))
+        for arch in archs:
+            if arch in pfile:
+                list[arch].extend(self._lines2list(pfile[arch]))
 
         if 'deps' in pfile:
-            for dep in [d.strip() for d in pfile['deps'].splitlines() if d]:
+            for dep in self._lines2list(pfile['deps']):
                 depfile = os.path.join(depdir, dep)
                 if not os.path.isfile(depfile):
                     raise Exception("no such dep file: %s" % depfile)
                 elif self.opts.v:
                     print(" * processing depfile: %s" %
-		    	  os.path.basename(depfile))
+                          os.path.basename(depfile))
 
                 dfile = ConfigObj(depfile)
+                if 'packages' in dfile:
+                    for arch in archs:
+                        list[arch].extend(self._lines2list(dfile['packages']))
                 for arch in archs:
-                    list[arch].extend([p.strip() for p in
-                                       dfile['packages'].splitlines() if p])
                     if arch in dfile:
-                        list[arch].extend([p.strip() for p in
-                                           dfile[arch].splitlines() if p])
+                        list[arch].extend(self._lines2list(dfile[arch]))
 
         for arch in archs:
             list[arch].sort()
@@ -243,16 +248,12 @@ class FLLBuilder:
 
     def _umount(self, chrootdir):
         """Umount any mount points in a given chroot directory."""
-        # Thanks to update-manager authours for the _umount function
-        # http://ftp.ubuntu.com/ubuntu/pool/main/u/update-manager/
         umount_list = []
         for line in open("/proc/mounts"):
             (dev, mnt, fs, options, d, p) = line.split()
             if mnt.startswith(chrootdir):
                 umount_list.append(mnt)
 
-        # Reverse sort the mount points based on path length and
-        # umount longest -> shortest
         umount_list.sort(key=len)
         umount_list.reverse()
 
