@@ -16,17 +16,16 @@ import tempfile
 
 
 class FLLBuilder:
-    def __init__(self):
-        self.conf = None
-        self.opts = None
-        self.pkgs = None
-        self.temp = None
+    conf = None
+    opts = None
+    pkgs = None
+    temp = None
 
 
     def processOpts(self):
         """Process options."""
         if self.opts.v:
-            print 'Processing options...'
+            print('Processing options...')
 
         if self.opts.c:
             if not os.path.isfile(self.opts.c):
@@ -38,7 +37,7 @@ class FLLBuilder:
 
         if not os.path.isdir(self.opts.b):
             if self.opts.v:
-                print " * creating build dir: %s" % self.opts.b
+                print(" * creating build dir: %s" % self.opts.b)
             try:
                 os.makedirs(self.opts.b)
             except:
@@ -48,7 +47,7 @@ class FLLBuilder:
 
         if not os.path.isdir(self.opts.o):
             if self.opts.v:
-                print " * creating output dir: %s" % self.opts.o
+                print(" * creating output dir: %s" % self.opts.o)
             try:
                 os.makedirs(self.opts.o)
             except:
@@ -121,14 +120,11 @@ class FLLBuilder:
         self.opts = p.parse_args()[0]
         self.processOpts()
 
-        if self.opts.d:
-            print "opts: ", self.opts
-
 
     def processConf(self):
         """Process configuration options."""
         if self.opts.v:
-            print 'Processing configuration options...'
+            print('Processing configuration options...')
 
         if len(self.conf['chroot'].keys()) < 1:
             raise Exception("no chroots configured in configuarion file")
@@ -153,14 +149,14 @@ class FLLBuilder:
     def parseConf(self):
         """Parse build configuration file and return it in a dict."""
         if self.opts.v:
-            print "Parsing configuration file..."
-            print " * configuration file: %s" % self.opts.c
+            print("Parsing configuration file...")
+            print(" * configuration file: %s" % self.opts.c)
 
         self.conf = ConfigObj(self.opts.c, interpolation = 'Template')
         self.processConf()
 
         if self.opts.d:
-            print "conf:", self.conf
+            print("conf:", self.conf)
 
 
     def _profileToLists(self, archs, profile, depdir):
@@ -170,7 +166,7 @@ class FLLBuilder:
             list[arch] = []
 
         if self.opts.v:
-            print " * processing profile: %s" % profile
+            print(" * processing profile: %s" % os.path.basename(profile))
 
         pfile = ConfigObj(profile)
         if 'packages' in pfile:
@@ -187,7 +183,8 @@ class FLLBuilder:
                 if not os.path.isfile(depfile):
                     raise Exception("no such dep file: %s" % depfile)
                 elif self.opts.v:
-                    print " * processing depfile: %s" % depfile
+                    print(" * processing depfile: %s" %
+		    	  os.path.basename(depfile))
 
                 dfile = ConfigObj(depfile)
                 for arch in archs:
@@ -200,9 +197,9 @@ class FLLBuilder:
         for arch in archs:
             list[arch].sort()
             if self.opts.v:
-                print " * package list for arch: %s" % arch
+                print(" * package list for arch: %s" % arch)
                 for p in list[arch]:
-                    print "   > %s" % p
+                    print("   > %s" % p)
 
         return list
 
@@ -217,7 +214,7 @@ class FLLBuilder:
             raise Exception("no such package profile file: %s" % file)
 
         if self.opts.v:
-            print "Processing package profile..."
+            print("Processing package profile...")
 
         a = self.conf['chroot'].keys()
         self.pkgs = self._profileToLists(a, file, deps)
@@ -226,7 +223,7 @@ class FLLBuilder:
     def stageBuildArea(self):
         """Prepare temporary directory to prepare chroots and stage result."""
         if self.opts.v:
-            print 'Staging build area...'
+            print('Staging build area...')
 
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
         if not self.opts.p:
@@ -235,13 +232,13 @@ class FLLBuilder:
         for arch in self.conf['chroot'].keys():
             os.mkdir(os.path.join(self.temp, arch))
             if self.opts.v:
-                print " * creating directory: %s" % \
-                      os.path.join(self.temp, arch)
+                print(" * creating directory: %s" %
+                      os.path.join(self.temp, arch))
 
         os.mkdir(os.path.join(self.temp, 'staging'))
         if self.opts.v:
-            print " * creating directory: %s" % \
-                  os.path.join(self.temp, 'staging')
+            print(" * creating directory: %s" %
+                  os.path.join(self.temp, 'staging'))
 
 
     def _umount(self, chrootdir):
@@ -261,7 +258,7 @@ class FLLBuilder:
 
         for mpoint in umount_list:
             if self.opts.v:
-                print " * umount %s" % mpoint
+                print(" * umount %s" % mpoint)
             retv = call(["umount", mpoint])
             if retv != 0:
                 raise Exception("umount failed for: %s" % mpoint)
@@ -270,7 +267,7 @@ class FLLBuilder:
     def _nuke(self, dir):
         """Nuke directory tree."""
         if self.opts.v:
-            print " * nuking directory: %s" % dir
+            print(" * nuking directory: %s" % dir)
         try:
             shutil.rmtree(dir)
         except:
@@ -281,12 +278,12 @@ class FLLBuilder:
         """Clean up the build area."""
         for arch in self.conf['chroot'].keys():
             if self.opts.v:
-                print "Cleaning up %s chroot..." % arch
+                print("Cleaning up %s chroot..." % arch)
             self._umount(os.path.join(self.temp, arch))
             self._nuke(os.path.join(self.temp, arch))
 
         if self.opts.v:
-            print 'Cleaning up temp dir...'
+            print('Cleaning up temp dir...')
         self._nuke(self.temp)
 
 
