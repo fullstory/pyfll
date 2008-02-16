@@ -15,6 +15,12 @@ import shutil
 import tempfile
 
 
+def lines2list(self, lines):
+    """Return a list of stripped strings given a group of line
+    separated strings"""
+    return [s.strip() for s in lines.splitlines() if s]
+
+
 class FLLBuilder:
     conf = None
     opts = None
@@ -159,12 +165,6 @@ class FLLBuilder:
             print("conf:", self.conf)
 
 
-    def _lines2list(self, lines):
-        """Return a list of stripped strings given a group of line
-        separated strings"""
-        return [s.strip() for s in lines.splitlines() if s]
-
-
     def _profileToLists(self, archs, profile, depdir):
         """Return a dict, arch string as keys and package list as values."""
         list = {}
@@ -177,13 +177,13 @@ class FLLBuilder:
         pfile = ConfigObj(profile)
         if 'packages' in pfile:
             for arch in archs:
-                list[arch].extend(self._lines2list(pfile['packages']))
+                list[arch].extend(lines2list(pfile['packages']))
         for arch in archs:
             if arch in pfile:
-                list[arch].extend(self._lines2list(pfile[arch]))
+                list[arch].extend(lines2list(pfile[arch]))
 
         if 'deps' in pfile:
-            for dep in self._lines2list(pfile['deps']):
+            for dep in lines2list(pfile['deps']):
                 depfile = os.path.join(depdir, dep)
                 if not os.path.isfile(depfile):
                     raise Exception("no such dep file: %s" % depfile)
@@ -194,10 +194,10 @@ class FLLBuilder:
                 dfile = ConfigObj(depfile)
                 if 'packages' in dfile:
                     for arch in archs:
-                        list[arch].extend(self._lines2list(dfile['packages']))
+                        list[arch].extend(lines2list(dfile['packages']))
                 for arch in archs:
                     if arch in dfile:
-                        list[arch].extend(self._lines2list(dfile[arch]))
+                        list[arch].extend(lines2list(dfile[arch]))
 
         for arch in archs:
             list[arch].sort()
