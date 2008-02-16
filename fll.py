@@ -267,7 +267,7 @@ class FLLBuilder:
                 raise Exception("umount failed for: %s" % mpoint)
 
 
-    def _nukeDir(self, dir):
+    def _nuke(self, dir):
         """Nuke directory tree."""
         if self.opts.v:
             print " * nuking directory: %s" % dir
@@ -283,16 +283,16 @@ class FLLBuilder:
             if self.opts.v:
                 print "Cleaning up %s chroot..." % arch
             self._umount(os.path.join(self.temp, arch))
-            self._nukeDir(os.path.join(self.temp, arch))
+            self._nuke(os.path.join(self.temp, arch))
 
         if self.opts.v:
             print 'Cleaning up temp dir...'
-        self._nukeDir(self.temp)
+        self._nuke(self.temp)
 
 
 if __name__ == "__main__":
     fll = FLLBuilder()
-    
+
     fll.parseOpts()
     fll.parseConf()
     fll.parsePkgs()
