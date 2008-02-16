@@ -15,7 +15,7 @@ import shutil
 import tempfile
 
 
-def lines2list(self, lines):
+def lines2list(lines):
     """Return a list of stripped strings given a group of line
     separated strings"""
     return [s.strip() for s in lines.splitlines() if s]
@@ -132,11 +132,11 @@ class FLLBuilder:
         if self.opts.v:
             print('Processing configuration options...')
 
-        if len(self.conf['chroot'].keys()) < 1:
+        if len(self.conf['archs'].keys()) < 1:
             raise Exception("no chroots configured in configuarion file")
 
-        for chroot in self.conf['chroot'].keys():
-            if not self.conf['chroot'][chroot]:
+        for chroot in self.conf['archs'].keys():
+            if not self.conf['archs'][chroot]:
                 raise Exception("no kernel version given for '%s'" % chroot)
 
         if len(self.conf['apt'].keys()) < 2:
@@ -185,13 +185,16 @@ class FLLBuilder:
         if 'deps' in pfile:
             for dep in lines2list(pfile['deps']):
                 depfile = os.path.join(depdir, dep)
+
                 if not os.path.isfile(depfile):
                     raise Exception("no such dep file: %s" % depfile)
-                elif self.opts.v:
+
+                if self.opts.v:
                     print(" * processing depfile: %s" %
                           os.path.basename(depfile))
 
                 dfile = ConfigObj(depfile)
+
                 if 'packages' in dfile:
                     for arch in archs:
                         list[arch].extend(lines2list(dfile['packages']))
@@ -221,7 +224,7 @@ class FLLBuilder:
         if self.opts.v:
             print("Processing package profile...")
 
-        a = self.conf['chroot'].keys()
+        a = self.conf['archs'].keys()
         self.pkgs = self._profileToLists(a, file, deps)
 
 
@@ -234,7 +237,7 @@ class FLLBuilder:
         if not self.opts.p:
             atexit.register(self.cleanup)
 
-        for arch in self.conf['chroot'].keys():
+        for arch in self.conf['archs'].keys():
             os.mkdir(os.path.join(self.temp, arch))
             if self.opts.v:
                 print(" * creating directory: %s" %
@@ -277,7 +280,7 @@ class FLLBuilder:
 
     def cleanup(self):
         """Clean up the build area."""
-        for arch in self.conf['chroot'].keys():
+        for arch in self.conf['archs'].keys():
             if self.opts.v:
                 print("Cleaning up %s chroot..." % arch)
             self._umount(os.path.join(self.temp, arch))
