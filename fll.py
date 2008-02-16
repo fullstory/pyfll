@@ -59,7 +59,7 @@ class FLLBuilder:
 
     def parseOpts(self):
         """Parse command line arguments."""
-        p = OptionParser(usage = '%prog -c <config file> [-b <directory> ' +
+        p = OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
                          '-o <directory> -s <directory>] [-dpqv]')
 
         p.add_option('-b', '--build', dest = 'b', action = 'store',
@@ -166,6 +166,8 @@ class FLLBuilder:
     def _profileToLists(self, archs, profile, depdir):
         """Return a dict, arch string as keys and package list as values."""
         list = {}
+        for arch in archs:
+            list[arch] = []
 
         if self.opts.v:
             print " * processing profile: %s" % profile
@@ -298,10 +300,4 @@ class FLLBuilder:
 
 
 if __name__ == "__main__":
-    try:
-        FLLBuilder().main()
-    except SystemExit:
-        pass
-    except Exception, e:
-        print >>sys.stderr, 'Error:', str(e)
-        sys.exit(1)
+    FLLBuilder().main()
