@@ -9,8 +9,8 @@
 # -o  Path to old packages module folder (with the .bm files)
 #
 
-#new=/home/kel/svn/fullstory/fll-builder/branches/pyfll/packages/
-#old=/home/kel/svn/fullstory/fll-builder/trunk/etc/fll-builder/packages/
+new=/home/kelmo/svn/fullstory/fll-builder/branches/pyfll/packages/
+old=/home/kelmo/svn/fullstory/fll-builder/trunk/etc/fll-builder/packages/
 
 while getopts n:o:u opt; do
 	case "${opt}" in
@@ -44,6 +44,13 @@ mkdir -p ${new}/packages.d
 
 bm2ini() {
 	awk '
+	BEGIN {
+	  print "desc = \"\"\""
+	  print "\"\"\"\n"
+	  print "repos = \"\"\""
+	  print "\"\"\"\n"
+	}
+
 	{
 	  if (/^FLL_PACKAGES/)
 	    print "packages = \"\"\""
@@ -54,16 +61,16 @@ bm2ini() {
 	  else if (/^[ \t]*)/)
 	    print "\"\"\"\n"
 	  else if (/^[ \t]*#/)
-	    broken[i++] = $0
+	    comment[i++] = $0
 	  else if ($1 ~ /^(FLL.+|if|fi)$/)
 	    next
 	  else if ($1)
 	    print "\t" $1
 	}
-	
+
 	END {
-	  for (p in broken)
-	    print broken[p]
+	  for (c in comment)
+	    print comment[c]
 	}' ${1}
 }
 

@@ -1,3 +1,9 @@
+desc = """
+"""
+
+repos = """
+"""
+
 packages = """
 	acpid
 	alsa-base
