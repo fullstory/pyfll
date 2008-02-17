@@ -1,7 +1,10 @@
 desc = """
+	Basic KDE desktop environment.
 """
 
 repos = """
+	debian
+	sidux
 """
 
 deps = """

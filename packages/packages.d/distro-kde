@@ -1,7 +1,9 @@
 desc = """
+	Distro specific KDE packages.
 """
 
 repos = """
+	sidux
 """
 
 packages = """

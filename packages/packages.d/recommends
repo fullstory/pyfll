@@ -1,7 +1,11 @@
 desc = """
+	Packages that should have all packages they recommend installed to
+	function properly.
 """
 
 repos = """
+	debian
+	sidux
 """
 
 packages = """

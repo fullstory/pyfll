@@ -1,7 +1,11 @@
 desc = """
+	Packages that should be installed in the build chroot before doing
+	_anything_ else at all.
 """
 
 repos = """
+	debian
+	sidux
 """
 
 packages = """

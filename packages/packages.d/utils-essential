@@ -1,7 +1,9 @@
 desc = """
+	Misc. utilities that should always be installed.
 """
 
 repos = """
+	debian
 """
 
 packages = """
@@ -19,6 +21,7 @@ packages = """
 	iptables
 	iputils-ping
 	less
+	lilo
 	locales
 	logrotate
 	netbase

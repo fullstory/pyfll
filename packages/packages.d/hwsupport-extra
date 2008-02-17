@@ -1,7 +1,10 @@
 desc = """
+	Packages that provide some kind of support for harware, but are not
+	absolutely required.
 """
 
 repos = """
+	debian
 """
 
 packages = """

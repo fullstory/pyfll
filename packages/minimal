@@ -1,4 +1,5 @@
 desc = """
+	Only the essential software that is required to boot.
 """
 
 repos = """

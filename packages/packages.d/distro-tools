@@ -1,7 +1,9 @@
 desc = """
+	Distro specific tools.
 """
 
 repos = """
+	sidux
 """
 
 packages = """

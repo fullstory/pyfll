@@ -1,7 +1,10 @@
 desc = """
+	Distro specific packages with dependencies on X Window System.
 """
 
 repos = """
+	debian
+	sidux
 """
 
 packages = """

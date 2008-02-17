@@ -1,7 +1,9 @@
 desc = """
+	Distro specific common packages.
 """
 
 repos = """
+	sidux
 """
 
 packages = """
@@ -10,7 +12,6 @@ packages = """
 	fll-live-initscripts
 	gfxboot-theme-sidux
 	grub-gfxboot
-	lilo
 	sidux-art-wallpaper
 	sidux-art-wallpaper-eros
 	sidux-keyrings

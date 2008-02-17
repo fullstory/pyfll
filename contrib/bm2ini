@@ -43,12 +43,14 @@ done
 mkdir -p ${new}/packages.d
 
 bm2ini() {
-	awk '
+	awk -v headers=${1} '
 	BEGIN {
-	  print "desc = \"\"\""
-	  print "\"\"\"\n"
-	  print "repos = \"\"\""
-	  print "\"\"\"\n"
+	  if (headers == 1) {
+	    print "desc = \"\"\""
+	    print "\"\"\"\n"
+	    print "repos = \"\"\""
+	    print "\"\"\"\n"
+	  }
 	}
 
 	{
@@ -71,7 +73,7 @@ bm2ini() {
 	END {
 	  for (c in comment)
 	    print comment[c]
-	}' ${1}
+	}' ${2}
 }
 
 pushd ${old} >/dev/null
@@ -83,12 +85,25 @@ pushd ${old} >/dev/null
 			continue
 		fi
 
+		do_headers=1
 		if [[ ${UPDATE} ]]; then
-			[[ -f ${newm} ]] || continue
+			if [[ -f ${newm} ]]; then
+				sed -n '/^desc = """/,/^"""/p' ${newm}    >  ${newm}~
+				sed -n '/^repos = """/,/^"""/p' ${newm}	  >> ${newm}~
+				sed -n '/^debconf = """/,/^"""/p' ${newm} >> ${newm}~
+				rm -f ${newm}
+				if [[ -s ${newm}~ ]]; then
+					do_headers=0
+					sed '/^"""/G' ${newm}~ > ${newm}
+					rm -f ${newm}~
+				fi
+			else
+				continue
+			fi
 		fi
 		
 		echo "Converting $(basename ${bm}) to ini format..."
-		bm2ini ${bm} > ${newm}
+		bm2ini ${do_headers} ${bm} >> ${newm}
 	done
 
 popd >/dev/null

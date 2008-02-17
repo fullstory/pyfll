@@ -1,7 +1,10 @@
 desc = """
+	Complete KDE desktop environment with OpenOffice and IceWeasel.
 """
 
 repos = """
+	debian
+	sidux
 """
 
 deps = """

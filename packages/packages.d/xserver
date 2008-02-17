@@ -1,7 +1,9 @@
 desc = """
+	X Server packages.
 """
 
 repos = """
+	debian
 """
 
 packages = """

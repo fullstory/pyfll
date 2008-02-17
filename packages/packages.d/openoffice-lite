@@ -1,7 +1,9 @@
 desc = """
+	Essential openoffice.org packages.
 """
 
 repos = """
+	debian
 """
 
 packages = """
