@@ -189,10 +189,7 @@ class FLLBuilder:
         """Return a dict, arch string as keys and package list as values."""
         list = {}
         for arch in archs:
-            list[arch] = {
-                'debconf': [],
-                'list': [],
-            }
+            list[arch] = {'debconf': [], 'list': []}
 
         if self.opts.v:
             print(" * processing profile: %s" % os.path.basename(profile))
@@ -264,13 +261,11 @@ class FLLBuilder:
 
             if 'debconf' in dfile:
                 for arch in archs:
-                    list[arch]['debconf'].extend(
-                        lines2list(dfile['debconf']))
+                    list[arch]['debconf'].extend(lines2list(dfile['debconf']))
 
             if 'packages' in dfile:
                 for arch in archs:
-                    list[arch]['list'].extend(
-                        lines2list(dfile['packages']))
+                    list[arch]['list'].extend(lines2list(dfile['packages']))
 
             for arch in archs:
                 if arch in dfile:
@@ -339,8 +334,7 @@ class FLLBuilder:
                 print(" * umount %s" % mpoint)
             retv = call(["umount", mpoint])
             if retv != 0:
-                e = "umount failed for: %s" % mpoint
-                raise FLLError(e)
+                raise FLLError("umount failed for: %s" % mpoint)
 
 
     def _nuke(self, dir):
