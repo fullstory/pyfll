@@ -11,5 +11,7 @@ repos = """
 packages = """
 	kontact
 	siduxcc
+	linux-image-2.6-sidux-amd64
+	linux-image-2.6-sidux-686
 """
 
