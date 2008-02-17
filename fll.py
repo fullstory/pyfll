@@ -21,6 +21,18 @@ def lines2list(lines):
     return [s.strip() for s in lines.splitlines() if s]
 
 
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+
+class FLLError(Error):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+
 class FLLBuilder:
     conf = None
     opts = None
@@ -35,11 +47,11 @@ class FLLBuilder:
 
         if self.opts.c:
             if not os.path.isfile(self.opts.c):
-                raise Exception("configuration file does not exist: %s"
-                                % self.opts.c)
+                e = "configuration file does not exist: %s" % self.opts.c
+                raise FLLError(e)
             self.opts.c = os.path.abspath(self.opts.c)
         else:
-            raise Exception("no configuration files specified on command line")
+            raise FLLError("no configuration files specified on command line")
 
         if not os.path.isdir(self.opts.b):
             if self.opts.v:
@@ -47,8 +59,9 @@ class FLLBuilder:
             try:
                 os.makedirs(self.opts.b)
             except:
-                raise Exception("failed to create build dir: %s" %
-                                self.opts.b)
+                e = "failed to create build dir %s - %s" % \
+                    (self.opts.b, sys.exc_info()[0])
+                raise FLLError(e)
         self.opts.b = os.path.abspath(self.opts.b)
 
         if not os.path.isdir(self.opts.o):
@@ -57,8 +70,9 @@ class FLLBuilder:
             try:
                 os.makedirs(self.opts.o)
             except:
-                raise Exception("failed to create output dir: %s" %
-                                self.opts.o)
+                e = "failed to create output dir %s - %s" % \
+                    (self.opts.o, sys.exc_info()[0])
+                raise FLLError(e)
         self.opts.o = os.path.abspath(self.opts.o)
 
 
@@ -133,19 +147,26 @@ class FLLBuilder:
             print('Processing configuration options...')
 
         if len(self.conf['archs'].keys()) < 1:
-            raise Exception("no chroots configured in configuarion file")
+            host_arch = Popen(["dpkg", "--print-architecture"],
+                              stdout=PIPE).communicate()[0].rstrip()
+            self.conf['archs'][host_arch] = {}
 
-        for chroot in self.conf['archs'].keys():
-            if not self.conf['archs'][chroot]:
-                raise Exception("no kernel version given for '%s'" % chroot)
+        for arch in self.conf['archs'].keys():
+            if 'linux' not in self.conf['archs'][arch]:
+                if arch == 'i386':
+                    self.conf['archs'][arch]['linux'] = '2.6-686'
+                else:
+                    self.conf['archs'][arch]['linux'] = '2.6-' + arch
 
-        if len(self.conf['apt'].keys()) < 2:
-            raise Exception("at least two apt repos must be specified")
+        if len(self.conf['repos'].keys()) < 2:
+            e = "at least two apt repos must be specified (debian + fll)"
+            raise FLLError(e)
 
-        for repo in self.conf['apt'].keys():
+        for repo in self.conf['repos'].keys():
             for word in ['label', 'uri', 'suite', 'components']:
-                if word not in self.conf['apt'][repo]:
-                    raise Exception("no '%s' for apt repo '%s'" % (word, repo))
+                if word not in self.conf['repos'][repo]:
+                    e = "no '%s' for apt repo '%s'" % (word, repo)
+                    raise FLLError(e)
 
         if 'profile' not in self.conf['packages']:
             self.conf['packages']['profile'] = 'kde-lite'
@@ -187,7 +208,8 @@ class FLLBuilder:
                 depfile = os.path.join(depdir, dep)
 
                 if not os.path.isfile(depfile):
-                    raise Exception("no such dep file: %s" % depfile)
+                    e = "no such dep file: %s" % depfile
+                    raise FLLError(e)
 
                 if self.opts.v:
                     print(" * processing depfile: %s" %
@@ -219,7 +241,8 @@ class FLLBuilder:
         file = os.path.join(dir, self.conf['packages']['profile'])
 
         if not os.path.isfile(file):
-            raise Exception("no such package profile file: %s" % file)
+            e = "no such package profile file: %s" % file
+            raise FLLError(e)
 
         if self.opts.v:
             print("Processing package profile...")
@@ -265,7 +288,8 @@ class FLLBuilder:
                 print(" * umount %s" % mpoint)
             retv = call(["umount", mpoint])
             if retv != 0:
-                raise Exception("umount failed for: %s" % mpoint)
+                e = "umount failed for: %s" % mpoint
+                raise FLLError(e)
 
 
     def _nuke(self, dir):
@@ -275,7 +299,8 @@ class FLLBuilder:
         try:
             shutil.rmtree(dir)
         except:
-            raise Exception("unable to remove dir: %s" % dir)
+            e = "unable to remove %s - %s" % (dir, sys.exc_info()[0])
+            raise FLLError(e)
 
 
     def cleanup(self):
@@ -292,10 +317,13 @@ class FLLBuilder:
 
 
 if __name__ == "__main__":
-    fll = FLLBuilder()
+    try:
+        fll = FLLBuilder()
 
-    fll.parseOpts()
-    fll.parseConf()
-    fll.parsePkgs()
+        fll.parseOpts()
+        fll.parseConf()
+        fll.parsePkgs()
 
-    fll.stageBuildArea()
+        fll.stageBuildArea()
+    except FLLError, e:
+        print >> sys.stderr, 'E:', e
