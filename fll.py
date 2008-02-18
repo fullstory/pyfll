@@ -155,9 +155,15 @@ class FLLBuilder:
         for arch in self.conf['archs'].keys():
             if 'linux' not in self.conf['archs'][arch]:
                 if arch == 'i386':
-                    self.conf['archs'][arch]['linux'] = '2.6-686'
+                    if os.path.isfile('/etc/sidux-version'):
+                        self.conf['archs'][arch]['linux'] = '2.6-sidux-686'
+                    else:
+                        self.conf['archs'][arch]['linux'] = '2.6-686'
                 else:
-                    self.conf['archs'][arch]['linux'] = '2.6-' + arch
+                    if os.path.isfile('/etc/sidux-version'):
+                        self.conf['archs'][arch]['linux'] = '2.6-sidux-' + arch
+                    else:
+                        self.conf['archs'][arch]['linux'] = '2.6-' + arch
 
         if len(self.conf['repos'].keys()) < 1:
             raise FLLError("no apt repos were specified in build config")
