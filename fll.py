@@ -67,6 +67,8 @@ class FLLBuilder:
             except:
                 self.log.exception("failed to setup logfile")
                 raise Error
+            else:
+                os.chown(out, self.opts.u, self.opts.g)
 
         if self.opts.c:
             if os.path.isfile(self.opts.c):
@@ -416,6 +418,23 @@ class FLLBuilder:
         self._nuke(self.temp)
 
 
+    def _mountVirtfs(self, chroot):
+        """Mount virtual filesystems in a shoort dir."""
+        self.log.info("mounting virtual filesystems in %s" % chroot)
+
+        virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
+
+        for v in virtfs.items():
+            cmd = ['mount', '-t', v[0], 'fll-' + v[0],
+                   os.path.join(chroot, v[1])]
+            self.log.debug(cmd)
+
+            retv = call(cmd)
+            if retv != 0:
+                self.log.critical("failed to mount chroot %s" % v[0])
+                raise Error
+
+
     def cDebBootstrap(self, verbosity = '--quiet', flavour = 'minimal',
                       suite = 'sid', arch = None, dir = None, mirror = None):
         """Bootstrap a debian system with cdebootstrap."""
@@ -442,6 +461,8 @@ class FLLBuilder:
             if retv != 0:
                 self.log.critical("failed to bootstrap %s" % arch)
                 raise Error
+
+            self._mountVirtfs(dir)
 
 
 if __name__ == "__main__":
