@@ -66,7 +66,6 @@ class FLLBuilder:
             except:
                 self.log.exception("failed to setup logfile")
                 raise Error
-            self.log.info("logging debug output to %s" % out)
 
         if self.opts.c:
             if os.path.isfile(self.opts.c):
