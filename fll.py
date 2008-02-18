@@ -382,10 +382,10 @@ class FLLBuilder:
         """Umount any mount points in a given chroot directory."""
         umount_list = []
         for line in open("/proc/mounts"):
-            self.log.debug("/proc/mounts: %s" % line.rstrip())
             (dev, mnt, fs, options, d, p) = line.split()
             if mnt.startswith(chrootdir):
                 umount_list.append(mnt)
+        self.log.debug("umount_list:" + string.join(umount_list))
 
         umount_list.sort(key=len)
         umount_list.reverse()
