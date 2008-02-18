@@ -9,6 +9,7 @@ from optparse import OptionParser
 from subprocess import Popen, PIPE
 
 import atexit
+import logging
 import os
 import sys
 import shutil
@@ -22,59 +23,65 @@ def lines2list(lines):
 
 
 class Error(Exception):
-    """Base class for exceptions in this module."""
+    """A generic error handler that does nothing."""
     pass
-
-
-class FLLError(Error):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
 
 
 class FLLBuilder:
     conf = None
     opts = None
-    pkgs = {}
+    pkgs = None
     temp = None
+    log  = logging.getLogger("log")
+    
+    def initLogger(self):
+        """Set up the logger."""
+        fmt = logging.Formatter("%(levelname)-8s %(message)s")
+        out = logging.StreamHandler()
+        out.setFormatter(fmt)
+        self.log.addHandler(out)
+        self.log.setLevel(logging.INFO)
 
 
     def processOpts(self):
         """Process options."""
-        if self.opts.v:
-            print('Processing options...')
+        if self.opts.d:
+            self.log.setLevel(logging.DEBUG)
+        elif self.opts.v:
+            self.log.setLevel(logging.INFO)
+        else:
+            self.log.setLevel(logging.WARNING)
 
         if self.opts.c:
             if os.path.isfile(self.opts.c):
                 self.opts.c = os.path.abspath(self.opts.c)
             else:
-                raise FLLError("configuration file does not exist: %s" %
-                               self.opts.c)
+                logging.critical("configuration file does not exist: %s" %
+                                 self.opts.c)
+                raise Error
         else:
-            raise FLLError("no configuration files specified on command line")
-
-        if not os.path.isdir(self.opts.b):
-            if self.opts.v:
-                print(" * creating build dir: %s" % self.opts.b)
-            try:
-                os.makedirs(self.opts.b)
-            except:
-                raise FLLError("failed to create build dir %s - %s" %
-                               (self.opts.b, sys.exc_info()[0]))
-
-        self.opts.b = os.path.abspath(self.opts.b)
+            logging.critical("no config file specified on command line")
+            raise Error
 
         if not os.path.isdir(self.opts.o):
-            if self.opts.v:
-                print(" * creating output dir: %s" % self.opts.o)
             try:
                 os.makedirs(self.opts.o)
             except:
-                raise FLLError("failed to create output dir %s - %s" %
-                               (self.opts.o, sys.exc_info()[0]))
+                logging.exception("failed to create output dir: %s" %
+                                  self.opts.o)
+                raise Error
 
         self.opts.o = os.path.abspath(self.opts.o)
+
+        if not os.path.isdir(self.opts.b):
+            try:
+                os.makedirs(self.opts.b)
+            except:
+                logging.exception("failed to create build dir: %s" %
+                                  self.opts.b)
+                raise Error
+
+        self.opts.b = os.path.abspath(self.opts.b)
 
 
     def parseOpts(self):
@@ -144,13 +151,13 @@ class FLLBuilder:
 
     def processConf(self):
         """Process configuration options."""
-        if self.opts.v:
-            print('Processing configuration options...')
+        self.log.info('Processing configuration options...')
 
         if len(self.conf['archs'].keys()) < 1:
             host_arch = Popen(["dpkg", "--print-architecture"],
                               stdout=PIPE).communicate()[0].rstrip()
             self.conf['archs'][host_arch] = {}
+            self.log.debug("default build arch: %s" % host_arch)
 
         for arch in self.conf['archs'].keys():
             if 'linux' not in self.conf['archs'][arch]:
@@ -164,31 +171,33 @@ class FLLBuilder:
                         self.conf['archs'][arch]['linux'] = '2.6-sidux-' + arch
                     else:
                         self.conf['archs'][arch]['linux'] = '2.6-' + arch
+            self.log.debug("arch = %s, linux = %s" %
+                           (arch, self.conf['archs'][arch]['linux']))
 
         if len(self.conf['repos'].keys()) < 1:
-            raise FLLError("no apt repos were specified in build config")
+            self.log.critical("no apt repos were specified in build config")
+            raise Error
 
         for repo in self.conf['repos'].keys():
             for word in ['label', 'uri', 'suite', 'components']:
                 if word not in self.conf['repos'][repo]:
-                    raise FLLError("no '%s' for apt repo '%s'" % (word, repo))
+                    self.log.critical("no '%s' for apt repo '%s'" %
+                                     (word, repo))
+                    raise Error
 
         if 'profile' not in self.conf['packages']:
             self.conf['packages']['profile'] = 'kde-lite'
+        self.log.debug("package profile: %s" %
+                       self.conf['packages']['profile'])
 
 
 
     def parseConf(self):
         """Parse build configuration file and return it in a dict."""
-        if self.opts.v:
-            print("Parsing configuration file...")
-            print(" * configuration file: %s" % self.opts.c)
+        self.log.info("Parsing configuration file...")
 
         self.conf = ConfigObj(self.opts.c, interpolation = 'Template')
         self.processConf()
-
-        if self.opts.d:
-            print("conf:", self.conf)
 
 
     def _processPkgProfile(self, archs, profile, dir):
@@ -197,93 +206,115 @@ class FLLBuilder:
         for arch in archs:
             list[arch] = {'debconf': [], 'list': []}
 
-        if self.opts.v:
-            print(" * processing profile: %s" % os.path.basename(profile))
+        self.log.info("processing package profile: %s" %
+                      os.path.basename(profile))
 
         pfile = ConfigObj(profile)
 
-        if 'desc' in pfile and self.opts.v:
-            for line in lines2list(pfile['desc']):
-                print "     %s" % line
+        if 'desc' in pfile:
+            for l in lines2list(pfile['desc']):
+                self.log.debug("  %s" % l)
 
         if 'repos' in pfile:
-            for repo in lines2list(pfile['repos']):
-                if repo not in self.conf['repos']:
-                    raise FLLError("'%s' repo is required " % repo +
-                                   "by package module '%s'" %
-                                   os.path.basename(profile))
+            for r in lines2list(pfile['repos']):
+                if r not in self.conf['repos']:
+                    self.log.critical("'%s' repo is required " % r +
+                                     "by package module '%s'" %
+                                     os.path.basename(profile))
+                    raise Error
 
         if 'debconf' in pfile:
+            self.log.debug("debconf:")
             for arch in archs:
-                list[arch]['debconf'].extend(lines2list(pfile['debconf']))
+                for d in lines2list(pfile['debconf']):
+                    list[arch]['debconf'].append(d)
+                    self.log.debug("  %s", d)
 
-        if 'extra_debconf' in self.conf['packages']:
+        if 'debconf' in self.conf['packages']:
+            self.log.debug("debconf (config):")
             for arch in archs:
-                list[arch]['debconf'].extend(
-                    lines2list(self.conf['packages']['extra_debconf']))
+                for d in lines2list(self.conf['packages']['debconf']):
+                    list[arch]['debconf'].append(d)
+                    self.log.debug("  %s" % d)
 
         if 'packages' in pfile:
+            self.log.debug("packages:")
             for arch in archs:
-                list[arch]['list'].extend(lines2list(pfile['packages']))
+                for p in lines2list(pfile['packages']):
+                    list[arch]['list'].append(p)
+                    self.log.debug("  %s" % p)
 
-        if 'extra_packages' in self.conf['packages']:
+        if 'packages' in self.conf['packages']:
+            self.log.debug("packages (config):")
             for arch in archs:
-                list[arch]['list'].extend(
-                    lines2list(self.conf['packages']['extra_packages']))
+                for p in lines2list(self.conf['packages']['packages']):
+                    list[arch]['list'].append(p)
+                    self.log.debug("  %s" % p)
 
         for arch in archs:
             if arch in pfile:
-                list[arch]['list'].extend(lines2list(pfile[arch]))
+                self.log.debug("packages (%s):" % arch)
+                for p in lines2list(pfile[arch]):
+                    list[arch]['list'].append(p)
+                    self.log.debug("  %s" % p)
 
         deps = []
         if 'deps' in pfile:
-            deps.extend(lines2list(pfile['deps']))
+            self.log.debug("deps:")
+            for dep in lines2list(pfile['deps']):
+                deps.append(dep)
+                self.log.debug("  %s" % dep)
 
-        if 'extra_deps' in self.conf['packages']:
-            deps.extend(lines2list(self.conf['packages']['extra_deps']))
+        if 'deps' in self.conf['packages']:
+            self.log.debug("deps (config):")
+            for dep in lines2list(self.conf['packages']['deps']):
+                deps.append(dep)
+                self.log.debug("  %s" % dep)
 
         for dep in deps:
             depfile = os.path.join(dir, 'packages.d', dep)
 
             if not os.path.isfile(depfile):
-                raise FLLError("no such dep file: %s" % depfile)
+                self.log.critical("no such dep file: %s" % depfile)
+                raise Error
 
-            if self.opts.v:
-                print(" * processing depfile: %s" %
-                      os.path.basename(depfile))
+            self.log.info("processing dependency file: %s" %
+                          os.path.basename(depfile))
 
             dfile = ConfigObj(depfile)
 
             if 'desc' in dfile and self.opts.v:
-                for line in lines2list(dfile['desc']):
-                    print "     %s" % line
+                for l in lines2list(dfile['desc']):
+                    self.log.debug("  %s" % l)
 
             if 'repos' in dfile:
                 for repo in lines2list(dfile['repos']):
                     if repo not in self.conf['repos']:
-                        raise FLLError("'%s' repo is required " % repo +
-                                       "by package module '%s'" %
-                                       os.path.basename(depfile))
+                        self.log.critical("'%s' repo is required " % r +
+                                          "by package module '%s'" %
+                                          os.path.basename(depfile))
+                        raise Error
 
             if 'debconf' in dfile:
+                self.log.debug("debconf:")
                 for arch in archs:
-                    list[arch]['debconf'].extend(lines2list(dfile['debconf']))
+                    for d in lines2list(dfile['debconf']):
+                        list[arch]['debconf'].append(d)
+                        self.log.debug("  %s" % d)
 
             if 'packages' in dfile:
+                self.log.debug("packages:")
                 for arch in archs:
-                    list[arch]['list'].extend(lines2list(dfile['packages']))
+                    for p in lines2list(dfile['packages']):
+                        list[arch]['list'].append(p)
+                        self.log.debug("  %s" % p)
 
             for arch in archs:
                 if arch in dfile:
-                    list[arch]['list'].extend(lines2list(dfile[arch]))
-
-        if self.opts.d:
-            for arch in archs:
-                list[arch]['list'].sort()
-                print(" * package list for arch: %s" % arch)
-                for p in list[arch]['list']:
-                    print("     %s" % p)
-                print list[arch]
+                    self.log.debug("packages (%s):" % arch)
+                    for p in lines2list(dfile[arch]):
+                        list[arch]['list'].append(p)
+                        self.log.debug("  %s" % p)
 
         return list
 
@@ -294,10 +325,8 @@ class FLLBuilder:
         file = os.path.join(dir, self.conf['packages']['profile'])
 
         if not os.path.isfile(file):
-            raise FLLError("no such package profile file: %s" % file)
-
-        if self.opts.v:
-            print("Processing package profile...")
+            self.log.critical("no such package profile file: %s" % file)
+            raise Error
 
         self.pkgs = self._processPkgProfile(self.conf['archs'].keys(),
                                             file, dir)
@@ -305,8 +334,7 @@ class FLLBuilder:
 
     def stageBuildArea(self):
         """Prepare temporary directory to prepare chroots and stage result."""
-        if self.opts.v:
-            print('Staging build area...')
+        self.log.info('Staging build area...')
 
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
         if not self.opts.p:
@@ -314,20 +342,19 @@ class FLLBuilder:
 
         for arch in self.conf['archs'].keys():
             os.mkdir(os.path.join(self.temp, arch))
-            if self.opts.v:
-                print(" * creating directory: %s" %
-                      os.path.join(self.temp, arch))
+            self.log.debug("creating directory: %s" %
+                           os.path.join(self.temp, arch))
 
         os.mkdir(os.path.join(self.temp, 'staging'))
-        if self.opts.v:
-            print(" * creating directory: %s" %
-                  os.path.join(self.temp, 'staging'))
+        self.log.debug("creating directory: %s" %
+                       os.path.join(self.temp, 'staging'))
 
 
     def _umount(self, chrootdir):
         """Umount any mount points in a given chroot directory."""
         umount_list = []
         for line in open("/proc/mounts"):
+            self.log.debug("/proc/mounts: %s" % line.rstrip())
             (dev, mnt, fs, options, d, p) = line.split()
             if mnt.startswith(chrootdir):
                 umount_list.append(mnt)
@@ -336,46 +363,42 @@ class FLLBuilder:
         umount_list.reverse()
 
         for mpoint in umount_list:
-            if self.opts.v:
-                print(" * umount %s" % mpoint)
+            self.log.debug("umount %s" % mpoint)
             retv = call(["umount", mpoint])
             if retv != 0:
-                raise FLLError("umount failed for: %s" % mpoint)
+                self.log.critical("umount failed for: %s" % mpoint)
+                raise Error
 
 
     def _nuke(self, dir):
         """Nuke directory tree."""
-        if self.opts.v:
-            print(" * nuking directory: %s" % dir)
+        self.log.info("nuking directory: %s" % dir)
         try:
             shutil.rmtree(dir)
         except:
-            raise FLLError("unable to remove %s - %s" %
-                           (dir, sys.exc_info()[0]))
+            self.log.exception("unable to remove %s - %s" %
+                               (dir, sys.exc_info()[0]))
+            raise Error
 
 
     def cleanup(self):
         """Clean up the build area."""
         for arch in self.conf['archs'].keys():
-            if self.opts.v:
-                print("Cleaning up %s chroot..." % arch)
+            self.log.info("cleaning up %s chroot..." % arch)
             self._umount(os.path.join(self.temp, arch))
             self._nuke(os.path.join(self.temp, arch))
 
-        if self.opts.v:
-            print('Cleaning up temp dir...')
+        self.log.info('Cleaning up temp dir...')
         self._nuke(self.temp)
 
 
 if __name__ == "__main__":
     try:
         fll = FLLBuilder()
-
+        fll.initLogger()
         fll.parseOpts()
         fll.parseConf()
-
         fll.parsePkgProfile()
-
         fll.stageBuildArea()
-    except FLLError, e:
-        print >> sys.stderr, 'E:', e
+    except Error:
+        sys.exit(1)
