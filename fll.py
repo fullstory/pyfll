@@ -39,7 +39,7 @@ class FLLBuilder:
 
     def _initLogger(self, lvl):
         """Set up the logger."""
-        fmt = logging.Formatter("FLL_%(levelname)s - %(message)s")
+        fmt = logging.Formatter("FLL::%(levelname)s - %(message)s")
         out = logging.StreamHandler()
         out.setFormatter(fmt)
         out.setLevel(lvl)
@@ -57,7 +57,7 @@ class FLLBuilder:
 
         if self.opts.l:
             try:
-                fmt = logging.Formatter("%(asctime)s %(levelname)-8s " +
+                fmt = logging.Formatter("%(asctime)s FLL::%(levelname)-8s " +
                                          "%(message)s")
                 out = os.path.abspath(self.opts.l)
                 file = logging.FileHandler(filename = out, mode = 'w')
