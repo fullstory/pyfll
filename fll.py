@@ -365,13 +365,10 @@ class FLLBuilder:
         self.log.info('Staging build area...')
 
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
+        os.chown(self.temp, self.opts.u, self.opts.g)
+
         if not self.opts.p:
             atexit.register(self.cleanup)
-
-        for arch in self.conf['archs'].keys():
-            os.mkdir(os.path.join(self.temp, arch))
-            self.log.debug("creating directory: %s" %
-                           os.path.join(self.temp, arch))
 
         os.mkdir(os.path.join(self.temp, 'staging'))
         self.log.debug("creating directory: %s" %
