@@ -56,7 +56,7 @@ class FLLBuilder:
 
         if self.opts.l:
             try:
-                fmt = logging.Formatter("%(levelname)-8s - %(asctime)s " +
+                fmt = logging.Formatter("%(levelname)-8s %(asctime)s " +
                                          "%(message)s")
                 out = os.path.abspath(self.opts.l)
                 file = logging.FileHandler(filename = out, mode = 'w')
