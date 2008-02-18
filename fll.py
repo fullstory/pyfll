@@ -62,7 +62,7 @@ class FLLBuilder:
                 self.opts.c = os.path.abspath(self.opts.c)
             else:
                 self.log.critical("configuration file does not exist: %s" %
-                                 self.opts.c)
+                                  self.opts.c)
                 raise Error
         else:
             self.log.critical("no config file specified on command line")
@@ -73,7 +73,7 @@ class FLLBuilder:
                 os.makedirs(self.opts.o)
             except:
                 self.log.exception("failed to create output dir: %s" %
-                                  self.opts.o)
+                                   self.opts.o)
                 raise Error
 
         self.opts.o = os.path.abspath(self.opts.o)
@@ -83,7 +83,7 @@ class FLLBuilder:
                 os.makedirs(self.opts.b)
             except:
                 self.log.exception("failed to create build dir: %s" %
-                                  self.opts.b)
+                                   self.opts.b)
                 raise Error
 
         self.opts.b = os.path.abspath(self.opts.b)
