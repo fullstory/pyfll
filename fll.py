@@ -39,7 +39,7 @@ class FLLBuilder:
 
     def _initLogger(self, lvl):
         """Set up the logger."""
-        fmt = logging.Formatter("%(levelname)-8s - %(message)s")
+        fmt = logging.Formatter("FLL_%(levelname)s - %(message)s")
         out = logging.StreamHandler()
         out.setFormatter(fmt)
         out.setLevel(lvl)
@@ -57,7 +57,7 @@ class FLLBuilder:
 
         if self.opts.l:
             try:
-                fmt = logging.Formatter("%(levelname)-8s %(asctime)s " +
+                fmt = logging.Formatter("%(asctime)s %(levelname)-8s " +
                                          "%(message)s")
                 out = os.path.abspath(self.opts.l)
                 file = logging.FileHandler(filename = out, mode = 'w')
@@ -384,7 +384,7 @@ class FLLBuilder:
             (dev, mnt, fs, options, d, p) = line.split()
             if mnt.startswith(chrootdir):
                 umount_list.append(mnt)
-        self.log.debug("umount_list:" + string.join(umount_list))
+        self.log.debug("umount_list: " + string.join(umount_list))
 
         umount_list.sort(key=len)
         umount_list.reverse()
