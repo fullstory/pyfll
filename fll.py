@@ -6,13 +6,14 @@ __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
 from optparse import OptionParser
-from subprocess import Popen, PIPE
+from subprocess import *
 
 import atexit
 import logging
 import os
 import sys
 import shutil
+import string
 import tempfile
 
 
@@ -391,7 +392,7 @@ class FLLBuilder:
 
         for mpoint in umount_list:
             self.log.debug("umount %s" % mpoint)
-            retv = call(["umount", mpoint])
+            retv = call(['umount', mpoint])
             if retv != 0:
                 self.log.critical("umount failed for: %s" % mpoint)
                 raise Error
@@ -418,6 +419,34 @@ class FLLBuilder:
         self._nuke(self.temp)
 
 
+    def cDebBootstrap(self, verbosity = '--quiet', flavour = 'minimal',
+                      suite = 'sid', arch = None, dir = None, mirror = None):
+        """Bootstrap a debian system with cdebootstrap."""
+        if self.opts.d:
+            verbosity = '--debug'
+        elif self.opts.v:
+            verbosity = '--verbose'
+
+        if 'cached' in self.conf['repos']['debian'] \
+            and self.conf['repos']['debian']['cached']:
+            mirror = self.conf['repos']['debian']['cached']
+        else:
+            mirror = self.conf['repos']['debian']['uri']
+
+        for arch in self.conf['archs'].keys():
+            dir = os.path.join(self.temp, arch)
+            cmd = ['cdebootstrap', verbosity, "--arch=%s" % arch,
+                   "--flavour=%s" % flavour, suite, dir, mirror]
+
+            self.log.info("bootstrapping %s at %s" % (arch, dir))
+            self.log.debug(string.join(cmd))
+
+            retv = call(cmd)
+            if retv != 0:
+                self.log.critical("failed to bootstrap %s" % arch)
+                raise Error
+
+
 if __name__ == "__main__":
     try:
         fll = FLLBuilder()
@@ -425,5 +454,6 @@ if __name__ == "__main__":
         fll.parseConf()
         fll.parsePkgProfile()
         fll.stageBuildArea()
+        fll.cDebBootstrap()
     except Error:
         sys.exit(1)
