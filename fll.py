@@ -33,6 +33,11 @@ class FLLBuilder:
     pkgs = None
     temp = None
     log  = logging.getLogger("log")
+
+
+    def __init__(self):
+        self.initLogger()
+
     
     def initLogger(self):
         """Set up the logger."""
@@ -395,7 +400,6 @@ class FLLBuilder:
 if __name__ == "__main__":
     try:
         fll = FLLBuilder()
-        fll.initLogger()
         fll.parseOpts()
         fll.parseConf()
         fll.parsePkgProfile()
