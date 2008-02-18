@@ -33,29 +33,40 @@ class FLLBuilder:
     pkgs = None
     temp = None
     log  = logging.getLogger("log")
+    log.setLevel(logging.DEBUG)
 
 
-    def __init__(self):
-        self.initLogger()
-
-    
-    def initLogger(self):
+    def initLogger(self, lvl):
         """Set up the logger."""
         fmt = logging.Formatter("%(levelname)-8s %(message)s")
         out = logging.StreamHandler()
         out.setFormatter(fmt)
+        out.setLevel(lvl)
         self.log.addHandler(out)
-        self.log.setLevel(logging.INFO)
 
 
     def processOpts(self):
         """Process options."""
         if self.opts.d:
-            self.log.setLevel(logging.DEBUG)
+            self.initLogger(logging.DEBUG)
         elif self.opts.v:
-            self.log.setLevel(logging.INFO)
+            self.initLogger(logging.INFO)
         else:
-            self.log.setLevel(logging.WARNING)
+            self.initLogger(logging.WARNING)
+
+        if self.opts.l:
+            try:
+                fmt = logging.Formatter("%(levelname)-8s %(asctime)s " +
+                                         "%(message)s")
+                out = os.path.abspath(self.opts.l)
+                file = logging.FileHandler(filename = out, mode = 'w')
+                file.setFormatter(fmt)
+                file.setLevel(logging.DEBUG)
+                self.log.addHandler(file)
+            except:
+                self.log.exception("failed to setup logfile")
+                raise Error
+            self.log.info("logging debug output to %s" % out)
 
         if self.opts.c:
             if os.path.isfile(self.opts.c):
@@ -115,6 +126,10 @@ class FLLBuilder:
                      'should not normally be required, the wrapper script ' +
                      'will take care of this for you.')
 
+        p.add_option('-l', '--log', dest = 'l', action = 'store',
+                     type = 'string', metavar = '<file>',
+                     help = 'Log debug output to file.')
+
         p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
                      help = 'Start as noon root user (for debugging).')
 
@@ -146,9 +161,9 @@ class FLLBuilder:
                      help = 'Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
 
-        p.set_defaults(d = False, b = os.getcwd(), g = os.getgid(), n = False,
-                       o = os.getcwd(), p = False, s = '/usr/share/fll/',
-                       u = os.getuid(), v = True)
+        p.set_defaults(d = False, b = os.getcwd(), g = os.getgid(), l = None, 
+                       n = False, o = os.getcwd(), p = False,
+                       s = '/usr/share/fll/', u = os.getuid(), v = True)
 
         self.opts = p.parse_args()[0]
         self.processOpts()
