@@ -427,7 +427,7 @@ class FLLBuilder:
         for v in virtfs.items():
             cmd = ['mount', '-t', v[0], 'fll-' + v[0],
                    os.path.join(chroot, v[1])]
-            self.log.debug(cmd)
+            self.log.debug(string.join(cmd))
 
             retv = call(cmd)
             if retv != 0:
