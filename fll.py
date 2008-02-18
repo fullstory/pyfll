@@ -61,18 +61,18 @@ class FLLBuilder:
             if os.path.isfile(self.opts.c):
                 self.opts.c = os.path.abspath(self.opts.c)
             else:
-                logging.critical("configuration file does not exist: %s" %
+                self.log.critical("configuration file does not exist: %s" %
                                  self.opts.c)
                 raise Error
         else:
-            logging.critical("no config file specified on command line")
+            self.log.critical("no config file specified on command line")
             raise Error
 
         if not os.path.isdir(self.opts.o):
             try:
                 os.makedirs(self.opts.o)
             except:
-                logging.exception("failed to create output dir: %s" %
+                self.log.exception("failed to create output dir: %s" %
                                   self.opts.o)
                 raise Error
 
@@ -82,7 +82,7 @@ class FLLBuilder:
             try:
                 os.makedirs(self.opts.b)
             except:
-                logging.exception("failed to create build dir: %s" %
+                self.log.exception("failed to create build dir: %s" %
                                   self.opts.b)
                 raise Error
 
@@ -381,8 +381,7 @@ class FLLBuilder:
         try:
             shutil.rmtree(dir)
         except:
-            self.log.exception("unable to remove %s - %s" %
-                               (dir, sys.exc_info()[0]))
+            self.log.exception("unable to remove %s" % dir)
             raise Error
 
 
