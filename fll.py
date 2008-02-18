@@ -115,6 +115,9 @@ class FLLBuilder:
                      'should not normally be required, the wrapper script ' +
                      'will take care of this for you.')
 
+        p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
+                     help = 'Start as noon root user (for debugging).')
+
         p.add_option('-o', '--output', dest = 'o', action = 'store',
                      type = 'string', metavar = '<directory>',
                      help = 'Output directory, where the product of this ' +
@@ -123,9 +126,6 @@ class FLLBuilder:
         p.add_option('-p', '--preserve', dest = 'p', action = 'store_true',
                      help = 'Preserve build directory. Disable automatic ' +
                      'cleanup of the build area at exit.')
-
-        p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
-                     help = 'Start as noon root user (for debugging).')
 
         p.add_option('-q', '--quiet', dest = 'v', action = 'store_false',
                      help = 'Enable quiet mode. Only high priority messages ' +
