@@ -38,7 +38,7 @@ class FLLBuilder:
 
     def _initLogger(self, lvl):
         """Set up the logger."""
-        fmt = logging.Formatter("%(levelname)-8s %(message)s")
+        fmt = logging.Formatter("%(levelname)-8s - %(message)s")
         out = logging.StreamHandler()
         out.setFormatter(fmt)
         out.setLevel(lvl)
@@ -56,7 +56,7 @@ class FLLBuilder:
 
         if self.opts.l:
             try:
-                fmt = logging.Formatter("%(levelname)-8s %(asctime)s " +
+                fmt = logging.Formatter("%(levelname)-8s - %(asctime)s " +
                                          "%(message)s")
                 out = os.path.abspath(self.opts.l)
                 file = logging.FileHandler(filename = out, mode = 'w')
@@ -79,6 +79,14 @@ class FLLBuilder:
             self.log.critical("no config file specified on command line")
             raise Error
 
+        if self.opts.s:
+            if not os.path.isdir(self.opts.s):
+                self.log.critical("share directory not exist: %s" %
+                                  self.opts.s)
+                raise Error
+
+        self.opts.s = os.path.abspath(self.opts.s)
+    
         if not os.path.isdir(self.opts.o):
             try:
                 os.makedirs(self.opts.o)
