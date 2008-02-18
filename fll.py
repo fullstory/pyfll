@@ -208,6 +208,10 @@ class FLLBuilder:
             self.log.critical("no apt repos were specified in build config")
             raise Error
 
+        if 'debian' not in self.conf['repos']:
+            self.log.critical("'debian' repo not configured in build config")
+            raise Error
+
         for repo in self.conf['repos'].keys():
             for word in ['label', 'uri', 'suite', 'components']:
                 if word not in self.conf['repos'][repo]:
