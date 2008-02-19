@@ -528,8 +528,8 @@ class FLLBuilder:
                 self.log.critical("failed to bootstrap %s" % arch)
                 raise Error
 
-            cmd = 'dpkg --purge cdebootstrap-helper-diverts'.split()
-            self._execInChroot(arch, cmd)
+            cmd = 'dpkg --purge cdebootstrap-helper-diverts'
+            self._execInChroot(arch, cmd.split())
 
 
     def primeChrootApt(self):
@@ -567,8 +567,6 @@ class FLLBuilder:
                     list.write('deb-src ' + l)
                 list.close()
 
-            self._execInChroot(arch, ['apt-get', 'update'])
-
             keyrings = []
             for repo in self.conf['repos'].keys():
                 r = self.conf['repos'][repo]
@@ -576,17 +574,19 @@ class FLLBuilder:
                     keyrings.append(r['keyring'])
     
             if len(keyrings) > 0:
+                self._execInChroot(arch, 'apt-get update'.split())
                 cmd = ['apt-get', '--allow-unauthenticated', '--yes',
                        'install']
                 cmd.extend(keyrings)
                 self._execInChroot(arch, cmd)
-                self._execInChroot(arch, ['apt-get', 'update'])
 
             gpgkeys = []
             for repo in self.conf['repos'].keys():
                 r = self.conf['repos'][repo]
                 if 'gpgkey' in r:
                     self.log.info("importing gpg key for '%s'" % r['label'])
+                    gpgkeys.append(r['gpgkey'])
+
                     if r['gpgkey'].startswith('http'):
                         cmd = 'gpg --homedir /root --fetch-keys ' + r['gpgkey']
                         self._execInChroot(arch, cmd.split())
@@ -604,10 +604,10 @@ class FLLBuilder:
                         self._execInChroot(arch, cmd.split(),
                                            ignore_nonzero = True)
                     
-                    cmd = 'apt-key add /root/pubring.gpg'
-                    self._execInChroot(arch, cmd.split())
+            if len(gpgkeys) > 0:
+                cmd = 'apt-key add /root/pubring.gpg'
+                self._execInChroot(arch, cmd.split())
 
-            self._execInChroot(arch, 'apt-key update'.split())
             self._execInChroot(arch, 'apt-get update'.split())
 
 
