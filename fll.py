@@ -39,7 +39,7 @@ class FLLBuilder:
 
     def _initLogger(self, lvl):
         """Set up the logger."""
-        fmt = logging.Formatter("FLL::%(levelname)s - %(message)s")
+        fmt = logging.Formatter("%(levelname)s - %(message)s")
         out = logging.StreamHandler()
         out.setFormatter(fmt)
         out.setLevel(lvl)
@@ -57,7 +57,7 @@ class FLLBuilder:
 
         if self.opts.l:
             try:
-                fmt = logging.Formatter("%(asctime)s FLL::%(levelname)-8s " +
+                fmt = logging.Formatter("%(asctime)s %(levelname)-8s " +
                                          "%(message)s")
                 out = os.path.abspath(self.opts.l)
                 file = logging.FileHandler(filename = out, mode = 'w')
@@ -381,6 +381,23 @@ class FLLBuilder:
                        os.path.join(self.temp, 'staging'))
 
 
+    def _mount(self, chroot):
+        """Mount virtual filesystems in a shoort dir."""
+        self.log.debug("mounting virtual filesystems in %s" % chroot)
+
+        virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
+
+        for v in virtfs.items():
+            cmd = ['mount', '-t', v[0], 'fll-' + v[0],
+                   os.path.join(chroot, v[1])]
+            self.log.debug(string.join(cmd))
+
+            retv = call(cmd)
+            if retv != 0:
+                self.log.critical("failed to mount chroot %s" % v[0])
+                raise Error
+
+
     def _umount(self, chrootdir):
         """Umount any mount points in a given chroot directory."""
         umount_list = []
@@ -403,41 +420,56 @@ class FLLBuilder:
 
     def _nuke(self, dir):
         """Nuke directory tree."""
-        self.log.info("nuking directory: %s" % dir)
-        try:
-            shutil.rmtree(dir)
-        except:
-            self.log.exception("unable to remove %s" % dir)
-            raise Error
+        if os.path.isdir(dir):
+            self.log.info("nuking directory: %s" % dir)
+            try:
+                shutil.rmtree(dir)
+            except:
+                self.log.exception("unable to remove %s" % dir)
+                raise Error
+        else:
+            self.log.info("no dir to remove")
 
 
     def cleanup(self):
         """Clean up the build area."""
         for arch in self.conf['archs'].keys():
-            self.log.info("cleaning up %s chroot..." % arch)
-            self._umount(os.path.join(self.temp, arch))
-            self._nuke(os.path.join(self.temp, arch))
+            dir = os.path.join(self.temp, arch)
+            if os.path.isdir(dir):
+                self.log.info("cleaning up %s chroot..." % arch)
+                self._umount(dir)
+                self._nuke(dir)
 
         self.log.info('Cleaning up temp dir...')
         self._nuke(self.temp)
 
 
-    def _mountVirtfs(self, chroot):
-        """Mount virtual filesystems in a shoort dir."""
-        self.log.info("mounting virtual filesystems in %s" % chroot)
+    def _execInChroot(self, chroot, args):
+        """Run command in a chroot."""
+        e = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C',
+             'HOME': '/root', 'PATH': '/usr/sbin:/usr/bin:/sbin:/bin',
+             'DEBIAN_FRONTEND': 'noninteractive',
+             'DEBIAN_PRIORITY': 'critical',
+             'DEBCONF_NOWARNINGS': 'yes',
+             'XORG_CONFIG': 'custom'}
 
-        virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
+        if os.getenv('http_proxy'):
+            e['http_proxy'] = os.getenv('http_proxy')
+        if os.getenv('ftp_proxy'):
+            e['ftp_proxy'] = os.getenv('ftp_proxy')
 
-        for v in virtfs.items():
-            cmd = ['mount', '-t', v[0], 'fll-' + v[0],
-                   os.path.join(chroot, v[1])]
-            self.log.debug(string.join(cmd))
+        cmd = ['chroot', chroot]
+        cmd.extend(args)
 
-            retv = call(cmd)
-            if retv != 0:
-                self.log.critical("failed to mount chroot %s" % v[0])
-                raise Error
+        self.log.info("command: %s", string.join(cmd))
+        self._mount(chroot)
+        p = Popen(cmd, env = e)
+        retv = p.wait()
+        self._umount(chroot)
 
+        if retv != 0:
+            self.log.critical("command return value: %d" % retv)
+            raise Error
 
     def cDebBootstrap(self, verbosity = '--quiet', flavour = 'minimal',
                       suite = 'sid', arch = None, dir = None, mirror = None):
@@ -466,7 +498,8 @@ class FLLBuilder:
                 self.log.critical("failed to bootstrap %s" % arch)
                 raise Error
 
-            self._mountVirtfs(dir)
+            cmd = 'dpkg --purge cdebootstrap-helper-diverts'.split()
+            self._execInChroot(dir, cmd)
 
 
 if __name__ == "__main__":
