@@ -120,6 +120,10 @@ class FLLBuilder:
                      help = 'Build directory. A large amount of free space ' +
                      'is required.')
 
+        p.add_option('-B', '--binary', dest = 'B', action = 'store_true',
+                     help = 'Do binary build only. Disable generation of ' +
+                     'URI lists. Default: %default')
+
         p.add_option('-c', '--config', dest = 'c', action = 'store',
                      type = 'string', metavar = '<config file>',
                      help = 'Configuration file. This option may be used ' +
@@ -171,8 +175,8 @@ class FLLBuilder:
                      help = 'Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
 
-        p.set_defaults(d = False, b = os.getcwd(), g = os.getgid(), l = None, 
-                       n = False, o = os.getcwd(), p = False,
+        p.set_defaults(d = False, b = os.getcwd(), B = False, g = os.getgid(),
+                       l = None, n = False, o = os.getcwd(), p = False,
                        s = '/usr/share/fll/', u = os.getuid(), v = True)
 
         self.opts = p.parse_args()[0]
@@ -238,7 +242,7 @@ class FLLBuilder:
         """Return a dict, arch string as keys and package list as values."""
         list = {}
         for arch in archs:
-            list[arch] = {'debconf': [], 'list': []}
+            list[arch] = {'debconf': [], 'list': [], 'early': []}
 
         self.log.info("processing package profile: %s" %
                       os.path.basename(profile))
@@ -350,6 +354,27 @@ class FLLBuilder:
                         list[arch]['list'].append(p)
                         self.log.debug("  %s" % p)
 
+        early = os.path.join(dir, 'packages.d', 'early')
+        if not os.path.isfile(early):
+           self.log.critical("special package list 'early' is missing")
+           raise Error
+
+        efile = ConfigObj(early)
+
+        if 'packages' in efile:
+            self.log.debug("packages:")
+            for arch in archs:
+                for p in lines2list(efile['packages']):
+                    list[arch]['early'].append(p)
+                    self.log.debug("  %s" % p)
+
+        for arch in archs:
+            if arch in efile:
+                self.log.debug("packages (%s):" % arch)
+                for p in lines2list(efile[arch]):
+                    list[arch]['early'].append(p)
+                    self.log.debug("  %s" % p)
+
         return list
 
 
@@ -444,7 +469,7 @@ class FLLBuilder:
         self._nuke(self.temp)
 
 
-    def _execInChroot(self, chroot, args):
+    def _execInChroot(self, arch, args, ignore_nonzero = False):
         """Run command in a chroot."""
         e = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C',
              'HOME': '/root', 'PATH': '/usr/sbin:/usr/bin:/sbin:/bin',
@@ -458,18 +483,23 @@ class FLLBuilder:
         if os.getenv('ftp_proxy'):
             e['ftp_proxy'] = os.getenv('ftp_proxy')
 
+        chroot = os.path.join(self.temp, arch)
         cmd = ['chroot', chroot]
         cmd.extend(args)
 
-        self.log.info("command: %s", string.join(cmd))
         self._mount(chroot)
-        p = Popen(cmd, env = e)
-        retv = p.wait()
+
+        self.log.info("command: %s", string.join(cmd))
+        retv = call(cmd, env = e)
+
         self._umount(chroot)
 
         if retv != 0:
-            self.log.critical("command return value: %d" % retv)
-            raise Error
+            if ignore_nonzero:
+                self.log.info("command return value ignored: %d" % retv)
+            else:
+                self.log.critical("command return value: %d" % retv)
+                raise Error
 
     def cDebBootstrap(self, verbosity = '--quiet', flavour = 'minimal',
                       suite = 'sid', arch = None, dir = None, mirror = None):
@@ -479,11 +509,11 @@ class FLLBuilder:
         elif self.opts.v:
             verbosity = '--verbose'
 
-        if 'cached' in self.conf['repos']['debian'] \
-            and self.conf['repos']['debian']['cached']:
-            mirror = self.conf['repos']['debian']['cached']
+        debian = self.conf['repos']['debian']
+        if 'cached' in debian and debian['cached']:
+            mirror = debian['cached']
         else:
-            mirror = self.conf['repos']['debian']['uri']
+            mirror = debian['uri']
 
         for arch in self.conf['archs'].keys():
             dir = os.path.join(self.temp, arch)
@@ -499,7 +529,86 @@ class FLLBuilder:
                 raise Error
 
             cmd = 'dpkg --purge cdebootstrap-helper-diverts'.split()
-            self._execInChroot(dir, cmd)
+            self._execInChroot(arch, cmd)
+
+
+    def primeChrootApt(self):
+        """Prepare apt for work in each build chroot."""
+        for arch in self.conf['archs'].keys():
+            dir = os.path.join(self.temp, arch)
+
+            self.log.debug("removing sources.list from %s chroot" % arch)
+            list = os.path.join(dir, 'etc/apt/sources.list')
+            if os.path.isfile(list):
+                os.unlink(list)
+
+            for repo in self.conf['repos'].keys():
+                r = self.conf['repos'][repo]
+                file = os.path.join(dir, 'etc/apt/sources.list.d',
+                                    r['label'] + '.list')
+                self.log.debug("creating %s" % file)
+
+                line = []
+                if 'cached' in r and r['cached']:
+                    line.append(r['cached'])
+                else:
+                    line.append(r['uri'])
+
+                line.append(r['suite'])
+                line.append(r['components'])
+                line.append("\n")
+                
+                l = string.join(line)
+                self.log.debug("%s: %s", repo, l.rstrip())
+
+                list = open(file, "w")
+                list.write('deb ' + l)
+                if not self.opts.B:
+                    list.write('deb-src ' + l)
+                list.close()
+
+            self._execInChroot(arch, ['apt-get', 'update'])
+
+            keyrings = []
+            for repo in self.conf['repos'].keys():
+                r = self.conf['repos'][repo]
+                if 'keyring' in r and r['keyring']:
+                    keyrings.append(r['keyring'])
+    
+            if len(keyrings) > 0:
+                cmd = ['apt-get', '--allow-unauthenticated', '--yes',
+                       'install']
+                cmd.extend(keyrings)
+                self._execInChroot(arch, cmd)
+                self._execInChroot(arch, ['apt-get', 'update'])
+
+            gpgkeys = []
+            for repo in self.conf['repos'].keys():
+                r = self.conf['repos'][repo]
+                if 'gpgkey' in r:
+                    self.log.info("importing gpg key for '%s'" % r['label'])
+                    if r['gpgkey'].startswith('http'):
+                        cmd = 'gpg --homedir /root --fetch-keys ' + r['gpgkey']
+                        self._execInChroot(arch, cmd.split())
+                    elif os.path.isfile(r['gpgkey']):
+                        dest = os.path.join(self.temp, arch, 'root')
+                        file = os.path.basename(r['gpgkey'])
+                        shutil.copy(r['gpgkey'], dest)
+                        cmd = 'gpg --homedir /root --import /root/' + file
+                        self._execInChroot(arch, cmd.split(),
+                                           ignore_nonzero = True)
+                    else:
+                        cmd = 'gpg --homedir /root '
+                        cmd += '--keyserver wwwkeys.eu.pgp.net '
+                        cmd += '--recv-keys ' + r['gpgkey']
+                        self._execInChroot(arch, cmd.split(),
+                                           ignore_nonzero = True)
+                    
+                    cmd = 'apt-key add /root/.gnupg/pubring.gpg'
+                    self._execInChroot(arch, cmd.split())
+
+            self._execInChroot(arch, 'apt-key update'.split())
+            self._execInChroot(arch, 'apt-get update'.split())
 
 
 if __name__ == "__main__":
@@ -510,5 +619,6 @@ if __name__ == "__main__":
         fll.parsePkgProfile()
         fll.stageBuildArea()
         fll.cDebBootstrap()
+        fll.primeChrootApt()
     except Error:
         sys.exit(1)
