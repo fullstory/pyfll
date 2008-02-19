@@ -607,6 +607,7 @@ class FLLBuilder:
             if len(gpgkeys) > 0:
                 cmd = 'apt-key add /root/pubring.gpg'
                 self._execInChroot(arch, cmd.split())
+                self._execInChroot(arch, 'apt-key update'.split())
 
             self._execInChroot(arch, 'apt-get update'.split())
 
