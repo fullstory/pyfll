@@ -5,6 +5,7 @@ __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
 __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
+from debian_bundle import deb822
 from optparse import OptionParser
 from subprocess import *
 
@@ -662,7 +663,7 @@ class FLLBuilder:
         self.log.debug("creating /etc/kernel-img.conf...")
         kernelimg = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'w')
         kernelimg.write("do_bootloader = No\n")
-        kernelimg.write("do_initrd     = Yes\n")
+        kernelimg.write("warn_initrd   = No\n")
         kernelimg.close()
 
 
@@ -706,6 +707,62 @@ class FLLBuilder:
         pass
 
 
+    def _detectLinuxVersion(self, arch):
+        """Return version string of a singularly installed linux-image."""
+        chroot = os.path.join(self.temp, arch)
+
+        for f in os.listdir(os.path.join(chroot, 'boot')):
+            if f.startswith('vmlinuz-'):
+                return f.lstrip('vmlinuz-')
+
+        self.debug.critical("failed to detect linux version installed in " +
+                            "%s chroot" % arch)
+        raise Error
+
+
+    def _detectLinuxModules(self, arch, kvers):
+        """Detect available linux extra modules."""
+        chroot = os.path.join(self.temp, arch)
+        listsdir = os.path.join(chroot, 'var/lib/apt/lists')
+        lists = [os.path.join(listsdir, l) for l in os.listdir(listsdir)
+                 if l.endswith('_Packages')]
+        
+        modules = []
+        for list in lists:
+            for pkg in deb822.Packages.iter_paragraphs(file(list)):
+                if pkg['Package'].endswith('modules-' + kvers):
+                    modules.append(pkg['Package'])
+
+        return modules
+
+
+    def _installLinux(self, arch):
+        """Install linux image, headers, extra modules and associated support
+        software."""
+        version = self.conf['archs'][arch]['linux']
+
+        cmd = 'apt-get --yes install'
+        cmd += ' linux-image-' + version
+        cmd += ' linux-headers-' + version
+        self._execInChroot(arch, cmd.split())
+
+        version = self._detectLinuxVersion(arch)
+
+        cmd = 'update-initramfs -k ' + version + ' -d'
+        self._execInChroot(arch, cmd.split())
+
+        modules = self._detectLinuxModules(arch, version)
+
+        cmd = 'apt-get --yes install'.split()
+        cmd.extend(modules)
+        self._execInChroot(arch, cmd)
+
+        cmd = 'update-initramfs -k ' + version + ' -c'
+        if self.opts.v:
+            cmd += ' -v'
+        self._execInChroot(arch, cmd.split())
+
+
     def _installPkgs(self, arch, key):
         """Install packages required very early in the chroot building process
         (such as those containing apt policies/preferences)."""
@@ -725,6 +782,7 @@ class FLLBuilder:
             self._defaultEtc(arch)
             self._preseedDebconf(arch)
             self._installPkgs(arch, 'early')
+            self._installLinux(arch)
             self._installPkgs(arch, 'list')
             self._finalEtc(arch)
             self._dpkgUnDivert(arch)

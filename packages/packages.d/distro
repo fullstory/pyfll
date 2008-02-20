@@ -8,6 +8,8 @@ repos = """
 
 early = """
 	apt-conf-sidux
+	fll-live-initramfs
+	distro-defaults
 """
 
 packages = """
