@@ -91,6 +91,7 @@ pushd ${old} >/dev/null
 				sed -n '/^desc = """/,/^"""/p' ${newm}    >  ${newm}~
 				sed -n '/^repos = """/,/^"""/p' ${newm}	  >> ${newm}~
 				sed -n '/^debconf = """/,/^"""/p' ${newm} >> ${newm}~
+				sed -n '/^early = """/,/^"""/p' ${newm}   >> ${newm}~
 				rm -f ${newm}
 				if [[ -s ${newm}~ ]]; then
 					do_headers=0

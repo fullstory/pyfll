@@ -6,8 +6,11 @@ repos = """
 	sidux
 """
 
-packages = """
+early = """
 	apt-conf-sidux
+"""
+
+packages = """
 	desktop-defaults-common
 	fll-live-initscripts
 	gfxboot-theme-sidux

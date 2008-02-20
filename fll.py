@@ -295,7 +295,13 @@ class FLLBuilder:
                 pkgs['list'].append(p)
                 self.log.debug("  %s" % p)
 
-        deps = []
+        if 'early' in pfile:
+            self.log.debug("early:")
+            for p in lines2list(pfile['early']):
+                pkgs['early'].append(p)
+                self.log.debug("  %s" % p)
+
+        deps = ['locales']
         if 'deps' in pfile:
             self.log.debug("deps:")
             for dep in lines2list(pfile['deps']):
@@ -350,24 +356,11 @@ class FLLBuilder:
                     pkgs['list'].append(p)
                     self.log.debug("  %s" % p)
 
-        early = os.path.join(dir, 'packages.d', 'early')
-        if not os.path.isfile(early):
-           self.log.critical("special package list 'early' is missing")
-           raise Error
-
-        efile = ConfigObj(early)
-
-        if 'packages' in efile:
-            self.log.debug("packages:")
-            for p in lines2list(efile['packages']):
-                pkgs['early'].append(p)
-                self.log.debug("  %s" % p)
-
-        if arch in efile:
-            self.log.debug("packages (%s):" % arch)
-            for p in lines2list(efile[arch]):
-                pkgs['early'].append(p)
-                self.log.debug("  %s" % p)
+            if 'early' in dfile:
+                self.log.debug("early:")
+                for p in lines2list(dfile['early']):
+                    pkgs['early'].append(p)
+                    self.log.debug("  %s" % p)
 
         return pkgs
 
@@ -583,24 +576,23 @@ class FLLBuilder:
                 gpgkeys.append(r['gpgkey'])
 
                 if r['gpgkey'].startswith('http'):
-                    cmd = 'gpg --homedir /root --fetch-keys ' + r['gpgkey']
+                    cmd = 'gpg --fetch-keys ' + r['gpgkey']
                     self._execInChroot(arch, cmd.split())
                 elif os.path.isfile(r['gpgkey']):
                     dest = os.path.join(self.temp, arch, 'root')
                     file = os.path.basename(r['gpgkey'])
                     shutil.copy(r['gpgkey'], dest)
-                    cmd = 'gpg --homedir /root --import /root/' + file
+                    cmd = 'gpg --import /root/' + file
                     self._execInChroot(arch, cmd.split(),
                                        ignore_nonzero = True)
                 else:
-                    cmd = 'gpg --homedir /root '
-                    cmd += '--keyserver wwwkeys.eu.pgp.net '
+                    cmd = 'gpg --keyserver wwwkeys.eu.pgp.net '
                     cmd += '--recv-keys ' + r['gpgkey']
                     self._execInChroot(arch, cmd.split(),
                                        ignore_nonzero = True)
 
         if len(gpgkeys) > 0:
-            cmd = 'apt-key add /root/pubring.gpg'
+            cmd = 'apt-key add /root/.gnupg/pubring.gpg'
             self._execInChroot(arch, cmd.split())
             self._execInChroot(arch, 'apt-key update'.split())
 
@@ -644,6 +636,7 @@ class FLLBuilder:
 
 
     def _defaultEtc(self, arch):
+        """Initial creation of conffiles required in chroot."""
         chroot = os.path.join(self.temp, arch)
 
         self.log.debug("creating minimal /etc/fstab...")
@@ -674,6 +667,7 @@ class FLLBuilder:
 
 
     def _finalEtc(self, arch):
+        """Final editing of conffiles in chroot."""
         chroot = os.path.join(self.temp, arch)
 
         self.log.debug("completing /etc/kernel-img.conf...")
@@ -687,18 +681,37 @@ class FLLBuilder:
         resolv.close()
 
 
+    def _preseedDebconf(self, arch):
+        """Preseed debcong with values read from package lists."""
+        chroot = os.path.join(self.temp, arch)
+
+        if 'debconf' in self.pkgs[arch]:
+            self.log.debug("preseeding debconf")
+            debconf = open(os.path.join(chroot, 'root/debconf-selections'),
+                           'w')
+            for d in self.pkgs[arch]['debconf']:
+                debconf.write(d + "\n")
+            debconf.close()
+
+            cmd = 'debconf-set-selections '
+            if self.opts.v:
+                cmd += '--verbose '
+            cmd += '/root/debconf-selections'
+
+            self._execInChroot(arch, cmd.split())
+
+
     def _addTemplates(self):
         """Copy in some templates from data directory."""
         pass
 
 
-    def _installPkgs(self, key):
+    def _installPkgs(self, arch, key):
         """Install packages required very early in the chroot building process
         (such as those containing apt policies/preferences)."""
-        for arch in self.conf['archs'].keys():
-            cmd = 'apt-get --yes install'.split()
-            cmd.extend(self.pkgs[arch][key])
-            self._execInChroot(arch, cmd)
+        cmd = 'apt-get --yes install'.split()
+        cmd.extend(self.pkgs[arch][key])
+        self._execInChroot(arch, cmd)
 
 
     def buildChroot(self):
@@ -710,6 +723,9 @@ class FLLBuilder:
             self._primeApt(arch)
             self._dpkgAddDivert(arch)
             self._defaultEtc(arch)
+            self._preseedDebconf(arch)
+            self._installPkgs(arch, 'early')
+            self._installPkgs(arch, 'list')
             self._finalEtc(arch)
             self._dpkgUnDivert(arch)
 

@@ -1,0 +1,16 @@
+desc = """
+	Reorder boot sequence based on LSB init.d script dependencies.
+"""
+
+repos = """
+	debian
+"""
+
+debconf = """
+	insserv insserv/enable boolean true
+"""
+
+packages = """
+	insserv
+"""
+
