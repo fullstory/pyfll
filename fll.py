@@ -96,7 +96,7 @@ class FLLBuilder:
                 raise Error
 
         self.opts.s = os.path.abspath(self.opts.s)
-    
+
         if not os.path.isdir(self.opts.o):
             try:
                 os.makedirs(self.opts.o)
@@ -235,7 +235,6 @@ class FLLBuilder:
             self.conf['packages']['profile'] = 'kde-lite'
         self.log.debug("package profile: %s" %
                        self.conf['packages']['profile'])
-
 
 
     def parseConf(self):
@@ -550,7 +549,7 @@ class FLLBuilder:
             line.append(r['suite'])
             line.append(r['components'])
             line.append("\n")
-            
+
             l = ' '.join(line)
             self.log.debug("%s: %s", repo, l.rstrip())
 
@@ -596,7 +595,7 @@ class FLLBuilder:
                     cmd += '--recv-keys ' + r['gpgkey']
                     self._execInChroot(arch, cmd.split(),
                                        ignore_nonzero = True)
-                
+
         if len(gpgkeys) > 0:
             cmd = 'apt-key add /root/pubring.gpg'
             self._execInChroot(arch, cmd.split())
