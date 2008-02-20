@@ -242,8 +242,8 @@ class FLLBuilder:
         """Return a dict, arch string as keys and package list as values."""
         pkgs = {'debconf': [], 'list': [], 'early': []}
 
-        self.log.info("processing package profile: %s" %
-                      os.path.basename(profile))
+        self.log.info("processing package profile for %s: %s" %
+                      (arch, os.path.basename(profile)))
 
         pfile = ConfigObj(profile)
 
@@ -363,7 +363,7 @@ class FLLBuilder:
                 pkgs['early'].append(p)
                 self.log.debug("  %s" % p)
 
-        return list
+        return pkgs
 
 
     def parsePkgProfile(self):
@@ -379,6 +379,9 @@ class FLLBuilder:
         for arch in self.conf['archs'].keys():
             self.pkgs[arch] = {}
             self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
+
+        if self.opts.d:
+            print self.pkgs
 
 
     def stageBuildArea(self):
