@@ -492,8 +492,8 @@ class FLLBuilder:
                 self.log.critical("command return value: %d" % retv)
                 raise Error
 
-    def cDebBootstrap(self, verbosity = '--quiet', flavour = 'minimal',
-                      suite = 'sid', arch = None, dir = None, mirror = None):
+    def _cDebBootstrap(self, arch, verbosity = '--quiet', flavour = 'minimal',
+                      suite = 'sid', dir = None, mirror = None):
         """Bootstrap a debian system with cdebootstrap."""
         if self.opts.d:
             verbosity = '--debug'
@@ -523,84 +523,111 @@ class FLLBuilder:
             self._execInChroot(arch, cmd.split())
 
 
-    def primeChrootApt(self):
+    def _primeApt(self, arch):
         """Prepare apt for work in each build chroot."""
-        for arch in self.conf['archs'].keys():
-            dir = os.path.join(self.temp, arch)
+        dir = os.path.join(self.temp, arch)
 
-            self.log.debug("removing sources.list from %s chroot" % arch)
-            list = os.path.join(dir, 'etc/apt/sources.list')
-            if os.path.isfile(list):
-                os.unlink(list)
+        self.log.debug("removing sources.list from %s chroot" % arch)
+        list = os.path.join(dir, 'etc/apt/sources.list')
+        if os.path.isfile(list):
+            os.unlink(list)
 
-            for repo in self.conf['repos'].keys():
-                r = self.conf['repos'][repo]
-                file = os.path.join(dir, 'etc/apt/sources.list.d',
-                                    r['label'] + '.list')
-                self.log.debug("creating %s" % file)
+        for repo in self.conf['repos'].keys():
+            r = self.conf['repos'][repo]
+            file = os.path.join(dir, 'etc/apt/sources.list.d',
+                                r['label'] + '.list')
+            self.log.debug("creating %s" % file)
 
-                line = []
-                if 'cached' in r and r['cached']:
-                    line.append(r['cached'])
-                else:
-                    line.append(r['uri'])
+            line = []
+            if 'cached' in r and r['cached']:
+                line.append(r['cached'])
+            else:
+                line.append(r['uri'])
 
-                line.append(r['suite'])
-                line.append(r['components'])
-                line.append("\n")
-                
-                l = string.join(line)
-                self.log.debug("%s: %s", repo, l.rstrip())
+            line.append(r['suite'])
+            line.append(r['components'])
+            line.append("\n")
+            
+            l = string.join(line)
+            self.log.debug("%s: %s", repo, l.rstrip())
 
-                list = open(file, "w")
-                list.write('deb ' + l)
-                if not self.opts.B:
-                    list.write('deb-src ' + l)
-                list.close()
+            list = open(file, "w")
+            list.write('deb ' + l)
+            if not self.opts.B:
+                list.write('deb-src ' + l)
+            list.close()
 
-            keyrings = []
-            for repo in self.conf['repos'].keys():
-                r = self.conf['repos'][repo]
-                if 'keyring' in r and r['keyring']:
-                    keyrings.append(r['keyring'])
-    
-            if len(keyrings) > 0:
-                self._execInChroot(arch, 'apt-get update'.split())
-                cmd = ['apt-get', '--allow-unauthenticated', '--yes',
-                       'install']
-                cmd.extend(keyrings)
-                self._execInChroot(arch, cmd)
+        keyrings = []
+        for repo in self.conf['repos'].keys():
+            r = self.conf['repos'][repo]
+            if 'keyring' in r and r['keyring']:
+                keyrings.append(r['keyring'])
 
-            gpgkeys = []
-            for repo in self.conf['repos'].keys():
-                r = self.conf['repos'][repo]
-                if 'gpgkey' in r:
-                    self.log.info("importing gpg key for '%s'" % r['label'])
-                    gpgkeys.append(r['gpgkey'])
-
-                    if r['gpgkey'].startswith('http'):
-                        cmd = 'gpg --homedir /root --fetch-keys ' + r['gpgkey']
-                        self._execInChroot(arch, cmd.split())
-                    elif os.path.isfile(r['gpgkey']):
-                        dest = os.path.join(self.temp, arch, 'root')
-                        file = os.path.basename(r['gpgkey'])
-                        shutil.copy(r['gpgkey'], dest)
-                        cmd = 'gpg --homedir /root --import /root/' + file
-                        self._execInChroot(arch, cmd.split(),
-                                           ignore_nonzero = True)
-                    else:
-                        cmd = 'gpg --homedir /root '
-                        cmd += '--keyserver wwwkeys.eu.pgp.net '
-                        cmd += '--recv-keys ' + r['gpgkey']
-                        self._execInChroot(arch, cmd.split(),
-                                           ignore_nonzero = True)
-                    
-            if len(gpgkeys) > 0:
-                cmd = 'apt-key add /root/pubring.gpg'
-                self._execInChroot(arch, cmd.split())
-                self._execInChroot(arch, 'apt-key update'.split())
-
+        if len(keyrings) > 0:
             self._execInChroot(arch, 'apt-get update'.split())
+            cmd = ['apt-get', '--allow-unauthenticated', '--yes',
+                   'install']
+            cmd.extend(keyrings)
+            self._execInChroot(arch, cmd)
+
+        gpgkeys = []
+        for repo in self.conf['repos'].keys():
+            r = self.conf['repos'][repo]
+            if 'gpgkey' in r:
+                self.log.info("importing gpg key for '%s'" % r['label'])
+                gpgkeys.append(r['gpgkey'])
+
+                if r['gpgkey'].startswith('http'):
+                    cmd = 'gpg --homedir /root --fetch-keys ' + r['gpgkey']
+                    self._execInChroot(arch, cmd.split())
+                elif os.path.isfile(r['gpgkey']):
+                    dest = os.path.join(self.temp, arch, 'root')
+                    file = os.path.basename(r['gpgkey'])
+                    shutil.copy(r['gpgkey'], dest)
+                    cmd = 'gpg --homedir /root --import /root/' + file
+                    self._execInChroot(arch, cmd.split(),
+                                       ignore_nonzero = True)
+                else:
+                    cmd = 'gpg --homedir /root '
+                    cmd += '--keyserver wwwkeys.eu.pgp.net '
+                    cmd += '--recv-keys ' + r['gpgkey']
+                    self._execInChroot(arch, cmd.split(),
+                                       ignore_nonzero = True)
+                
+        if len(gpgkeys) > 0:
+            cmd = 'apt-key add /root/pubring.gpg'
+            self._execInChroot(arch, cmd.split())
+            self._execInChroot(arch, 'apt-key update'.split())
+
+        self._execInChroot(arch, 'apt-get update'.split())
+
+
+    def _addDiversions(self):
+        """Divert some facilities and replace temporaily with /bin/true (or
+        some other more appropiate facility."""
+        pass
+
+
+    def _addTemplates(self):
+        """Copy in some templates from data directory."""
+        pass
+
+
+    def _installPkgs(self, key):
+        """Install packages required very early in the chroot building process
+        (such as those containing apt policies/preferences)."""
+        for arch in self.conf['archs'].keys():
+            cmd = 'apt-get --yes install'.split()
+            cmd.extend(self.pkgs[arch][key])
+            self._execInChroot(arch, cmd)
+
+
+    def buildChroot(self):
+        """Main loop to call all chroot building functions."""
+        archs = self.conf['archs'].keys()
+
+        map(self._cDebBootstrap, archs)
+        map(self._primeApt, archs)
 
 
 if __name__ == "__main__":
@@ -614,7 +641,6 @@ if __name__ == "__main__":
         if fll.opts.n:
             sys.exit(0)
 
-        fll.cDebBootstrap()
-        fll.primeChrootApt()
+        fll.buildChroot()
     except Error:
         sys.exit(1)
