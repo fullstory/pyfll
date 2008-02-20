@@ -6,11 +6,6 @@ repos = """
 	debian
 """
 
-early = """
-	lvm2
-	udev
-"""
-
 packages = """
 	acpid
 	alsa-base
@@ -18,7 +13,9 @@ packages = """
 	cpufrequtils
 	irqbalance
 	laptop-detect
+	lvm2
 	pcmciautils
 	pciutils
+	udev
 """
 

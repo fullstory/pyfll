@@ -42,7 +42,7 @@ class FLLBuilder:
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes', 'XORG_CONFIG': 'custom'}
 
-    diverts = ['/sbin/modprobe', '/sbin/start-stop-daemon']
+    diverts = ['/sbin/start-stop-daemon']
 
 
     def _initLogger(self, lvl):
@@ -247,7 +247,10 @@ class FLLBuilder:
 
     def _processPkgProfile(self, arch, profile, dir):
         """Return a dict, arch string as keys and package list as values."""
-        pkgs = {'debconf': [], 'list': [], 'early': []}
+        pkgs = {'debconf': [], 'list': []}
+
+        pkgs['list'].extend([l + self.conf['archs'][arch]['linux']
+                            for l in ['linux-image-', 'linux-headers-']])
 
         self.log.info("processing package profile for %s: %s" %
                       (arch, os.path.basename(profile)))
@@ -294,12 +297,6 @@ class FLLBuilder:
             self.log.debug("packages (%s):" % arch)
             for p in lines2list(pfile[arch]):
                 pkgs['list'].append(p)
-                self.log.debug("  %s" % p)
-
-        if 'early' in pfile:
-            self.log.debug("early:")
-            for p in lines2list(pfile['early']):
-                pkgs['early'].append(p)
                 self.log.debug("  %s" % p)
 
         deps = ['locales']
@@ -355,12 +352,6 @@ class FLLBuilder:
                 self.log.debug("packages (%s):" % arch)
                 for p in lines2list(dfile[arch]):
                     pkgs['list'].append(p)
-                    self.log.debug("  %s" % p)
-
-            if 'early' in dfile:
-                self.log.debug("early:")
-                for p in lines2list(dfile['early']):
-                    pkgs['early'].append(p)
                     self.log.debug("  %s" % p)
 
         return pkgs
@@ -486,6 +477,22 @@ class FLLBuilder:
             else:
                 self.log.critical("command return value: %d" % retv)
                 raise Error
+
+
+    def _aptGetInstall(self, arch, pkgs):
+        """An apt-get wrapper."""
+        aptget = ['apt-get', '--yes']
+        
+        if not self.opts.v:
+            aptget.append('--quiet')
+        
+        if not 'apt' in self.conf or not 'recommends' in self.conf['apt']:
+            aptget.extend(['-o', 'APT::Install-Recommends=0'])
+        
+        aptget.append('install')
+        aptget.extend(pkgs)
+        
+        self._execInChroot(arch, aptget)
 
     def _bootStrap(self, arch, verbosity = None, dir = None, mirror = None,
                    flavour = 'minimal', suite = 'sid', ):
@@ -729,46 +736,36 @@ class FLLBuilder:
         
         modules = []
         for list in lists:
-            for pkg in deb822.Packages.iter_paragraphs(file(list)):
-                if pkg['Package'].endswith('modules-' + kvers):
-                    modules.append(pkg['Package'])
+            modules.extend([pkg['Package'] for pkg in
+                            deb822.Packages.iter_paragraphs(file(list))
+                            if pkg['Package'].endswith('modules-' + kvers)])
 
         return modules
 
 
-    def _installLinux(self, arch):
+    def _installLinuxModules(self, arch):
         """Install linux image, headers, extra modules and associated support
         software."""
-        version = self.conf['archs'][arch]['linux']
-
-        cmd = 'apt-get --yes install'
-        cmd += ' linux-image-' + version
-        cmd += ' linux-headers-' + version
-        self._execInChroot(arch, cmd.split())
-
         version = self._detectLinuxVersion(arch)
-
-        cmd = 'update-initramfs -k ' + version + ' -d'
-        self._execInChroot(arch, cmd.split())
-
         modules = self._detectLinuxModules(arch, version)
+        self._aptGetInstall(arch, modules)
 
-        cmd = 'apt-get --yes install'.split()
-        cmd.extend(modules)
-        self._execInChroot(arch, cmd)
 
-        cmd = 'update-initramfs -k ' + version + ' -c'
-        if self.opts.v:
-            cmd += ' -v'
+    def _rebuildInitRamfs(self, arch):
+        """Rebuild the chroot live initramfs after all packages have been
+        installed."""
+        version = self._detectLinuxVersion(arch)
+        cmd = 'update-initramfs -d -k ' + version
+        self._execInChroot(arch, cmd.split())
+        cmd = 'update-initramfs -v -c -k ' + version
         self._execInChroot(arch, cmd.split())
 
 
-    def _installPkgs(self, arch, key):
-        """Install packages required very early in the chroot building process
-        (such as those containing apt policies/preferences)."""
-        cmd = 'apt-get --yes install'.split()
-        cmd.extend(self.pkgs[arch][key])
-        self._execInChroot(arch, cmd)
+    def _installPkgs(self, arch):
+        """Install packages."""
+        pkgs = self.pkgs[arch]['list']
+        self._aptGetInstall(arch, pkgs)
+        self._installLinuxModules(arch)
 
 
     def buildChroot(self):
@@ -781,9 +778,8 @@ class FLLBuilder:
             self._dpkgAddDivert(arch)
             self._defaultEtc(arch)
             self._preseedDebconf(arch)
-            self._installPkgs(arch, 'early')
-            self._installLinux(arch)
-            self._installPkgs(arch, 'list')
+            self._installPkgs(arch)
+            self._rebuildInitRamfs(arch)
             self._finalEtc(arch)
             self._dpkgUnDivert(arch)
 

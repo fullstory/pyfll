@@ -6,14 +6,11 @@ repos = """
 	sidux
 """
 
-early = """
-	apt-conf-sidux
-	fll-live-initramfs
-	distro-defaults
-"""
-
 packages = """
+	apt-conf-sidux
 	desktop-defaults-common
+	distro-defaults
+	fll-live-initramfs
 	fll-live-initscripts
 	gfxboot-theme-sidux
 	grub-gfxboot
