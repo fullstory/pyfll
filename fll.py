@@ -468,7 +468,7 @@ class FLLBuilder:
         self._nuke(self.temp)
 
 
-    def _execInChroot(self, arch, args, ignore_nonzero = False):
+    def _execInChroot(self, arch, args, sh = False, ignore_nonzero = False):
         """Run command in a chroot."""
         if os.getenv('http_proxy'):
             e['http_proxy'] = os.getenv('http_proxy')
@@ -482,7 +482,7 @@ class FLLBuilder:
         self._mount(chroot)
 
         self.log.info("command: %s", ' '.join(cmd))
-        retv = call(cmd, env = self.env)
+        retv = call(cmd, shell = sh, env = self.env)
 
         self._umount(chroot)
 
