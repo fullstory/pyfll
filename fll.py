@@ -238,11 +238,9 @@ class FLLBuilder:
         self.processConf()
 
 
-    def _processPkgProfile(self, archs, profile, dir):
+    def _processPkgProfile(self, arch, profile, dir):
         """Return a dict, arch string as keys and package list as values."""
-        list = {}
-        for arch in archs:
-            list[arch] = {'debconf': [], 'list': [], 'early': []}
+        pkgs = {'debconf': [], 'list': [], 'early': []}
 
         self.log.info("processing package profile: %s" %
                       os.path.basename(profile))
@@ -263,38 +261,33 @@ class FLLBuilder:
 
         if 'debconf' in pfile:
             self.log.debug("debconf:")
-            for arch in archs:
-                for d in lines2list(pfile['debconf']):
-                    list[arch]['debconf'].append(d)
-                    self.log.debug("  %s", d)
+            for d in lines2list(pfile['debconf']):
+                pkgs['debconf'].append(d)
+                self.log.debug("  %s", d)
 
         if 'debconf' in self.conf['packages']:
             self.log.debug("debconf (config):")
-            for arch in archs:
-                for d in lines2list(self.conf['packages']['debconf']):
-                    list[arch]['debconf'].append(d)
-                    self.log.debug("  %s" % d)
+            for d in lines2list(self.conf['packages']['debconf']):
+                pkgs['debconf'].append(d)
+                self.log.debug("  %s" % d)
 
         if 'packages' in pfile:
             self.log.debug("packages:")
-            for arch in archs:
-                for p in lines2list(pfile['packages']):
-                    list[arch]['list'].append(p)
-                    self.log.debug("  %s" % p)
+            for p in lines2list(pfile['packages']):
+                pkgs['list'].append(p)
+                self.log.debug("  %s" % p)
 
         if 'packages' in self.conf['packages']:
             self.log.debug("packages (config):")
-            for arch in archs:
-                for p in lines2list(self.conf['packages']['packages']):
-                    list[arch]['list'].append(p)
-                    self.log.debug("  %s" % p)
+            for p in lines2list(self.conf['packages']['packages']):
+                pkgs['list'].append(p)
+                self.log.debug("  %s" % p)
 
-        for arch in archs:
-            if arch in pfile:
-                self.log.debug("packages (%s):" % arch)
-                for p in lines2list(pfile[arch]):
-                    list[arch]['list'].append(p)
-                    self.log.debug("  %s" % p)
+        if arch in pfile:
+            self.log.debug("packages (%s):" % arch)
+            for p in lines2list(pfile[arch]):
+                pkgs['list'].append(p)
+                self.log.debug("  %s" % p)
 
         deps = []
         if 'deps' in pfile:
@@ -335,24 +328,21 @@ class FLLBuilder:
 
             if 'debconf' in dfile:
                 self.log.debug("debconf:")
-                for arch in archs:
-                    for d in lines2list(dfile['debconf']):
-                        list[arch]['debconf'].append(d)
-                        self.log.debug("  %s" % d)
+                for d in lines2list(dfile['debconf']):
+                    pkgs['debconf'].append(d)
+                    self.log.debug("  %s" % d)
 
             if 'packages' in dfile:
                 self.log.debug("packages:")
-                for arch in archs:
-                    for p in lines2list(dfile['packages']):
-                        list[arch]['list'].append(p)
-                        self.log.debug("  %s" % p)
+                for p in lines2list(dfile['packages']):
+                    pkgs['list'].append(p)
+                    self.log.debug("  %s" % p)
 
-            for arch in archs:
-                if arch in dfile:
-                    self.log.debug("packages (%s):" % arch)
-                    for p in lines2list(dfile[arch]):
-                        list[arch]['list'].append(p)
-                        self.log.debug("  %s" % p)
+            if arch in dfile:
+                self.log.debug("packages (%s):" % arch)
+                for p in lines2list(dfile[arch]):
+                    pkgs['list'].append(p)
+                    self.log.debug("  %s" % p)
 
         early = os.path.join(dir, 'packages.d', 'early')
         if not os.path.isfile(early):
@@ -363,17 +353,15 @@ class FLLBuilder:
 
         if 'packages' in efile:
             self.log.debug("packages:")
-            for arch in archs:
-                for p in lines2list(efile['packages']):
-                    list[arch]['early'].append(p)
-                    self.log.debug("  %s" % p)
+            for p in lines2list(efile['packages']):
+                pkgs['early'].append(p)
+                self.log.debug("  %s" % p)
 
-        for arch in archs:
-            if arch in efile:
-                self.log.debug("packages (%s):" % arch)
-                for p in lines2list(efile[arch]):
-                    list[arch]['early'].append(p)
-                    self.log.debug("  %s" % p)
+        if arch in efile:
+            self.log.debug("packages (%s):" % arch)
+            for p in lines2list(efile[arch]):
+                pkgs['early'].append(p)
+                self.log.debug("  %s" % p)
 
         return list
 
@@ -387,8 +375,10 @@ class FLLBuilder:
             self.log.critical("no such package profile file: %s" % file)
             raise Error
 
-        self.pkgs = self._processPkgProfile(self.conf['archs'].keys(),
-                                            file, dir)
+        self.pkgs = {}
+        for arch in self.conf['archs'].keys():
+            self.pkgs[arch] = {}
+            self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
 
 
     def stageBuildArea(self):
@@ -617,6 +607,10 @@ if __name__ == "__main__":
         fll.parseConf()
         fll.parsePkgProfile()
         fll.stageBuildArea()
+
+        if fll.opts.n:
+            sys.exit(0)
+
         fll.cDebBootstrap()
         fll.primeChrootApt()
     except Error:
