@@ -41,8 +41,7 @@ class FLLBuilder:
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes', 'XORG_CONFIG': 'custom'}
 
-    diverts = ['/sbin/modprobe', '/usr/sbin/invoke-rc.d',
-               '/sbin/start-stop-daemon']
+    diverts = ['/sbin/modprobe', '/sbin/start-stop-daemon']
 
 
     def _initLogger(self, lvl):
@@ -604,13 +603,38 @@ class FLLBuilder:
         self._execInChroot(arch, 'apt-get update'.split())
 
 
-    def _addDiversions(self, arch):
+    def _dpkgDivert(self, arch):
         """Divert some facilities and replace temporaily with /bin/true (or
         some other more appropiate facility."""
+        chroot = os.path.join(self.temp, arch)
         for d in self.diverts:
+            self.log.debug("diverting %s" % d)
             cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
             cmd += d
             self._execInChroot(arch, cmd.split())
+            shutil.copy(os.path.join(chroot, 'bin/true'),
+                        os.path.join(chroot, d.lstrip('/')))
+
+        policyrcd = os.path.join(chroot, 'usr/sbin/policy-rc.d')
+        policy = open(policyrcd, 'w')
+        policy.write("#!/bin/sh\nexit 101\n")
+        policy.close()
+        os.chmod(policyrcd, 0700)
+
+
+    def _dpkgUnDivert(self, arch):
+        """Divert some facilities and replace temporaily with /bin/true (or
+        some other more appropiate facility."""
+        chroot = os.path.join(self.temp, arch)
+        for d in self.diverts:
+            self.log.debug("undoing diversion of %s" % d)
+            os.unlink(os.path.join(chroot, d.lstrip('/')))
+            cmd = 'dpkg-divert --rename --remove ' + d
+            self._execInChroot(arch, cmd.split())
+
+        policyrcd = os.path.join(chroot, 'usr/sbin/policy-rc.d')
+        if os.path.isfile(policyrcd):
+            os.unlink(policyrcd)
 
 
     def _addTemplates(self):
@@ -634,6 +658,8 @@ class FLLBuilder:
             self._bootStrap(arch)
         for arch in archs:
             self._primeApt(arch)
+            self._dpkgDivert(arch)
+            self._dpkgUnDivert(arch)
 
 
 if __name__ == "__main__":
