@@ -13,7 +13,6 @@ import logging
 import os
 import sys
 import shutil
-import string
 import tempfile
 
 
@@ -408,7 +407,7 @@ class FLLBuilder:
         for v in virtfs.items():
             cmd = ['mount', '-t', v[0], 'fll-' + v[0],
                    os.path.join(chroot, v[1])]
-            self.log.debug(string.join(cmd))
+            self.log.debug(' '.join(cmd))
 
             retv = call(cmd)
             if retv != 0:
@@ -423,7 +422,7 @@ class FLLBuilder:
             (dev, mnt, fs, options, d, p) = line.split()
             if mnt.startswith(chrootdir):
                 umount_list.append(mnt)
-        self.log.debug("umount_list: " + string.join(umount_list))
+        self.log.debug("umount_list: " + ' '.join(umount_list))
 
         umount_list.sort(key=len)
         umount_list.reverse()
@@ -480,7 +479,7 @@ class FLLBuilder:
 
         self._mount(chroot)
 
-        self.log.info("command: %s", string.join(cmd))
+        self.log.info("command: %s", ' '.join(cmd))
         retv = call(cmd, env = e)
 
         self._umount(chroot)
@@ -492,7 +491,7 @@ class FLLBuilder:
                 self.log.critical("command return value: %d" % retv)
                 raise Error
 
-    def _cDebBootstrap(self, arch, verbosity = '--quiet', flavour = 'minimal',
+    def _bootStrap(self, arch, verbosity = '--quiet', flavour = 'minimal',
                       suite = 'sid', dir = None, mirror = None):
         """Bootstrap a debian system with cdebootstrap."""
         if self.opts.d:
@@ -512,7 +511,7 @@ class FLLBuilder:
                    "--flavour=%s" % flavour, suite, dir, mirror]
 
             self.log.info("bootstrapping %s at %s" % (arch, dir))
-            self.log.debug(string.join(cmd))
+            self.log.debug(' '.join(cmd))
 
             retv = call(cmd)
             if retv != 0:
@@ -548,7 +547,7 @@ class FLLBuilder:
             line.append(r['components'])
             line.append("\n")
             
-            l = string.join(line)
+            l = ' '.join(line)
             self.log.debug("%s: %s", repo, l.rstrip())
 
             list = open(file, "w")
@@ -625,9 +624,10 @@ class FLLBuilder:
     def buildChroot(self):
         """Main loop to call all chroot building functions."""
         archs = self.conf['archs'].keys()
-
-        map(self._cDebBootstrap, archs)
-        map(self._primeApt, archs)
+        for arch in archs:
+            self._bootStrap(arch)
+        for arch in archs:
+            self._primeApt(arch)
 
 
 if __name__ == "__main__":
