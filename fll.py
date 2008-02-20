@@ -510,7 +510,8 @@ class FLLBuilder:
         for arch in self.conf['archs'].keys():
             dir = os.path.join(self.temp, arch)
             cmd = ['cdebootstrap', "--arch=%s" % arch,
-                   "--flavour=%s" % flavour, suite, dir, mirror]
+                   '--include=apt-utils', "--flavour=%s" % flavour,
+                   suite, dir, mirror]
 
             if verbosity:
                 cmd.append(verbosity)
