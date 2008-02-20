@@ -610,7 +610,7 @@ class FLLBuilder:
         for d in self.diverts:
             cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
             cmd += d
-            self._execInChroot(arch, cmd)
+            self._execInChroot(arch, cmd.split())
 
 
     def _addTemplates(self):
