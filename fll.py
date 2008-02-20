@@ -471,12 +471,10 @@ class FLLBuilder:
 
     def _execInChroot(self, arch, args, ignore_nonzero = False):
         """Run command in a chroot."""
-        e = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C',
-             'HOME': '/root', 'PATH': '/usr/sbin:/usr/bin:/sbin:/bin',
+        e = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
+             'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'XORG_CONFIG': 'custom',
              'DEBIAN_FRONTEND': 'noninteractive',
-             'DEBIAN_PRIORITY': 'critical',
-             'DEBCONF_NOWARNINGS': 'yes',
-             'XORG_CONFIG': 'custom'}
+             'DEBIAN_PRIORITY': 'critical', 'DEBCONF_NOWARNINGS': 'yes'}
 
         if os.getenv('http_proxy'):
             e['http_proxy'] = os.getenv('http_proxy')
@@ -496,7 +494,7 @@ class FLLBuilder:
 
         if retv != 0:
             if ignore_nonzero:
-                self.log.info("command return value ignored: %d" % retv)
+                self.log.info("non zero retval ignored: %d" % retv)
             else:
                 self.log.critical("command return value: %d" % retv)
                 raise Error
