@@ -493,8 +493,8 @@ class FLLBuilder:
                 self.log.critical("command return value: %d" % retv)
                 raise Error
 
-    def _bootStrap(self, arch, verbosity = '--quiet', flavour = 'minimal',
-                      suite = 'sid', dir = None, mirror = None):
+    def _bootStrap(self, arch, verbosity = None, dir = None, mirror = None,
+                   flavour = 'minimal', suite = 'sid', ):
         """Bootstrap a debian system with cdebootstrap."""
         if self.opts.d:
             verbosity = '--debug'
@@ -509,8 +509,11 @@ class FLLBuilder:
 
         for arch in self.conf['archs'].keys():
             dir = os.path.join(self.temp, arch)
-            cmd = ['cdebootstrap', verbosity, "--arch=%s" % arch,
+            cmd = ['cdebootstrap', "--arch=%s" % arch,
                    "--flavour=%s" % flavour, suite, dir, mirror]
+
+            if verbosity:
+                cmd.append(verbosity)
 
             self.log.info("bootstrapping %s at %s" % (arch, dir))
             self.log.debug(' '.join(cmd))
@@ -603,7 +606,7 @@ class FLLBuilder:
         self._execInChroot(arch, 'apt-get update'.split())
 
 
-    def _dpkgDivert(self, arch):
+    def _dpkgAddDivert(self, arch):
         """Divert some facilities and replace temporaily with /bin/true (or
         some other more appropiate facility."""
         chroot = os.path.join(self.temp, arch)
@@ -616,6 +619,7 @@ class FLLBuilder:
                         os.path.join(chroot, d.lstrip('/')))
 
         policyrcd = os.path.join(chroot, 'usr/sbin/policy-rc.d')
+        self.log.debug("creating %s" % policyrcd)
         policy = open(policyrcd, 'w')
         policy.write("#!/bin/sh\nexit 101\n")
         policy.close()
@@ -634,7 +638,52 @@ class FLLBuilder:
 
         policyrcd = os.path.join(chroot, 'usr/sbin/policy-rc.d')
         if os.path.isfile(policyrcd):
+            self.log.debug("removing %s" % policyrcd)
             os.unlink(policyrcd)
+
+
+    def _defaultEtc(self, arch):
+        chroot = os.path.join(self.temp, arch)
+
+        self.log.debug("creating minimal /etc/fstab...")
+        fstab = open(os.path.join(chroot, 'etc/fstab'), 'w')
+        fstab.write("# /etc/fstab: static file system information\n")
+        fstab.close()
+
+        self.log.debug("creating minimal /etc/network/interfaces...")
+        eni = open(os.path.join(chroot, 'etc/network/interfaces'), 'w')
+        eni.write("# /etc/network/interfaces -- configuration file for " +
+                  "ifup(8), ifdown(8)\n")
+        eni.write("\n")
+        eni.write("# The loopback interface\n")
+        eni.write("auto lo\n")
+        eni.write("iface lo inet loopback\n")
+        eni.close()
+
+        self.log.debug("creating /etc/hostname...")
+        hostname = open(os.path.join(chroot, 'etc/hostname'), 'w')
+        hostname.write(self.conf['distro']['FLL_DISTRO_NAME'] + "\n")
+        hostname.close()
+
+        self.log.debug("creating /etc/kernel-img.conf...")
+        kernelimg = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'w')
+        kernelimg.write("do_bootloader = No\n")
+        kernelimg.write("do_initrd     = Yes\n")
+        kernelimg.close()
+
+
+    def _finalEtc(self, arch):
+        chroot = os.path.join(self.temp, arch)
+
+        self.log.debug("completing /etc/kernel-img.conf...")
+        kernelimg = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'a')
+        kernelimg.write("postinst_hook = /usr/sbin/update-grub\n")
+        kernelimg.write("postrm_hook   = /usr/sbin/update-grub\n")
+        kernelimg.close()
+
+        self.log.debug("truncating /etc/resolv.conf...")
+        resolv = open(os.path.join(chroot, 'etc/resolv.conf'), 'w')
+        resolv.close()
 
 
     def _addTemplates(self):
@@ -658,7 +707,9 @@ class FLLBuilder:
             self._bootStrap(arch)
         for arch in archs:
             self._primeApt(arch)
-            self._dpkgDivert(arch)
+            self._dpkgAddDivert(arch)
+            self._defaultEtc(arch)
+            self._finalEtc(arch)
             self._dpkgUnDivert(arch)
 
 
