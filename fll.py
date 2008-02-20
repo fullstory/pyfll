@@ -32,8 +32,17 @@ class FLLBuilder:
     opts = None
     pkgs = None
     temp = None
-    log  = logging.getLogger("log")
+
+    log = logging.getLogger("log")
     log.setLevel(logging.DEBUG)
+
+    env = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
+           'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'SHELL': '/bin/bash',
+           'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
+           'DEBCONF_NOWARNINGS': 'yes', 'XORG_CONFIG': 'custom'}
+
+    diverts = ['/sbin/modprobe', '/usr/sbin/invoke-rc.d',
+               '/sbin/start-stop-daemon']
 
 
     def _initLogger(self, lvl):
@@ -463,11 +472,6 @@ class FLLBuilder:
 
     def _execInChroot(self, arch, args, ignore_nonzero = False):
         """Run command in a chroot."""
-        e = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
-             'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'XORG_CONFIG': 'custom',
-             'DEBIAN_FRONTEND': 'noninteractive',
-             'DEBIAN_PRIORITY': 'critical', 'DEBCONF_NOWARNINGS': 'yes'}
-
         if os.getenv('http_proxy'):
             e['http_proxy'] = os.getenv('http_proxy')
         if os.getenv('ftp_proxy'):
@@ -480,7 +484,7 @@ class FLLBuilder:
         self._mount(chroot)
 
         self.log.info("command: %s", ' '.join(cmd))
-        retv = call(cmd, env = e)
+        retv = call(cmd, env = self.env)
 
         self._umount(chroot)
 
@@ -601,10 +605,13 @@ class FLLBuilder:
         self._execInChroot(arch, 'apt-get update'.split())
 
 
-    def _addDiversions(self):
+    def _addDiversions(self, arch):
         """Divert some facilities and replace temporaily with /bin/true (or
         some other more appropiate facility."""
-        pass
+        for d in self.diverts:
+            cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
+            cmd += d
+            self._execInChroot(arch, cmd)
 
 
     def _addTemplates(self):
