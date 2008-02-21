@@ -193,10 +193,39 @@ class FLLBuilder:
         self._processOpts()
 
 
-    def _processDefaults(self, arch, distro):
+    def _processDefaults(self, arch, d):
         """Form a distro-defaults data structure to be written to
-        /etc/default/distro of each chroot, and used for names etc."""
-        pass
+        /etc/default/distro of each chroot, and used for release name."""
+        for r in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+                  'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
+                  'FLL_LIVE_USER_GROUPS']:
+            if not r in d:
+                self.log.critical("%s' is required in 'distro' section " % r +
+                                  "of build conf")
+                raise Error
+
+        for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+                  'FLL_DISTRO_CODENAME', 'FLL_LIVE_USER']:
+            if k not in d:
+                continue
+            if not d[k].isalnum():
+                self.log.critical("'%s' is not alphanumeric: %s" % (k, d[k]))
+                raise Error
+            elif d[k].find(' ') >= 0:
+                self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
+                raise Error
+
+        dd = {}
+        for k, v in d.items():
+            if k == 'FLL_IMAGE_FILE':
+                dd[k] = '.'.join([v, arch])
+            else:
+                dd[k] = v
+
+        dd['FLL_IMAGE_LOCATION'] = os.path.join(d['FLL_IMAGE_DIR'],
+                                                d['FLL_IMAGE_FILE'])
+
+        return dd
 
 
     def _processConf(self):
@@ -242,21 +271,30 @@ class FLLBuilder:
         self.log.debug("package profile: %s" %
                        self.conf['packages']['profile'])
 
+        if not 'apt' in self.conf:
+            self.conf['apt'] = {}
+        if not 'recommends' in self.conf['apt']:
+            self.conf['apt']['recommends'] = 'no'
+
         if 'distro' in self.conf:
             self.distro = {}
             for arch in self.conf['archs'].keys():
                 self.distro[arch] = self._processDefaults(arch,
                                                           self.conf['distro'])
+                self.log.debug("distro-defaults for %s:" % arch)
+                self.log.debug(self.distro[arch])
         else:
-            self.log.critical("no distro section in build config")
+            self.log.critical("'distro' section not found in build config")
             raise Error
+
+        self.log.debug(self.conf)
 
 
     def parseConf(self):
         """Parse build configuration file and return it in a dict."""
         self.log.info("reading configuration file...")
 
-        self.conf = ConfigObj(self.opts.c, interpolation = 'Template')
+        self.conf = ConfigObj(self.opts.c)
         self._processConf()
 
 
@@ -369,6 +407,9 @@ class FLLBuilder:
                     pkgs['list'].append(p)
                     self.log.debug("  %s" % p)
 
+        self.log.debug("packages + debconf for %s:" % arch)
+        self.log.debug(pkgs)
+
         return pkgs
 
 
@@ -423,13 +464,11 @@ class FLLBuilder:
             (dev, mnt, fs, options, d, p) = line.split()
             if mnt.startswith(chrootdir):
                 umount_list.append(mnt)
-        self.log.debug("umount_list: " + ' '.join(umount_list))
 
         umount_list.sort(key=len)
         umount_list.reverse()
 
         for mpoint in umount_list:
-            self.log.debug("umount %s" % mpoint)
             retv = call(['umount', mpoint])
             if retv != 0:
                 self.log.critical("umount failed for: %s" % mpoint)
@@ -503,9 +542,10 @@ class FLLBuilder:
         """An apt-get wrapper."""
         aptget = ['apt-get', '--yes']
 
-        if not 'apt' in self.conf or not 'recommends' in self.conf['apt'] or \
-            self.conf['apt']['recommends'] == 'no':
+        if self.conf['apt']['recommends'] == 'no':
             aptget.extend(['-o', 'APT::Install-Recommends=0'])
+        if self.conf.d:
+            aptget.extend(['-o', 'APT::Get::Show-Versions=1'])
 
         aptget.append('install')
         aptget.extend(pkgs)
