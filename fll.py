@@ -163,7 +163,7 @@ class FLLBuilder:
                      help = 'Preserve build directory. Disable automatic ' +
                      'cleanup of the build area at exit.')
 
-        p.add_option('-q', '--quiet', dest = 'q', action = 'store_false',
+        p.add_option('-q', '--quiet', dest = 'q', action = 'store_true',
                      help = 'Enable quiet mode. Only high priority messages ' +
                      'will be generated.')
 
