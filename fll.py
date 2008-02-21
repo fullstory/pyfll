@@ -42,7 +42,7 @@ class FLLBuilder:
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes', 'XORG_CONFIG': 'custom'}
 
-    diverts = ['/sbin/start-stop-daemon']
+    diverts = ['/sbin/start-stop-daemon', '/sbin/modprobe']
 
 
     def _initLogger(self, lvl):
@@ -482,16 +482,17 @@ class FLLBuilder:
     def _aptGetInstall(self, arch, pkgs):
         """An apt-get wrapper."""
         aptget = ['apt-get', '--yes']
-        
+
         if not self.opts.v:
             aptget.append('--quiet')
-        
-        if not 'apt' in self.conf or not 'recommends' in self.conf['apt']:
+
+        if not 'apt' in self.conf or not 'recommends' in self.conf['apt'] or \
+            self.conf['apt']['recommends'] == 'no':
             aptget.extend(['-o', 'APT::Install-Recommends=0'])
-        
+
         aptget.append('install')
         aptget.extend(pkgs)
-        
+
         self._execInChroot(arch, aptget)
 
     def _bootStrap(self, arch, verbosity = None, dir = None, mirror = None,
@@ -718,9 +719,13 @@ class FLLBuilder:
         """Return version string of a singularly installed linux-image."""
         chroot = os.path.join(self.temp, arch)
 
-        for f in os.listdir(os.path.join(chroot, 'boot')):
-            if f.startswith('vmlinuz-'):
-                return f.lstrip('vmlinuz-')
+        kvers = []
+        kvers.extend([f.lstrip('vmlinuz-') for f in
+                      os.listdir(os.path.join(chroot, 'boot'))
+                      if f.startswith('vmlinuz-')])
+
+        if len(kvers) > 0:
+            return kvers
 
         self.debug.critical("failed to detect linux version installed in " +
                             "%s chroot" % arch)
@@ -733,7 +738,7 @@ class FLLBuilder:
         listsdir = os.path.join(chroot, 'var/lib/apt/lists')
         lists = [os.path.join(listsdir, l) for l in os.listdir(listsdir)
                  if l.endswith('_Packages')]
-        
+
         modules = []
         for list in lists:
             modules.extend([pkg['Package'] for pkg in
@@ -746,24 +751,36 @@ class FLLBuilder:
     def _installLinuxModules(self, arch):
         """Install linux image, headers, extra modules and associated support
         software."""
-        version = self._detectLinuxVersion(arch)
-        modules = self._detectLinuxModules(arch, version)
-        self._aptGetInstall(arch, modules)
+        kvers = self._detectLinuxVersion(arch)
+        
+        modules = []
+        for k in kvers:
+            modules.extend(self._detectLinuxModules(arch, k))
+        
+        if len(modules) > 0:
+            self.log.info("installing extra modules for %s: %s" %
+                          (kvers, ' '.join(modules)))
+            self._aptGetInstall(arch, modules)
 
 
     def _rebuildInitRamfs(self, arch):
         """Rebuild the chroot live initramfs after all packages have been
         installed."""
-        version = self._detectLinuxVersion(arch)
-        cmd = 'update-initramfs -d -k ' + version
-        self._execInChroot(arch, cmd.split())
-        cmd = 'update-initramfs -v -c -k ' + version
-        self._execInChroot(arch, cmd.split())
+        kvers = self._detectLinuxVersion(arch)
+        for k in kvers:
+            self.log.info("rebuilding the live initramfs for %s" % k)
+            cmd = 'update-initramfs -d -k ' + k
+            self._execInChroot(arch, cmd.split())
+            cmd = 'update-initramfs -v -c -k ' + k
+            self._execInChroot(arch, cmd.split())
 
 
     def _installPkgs(self, arch):
         """Install packages."""
         pkgs = self.pkgs[arch]['list']
+
+        self.log.info("installing packages for %s: %s" %
+                      (arch, ' '.join(pkgs)))
         self._aptGetInstall(arch, pkgs)
         self._installLinuxModules(arch)
 
@@ -773,15 +790,14 @@ class FLLBuilder:
         archs = self.conf['archs'].keys()
         for arch in archs:
             self._bootStrap(arch)
-        for arch in archs:
             self._primeApt(arch)
-            self._dpkgAddDivert(arch)
             self._defaultEtc(arch)
             self._preseedDebconf(arch)
+            self._dpkgAddDivert(arch)
             self._installPkgs(arch)
+            self._dpkgUnDivert(arch)
             self._rebuildInitRamfs(arch)
             self._finalEtc(arch)
-            self._dpkgUnDivert(arch)
 
 
 if __name__ == "__main__":
