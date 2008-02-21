@@ -568,25 +568,23 @@ class FLLBuilder:
         else:
             mirror = debian['uri']
 
-        for arch in self.conf['archs'].keys():
-            dir = os.path.join(self.temp, arch)
-            cmd = ['cdebootstrap', "--arch=%s" % arch,
-                   '--include=apt-utils', "--flavour=%s" % flavour,
-                   suite, dir, mirror]
+        dir = os.path.join(self.temp, arch)
+        cmd = ['cdebootstrap', "--arch=%s" % arch, '--include=apt-utils',
+               "--flavour=%s" % flavour, suite, dir, mirror]
 
-            if verbosity:
-                cmd.append(verbosity)
+        if verbosity:
+            cmd.append(verbosity)
 
-            self.log.info("bootstrapping debian %s..." % arch)
-            self.log.debug(' '.join(cmd))
+        self.log.info("bootstrapping debian %s..." % arch)
+        self.log.debug(' '.join(cmd))
 
-            retv = call(cmd)
-            if retv != 0:
-                self.log.critical("failed to bootstrap %s" % arch)
-                raise Error
+        retv = call(cmd)
+        if retv != 0:
+            self.log.critical("failed to bootstrap %s" % arch)
+            raise Error
 
-            cmd = 'dpkg --purge cdebootstrap-helper-diverts'
-            self._execInChroot(arch, cmd.split())
+        cmd = 'dpkg --purge cdebootstrap-helper-diverts'
+        self._execInChroot(arch, cmd.split())
 
 
     def _primeApt(self, arch):
