@@ -734,8 +734,7 @@ class FLLBuilder:
 
     def _detectLinuxModules(self, arch, kvers):
         """Detect available linux extra modules."""
-        chroot = os.path.join(self.temp, arch)
-        listsdir = os.path.join(chroot, 'var/lib/apt/lists')
+        listsdir = os.path.join(self.temp, arch, 'var/lib/apt/lists')
         lists = [os.path.join(listsdir, l) for l in os.listdir(listsdir)
                  if l.endswith('_Packages')]
 
@@ -759,7 +758,7 @@ class FLLBuilder:
         
         if len(modules) > 0:
             self.log.info("installing extra modules for %s: %s" %
-                          (kvers, ' '.join(modules)))
+                          (k, ' '.join(modules)))
             self._aptGetInstall(arch, modules)
 
 
