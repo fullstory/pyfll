@@ -262,8 +262,8 @@ class FLLBuilder:
             for r in lines2list(pfile['repos']):
                 if r not in self.conf['repos']:
                     self.log.critical("'%s' repo is required " % r +
-                                     "by package module '%s'" %
-                                     os.path.basename(profile))
+                                      "by package module '%s'" %
+                                      os.path.basename(profile))
                     raise Error
 
         if 'debconf' in pfile:
