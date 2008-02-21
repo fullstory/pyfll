@@ -425,14 +425,12 @@ class FLLBuilder:
         """Nuke directory tree."""
         self._umount(dir)
         if os.path.isdir(dir):
-            self.log.info("nuking directory: %s" % dir)
+            self.log.debug("nuking directory: %s" % dir)
             try:
                 shutil.rmtree(dir)
             except:
                 self.log.exception("unable to remove %s" % dir)
                 raise Error
-        else:
-            self.log.debug("no dir to remove")
 
 
     def _nukeChroot(self, arch):
