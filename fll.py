@@ -780,7 +780,7 @@ class FLLBuilder:
             cmd = 'update-initramfs -d -k ' + k
             self._execInChroot(arch, cmd.split())
 
-            if self.opts.v:
+            if self.opts.d:
                 cmd = 'update-initramfs -v -c -k ' + k
             else:
                 cmd = 'update-initramfs -c -k ' + k
