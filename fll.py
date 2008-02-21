@@ -473,7 +473,11 @@ class FLLBuilder:
         self._mount(chroot)
 
         self.log.info("command: %s", ' '.join(cmd))
-        retv = call(cmd, env = self.env)
+        if self.opts.v:
+            retv = call(cmd, env = self.env)
+        else:
+            retv = call(cmd, stdout = open('/dev/null', 'w'), stderr = STDOUT,
+                        env = self.env)
 
         self._umount(chroot)
 
@@ -489,9 +493,6 @@ class FLLBuilder:
         """An apt-get wrapper."""
         aptget = ['apt-get', '--yes']
 
-        if not self.opts.v:
-            aptget.append('--quiet')
-
         if not 'apt' in self.conf or not 'recommends' in self.conf['apt'] or \
             self.conf['apt']['recommends'] == 'no':
             aptget.extend(['-o', 'APT::Install-Recommends=0'])
@@ -505,9 +506,9 @@ class FLLBuilder:
                    flavour = 'minimal', suite = 'sid', ):
         """Bootstrap a debian system with cdebootstrap."""
         if self.opts.d:
-            verbosity = '--debug'
-        elif self.opts.v:
             verbosity = '--verbose'
+        elif not self.opts.v:
+            verbosity = '--quiet'
 
         debian = self.conf['repos']['debian']
         if 'cached' in debian and debian['cached']:
@@ -762,9 +763,19 @@ class FLLBuilder:
             modules.extend(self._detectLinuxModules(arch, k))
         
         if len(modules) > 0:
-            self.log.info("installing extra modules for %s: %s" %
-                          (k, ' '.join(modules)))
+            self.log.info("installing extra modules for %s" % k)
+            self.log.debug(' '.join(modules))
             self._aptGetInstall(arch, modules)
+
+
+    def _installPkgs(self, arch):
+        """Install packages."""
+        pkgs = self.pkgs[arch]['list']
+
+        self.log.info("installing packages for %s" % arch)
+        self.log.debug(' '.join(pkgs))
+        self._aptGetInstall(arch, pkgs)
+        self._installLinuxModules(arch)
 
 
     def _rebuildInitRamfs(self, arch):
@@ -781,16 +792,6 @@ class FLLBuilder:
             else:
                 cmd = 'update-initramfs -c -k ' + k
             self._execInChroot(arch, cmd.split())
-
-
-    def _installPkgs(self, arch):
-        """Install packages."""
-        pkgs = self.pkgs[arch]['list']
-
-        self.log.info("installing packages for %s: %s" %
-                      (arch, ' '.join(pkgs)))
-        self._aptGetInstall(arch, pkgs)
-        self._installLinuxModules(arch)
 
 
     def buildChroot(self):
