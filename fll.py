@@ -58,10 +58,8 @@ class FLLBuilder:
         """Process options."""
         if self.opts.d:
             self._initLogger(logging.DEBUG)
-        elif self.opts.v:
-            self._initLogger(logging.INFO)
         else:
-            self._initLogger(logging.WARNING)
+            self._initLogger(logging.INFO)
 
         if self.opts.l:
             try:
