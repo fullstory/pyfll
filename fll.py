@@ -385,8 +385,6 @@ class FLLBuilder:
 
     def _mount(self, chroot):
         """Mount virtual filesystems in a shoort dir."""
-        self.log.debug("mounting virtual filesystems in %s" % chroot)
-
         virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
 
         for v in virtfs.items():
