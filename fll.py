@@ -24,6 +24,16 @@ def lines2list(lines):
     return [s.strip() for s in lines.splitlines() if s]
 
 
+def uniqList(list):
+    """Return a list containing no duplicate items given a list that
+    may have duplicate items."""
+    d = {}
+    for l in list:
+        d[l] = True
+    
+    return d.keys()
+
+
 class Error(Exception):
     """A generic error handler that does nothing."""
     pass
@@ -196,7 +206,7 @@ class FLLBuilder:
     def _processDefaults(self, arch, d):
         """Form a distro-defaults data structure to be written to
         /etc/default/distro of each chroot, and used for release name."""
-        for k in ['FLL_DISTRO_NAME_SAFE', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+        for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
                   'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
                   'FLL_LIVE_USER_GROUPS']:
             if not k in d or not d[k]:
@@ -204,7 +214,7 @@ class FLLBuilder:
                                   "of build conf")
                 raise Error
 
-        for k in ['FLL_DISTRO_NAME_SAFE', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+        for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
                   'FLL_LIVE_USER', 'FLL_DISTRO_CODENAME_SAFE',
                   'FLL_DISTRO_CODENAME_REV_SAFE']:
             if k not in d or not d[k]:
@@ -218,8 +228,7 @@ class FLLBuilder:
 
         if 'FLL_DISTRO_VERSION' in d and d['FLL_DISTRO_VERSION'] and \
             d['FLL_DISTRO_VERSION'] != 'snapshot':
-            for k in ['FLL_DISTRO_NAME', 'FLL_DISTRO_CODENAME',
-                      'FLL_DISTRO_CODENAME_REV']:
+            for k in ['FLL_DISTRO_CODENAME', 'FLL_DISTRO_CODENAME_REV']:
                 safe = k + '_SAFE'
                 if safe in d and d[safe]:
                     if k not in d or not d[k]:
@@ -239,8 +248,8 @@ class FLLBuilder:
             else:
                 dd[k] = v
 
-        dd['FLL_IMAGE_LOCATION'] = os.path.join(d['FLL_IMAGE_DIR'],
-                                                d['FLL_IMAGE_FILE'])
+        dd['FLL_IMAGE_LOCATION'] = os.path.join(dd['FLL_IMAGE_DIR'],
+                                                dd['FLL_IMAGE_FILE'])
 
         return dd
 
@@ -507,9 +516,10 @@ class FLLBuilder:
 
     def _nukeChroot(self, arch):
         """Convenience function to nuke chroot given by arch name."""
-        self.log.info("nuking %s chroot..." % arch)
-        chroot = os.path.join(self.temp, arch)
-        self._nuke(chroot)
+        if not self.opts.p:
+            self.log.info("nuking %s chroot..." % arch)
+            chroot = os.path.join(self.temp, arch)
+            self._nuke(chroot)
 
 
     def cleanup(self):
@@ -570,6 +580,7 @@ class FLLBuilder:
 
         self._execInChroot(arch, aptget)
 
+
     def _bootStrap(self, arch, verbosity = None, dir = None, mirror = None,
                    flavour = 'minimal', suite = 'sid', ):
         """Bootstrap a debian system with cdebootstrap."""
@@ -605,23 +616,17 @@ class FLLBuilder:
         self._execInChroot(arch, cmd.split())
 
 
-    def _primeApt(self, arch):
-        """Prepare apt for work in each build chroot."""
-        dir = os.path.join(self.temp, arch)
-
-        self.log.debug("removing sources.list from %s chroot" % arch)
-        list = os.path.join(dir, 'etc/apt/sources.list')
-        if os.path.isfile(list):
-            os.unlink(list)
-
+    def _writeAptLists(self, arch, cached = False, src_uri = False):
+        """Write apt source lists to /etc/apt/sources.list.d/*."""
+        chroot = os.path.join(self.temp, arch)
         for repo in self.conf['repos'].keys():
             r = self.conf['repos'][repo]
-            file = os.path.join(dir, 'etc/apt/sources.list.d',
+            file = os.path.join(chroot, 'etc/apt/sources.list.d',
                                 r['label'] + '.list')
             self.log.debug("creating %s" % file)
 
             line = []
-            if 'cached' in r and r['cached']:
+            if cached and 'cached' in r and r['cached']:
                 line.append(r['cached'])
             else:
                 line.append(r['uri'])
@@ -635,9 +640,23 @@ class FLLBuilder:
 
             list = open(file, "w")
             list.write('deb ' + l)
-            if not self.opts.B:
+            if not src_uri or self.opts.B:
+                list.write('#deb-src ' + l)
+            else:
                 list.write('deb-src ' + l)
             list.close()
+
+
+    def _primeApt(self, arch):
+        """Prepare apt for work in each build chroot."""
+        chroot = os.path.join(self.temp, arch)
+
+        self.log.debug("removing sources.list from %s chroot" % arch)
+        list = os.path.join(chroot, 'etc/apt/sources.list')
+        if os.path.isfile(list):
+            os.unlink(list)
+
+        self._writeAptLists(arch, cached = True, src_uri = True)
 
         keyrings = []
         for repo in self.conf['repos'].keys():
@@ -678,7 +697,6 @@ class FLLBuilder:
         if len(gpgkeys) > 0:
             cmd = 'apt-key add /root/.gnupg/pubring.gpg'
             self._execInChroot(arch, cmd.split())
-            self._execInChroot(arch, 'apt-key update'.split())
 
         self._execInChroot(arch, 'apt-get update'.split())
 
@@ -719,50 +737,79 @@ class FLLBuilder:
             os.unlink(policyrcd)
 
 
+    def _writeFile(self, arch, file):
+        """Some file templates."""
+        chroot = os.path.join(self.temp, arch)
+        try:
+            f = open(os.path.join(chroot, file.lstrip('/')), 'w')
+        except:
+            self.log.exception("failed to open file for writing: %s" % file)
+            raise Error
+
+        if file == '/etc/default/distro':
+            d = self.distro[arch].keys()
+            d.sort()
+            for k in d:
+                f.write("%s=\"%s\"\n" % (k, self.distro[arch][k]))
+        elif file == '/etc/fstab':
+            f.write("# /etc/fstab: static file system information\n")
+        elif file == '/etc/hostname':
+            hostname = self.distro[arch]['FLL_DISTRO_NAME']
+            f.write(hostname + "\n")
+        elif file == '/etc/hosts':
+            hostname = self.distro[arch]['FLL_DISTRO_NAME']
+            f.write("127.0.0.1\tlocalhost\n")
+            f.write("127.0.0.1\t" + hostname + "\n\n")
+            f.write("# The following lines are for IPv6 capable hosts\n")
+            f.write("::1     ip6-localhost ip6-loopback\n")
+            f.write("fe00::0 ip6-localnet\n")
+            f.write("ff00::0 ip6-mcastprefix\n")
+            f.write("ff02::1 ip6-allnodes\n")
+            f.write("ff02::2 ip6-allrouters\n")
+            f.write("ff02::3 ip6-allhosts\n")
+        elif file == '/etc/kernel-img.conf':
+            f.write("do_bootloader = No\n")
+            f.write("warn_initrd   = No\n")
+        elif file == '/etc/network/interfaces':
+            f.write("# /etc/network/interfaces - ")
+            f.write("configuration file for ifup(8), ifdown(8)\n\n")
+            f.write("# The loopback interface\n")
+            f.write("auto lo\n")
+            f.write("iface lo inet loopback\n")
+        elif file == '/etc/resolv.conf':
+            pass
+
+        f.close()
+
+
     def _defaultEtc(self, arch):
         """Initial creation of conffiles required in chroot."""
-        chroot = os.path.join(self.temp, arch)
-
-        self.log.debug("creating minimal /etc/fstab...")
-        fstab = open(os.path.join(chroot, 'etc/fstab'), 'w')
-        fstab.write("# /etc/fstab: static file system information\n")
-        fstab.close()
-
-        self.log.debug("creating minimal /etc/network/interfaces...")
-        eni = open(os.path.join(chroot, 'etc/network/interfaces'), 'w')
-        eni.write("# /etc/network/interfaces -- configuration file for " +
-                  "ifup(8), ifdown(8)\n")
-        eni.write("\n")
-        eni.write("# The loopback interface\n")
-        eni.write("auto lo\n")
-        eni.write("iface lo inet loopback\n")
-        eni.close()
-
-        self.log.debug("creating /etc/hostname...")
-        hostname = open(os.path.join(chroot, 'etc/hostname'), 'w')
-        hostname.write(self.conf['distro']['FLL_DISTRO_NAME'] + "\n")
-        hostname.close()
-
-        self.log.debug("creating /etc/kernel-img.conf...")
-        kernelimg = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'w')
-        kernelimg.write("do_bootloader = No\n")
-        kernelimg.write("warn_initrd   = No\n")
-        kernelimg.close()
+        self.log.debug('adding /etc/fstab')
+        self._writeFile(arch, '/etc/fstab')
+        self.log.debug('adding /etc/kernel-img.conf')
+        self._writeFile(arch, '/etc/kernel-img.conf')
+        self.log.debug('adding /etc/network/interfaces')
+        self._writeFile(arch, '/etc/network/interfaces')
 
 
     def _finalEtc(self, arch):
         """Final editing of conffiles in chroot."""
-        chroot = os.path.join(self.temp, arch)
+        self.log.debug('adding /etc/default/distro')
+        self._writeFile(arch, '/etc/default/distro')
+        self.log.debug('adding /etc/hostname')
+        self._writeFile(arch, '/etc/hostname')
+        self.log.debug('adding /etc/hosts')
+        self._writeFile(arch, '/etc/hosts')
+        self.log.debug('fixing /etc/resolv.conf')
+        self._writeFile(arch, '/etc/resolv.conf')
 
-        self.log.debug("completing /etc/kernel-img.conf...")
-        kernelimg = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'a')
-        kernelimg.write("postinst_hook = /usr/sbin/update-grub\n")
-        kernelimg.write("postrm_hook   = /usr/sbin/update-grub\n")
-        kernelimg.close()
+        self._writeAptLists(arch)
 
-        self.log.debug("truncating /etc/resolv.conf...")
-        resolv = open(os.path.join(chroot, 'etc/resolv.conf'), 'w')
-        resolv.close()
+        self.log.debug('add grub hooks to /etc/kernel-img.conf')
+        f = open(os.path.join(self.temp, arch, 'etc/kernel-img.conf'), 'a')
+        f.write("postinst_hook = /usr/sbin/update-grub\n")
+        f.write("postrm_hook   = /usr/sbin/update-grub\n")
+        f.close()
 
 
     def _preseedDebconf(self, arch):
@@ -783,11 +830,6 @@ class FLLBuilder:
             cmd += '/root/debconf-selections'
 
             self._execInChroot(arch, cmd.split())
-
-
-    def _addTemplates(self):
-        """Copy in some templates from data directory."""
-        pass
 
 
     def _detectLinuxVersion(self, arch):
@@ -840,7 +882,7 @@ class FLLBuilder:
         """Install packages."""
         self.log.info("installing packages in %s chroot..." % arch)
         
-        pkgs = self.pkgs[arch]['list']
+        pkgs = uniqList(self.pkgs[arch]['list'])
         self.log.debug(' '.join(pkgs))
         self._aptGetInstall(arch, pkgs)
         self._installLinuxModules(arch)
@@ -873,8 +915,8 @@ class FLLBuilder:
             self._dpkgAddDivert(arch)
             self._installPkgs(arch)
             self._dpkgUnDivert(arch)
-            self._rebuildInitRamfs(arch)
             self._finalEtc(arch)
+            self._rebuildInitRamfs(arch)
             self._nukeChroot(arch)
 
 
