@@ -544,7 +544,7 @@ class FLLBuilder:
 
         if self.conf['apt']['recommends'] == 'no':
             aptget.extend(['-o', 'APT::Install-Recommends=0'])
-        if self.conf.d:
+        if self.opts.d:
             aptget.extend(['-o', 'APT::Get::Show-Versions=1'])
 
         aptget.append('install')
