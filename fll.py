@@ -163,7 +163,7 @@ class FLLBuilder:
                      help = 'Preserve build directory. Disable automatic ' +
                      'cleanup of the build area at exit.')
 
-        p.add_option('-q', '--quiet', dest = 'v', action = 'store_false',
+        p.add_option('-q', '--quiet', dest = 'q', action = 'store_false',
                      help = 'Enable quiet mode. Only high priority messages ' +
                      'will be generated.')
 
@@ -184,7 +184,8 @@ class FLLBuilder:
 
         p.set_defaults(b = os.getcwd(), B = False, d = False, g = os.getgid(),
                        l = None, n = False, o = os.getcwd(), p = False,
-                       s = '/usr/share/fll/', u = os.getuid(), v = False)
+                       q = False, s = '/usr/share/fll/', u = os.getuid(),
+                       v = False)
 
         self.opts = p.parse_args()[0]
         self.processOpts()
@@ -321,7 +322,7 @@ class FLLBuilder:
 
             dfile = ConfigObj(depfile)
 
-            if 'desc' in dfile and self.opts.v:
+            if 'desc' in dfile:
                 for l in lines2list(dfile['desc']):
                     self.log.debug("  %s" % l)
 
@@ -463,11 +464,11 @@ class FLLBuilder:
         self._mount(chroot)
 
         self.log.debug("command: %s", ' '.join(cmd))
-        if self.opts.v:
-            retv = call(cmd, env = self.env)
-        else:
+        if self.opts.q:
             retv = call(cmd, stdout = open('/dev/null', 'w'), stderr = STDOUT,
                         env = self.env)
+        else:
+            retv = call(cmd, env = self.env)
 
         self._umount(chroot)
 
@@ -497,10 +498,10 @@ class FLLBuilder:
                    flavour = 'minimal', suite = 'sid', ):
         """Bootstrap a debian system with cdebootstrap."""
         if self.opts.d:
-            verbosity = '--verbose'
+            verbosity = '--debug'
         elif self.opts.v:
-            pass
-        else:
+            verbosity = '--verbose'
+        elif self.opts.q:
             verbosity = '--quiet'
 
         debian = self.conf['repos']['debian']
