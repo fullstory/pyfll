@@ -165,7 +165,7 @@ class FLLBuilder:
 
         p.add_option('-q', '--quiet', dest = 'v', action = 'store_false',
                      help = 'Enable quiet mode. Only high priority messages ' +
-                     'will be generated, such as announcing current')
+                     'will be generated.')
 
         p.add_option('-s', '--share', dest = 's', action = 'store',
                      type = 'string', metavar = '<directory>',
@@ -184,7 +184,7 @@ class FLLBuilder:
 
         p.set_defaults(b = os.getcwd(), B = False, d = False, g = os.getgid(),
                        l = None, n = False, o = os.getcwd(), p = False,
-                       s = '/usr/share/fll/', u = os.getuid(), v = True)
+                       s = '/usr/share/fll/', u = os.getuid(), v = False)
 
         self.opts = p.parse_args()[0]
         self.processOpts()
@@ -780,7 +780,7 @@ class FLLBuilder:
             cmd = 'update-initramfs -d -k ' + k
             self._execInChroot(arch, cmd.split())
 
-            if self.opts.d:
+            if self.opts.v:
                 cmd = 'update-initramfs -v -c -k ' + k
             else:
                 cmd = 'update-initramfs -c -k ' + k
