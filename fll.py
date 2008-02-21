@@ -15,6 +15,7 @@ import os
 import sys
 import shutil
 import tempfile
+import time
 
 
 def lines2list(lines):
@@ -33,6 +34,7 @@ class FLLBuilder:
     opts = None
     pkgs = None
     temp = None
+    distro = None
 
     log = logging.getLogger("log")
     log.setLevel(logging.DEBUG)
@@ -48,14 +50,14 @@ class FLLBuilder:
 
     def _initLogger(self, lvl):
         """Set up the logger."""
-        fmt = logging.Formatter("%(levelname)s - %(message)s")
+        fmt = logging.Formatter("%(asctime)s %(levelname)s - %(message)s")
         out = logging.StreamHandler()
         out.setFormatter(fmt)
         out.setLevel(lvl)
         self.log.addHandler(out)
 
 
-    def processOpts(self):
+    def _processOpts(self):
         """Process options."""
         if self.opts.d:
             self._initLogger(logging.DEBUG)
@@ -188,10 +190,16 @@ class FLLBuilder:
                        v = False)
 
         self.opts = p.parse_args()[0]
-        self.processOpts()
+        self._processOpts()
 
 
-    def processConf(self):
+    def _processDefaults(self, arch, distro):
+        """Form a distro-defaults data structure to be written to
+        /etc/default/distro of each chroot, and used for names etc."""
+        pass
+
+
+    def _processConf(self):
         """Process configuration options."""
         if len(self.conf['archs'].keys()) < 1:
             host_arch = Popen(["dpkg", "--print-architecture"],
@@ -234,13 +242,22 @@ class FLLBuilder:
         self.log.debug("package profile: %s" %
                        self.conf['packages']['profile'])
 
+        if 'distro' in self.conf:
+            self.distro = {}
+            for arch in self.conf['archs'].keys():
+                self.distro[arch] = self._processDefaults(arch,
+                                                          self.conf['distro'])
+        else:
+            self.log.critical("no distro section in build config")
+            raise Error
+
 
     def parseConf(self):
         """Parse build configuration file and return it in a dict."""
         self.log.info("reading configuration file...")
 
         self.conf = ConfigObj(self.opts.c, interpolation = 'Template')
-        self.processConf()
+        self._processConf()
 
 
     def _processPkgProfile(self, arch, profile, dir):
