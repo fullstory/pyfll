@@ -433,6 +433,7 @@ class FLLBuilder:
 
     def _nukeChroot(self, arch):
         """Convenience function to nuke chroot given by arch name."""
+        self.log.info("nuking %s chroot..." % arch)
         chroot = os.path.join(self.temp, arch)
         self._nuke(chroot)
 
@@ -519,7 +520,7 @@ class FLLBuilder:
             if verbosity:
                 cmd.append(verbosity)
 
-            self.log.info("bootstrapping %s at %s" % (arch, dir))
+            self.log.info("bootstrapping debian %s..." % arch)
             self.log.debug(' '.join(cmd))
 
             retv = call(cmd)
@@ -696,7 +697,7 @@ class FLLBuilder:
         chroot = os.path.join(self.temp, arch)
 
         if 'debconf' in self.pkgs[arch]:
-            self.log.info("preseeding debconf for %s chroot..." % arch)
+            self.log.info("preseeding debconf in %s chroot..." % arch)
             debconf = open(os.path.join(chroot, 'root/debconf-selections'),
                            'w')
             for d in self.pkgs[arch]['debconf']:
@@ -764,7 +765,7 @@ class FLLBuilder:
 
     def _installPkgs(self, arch):
         """Install packages."""
-        self.log.info("installing packages for %s..." % arch)
+        self.log.info("installing packages in %s chroot..." % arch)
         
         pkgs = self.pkgs[arch]['list']
         self.log.debug(' '.join(pkgs))
