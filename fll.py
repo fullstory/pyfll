@@ -42,7 +42,8 @@ class FLLBuilder:
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes', 'XORG_CONFIG': 'custom'}
 
-    diverts = ['/sbin/start-stop-daemon', '/sbin/modprobe']
+    diverts = ['/sbin/start-stop-daemon', '/sbin/modprobe',
+               '/usr/sbin/policy-rc.d']
 
 
     def _initLogger(self, lvl):
@@ -181,7 +182,7 @@ class FLLBuilder:
                      help = 'Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
 
-        p.set_defaults(d = False, b = os.getcwd(), B = False, g = os.getgid(),
+        p.set_defaults(b = os.getcwd(), B = False, d = False, g = os.getgid(),
                        l = None, n = False, o = os.getcwd(), p = False,
                        s = '/usr/share/fll/', u = os.getuid(), v = True)
 
@@ -191,8 +192,6 @@ class FLLBuilder:
 
     def processConf(self):
         """Process configuration options."""
-        self.log.info('Processing configuration options...')
-
         if len(self.conf['archs'].keys()) < 1:
             host_arch = Popen(["dpkg", "--print-architecture"],
                               stdout=PIPE).communicate()[0].rstrip()
@@ -237,7 +236,7 @@ class FLLBuilder:
 
     def parseConf(self):
         """Parse build configuration file and return it in a dict."""
-        self.log.info("Parsing configuration file...")
+        self.log.info("reading configuration file...")
 
         self.conf = ConfigObj(self.opts.c, interpolation = 'Template')
         self.processConf()
@@ -250,8 +249,8 @@ class FLLBuilder:
         pkgs['list'].extend([l + self.conf['archs'][arch]['linux']
                             for l in ['linux-image-', 'linux-headers-']])
 
-        self.log.info("processing package profile for %s: %s" %
-                      (arch, os.path.basename(profile)))
+        self.log.debug("processing package profile for %s: %s" %
+                       (arch, os.path.basename(profile)))
 
         pfile = ConfigObj(profile)
 
@@ -317,8 +316,8 @@ class FLLBuilder:
                 self.log.critical("no such dep file: %s" % depfile)
                 raise Error
 
-            self.log.info("processing dependency file: %s" %
-                          os.path.basename(depfile))
+            self.log.debug("processing dependency file: %s" %
+                           os.path.basename(depfile))
 
             dfile = ConfigObj(depfile)
 
@@ -369,13 +368,10 @@ class FLLBuilder:
             self.pkgs[arch] = {}
             self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
 
-        if self.opts.d:
-            print self.pkgs
-
 
     def stageBuildArea(self):
         """Prepare temporary directory to prepare chroots and stage result."""
-        self.log.info('Staging build area...')
+        self.log.debug('preparing build area...')
 
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
         os.chown(self.temp, self.opts.u, self.opts.g)
@@ -436,7 +432,7 @@ class FLLBuilder:
                 self.log.exception("unable to remove %s" % dir)
                 raise Error
         else:
-            self.log.info("no dir to remove")
+            self.log.debug("no dir to remove")
 
 
     def _nukeChroot(self, arch):
@@ -447,13 +443,14 @@ class FLLBuilder:
 
     def cleanup(self):
         """Clean up the build area."""
+        self.log.info('cleaning up...')
+
         for arch in self.conf['archs'].keys():
             dir = os.path.join(self.temp, arch)
             if os.path.isdir(dir):
-                self.log.info("cleaning up %s chroot..." % arch)
+                self.log.debug("cleaning up %s chroot..." % arch)
                 self._nuke(dir)
 
-        self.log.info('Cleaning up temp dir...')
         self._nuke(self.temp)
 
 
@@ -470,7 +467,7 @@ class FLLBuilder:
 
         self._mount(chroot)
 
-        self.log.info("command: %s", ' '.join(cmd))
+        self.log.debug("command: %s", ' '.join(cmd))
         if self.opts.v:
             retv = call(cmd, env = self.env)
         else:
@@ -481,9 +478,10 @@ class FLLBuilder:
 
         if retv != 0:
             if ignore_nonzero:
-                self.log.info("non zero retval ignored: %d" % retv)
+                self.log.debug("non zero retval ignored: %d" % retv)
             else:
-                self.log.critical("command return value: %d" % retv)
+                self.log.critical("command failed with return value: %d" %
+                                  retv)
                 raise Error
 
 
@@ -505,7 +503,9 @@ class FLLBuilder:
         """Bootstrap a debian system with cdebootstrap."""
         if self.opts.d:
             verbosity = '--verbose'
-        elif not self.opts.v:
+        elif self.opts.v:
+            pass
+        else:
             verbosity = '--quiet'
 
         debian = self.conf['repos']['debian']
@@ -586,7 +586,7 @@ class FLLBuilder:
         for repo in self.conf['repos'].keys():
             r = self.conf['repos'][repo]
             if 'gpgkey' in r:
-                self.log.info("importing gpg key for '%s'" % r['label'])
+                self.log.debug("importing gpg key for '%s'" % r['label'])
                 gpgkeys.append(r['gpgkey'])
 
                 if r['gpgkey'].startswith('http'):
@@ -700,7 +700,7 @@ class FLLBuilder:
         chroot = os.path.join(self.temp, arch)
 
         if 'debconf' in self.pkgs[arch]:
-            self.log.debug("preseeding debconf")
+            self.log.info("preseeding debconf for %s chroot..." % arch)
             debconf = open(os.path.join(chroot, 'root/debconf-selections'),
                            'w')
             for d in self.pkgs[arch]['debconf']:
@@ -755,22 +755,22 @@ class FLLBuilder:
         """Install linux image, headers, extra modules and associated support
         software."""
         kvers = self._detectLinuxVersion(arch)
-        
+
         modules = []
         for k in kvers:
             modules.extend(self._detectLinuxModules(arch, k))
         
         if len(modules) > 0:
-            self.log.info("installing extra modules for %s" % k)
+            self.log.info("installing linux extra modules for %s..." % k)
             self.log.debug(' '.join(modules))
             self._aptGetInstall(arch, modules)
 
 
     def _installPkgs(self, arch):
         """Install packages."""
+        self.log.info("installing packages for %s..." % arch)
+        
         pkgs = self.pkgs[arch]['list']
-
-        self.log.info("installing packages for %s" % arch)
         self.log.debug(' '.join(pkgs))
         self._aptGetInstall(arch, pkgs)
         self._installLinuxModules(arch)
@@ -781,7 +781,7 @@ class FLLBuilder:
         installed."""
         kvers = self._detectLinuxVersion(arch)
         for k in kvers:
-            self.log.info("rebuilding the live initramfs for %s" % k)
+            self.log.info("creating an initial ramdisk for linux %s..." % k)
             cmd = 'update-initramfs -d -k ' + k
             self._execInChroot(arch, cmd.split())
 
