@@ -196,17 +196,18 @@ class FLLBuilder:
     def _processDefaults(self, arch, d):
         """Form a distro-defaults data structure to be written to
         /etc/default/distro of each chroot, and used for release name."""
-        for r in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+        for k in ['FLL_DISTRO_NAME_SAFE', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
                   'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
                   'FLL_LIVE_USER_GROUPS']:
-            if not r in d:
-                self.log.critical("%s' is required in 'distro' section " % r +
+            if not k in d or not d[k]:
+                self.log.critical("%s' is required in 'distro' section " % k +
                                   "of build conf")
                 raise Error
 
-        for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
-                  'FLL_DISTRO_CODENAME', 'FLL_LIVE_USER']:
-            if k not in d:
+        for k in ['FLL_DISTRO_NAME_SAFE', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+                  'FLL_LIVE_USER', 'FLL_DISTRO_CODENAME_SAFE',
+                  'FLL_DISTRO_CODENAME_REV_SAFE']:
+            if k not in d or not d[k]:
                 continue
             if not d[k].isalnum():
                 self.log.critical("'%s' is not alphanumeric: %s" % (k, d[k]))
@@ -214,6 +215,22 @@ class FLLBuilder:
             elif d[k].find(' ') >= 0:
                 self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
                 raise Error
+
+        if 'FLL_DISTRO_VERSION' in d and d['FLL_DISTRO_VERSION'] and \
+            d['FLL_DISTRO_VERSION'] != 'snapshot':
+            for k in ['FLL_DISTRO_NAME', 'FLL_DISTRO_CODENAME',
+                      'FLL_DISTRO_CODENAME_REV']:
+                safe = k + '_SAFE'
+                if safe in d and d[safe]:
+                    if k not in d or not d[k]:
+                        d[k] = d[safe]
+                else:
+                    self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
+                                      "'%s' was not specified" % safe)
+                    raise Error
+        else:
+            d['FLL_DISTRO_VERSION'] = 'snapshot'
+
 
         dd = {}
         for k, v in d.items():
@@ -415,6 +432,8 @@ class FLLBuilder:
 
     def parsePkgProfile(self):
         """Parse packages profile file(s)."""
+        self.log.info("processing package profile...")
+
         dir = os.path.join(self.opts.s, 'packages')
         file = os.path.join(dir, self.conf['packages']['profile'])
 
