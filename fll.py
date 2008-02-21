@@ -429,6 +429,7 @@ class FLLBuilder:
 
     def _nuke(self, dir):
         """Nuke directory tree."""
+        self._umount(dir)
         if os.path.isdir(dir):
             self.log.info("nuking directory: %s" % dir)
             try:
@@ -440,13 +441,18 @@ class FLLBuilder:
             self.log.info("no dir to remove")
 
 
+    def _nukeChroot(self, arch):
+        """Convenience function to nuke chroot given by arch name."""
+        chroot = os.path.join(self.temp, arch)
+        self._nuke(chroot)
+
+
     def cleanup(self):
         """Clean up the build area."""
         for arch in self.conf['archs'].keys():
             dir = os.path.join(self.temp, arch)
             if os.path.isdir(dir):
                 self.log.info("cleaning up %s chroot..." % arch)
-                self._umount(dir)
                 self._nuke(dir)
 
         self.log.info('Cleaning up temp dir...')
@@ -797,6 +803,7 @@ class FLLBuilder:
             self._dpkgUnDivert(arch)
             self._rebuildInitRamfs(arch)
             self._finalEtc(arch)
+            self._nukeChroot(arch)
 
 
 if __name__ == "__main__":
