@@ -759,7 +759,7 @@ class FLLBuilder:
             modules.extend(self._detectLinuxModules(arch, k))
         
         if len(modules) > 0:
-            self.log.info("installing linux extra modules for %s..." % k)
+            self.log.info("installing extra modules for linux %s..." % k)
             self.log.debug(' '.join(modules))
             self._aptGetInstall(arch, modules)
 
