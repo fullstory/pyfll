@@ -365,7 +365,6 @@ class FLLBuilder:
 
         self.pkgs = {}
         for arch in self.conf['archs'].keys():
-            self.pkgs[arch] = {}
             self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
 
 
@@ -818,5 +817,7 @@ if __name__ == "__main__":
             sys.exit(0)
 
         fll.buildChroot()
+    except KeyboardInterrupt:
+        pass
     except Error:
         sys.exit(1)
