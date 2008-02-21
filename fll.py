@@ -727,7 +727,7 @@ class FLLBuilder:
 
         kvers = [f.lstrip('vmlinuz-') for f in
                  os.listdir(os.path.join(chroot, 'boot'))
-                 if f.startswith('vmlinuz-')])
+                 if f.startswith('vmlinuz-')]
 
         if len(kvers) > 0:
             return kvers
