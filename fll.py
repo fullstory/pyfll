@@ -725,10 +725,9 @@ class FLLBuilder:
         """Return version string of a singularly installed linux-image."""
         chroot = os.path.join(self.temp, arch)
 
-        kvers = []
-        kvers.extend([f.lstrip('vmlinuz-') for f in
-                      os.listdir(os.path.join(chroot, 'boot'))
-                      if f.startswith('vmlinuz-')])
+        kvers = [f.lstrip('vmlinuz-') for f in
+                 os.listdir(os.path.join(chroot, 'boot'))
+                 if f.startswith('vmlinuz-')])
 
         if len(kvers) > 0:
             return kvers
@@ -776,7 +775,11 @@ class FLLBuilder:
             self.log.info("rebuilding the live initramfs for %s" % k)
             cmd = 'update-initramfs -d -k ' + k
             self._execInChroot(arch, cmd.split())
-            cmd = 'update-initramfs -v -c -k ' + k
+
+            if self.opts.v:
+                cmd = 'update-initramfs -v -c -k ' + k
+            else
+                cmd = 'update-initramfs -c -k ' + k
             self._execInChroot(arch, cmd.split())
 
 
