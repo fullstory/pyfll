@@ -24,16 +24,6 @@ def lines2list(lines):
     return [s.strip() for s in lines.splitlines() if s]
 
 
-def uniqList(list):
-    """Return a list containing no duplicate items given a list that
-    may have duplicate items."""
-    d = {}
-    for l in list:
-        d[l] = True
-
-    return d.keys()
-
-
 class Error(Exception):
     """A generic error handler that does nothing."""
     pass
@@ -56,6 +46,23 @@ class FLLBuilder:
 
     diverts = ['/sbin/start-stop-daemon', '/sbin/modprobe',
                '/usr/sbin/policy-rc.d']
+
+
+    def __filterList(self, list):
+        """Return a list containing no duplicate items given a list that
+        may have duplicate items."""
+
+        d = {}
+        for l in list:
+            if l in d:
+                self.log.debug("duplicate: %s" % l)
+            else:
+                d[l] = True
+
+        list = d.keys()
+        list.sort()
+
+        return list
 
 
     def _initLogger(self, lvl):
@@ -436,6 +443,8 @@ class FLLBuilder:
 
         self.log.debug("packages + debconf for %s:" % arch)
         self.log.debug(pkgs)
+
+        pkgs['list'] = self.__filterList(pkgs['list'])
 
         return pkgs
 
@@ -857,13 +866,30 @@ class FLLBuilder:
         """Install packages."""
         self.log.info("installing packages in %s chroot..." % arch)
 
-        pkgs = uniqList(self.pkgs[arch]['list'])
+        pkgs = self.pkgs[arch]['list']
 
         kvers = self.conf['archs'][arch]['linux']
         pkgs.extend(self._detectLinuxModules(arch, kvers))
 
-        self.log.debug(' '.join(pkgs))
         self._aptGetInstall(arch, pkgs)
+
+
+    def _collectManifest(self, arch):
+        """Collect package information wfrom each chroot."""
+        chroot = os.path.join(self.temp, arch)
+        status = os.path.join(chroot, 'var/lib/dpkg/status')
+
+        self.log.info("collecting package manifest for %s" % arch)
+        try:
+            manifest= dict([(p['Package'], p['Version']) for p in
+                            deb822.Packages.iter_paragraphs(file(status))
+                            if p['Status'] == 'install ok installed'])
+        except:
+            self.conf.exception("failed to collect manifest for %s", arch)
+            raise Error
+        else:
+            self.log.debug(manifest)
+            self.pkgs[arch]['manifest'] = manifest
 
 
     def _rebuildInitRamfs(self, arch):
@@ -881,6 +907,9 @@ class FLLBuilder:
                 cmd = 'update-initramfs -c -k ' + k
             self._execInChroot(arch, cmd.split())
 
+        self.log.debug("purging live initramfs")
+        self._execInChroot(arch, 'dpkg --purge fll-live-initramfs'.split())
+
 
     def buildChroot(self):
         """Main loop to call all chroot building functions."""
@@ -892,6 +921,7 @@ class FLLBuilder:
             self._preseedDebconf(arch)
             self._dpkgAddDivert(arch)
             self._installPkgs(arch)
+            self._collectManifest(arch)
             self._dpkgUnDivert(arch)
             self._finalEtc(arch)
             self._rebuildInitRamfs(arch)
