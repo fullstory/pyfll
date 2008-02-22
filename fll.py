@@ -881,15 +881,19 @@ class FLLBuilder:
 
         self.log.info("collecting package manifest for %s" % arch)
         try:
-            manifest= dict([(p['Package'], p['Version']) for p in
-                            deb822.Packages.iter_paragraphs(file(status))
-                            if p['Status'] == 'install ok installed'])
+            manifest = dict([(p['Package'], p['Version']) for p in
+                             deb822.Packages.iter_paragraphs(file(status))
+                             if p['Status'] == 'install ok installed'])
+            sources = [p['Source'].split()[0] for p in
+                       deb822.Packages.iter_paragraphs(file(status))
+                       if 'Source' in p and p['Package'] in manifest]
         except:
             self.conf.exception("failed to collect manifest for %s", arch)
             raise Error
         else:
             self.log.debug(manifest)
             self.pkgs[arch]['manifest'] = manifest
+            self.pkgs[arch]['sources'] = self.__filterList(sources)
 
 
     def _rebuildInitRamfs(self, arch):
