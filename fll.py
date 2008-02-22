@@ -911,10 +911,10 @@ class FLLBuilder:
                     if len(uris) > 0:
                         for u in uris:
                             uri = u.split()[0].strip("'")
-                            self.log.debug("%s: %s" % (p, uri))
                             source.append(uri)
                     else:
-                        self.log.warning("no source uri's for %s")
+                        self.log.critical("no source uri's for %s")
+                        raise Error
             self._umount(chroot)
             self.pkgs[arch]['source'] = self.__filterList(source)
 
