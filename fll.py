@@ -30,7 +30,7 @@ def uniqList(list):
     d = {}
     for l in list:
         d[l] = True
-    
+
     return d.keys()
 
 
@@ -882,7 +882,7 @@ class FLLBuilder:
     def _installPkgs(self, arch):
         """Install packages."""
         self.log.info("installing packages in %s chroot..." % arch)
-        
+
         pkgs = uniqList(self.pkgs[arch]['list'])
         self.log.debug(' '.join(pkgs))
         self._aptGetInstall(arch, pkgs)
