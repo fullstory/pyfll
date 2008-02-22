@@ -867,11 +867,12 @@ class FLLBuilder:
         """Install linux image, headers, extra modules and associated support
         software."""
         kvers = self._detectLinuxVersion(arch)
+        kvers.append(self.conf['archs'][arch]['linux'])
 
         modules = []
         for k in kvers:
             modules.extend(self._detectLinuxModules(arch, k))
-        
+
         if len(modules) > 0:
             self.log.info("installing extra modules for linux %s..." % k)
             self.log.debug(' '.join(modules))
