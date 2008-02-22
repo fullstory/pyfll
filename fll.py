@@ -711,15 +711,12 @@ class FLLBuilder:
             cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
             cmd += d
             self._execInChroot(arch, cmd.split())
-            shutil.copy(os.path.join(chroot, 'bin/true'),
-                        os.path.join(chroot, d.lstrip('/')))
-
-        policyrcd = os.path.join(chroot, 'usr/sbin/policy-rc.d')
-        self.log.debug("creating %s" % policyrcd)
-        policy = open(policyrcd, 'w')
-        policy.write("#!/bin/sh\nexit 101\n")
-        policy.close()
-        os.chmod(policyrcd, 0700)
+            if d.endswith('policy-rc.d'):
+                self._writeFile(arch, d)
+                os.chmod(os.path.join(chroot, d.lstrip('/')), 0700)
+            else:
+                shutil.copy(os.path.join(chroot, 'bin/true'),
+                            os.path.join(chroot, d.lstrip('/')))
 
 
     def _dpkgUnDivert(self, arch):
@@ -727,15 +724,10 @@ class FLLBuilder:
         some other more appropiate facility."""
         chroot = os.path.join(self.temp, arch)
         for d in self.diverts:
-            self.log.debug("undoing diversion of %s" % d)
+            self.log.debug("undoing diversion: %s" % d)
             os.unlink(os.path.join(chroot, d.lstrip('/')))
-            cmd = 'dpkg-divert --rename --remove ' + d
+            cmd = 'dpkg-divert --remove --rename ' + d
             self._execInChroot(arch, cmd.split())
-
-        policyrcd = os.path.join(chroot, 'usr/sbin/policy-rc.d')
-        if os.path.isfile(policyrcd):
-            self.log.debug("removing %s" % policyrcd)
-            os.unlink(policyrcd)
 
 
     def _writeFile(self, arch, file):
@@ -743,6 +735,7 @@ class FLLBuilder:
         chroot = os.path.join(self.temp, arch)
         try:
             f = open(os.path.join(chroot, file.lstrip('/')), 'w')
+            self.log.debug("writing file: %s" % file)
         except:
             self.log.exception("failed to open file for writing: %s" % file)
             raise Error
@@ -779,29 +772,25 @@ class FLLBuilder:
             f.write("iface lo inet loopback\n")
         elif file == '/etc/resolv.conf':
             pass
+        elif file == '/usr/sbin/policy-rc.d':
+            f.write("#!/bin/sh\n")
+            f.write("exit 101\n")
 
         f.close()
 
 
     def _defaultEtc(self, arch):
         """Initial creation of conffiles required in chroot."""
-        self.log.debug('adding /etc/fstab')
         self._writeFile(arch, '/etc/fstab')
-        self.log.debug('adding /etc/kernel-img.conf')
         self._writeFile(arch, '/etc/kernel-img.conf')
-        self.log.debug('adding /etc/network/interfaces')
         self._writeFile(arch, '/etc/network/interfaces')
 
 
     def _finalEtc(self, arch):
         """Final editing of conffiles in chroot."""
-        self.log.debug('adding /etc/default/distro')
         self._writeFile(arch, '/etc/default/distro')
-        self.log.debug('adding /etc/hostname')
         self._writeFile(arch, '/etc/hostname')
-        self.log.debug('adding /etc/hosts')
         self._writeFile(arch, '/etc/hosts')
-        self.log.debug('fixing /etc/resolv.conf')
         self._writeFile(arch, '/etc/resolv.conf')
 
         self._writeAptLists(arch)
