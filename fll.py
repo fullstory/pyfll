@@ -328,8 +328,9 @@ class FLLBuilder:
         """Return a dict, arch string as keys and package list as values."""
         pkgs = {'debconf': [], 'list': []}
 
-        pkgs['list'].extend([l + self.conf['archs'][arch]['linux']
-                            for l in ['linux-image-', 'linux-headers-']])
+        linux_meta = ['linux-image', 'linux-headers']
+        pkgs['list'].extend(['-'.join([l, self.conf['archs'][arch]['linux']])
+                             for l in linux_meta])
 
         self.log.debug("processing package profile for %s: %s" %
                        (arch, os.path.basename(profile)))
@@ -863,30 +864,17 @@ class FLLBuilder:
         return modules
 
 
-    def _installLinuxModules(self, arch):
-        """Install linux image, headers, extra modules and associated support
-        software."""
-        kvers = self._detectLinuxVersion(arch)
-        kvers.append(self.conf['archs'][arch]['linux'])
-
-        modules = []
-        for k in kvers:
-            modules.extend(self._detectLinuxModules(arch, k))
-
-        if len(modules) > 0:
-            self.log.info("installing extra modules for linux %s..." % k)
-            self.log.debug(' '.join(modules))
-            self._aptGetInstall(arch, modules)
-
-
     def _installPkgs(self, arch):
         """Install packages."""
         self.log.info("installing packages in %s chroot..." % arch)
 
         pkgs = uniqList(self.pkgs[arch]['list'])
+
+        kvers = self.conf['archs'][arch]['linux']
+        pkgs.extend(self._detectLinuxModules(arch, kvers))
+
         self.log.debug(' '.join(pkgs))
         self._aptGetInstall(arch, pkgs)
-        self._installLinuxModules(arch)
 
 
     def _rebuildInitRamfs(self, arch):
