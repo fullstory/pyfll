@@ -48,13 +48,13 @@ class FLLBuilder:
                '/usr/sbin/policy-rc.d']
 
 
-    def __filterList(self, list):
+    def __filterList(self, list, dup_warn = False):
         """Return a list containing no duplicate items given a list that
         may have duplicate items."""
 
         d = {}
         for l in list:
-            if l in d:
+            if l in d and dup_warn:
                 self.log.debug("duplicate: %s" % l)
             else:
                 d[l] = True
@@ -444,7 +444,7 @@ class FLLBuilder:
         self.log.debug("packages + debconf for %s:" % arch)
         self.log.debug(pkgs)
 
-        pkgs['list'] = self.__filterList(pkgs['list'])
+        pkgs['list'] = self.__filterList(pkgs['list'], dup_warn = True)
 
         return pkgs
 
@@ -884,42 +884,39 @@ class FLLBuilder:
         try:
             manifest = dict([(p['Package'], p['Version']) for p in
                              deb822.Packages.iter_paragraphs(file(status))
-                             if p['Status'] == 'install ok installed'])
-            source = dict([(p['Source'].split()[0], []) for p in
-                           deb822.Packages.iter_paragraphs(file(status))
-                           if 'Source' in p and p['Package'] in manifest])
+                             if p['Status'].endswith('install ok installed')])
         except:
             self.conf.exception("failed to collect manifest for %s", arch)
             raise Error
-
-        sources = source.keys()
-        sources.sort()
+        else:
+            self.pkgs[arch]['manifest'] = manifest
 
         if not self.opts.B:
             self.log.info("querying src package uri's for %s" % arch)
             self._mount(chroot)
-            for s in sources:
+            source = []
+            packages = manifest.keys()
+            packages.sort()
+            for p in manifest.keys():
                 cmd = 'chroot ' + chroot
-                cmd += ' apt-get -qq --print-uris source ' + s
+                cmd += ' apt-get -qq --print-uris source ' + p
                 try:
-                    p = Popen(cmd.split(), env = self.env, stdout = PIPE,
+                    q = Popen(cmd.split(), env = self.env, stdout = PIPE,
                               stderr = open('/dev/null', 'w'))
                 except:
-                    self.log.exception("failed to query src uri's for %s" % s)
+                    self.log.exception("failed to query src uri's for %s" % p)
                     raise Error
                 else:
-                    uris = p.communicate()[0].splitlines()
+                    uris = q.communicate()[0].splitlines()
                     if len(uris) > 0:
                         for u in uris:
                             uri = u.split()[0].strip("'")
-                            self.log.debug("%s: %s" % (s, uri))
-                            source[s].append(uri)
+                            self.log.debug("%s: %s" % (p, uri))
+                            source.append(uri)
                     else:
                         self.log.warning("no source uri's for %s")
             self._umount(chroot)
-
-        self.pkgs[arch]['manifest'] = manifest
-        self.pkgs[arch]['source'] = source
+            self.pkgs[arch]['source'] = self.__filterList(source)
 
 
     def _rebuildInitRamfs(self, arch):
