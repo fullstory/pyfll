@@ -329,8 +329,8 @@ class FLLBuilder:
         pkgs = {'debconf': [], 'list': []}
 
         linux_meta = ['linux-image', 'linux-headers']
-        pkgs['list'].extend(['-'.join([l, self.conf['archs'][arch]['linux']])
-                             for l in linux_meta])
+        kvers = self.conf['archs'][arch]['linux']
+        pkgs['list'].extend(['-'.join([l, kvers]) for l in linux_meta])
 
         self.log.debug("processing package profile for %s: %s" %
                        (arch, os.path.basename(profile)))
