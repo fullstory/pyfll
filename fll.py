@@ -558,7 +558,7 @@ class FLLBuilder:
 
         self._mount(chroot)
 
-        self.log.debug("command: %s", ' '.join(cmd))
+        self.log.debug("%s", ' '.join(cmd))
         if self.opts.q:
             retv = call(cmd, stdout = open('/dev/null', 'w'), stderr = STDOUT,
                         env = self.env)
@@ -875,7 +875,8 @@ class FLLBuilder:
 
 
     def _collectManifest(self, arch):
-        """Collect package information wfrom each chroot."""
+        """Collect package and source package URI information from each
+        chroot."""
         chroot = os.path.join(self.temp, arch)
         status = os.path.join(chroot, 'var/lib/dpkg/status')
 
@@ -884,16 +885,41 @@ class FLLBuilder:
             manifest = dict([(p['Package'], p['Version']) for p in
                              deb822.Packages.iter_paragraphs(file(status))
                              if p['Status'] == 'install ok installed'])
-            sources = [p['Source'].split()[0] for p in
-                       deb822.Packages.iter_paragraphs(file(status))
-                       if 'Source' in p and p['Package'] in manifest]
+            source = dict([(p['Source'].split()[0], []) for p in
+                           deb822.Packages.iter_paragraphs(file(status))
+                           if 'Source' in p and p['Package'] in manifest])
         except:
             self.conf.exception("failed to collect manifest for %s", arch)
             raise Error
-        else:
-            self.log.debug(manifest)
-            self.pkgs[arch]['manifest'] = manifest
-            self.pkgs[arch]['sources'] = self.__filterList(sources)
+
+        sources = source.keys()
+        sources.sort()
+
+        if not self.opts.B:
+            self.log.info("querying src package uri's for %s" % arch)
+            self._mount(chroot)
+            for s in sources:
+                cmd = 'chroot ' + chroot
+                cmd += ' apt-get -qq --print-uris source ' + s
+                try:
+                    p = Popen(cmd.split(), env = self.env, stdout = PIPE,
+                              stderr = open('/dev/null', 'w'))
+                except:
+                    self.log.exception("failed to query src uri's for %s" % s)
+                    raise Error
+                else:
+                    uris = p.communicate()[0].splitlines()
+                    if len(uris) > 0:
+                        for u in uris:
+                            uri = u.split()[0].strip("'")
+                            self.log.debug("%s: %s" % (s, uri))
+                            source[s].append(uri)
+                    else:
+                        self.log.warning("no source uri's for %s")
+            self._umount(chroot)
+
+        self.pkgs[arch]['manifest'] = manifest
+        self.pkgs[arch]['source'] = source
 
 
     def _rebuildInitRamfs(self, arch):
