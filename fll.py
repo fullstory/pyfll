@@ -857,7 +857,7 @@ class FLLBuilder:
         for list in lists:
             modules.extend([pkg['Package'] for pkg in
                             deb822.Packages.iter_paragraphs(file(list))
-                            if pkg['Package'].endswith('modules-' + kvers)])
+                            if pkg['Package'].endswith('-modules-' + kvers)])
 
         return modules
 
@@ -868,8 +868,8 @@ class FLLBuilder:
 
         pkgs = self.pkgs[arch]['list']
 
-        kvers = self.conf['archs'][arch]['linux']
-        pkgs.extend(self._detectLinuxModules(arch, kvers))
+        linux_meta = self.conf['archs'][arch]['linux']
+        pkgs.extend(self._detectLinuxModules(arch, linux_meta))
 
         self._aptGetInstall(arch, pkgs)
 
@@ -880,7 +880,7 @@ class FLLBuilder:
         chroot = os.path.join(self.temp, arch)
         status = os.path.join(chroot, 'var/lib/dpkg/status')
 
-        self.log.info("collecting package manifest for %s" % arch)
+        self.log.info("collecting package manifest for %s..." % arch)
         try:
             manifest = dict([(p['Package'], p['Version']) for p in
                              deb822.Packages.iter_paragraphs(file(status))
@@ -892,12 +892,25 @@ class FLLBuilder:
             self.pkgs[arch]['manifest'] = manifest
 
         if not self.opts.B:
-            self.log.info("querying src package uri's for %s" % arch)
-            self._mount(chroot)
+            self.log.info("querying src package uri's for %s..." % arch)
+
             source = []
+            kvers = self._detectLinuxVersion(arch)
             packages = manifest.keys()
             packages.sort()
-            for p in manifest.keys():
+
+            self._mount(chroot)
+            for p in packages:
+                for k in kvers:
+                    if p.endswith('-modules-' + k):
+                        if p.startswith('virtualbox-ose-guest'):
+                            p = 'virtualbox-ose'
+                        else:
+                            p = p[:p.find('-modules-' + k)]
+
+                if not self.opts.q:
+                    self.log.info(p)
+
                 cmd = 'chroot ' + chroot
                 cmd += ' apt-get -qq --print-uris source ' + p
                 try:
@@ -911,13 +924,14 @@ class FLLBuilder:
                     if len(uris) > 0:
                         for u in uris:
                             uri = u.split()[0].strip("'")
+                            self.log.debug(uri)
                             source.append(uri)
                     else:
-                        self.log.critical("no source uri's for %s")
+                        self.log.critical("no source uri's for %s" % p)
                         raise Error
             self._umount(chroot)
-            self.pkgs[arch]['source'] = self.__filterList(source)
 
+            self.pkgs[arch]['source'] = self.__filterList(source)
 
     def _rebuildInitRamfs(self, arch):
         """Rebuild the chroot live initramfs after all packages have been
