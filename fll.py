@@ -1053,10 +1053,10 @@ class FLLBuilder:
         else:
             for i in initscripts:
                 if i in wd:
-                    self.log.debug("whitelisting: %s" % i)
+                    self.log.debug("whitelisted: %s" % i)
                     fllinit.write("%s\n" % os.path.basename(i))
                 else:
-                    self.log.debug("blacklisting: %s" % i)
+                    self.log.debug("blacklisted: %s" % i)
             fllinit.close()
 
 
