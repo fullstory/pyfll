@@ -970,7 +970,7 @@ class FLLBuilder:
         
         init_glob = os.path.join(chroot, 'etc/init.d/*')
         try:
-            initscripts = [i[i.index(initd):] for i in glob.glob(init_glob)
+            initscripts = [i.lstrip(chroot) for i in glob.glob(init_glob)
                            if self.__isexecutable(i)]
         except:
             log.self.exception("failed to build dict of chroot initscripts")
@@ -985,18 +985,11 @@ class FLLBuilder:
             files = []
             if line.startswith(initd):
                 file_glob = os.path.join(chroot, line.lstrip('/').rstrip())
-                try:
-                    files = [f[f.index(initd):]
-                             for f in glob.glob(file_glob)
-                             if self.__isexecutable(f)]
-                except:
-                    log.self.exception("failed to glob initscript: %s" %
-                                       file_glob)
-                    raise Error
-                else:
-                    for file in files:
-                        self.log.debug("blacklisting: %s (glob)" % file)
-                        bd[file] = True
+                files = [f.lstrip(chroot) for f in glob.glob(file_glob)
+                         if self.__isexecutable(f)]
+                for file in files:
+                    self.log.debug("blacklisting: %s (glob)" % file)
+                    bd[file] = True
             else:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
                 self._mount(chroot)
@@ -1018,18 +1011,11 @@ class FLLBuilder:
             files = []
             if line.startswith(initd):
                 file_glob = os.path.join(chroot, line.lstrip('/').rstrip())
-                try:
-                    files = [f[f.index(initd):]
-                             for f in glob.glob(file_glob)
-                             if self.__isexecutable(f)]
-                except:
-                    log.self.exception("failed to glob initscript: %s" %
-                                       file_glob)
-                    raise Error
-                else:
-                    for file in files:
-                        self.log.debug("whitelisting: %s (glob)" % file)
-                        wd[file] = True
+                files = [f.lstrip(chroot) for f in glob.glob(file_glob)
+                         if self.__isexecutable(f)]
+                for file in files:
+                    self.log.debug("whitelisting: %s (glob)" % file)
+                    wd[file] = True
             else:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
                 self._mount(chroot)
