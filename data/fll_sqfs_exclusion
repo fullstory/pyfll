@@ -5,7 +5,7 @@ etc/.*lock
 etc/adjtime
 etc/timezone
 etc/ssh/ssh_host_*key*
-etc/udev/rules.d/*_persistent-*.rules
+etc/udev/rules.d/z25_persistent-*.rules
 etc/X11/xorg.conf
 home/*
 lib/init/rw/*
