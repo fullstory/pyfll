@@ -18,6 +18,6 @@ packages = """
 	genisoimage
 	grub-gfxboot
 	locales
-	squashfs-utils
+	squashfs-tools
 """
 
