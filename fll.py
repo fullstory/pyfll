@@ -523,7 +523,6 @@ class FLLBuilder:
 
     def _nuke(self, dir):
         """Nuke directory tree."""
-        self._umount(dir)
         if os.path.isdir(dir):
             self.log.debug("nuking directory: %s" % dir)
             try:
@@ -538,6 +537,7 @@ class FLLBuilder:
         if not self.opts.p:
             self.log.info("nuking %s chroot..." % arch)
             chroot = os.path.join(self.temp, arch)
+            self._umount(dir)
             self._nuke(chroot)
 
 
@@ -549,6 +549,7 @@ class FLLBuilder:
             dir = os.path.join(self.temp, arch)
             if os.path.isdir(dir):
                 self.log.debug("cleaning up %s chroot..." % arch)
+                self._umount(dir)
                 self._nuke(dir)
 
         self._nuke(self.temp)
@@ -633,6 +634,8 @@ class FLLBuilder:
 
         cmd = 'dpkg --purge cdebootstrap-helper-diverts'
         self._execInChroot(arch, cmd.split())
+
+        self._nuke(os.path.join(dir, 'var/cache/bootstrap'))
 
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
@@ -957,9 +960,6 @@ class FLLBuilder:
                 cmd = 'update-initramfs -c -k ' + k
             self._execInChroot(arch, cmd.split())
 
-        self.log.debug("purging live initramfs")
-        self._execInChroot(arch, 'dpkg --purge fll-live-initramfs'.split())
-
 
     def _initBlackList(self, arch):
         """Blacklist a group of initscripts present in chroot that should not
@@ -1061,6 +1061,17 @@ class FLLBuilder:
             fllinit.close()
 
 
+    def _cleanChroot(self, arch):
+        """Remove unwanted content from a chroot."""
+        chroot = os.path.join(self.temp, arch)
+
+        self.log.debug("purging live initramfs")
+        self._execInChroot(arch, 'dpkg --purge fll-live-initramfs'.split())
+
+        self._execInChroot(arch, 'apt-get clean'.split())
+        self._execInChroot(arch, 'dpkg --clear-avail'.split())
+
+
     def buildChroot(self):
         """Main loop to call all chroot building functions."""
         archs = self.conf['archs'].keys()
@@ -1072,10 +1083,11 @@ class FLLBuilder:
             self._dpkgAddDivert(arch)
             self._installPkgs(arch)
             self._dpkgUnDivert(arch)
-            self._collectManifest(arch)
+            self._initBlackList(arch)
             self._finalEtc(arch)
             self._rebuildInitRamfs(arch)
-            self._initBlackList(arch)
+            self._collectManifest(arch)
+            self._cleanChroot(arch)
             self._nukeChroot(arch)
 
 
