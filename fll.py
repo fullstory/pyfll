@@ -530,6 +530,8 @@ class FLLBuilder:
             except:
                 self.log.exception("unable to remove %s" % dir)
                 raise Error
+        else:
+            self.log.debug("not nuking directory (does not exist): %s" % dir)
 
 
     def _nukeChroot(self, arch):
