@@ -1,0 +1,23 @@
+desc = """
+	Packages that are absolutely required to be included in the build
+	chroot or it will fail to build or boot properly.
+"""
+
+repos = """
+	debian
+	sidux
+"""
+
+debconf = """
+	locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8
+"""
+
+packages = """
+	fll-live-initramfs
+	fll-live-initscripts
+	genisoimage
+	grub-gfxboot
+	locales
+	squashfs-utils
+"""
+

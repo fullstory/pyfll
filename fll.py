@@ -395,7 +395,7 @@ class FLLBuilder:
                 pkgs['list'].append(p)
                 self.log.debug("  %s" % p)
 
-        deps = ['locales']
+        deps = ['essential']
         if 'deps' in pfile:
             self.log.debug("deps:")
             for dep in lines2list(pfile['deps']):
