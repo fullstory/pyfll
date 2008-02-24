@@ -994,7 +994,7 @@ class FLLBuilder:
                     raise Error
                 else:
                     for file in files:
-                        self.log.debug("blacklisting: %s" % file)
+                        self.log.debug("blacklisting: %s (glob)" % file)
                         bd[file] = True
             else:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
@@ -1027,7 +1027,7 @@ class FLLBuilder:
                     raise Error
                 else:
                     for file in files:
-                        self.log.debug("whitelisting: %s" % file)
+                        self.log.debug("whitelisting: %s (glob)" % file)
                         wd[file] = True
             else:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
