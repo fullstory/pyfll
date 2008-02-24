@@ -970,7 +970,7 @@ class FLLBuilder:
         
         init_glob = os.path.join(chroot, 'etc/init.d/*')
         try:
-            initscripts = [(i[i.index(initd):] for i in glob.glob(init_glob)
+            initscripts = [i[i.index(initd):] for i in glob.glob(init_glob)
                            if self.__isexecutable(i)]
         except:
             log.self.exception("failed to build dict of chroot initscripts")
