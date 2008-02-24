@@ -8,9 +8,7 @@ repos = """
 
 packages = """
 	apt-conf-sidux
-	desktop-defaults-common
 	gfxboot-theme-sidux
-	sidux-art-wallpaper
 	sidux-keyrings
 	sidux-scripts
 	udev-config-sidux
