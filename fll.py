@@ -988,7 +988,8 @@ class FLLBuilder:
     def _initBlackList(self, arch):
         """Blacklist a group of initscripts present in chroot that should not
         be executed during live boot per default."""
-        self.log.info("calculating initscript blacklist...")
+        self.log.info("calculating initscript blacklist for %s chroot..." %
+                      arch)
         chroot = os.path.join(self.temp, arch)
         initd = '/etc/init.d/'
 
