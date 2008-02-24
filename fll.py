@@ -1038,7 +1038,7 @@ class FLLBuilder:
                                os.path.join(chroot, 'etc/default/fll-init'))
             raise Error
         else:
-            self.log.debug('writing /etc/default/fll-init')
+            self.log.debug('writing file: /etc/default/fll-init')
             for i in initscripts:
                 if i in wd:
                     self.log.debug("whitelisted: %s" % i)
@@ -1070,10 +1070,10 @@ class FLLBuilder:
             self._dpkgAddDivert(arch)
             self._installPkgs(arch)
             self._dpkgUnDivert(arch)
+            self._collectManifest(arch)
             self._initBlackList(arch)
             self._finalEtc(arch)
             self._rebuildInitRamfs(arch)
-            self._collectManifest(arch)
             self._cleanChroot(arch)
             self._nukeChroot(arch)
 
