@@ -10,6 +10,7 @@ from optparse import OptionParser
 from subprocess import *
 
 import atexit
+import glob
 import logging
 import os
 import sys
@@ -63,6 +64,14 @@ class FLLBuilder:
         list.sort()
 
         return list
+
+
+    def __isexecutable(self, file):
+        """Return True is file is executable, False otherwise."""
+        if os.access(file, os.X_OK) and not os.path.isdir(file):
+            return True
+        else:
+            return False
 
 
     def _initLogger(self, lvl):
@@ -952,6 +961,84 @@ class FLLBuilder:
         self._execInChroot(arch, 'dpkg --purge fll-live-initramfs'.split())
 
 
+    def _initBlackList(self, arch):
+        """Blacklist a group of initscripts present in chroot that should not
+        be executed during live boot per default."""
+        chroot = os.path.join(self.temp, arch)
+        
+        init_glob = os.path.join(chroot, 'etc/init.d/*')
+        initscripts = dict([(i, True) for i in glob.glob(init_glob)
+                            if self.__isexecutable(i)])
+        
+        bd = {}
+        for line in open(os.path.join(self.opts.d, 'data/fll_init_blacklist')):
+            if line.startswith('#'):
+                continue
+            files = []
+            if line.startswith('/etc/init.d'):
+                files = [file for file in glob.glob(line.rstrip())
+                         if self.__isexecutable(file)]
+                for file in files:
+                    self.log.debug("blacklisting: %s" % file)
+                    bd[file] = True
+                continue
+            else:
+                cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
+                self._mount(chroot)
+                p = Popen(cmd.split(), env = self.env, stdout = PIPE,
+                          stderr = open('/dev/null', 'w'))
+                p.wait()
+                self._umount(chroot)
+                for file in p.communicate()[0].splitlines():
+                    file = file.strip().split()[0]
+                    if file.startswith('/etc/init.d'):
+                        self.log.debug("blacklisting: %s (%s)" %
+                                       (file, line.rstrip()))
+                        bd[file] = True
+
+        wd = {}
+        for line in open(os.path.join(self.opts.d, 'data/fll_init_whitelist')):
+            if line.startswith('#'):
+                continue
+            files = []
+            if line.startswith('/etc/init.d'):
+                files = [file for file in glob.glob(line.rstrip())
+                         if self.__isexecutable(file)]
+                for file in files:
+                    self.log.debug("whitelisting: %s" % file)
+                    wd[file] = True
+                continue
+            else:
+                cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
+                self._mount(chroot)
+                p = Popen(cmd.split(), env = self.env, stdout = PIPE,
+                          stderr = open('/dev/null', 'w'))
+                p.wait()
+                self._umount(chroot)
+                for file in p.communicate()[0].splitlines():
+                    file = file.strip().split()[0]
+                    if file.startswith('/etc/init.d') and file not in bd:
+                        self.log.debug("whitelisting: %s (%s)" %
+                                       (file, line.rstrip()))
+                        wd[file] = True
+
+        blacklist = [i for i in initscripts if not i in wd]
+        blacklist.sort()
+
+        try:
+            fllinit = open(os.path.join(chroot, 'etc/default/fll-init'), 'a')
+        except:
+            self.log.exception("failed to open file: %s" %
+                               os.path.join(chroot, 'etc/default/fll-init'))
+            raise Error
+        else:
+            for i in blacklist:
+                i = "%s\n" % os.path.basename(i)
+                self.log.debug("fll-init: %s" % i.rstrip())
+                fllinit.write(i)
+            fllinit.close()
+
+
     def buildChroot(self):
         """Main loop to call all chroot building functions."""
         archs = self.conf['archs'].keys()
@@ -966,6 +1053,7 @@ class FLLBuilder:
             self._dpkgUnDivert(arch)
             self._finalEtc(arch)
             self._rebuildInitRamfs(arch)
+            self._initBlackList(arch)
             self._nukeChroot(arch)
 
 

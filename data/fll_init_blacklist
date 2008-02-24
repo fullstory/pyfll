@@ -1,0 +1,22 @@
+#################################################
+# You may list individual initscript names or
+# packages names here, and they will be black
+# listed.
+#################################################
+# These initscripts should never be executed on
+# live system, but are included in packages that
+# have been whitelisted.
+#################################################
+/etc/init.d/anacron
+/etc/init.d/bootlogd
+/etc/init.d/checkfs.sh
+/etc/init.d/checkroot.sh
+/etc/init.d/cron
+/etc/init.d/halt
+/etc/init.d/hwclock.sh
+/etc/init.d/reboot
+/etc/init.d/stop-bootlogd
+/etc/init.d/stop-bootlogd-single
+/etc/init.d/umountfs
+/etc/init.d/umountroot
+/etc/init.d/urandom

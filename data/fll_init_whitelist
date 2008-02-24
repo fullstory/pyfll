@@ -1,0 +1,59 @@
+#################################################
+# You may list individual initscript names or
+# packages names here, and they will be white
+# listed.
+#################################################
+# our live initscripts
+#################################################
+/etc/init.d/fll-*
+#################################################
+# libdevmapper occupies a painful namespace
+#################################################
+/etc/init.d/libdevmapper*
+#################################################
+# core packages, same list as in fll-installer
+#################################################
+alsa-base
+alsa-utils
+#atd
+avahi-daemon
+#capiutils
+console-tools
+console-common
+cpufrequtils
+#cron
+dbus
+fuse-utils
+gpm
+hal
+#hdparm
+hotkey-setup
+ifupdown
+initscripts
+irqbalance
+#klogd
+libc6
+lvm2
+module-init-tools
+netbase
+pcmciautils
+#ppp
+procps
+resolvconf
+#screen
+#setserial
+sudo
+#sysklogd
+sysv-rc
+udev
+virtualbox-ose-guest-utils
+wpasupplicant
+x11-common
+#################################################
+# extra packages, managed by fll-live-initscripts
+#################################################
+acpid
+bluez-utils
+cupsys
+powernowd
+powersaved
