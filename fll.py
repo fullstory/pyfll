@@ -976,6 +976,8 @@ class FLLBuilder:
         except:
             log.self.exception("failed to build dict of chroot initscripts")
             raise Error
+        else:
+            initscripts().sort()
         
         bd = {}
         for line in open(os.path.join(self.opts.s, 'data/fll_init_blacklist')):
@@ -1043,9 +1045,6 @@ class FLLBuilder:
                                        (file, line.rstrip()))
                         wd[file] = True
 
-        blacklist = [i for i in initscripts if not i in wd]
-        blacklist.sort()
-
         try:
             fllinit = open(os.path.join(chroot, 'etc/default/fll-init'), 'a')
         except:
@@ -1053,10 +1052,12 @@ class FLLBuilder:
                                os.path.join(chroot, 'etc/default/fll-init'))
             raise Error
         else:
-            for i in blacklist:
-                i = "%s\n" % os.path.basename(i)
-                self.log.debug("fll-init: %s" % i.rstrip())
-                fllinit.write(i)
+            for i in initscripts:
+                if i in wd:
+                    self.log.debug("whitelisting: %s" % i)
+                    fllinit.write("%s\n" % os.path.basename(i))
+                else:
+                    self.log.debug("blacklisting: %s" % i)
             fllinit.close()
 
 
