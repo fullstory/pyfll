@@ -19,6 +19,7 @@ sys/*
 tmp/*
 tmp/.*
 var/cache/debconf/*-old
+var/lib/apt/extended_states
 var/lib/apt/lists/*_dists_*
 var/lib/dpkg/*-old
 var/lib/initramfs-tools/*
