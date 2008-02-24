@@ -897,7 +897,7 @@ class FLLBuilder:
         #  * fix /usr/bin/X
         #  * update-locatedb
         #  * preseed alternatives (pager)
-        #  * adduser (groups)
+        #  * adduser (groups, homedir perms)
 
 
     def _collectManifest(self, arch):
@@ -1069,9 +1069,9 @@ class FLLBuilder:
             for i in initscripts:
                 if i in wd:
                     self.log.debug("whitelisted: %s" % i)
-                    fllinit.write("%s\n" % os.path.basename(i))
                 else:
                     self.log.debug("blacklisted: %s" % i)
+                    fllinit.write("%s\n" % os.path.basename(i))
             fllinit.close()
 
 
