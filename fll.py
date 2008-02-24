@@ -481,8 +481,7 @@ class FLLBuilder:
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
         os.chown(self.temp, self.opts.u, self.opts.g)
 
-        if not self.opts.p:
-            atexit.register(self.cleanup)
+        atexit.register(self.cleanup)
 
         os.mkdir(os.path.join(self.temp, 'staging'))
         self.log.debug("creating directory: %s" %
@@ -552,7 +551,8 @@ class FLLBuilder:
             if os.path.isdir(dir):
                 self.log.debug("cleaning up %s chroot..." % arch)
                 self._umount(dir)
-                self._nuke(dir)
+                if not self.opts.p:
+                    self._nuke(dir)
 
         self._nuke(self.temp)
 
