@@ -991,7 +991,7 @@ class FLLBuilder:
         self.log.info("calculating initscript blacklist...")
         chroot = os.path.join(self.temp, arch)
         initd = '/etc/init.d/'
-        
+
         init_glob = os.path.join(chroot, 'etc/init.d/*')
         try:
             initscripts = [i.replace(chroot, '', 1)
@@ -1002,7 +1002,9 @@ class FLLBuilder:
             raise Error
         else:
             initscripts.sort()
-        
+
+        # synchronize & sanitize the lists with fll-installer
+
         bd = {}
         for line in open(os.path.join(self.opts.s, 'data/fll_init_blacklist')):
             if line.startswith('#'):
@@ -1131,7 +1133,7 @@ class FLLBuilder:
         # grub message file, grub menu.lst, release notes, memtest86+
         # manifest, souces (with s/cached/actual/), md5sums
 
-        
+
     def buildChroot(self):
         """Main loop to call all chroot building functions."""
         archs = self.conf['archs'].keys()
