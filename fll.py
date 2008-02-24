@@ -847,7 +847,7 @@ class FLLBuilder:
         """Return version string of a singularly installed linux-image."""
         chroot = os.path.join(self.temp, arch)
 
-        kvers = [f.lstrip('vmlinuz-') for f in
+        kvers = [f.replace('vmlinuz-', '', 1) for f in
                  os.listdir(os.path.join(chroot, 'boot'))
                  if f.startswith('vmlinuz-')]
 
