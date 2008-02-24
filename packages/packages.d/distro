@@ -9,13 +9,8 @@ repos = """
 packages = """
 	apt-conf-sidux
 	desktop-defaults-common
-	distro-defaults
-	fll-live-initramfs
-	fll-live-initscripts
 	gfxboot-theme-sidux
-	grub-gfxboot
 	sidux-art-wallpaper
-	sidux-art-wallpaper-eros
 	sidux-keyrings
 	sidux-scripts
 	udev-config-sidux

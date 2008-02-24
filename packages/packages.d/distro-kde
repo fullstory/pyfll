@@ -9,6 +9,5 @@ repos = """
 packages = """
 	desktop-defaults-kde
 	sidux-art-kde
-	sidux-art-kde-eros
 """
 

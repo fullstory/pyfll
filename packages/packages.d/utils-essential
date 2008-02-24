@@ -9,20 +9,16 @@ repos = """
 packages = """
 	adduser
 	anacron
-	apt-utils
 	bzip2
 	console-data
 	console-common
 	console-tools
 	cron
 	dhcp3-client
-	e2fsprogs
-	initramfs-tools
 	iptables
 	iputils-ping
 	less
 	lilo
-	locales
 	logrotate
 	netbase
 	rsync
