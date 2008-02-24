@@ -964,18 +964,24 @@ class FLLBuilder:
     def _initBlackList(self, arch):
         """Blacklist a group of initscripts present in chroot that should not
         be executed during live boot per default."""
+        self.log.info("calculating initscript blacklist...")
         chroot = os.path.join(self.temp, arch)
         
         init_glob = os.path.join(chroot, 'etc/init.d/*')
-        initscripts = dict([(i, True) for i in glob.glob(init_glob)
-                            if self.__isexecutable(i)])
+        try:
+            initscripts = dict([(i[i.index('/etc/init.d/'):], True)
+                                for i in glob.glob(init_glob)
+                                if self.__isexecutable(i)])
+        except:
+            log.self.exception("failed to build dict of chroot initscripts")
+            raise Error
         
         bd = {}
         for line in open(os.path.join(self.opts.s, 'data/fll_init_blacklist')):
             if line.startswith('#'):
                 continue
             files = []
-            if line.startswith('/etc/init.d'):
+            if line.startswith('/etc/init.d/'):
                 files = [file for file in glob.glob(line.rstrip())
                          if self.__isexecutable(file)]
                 for file in files:
@@ -991,7 +997,7 @@ class FLLBuilder:
                 self._umount(chroot)
                 for file in p.communicate()[0].splitlines():
                     file = file.strip().split()[0]
-                    if file.startswith('/etc/init.d'):
+                    if file.startswith('/etc/init.d/'):
                         self.log.debug("blacklisting: %s (%s)" %
                                        (file, line.rstrip()))
                         bd[file] = True
@@ -1001,7 +1007,7 @@ class FLLBuilder:
             if line.startswith('#'):
                 continue
             files = []
-            if line.startswith('/etc/init.d'):
+            if line.startswith('/etc/init.d/'):
                 files = [file for file in glob.glob(line.rstrip())
                          if self.__isexecutable(file)]
                 for file in files:
@@ -1017,7 +1023,7 @@ class FLLBuilder:
                 self._umount(chroot)
                 for file in p.communicate()[0].splitlines():
                     file = file.strip().split()[0]
-                    if file.startswith('/etc/init.d') and file not in bd:
+                    if file.startswith('/etc/init.d/') and file not in bd:
                         self.log.debug("whitelisting: %s (%s)" %
                                        (file, line.rstrip()))
                         wd[file] = True
