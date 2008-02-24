@@ -971,7 +971,7 @@ class FLLBuilder:
                             if self.__isexecutable(i)])
         
         bd = {}
-        for line in open(os.path.join(self.opts.d, 'data/fll_init_blacklist')):
+        for line in open(os.path.join(self.opts.s, 'data/fll_init_blacklist')):
             if line.startswith('#'):
                 continue
             files = []
@@ -997,7 +997,7 @@ class FLLBuilder:
                         bd[file] = True
 
         wd = {}
-        for line in open(os.path.join(self.opts.d, 'data/fll_init_whitelist')):
+        for line in open(os.path.join(self.opts.s, 'data/fll_init_whitelist')):
             if line.startswith('#'):
                 continue
             files = []
@@ -1049,8 +1049,8 @@ class FLLBuilder:
             self._preseedDebconf(arch)
             self._dpkgAddDivert(arch)
             self._installPkgs(arch)
-            self._collectManifest(arch)
             self._dpkgUnDivert(arch)
+            self._collectManifest(arch)
             self._finalEtc(arch)
             self._rebuildInitRamfs(arch)
             self._initBlackList(arch)
