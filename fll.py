@@ -637,8 +637,6 @@ class FLLBuilder:
         cmd = 'dpkg --purge cdebootstrap-helper-diverts'
         self._execInChroot(arch, cmd.split())
 
-        self._nuke(os.path.join(dir, 'var/cache/bootstrap'))
-
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
         """Write apt source lists to /etc/apt/sources.list.d/*."""
