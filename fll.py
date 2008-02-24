@@ -966,10 +966,11 @@ class FLLBuilder:
         be executed during live boot per default."""
         self.log.info("calculating initscript blacklist...")
         chroot = os.path.join(self.temp, arch)
+        initd = '/etc/init.d/'
         
         init_glob = os.path.join(chroot, 'etc/init.d/*')
         try:
-            initscripts = dict([(i[i.index('/etc/init.d/'):], True)
+            initscripts = dict([(i[i.index(initd):], True)
                                 for i in glob.glob(init_glob)
                                 if self.__isexecutable(i)])
         except:
@@ -981,13 +982,20 @@ class FLLBuilder:
             if line.startswith('#'):
                 continue
             files = []
-            if line.startswith('/etc/init.d/'):
-                files = [file for file in glob.glob(line.rstrip())
-                         if self.__isexecutable(file)]
-                for file in files:
-                    self.log.debug("blacklisting: %s" % file)
-                    bd[file] = True
-                continue
+            if line.startswith(initd):
+                file_glob = os.path.join(chroot, line.lstrip('/').rstrip())
+                try:
+                    files = [f[f.index(initd):]
+                             for f in glob.glob(file_glob)
+                             if self.__isexecutable(f)]
+                except:
+                    log.self.exception("failed to glob initscript: %s" %
+                                       file_glob)
+                    raise Error
+                else:
+                    for file in files:
+                        self.log.debug("blacklisting: %s" % file)
+                        bd[file] = True
             else:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
                 self._mount(chroot)
@@ -997,7 +1005,7 @@ class FLLBuilder:
                 self._umount(chroot)
                 for file in p.communicate()[0].splitlines():
                     file = file.strip().split()[0]
-                    if file.startswith('/etc/init.d/'):
+                    if file.startswith(initd):
                         self.log.debug("blacklisting: %s (%s)" %
                                        (file, line.rstrip()))
                         bd[file] = True
@@ -1007,13 +1015,20 @@ class FLLBuilder:
             if line.startswith('#'):
                 continue
             files = []
-            if line.startswith('/etc/init.d/'):
-                files = [file for file in glob.glob(line.rstrip())
-                         if self.__isexecutable(file)]
-                for file in files:
-                    self.log.debug("whitelisting: %s" % file)
-                    wd[file] = True
-                continue
+            if line.startswith(initd):
+                file_glob = os.path.join(chroot, line.lstrip('/').rstrip())
+                try:
+                    files = [f[f.index(initd):]
+                             for f in glob.glob(file_glob)
+                             if self.__isexecutable(f)]
+                except:
+                    log.self.exception("failed to glob initscript: %s" %
+                                       file_glob)
+                    raise Error
+                else:
+                    for file in files:
+                        self.log.debug("whitelisting: %s" % file)
+                        wd[file] = True
             else:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
                 self._mount(chroot)
@@ -1023,7 +1038,7 @@ class FLLBuilder:
                 self._umount(chroot)
                 for file in p.communicate()[0].splitlines():
                     file = file.strip().split()[0]
-                    if file.startswith('/etc/init.d/') and file not in bd:
+                    if file.startswith(initd) and file not in bd:
                         self.log.debug("whitelisting: %s (%s)" %
                                        (file, line.rstrip()))
                         wd[file] = True
