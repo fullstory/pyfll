@@ -9,8 +9,8 @@
 # -o  Path to old packages module folder (with the .bm files)
 #
 
-new=/home/kelmo/svn/fullstory/fll-builder/branches/pyfll/packages/
-old=/home/kelmo/svn/fullstory/fll-builder/trunk/etc/fll-builder/packages/
+new=~/svn/fullstory/fll-builder/branches/pyfll/packages/
+old=~/svn/fullstory/fll-builder/trunk/etc/fll-builder/packages/
 
 while getopts n:o:u opt; do
 	case "${opt}" in

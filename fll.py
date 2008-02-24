@@ -329,6 +329,7 @@ class FLLBuilder:
             self.log.critical("'distro' section not found in build config")
             raise Error
 
+        self.log.debug("common configuration data")
         self.log.debug(self.conf)
 
 
@@ -450,6 +451,8 @@ class FLLBuilder:
                     pkgs['list'].append(p)
                     self.log.debug("  %s" % p)
 
+        # i18n, recommended packages, generally refactor this entire function
+
         self.log.debug("packages + debconf for %s:" % arch)
         self.log.debug(pkgs)
 
@@ -484,7 +487,11 @@ class FLLBuilder:
         atexit.register(self.cleanup)
 
         os.mkdir(os.path.join(self.temp, 'staging'))
-        self.log.debug("creating directory: %s" %
+        os.mkdir(os.path.join(self.temp, 'staging', 'boot'))
+        for arch in self.conf['archs'].keys():
+            os.mkdir(os.path.join(self.temp, 'staging',
+                    self.distro[arch]['FLL_IMAGE_DIR']))
+        self.log.debug("staged directory: %s" %
                        os.path.join(self.temp, 'staging'))
 
 
@@ -573,7 +580,7 @@ class FLLBuilder:
 
         self.log.debug("%s", ' '.join(cmd))
         if self.opts.q:
-            retv = call(cmd, stdout = open('/dev/null', 'w'), stderr = STDOUT,
+            retv = call(cmd, stdout = open(os.devnull, 'w'), stderr = STDOUT,
                         env = self.env)
         else:
             retv = call(cmd, env = self.env)
@@ -821,6 +828,8 @@ class FLLBuilder:
         f.write("postrm_hook   = /usr/sbin/update-grub\n")
         f.close()
 
+        # /etc/distro-version stamp (with funny permissions ;-))
+
 
     def _preseedDebconf(self, arch):
         """Preseed debcong with values read from package lists."""
@@ -828,7 +837,7 @@ class FLLBuilder:
 
         if 'debconf' in self.pkgs[arch]:
             self.log.info("preseeding debconf in %s chroot..." % arch)
-            debconf = open(os.path.join(chroot, 'root/debconf-selections'),
+            debconf = open(os.path.join(chroot, 'root/fll_debconf_selections'),
                            'w')
             for d in self.pkgs[arch]['debconf']:
                 debconf.write(d + "\n")
@@ -837,7 +846,7 @@ class FLLBuilder:
             cmd = 'debconf-set-selections '
             if self.opts.v:
                 cmd += '--verbose '
-            cmd += '/root/debconf-selections'
+            cmd += '/root/fll_debconf_selections'
 
             self._execInChroot(arch, cmd.split())
 
@@ -884,6 +893,13 @@ class FLLBuilder:
 
         self._aptGetInstall(arch, pkgs)
 
+        # post-install tasks:
+        #  * update-menus
+        #  * fix /usr/bin/X
+        #  * update-locatedb
+        #  * preseed alternatives (pager)
+        #  * adduser (groups)
+
 
     def _collectManifest(self, arch):
         """Collect package and source package URI information from each
@@ -926,7 +942,7 @@ class FLLBuilder:
                 cmd += ' apt-get -qq --print-uris source ' + p
                 try:
                     q = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                              stderr = open('/dev/null', 'w'))
+                              stderr = open(os.devnull, 'w'))
                 except:
                     self.log.exception("failed to query src uri's for %s" % p)
                     raise Error
@@ -946,7 +962,10 @@ class FLLBuilder:
 
     def _rebuildInitRamfs(self, arch):
         """Rebuild the chroot live initramfs after all packages have been
-        installed."""
+        installed. Copy the vmlinuz and initramfs to staging area."""
+        chroot = os.path.join(self.temp, arch)
+        boot_dir = os.path.join(self.temp, 'staging', 'boot')
+
         kvers = self._detectLinuxVersion(arch)
         for k in kvers:
             self.log.info("creating an initial ramdisk for linux %s..." % k)
@@ -958,6 +977,13 @@ class FLLBuilder:
             else:
                 cmd = 'update-initramfs -c -k ' + k
             self._execInChroot(arch, cmd.split())
+
+            self.log.debug("copying initrd.img-%s to %s" % (k, boot_dir))
+            initrd = os.path.join(chroot, 'boot/initrd.img-' + k)
+            shutil.copy(initrd, boot_dir)
+            self.log.debug("copying vmlinuz-%s to %s" % (k, boot_dir))
+            vmlinuz = os.path.join(chroot, 'boot/vmlinuz-' + k)
+            shutil.copy(vmlinuz, boot_dir)
 
 
     def _initBlackList(self, arch):
@@ -994,7 +1020,7 @@ class FLLBuilder:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
                 self._mount(chroot)
                 p = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                          stderr = open('/dev/null', 'w'))
+                          stderr = open(os.devnull, 'w'))
                 p.wait()
                 self._umount(chroot)
                 for file in p.communicate()[0].splitlines():
@@ -1020,7 +1046,7 @@ class FLLBuilder:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
                 self._mount(chroot)
                 p = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                          stderr = open('/dev/null', 'w'))
+                          stderr = open(os.devnull, 'w'))
                 p.wait()
                 self._umount(chroot)
                 for file in p.communicate()[0].splitlines():
@@ -1060,11 +1086,10 @@ class FLLBuilder:
 
     def _cleanChroot(self, arch):
         """Remove unwanted content from a chroot."""
+        self.log.info("purging unwanted content from %s chroot..." % arch)
         chroot = os.path.join(self.temp, arch)
 
-        self.log.debug("purging live initramfs")
         self._execInChroot(arch, 'dpkg --purge fll-live-initramfs'.split())
-
         self._execInChroot(arch, 'apt-get clean'.split())
         self._execInChroot(arch, 'dpkg --clear-avail'.split())
 
@@ -1093,16 +1118,30 @@ class FLLBuilder:
         cmd.extend(['-e', image_file])
         self._execInChroot(arch, cmd)
 
+
+    def _stageArch(self, arch):
+        """Stage files for an arch for final genisofs."""
+        self.log.info("staging live media...")
+
+        image_file = os.path.join(self.temp, arch,
+                                  self.distro[arch]['FLL_IMAGE_FILE'])
+        image_dir = os.path.join(self.temp, 'staging',
+                                 self.distro[arch]['FLL_IMAGE_DIR'])
+        shutil.move(image_file, os.path.join(image_dir, image_file))
+
+        # grub message file, grub menu.lst, release notes, memtest86+
+        # manifest, souces (with s/cached/actual/), md5sums
+
         
     def buildChroot(self):
         """Main loop to call all chroot building functions."""
         archs = self.conf['archs'].keys()
         for arch in archs:
             self._bootStrap(arch)
-            self._primeApt(arch)
             self._defaultEtc(arch)
             self._preseedDebconf(arch)
             self._dpkgAddDivert(arch)
+            self._primeApt(arch)
             self._installPkgs(arch)
             self._dpkgUnDivert(arch)
             self._collectManifest(arch)
@@ -1111,6 +1150,7 @@ class FLLBuilder:
             self._rebuildInitRamfs(arch)
             self._cleanChroot(arch)
             self._chrootSquashfs(arch)
+            self._stageArch(arch)
             self._nukeChroot(arch)
 
 
