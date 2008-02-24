@@ -1051,6 +1051,7 @@ class FLLBuilder:
                                os.path.join(chroot, 'etc/default/fll-init'))
             raise Error
         else:
+            self.log.debug('writing /etc/default/fll-init')
             for i in initscripts:
                 if i in wd:
                     self.log.debug("whitelisted: %s" % i)
