@@ -537,7 +537,7 @@ class FLLBuilder:
         if not self.opts.p:
             self.log.info("nuking %s chroot..." % arch)
             chroot = os.path.join(self.temp, arch)
-            self._umount(dir)
+            self._umount(chroot)
             self._nuke(chroot)
 
 
