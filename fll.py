@@ -554,7 +554,8 @@ class FLLBuilder:
                 if not self.opts.p:
                     self._nuke(dir)
 
-        self._nuke(self.temp)
+        if not self.opts.p:
+            self._nuke(self.temp)
 
 
     def _execInChroot(self, arch, args, ignore_nonzero = False):
