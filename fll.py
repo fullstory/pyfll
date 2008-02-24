@@ -976,7 +976,7 @@ class FLLBuilder:
             log.self.exception("failed to build dict of chroot initscripts")
             raise Error
         else:
-            initscripts().sort()
+            initscripts.sort()
         
         bd = {}
         for line in open(os.path.join(self.opts.s, 'data/fll_init_blacklist')):
