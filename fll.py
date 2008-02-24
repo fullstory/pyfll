@@ -792,8 +792,6 @@ class FLLBuilder:
             f.write("# The loopback interface\n")
             f.write("auto lo\n")
             f.write("iface lo inet loopback\n")
-        elif file == '/etc/resolv.conf':
-            pass
         elif file == '/usr/sbin/policy-rc.d':
             f.write("#!/bin/sh\n")
             f.write("exit 101\n")
@@ -1049,6 +1047,17 @@ class FLLBuilder:
             fllinit.close()
 
 
+    def _zerologs(self, arch, dir, fnames):
+        """Truncate all log files."""
+        chroot = os.path.join(self.temp, arch)
+        chrootdir = dir.replace(chroot, '', 1)
+
+        for f in fnames:
+            if not os.path.isfile(os.path.join(dir, f)):
+                continue
+            self._writeFile(arch, os.path.join(chrootdir, f))
+
+
     def _cleanChroot(self, arch):
         """Remove unwanted content from a chroot."""
         chroot = os.path.join(self.temp, arch)
@@ -1059,7 +1068,32 @@ class FLLBuilder:
         self._execInChroot(arch, 'apt-get clean'.split())
         self._execInChroot(arch, 'dpkg --clear-avail'.split())
 
+        os.path.walk(os.path.join(chroot, 'var/log'), self._zerologs, arch)
 
+
+    def _chrootSquashfs(self, arch):
+        """Make squashfs filesystem image of chroot."""
+        self.log.info("creating squashfs filesystem of %s chroot..." % arch)
+        chroot = os.path.join(self.temp, arch)
+
+        image_file = self.distro[arch]['FLL_IMAGE_FILE']
+        cmd = ['mksquashfs', '.', image_file, '-noappend']
+
+        if self.opts.d:
+            cmd.append('-info')
+        elif not self.opts.v:
+            cmd.append('-no-progress')
+
+        # sortfile, compression
+
+        exclude_file = os.path.join(self.opts.s, 'data/fll_sqfs_exclusion')
+        shutil.copy(exclude_file, os.path.join(self.temp, arch, 'root'))
+        cmd.extend(['-wildcards', '-ef', '/root/fll_sqfs_exclusion'])
+
+        cmd.extend(['-e', image_file])
+        self._execInChroot(arch, cmd)
+
+        
     def buildChroot(self):
         """Main loop to call all chroot building functions."""
         archs = self.conf['archs'].keys()
@@ -1076,6 +1110,7 @@ class FLLBuilder:
             self._finalEtc(arch)
             self._rebuildInitRamfs(arch)
             self._cleanChroot(arch)
+            self._chrootSquashfs(arch)
             self._nukeChroot(arch)
 
 
