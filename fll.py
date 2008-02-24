@@ -488,9 +488,8 @@ class FLLBuilder:
 
         os.mkdir(os.path.join(self.temp, 'staging'))
         os.mkdir(os.path.join(self.temp, 'staging', 'boot'))
-        for arch in self.conf['archs'].keys():
-            os.mkdir(os.path.join(self.temp, 'staging',
-                    self.distro[arch]['FLL_IMAGE_DIR']))
+        os.mkdir(os.path.join(self.temp, 'staging',
+                 self.conf['distro']['FLL_IMAGE_DIR']))
         self.log.debug("staged directory: %s" %
                        os.path.join(self.temp, 'staging'))
 
@@ -1121,13 +1120,13 @@ class FLLBuilder:
 
     def _stageArch(self, arch):
         """Stage files for an arch for final genisofs."""
-        self.log.info("staging live media...")
+        self.log.info("staging live %s media..." % arch)
 
         image_file = os.path.join(self.temp, arch,
                                   self.distro[arch]['FLL_IMAGE_FILE'])
         image_dir = os.path.join(self.temp, 'staging',
                                  self.distro[arch]['FLL_IMAGE_DIR'])
-        shutil.move(image_file, os.path.join(image_dir, image_file))
+        shutil.move(image_file, image_dir)
 
         # grub message file, grub menu.lst, release notes, memtest86+
         # manifest, souces (with s/cached/actual/), md5sums
