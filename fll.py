@@ -45,9 +45,6 @@ class FLLBuilder:
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes', 'XORG_CONFIG': 'custom'}
 
-    diverts = ['/sbin/start-stop-daemon', '/sbin/modprobe',
-               '/usr/sbin/policy-rc.d']
-
 
     def __filterList(self, list, dup_warn = False):
         """Return a list containing no duplicate items given a list that
@@ -641,9 +638,6 @@ class FLLBuilder:
             self.log.critical("failed to bootstrap %s" % arch)
             raise Error
 
-        cmd = 'dpkg --purge cdebootstrap-helper-diverts'
-        self._execInChroot(arch, cmd.split())
-
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
         """Write apt source lists to /etc/apt/sources.list.d/*."""
@@ -730,34 +724,6 @@ class FLLBuilder:
         self._execInChroot(arch, 'apt-get update'.split())
 
 
-    def _dpkgAddDivert(self, arch):
-        """Divert some facilities and replace temporaily with /bin/true (or
-        some other more appropiate facility."""
-        chroot = os.path.join(self.temp, arch)
-        for d in self.diverts:
-            self.log.debug("diverting %s" % d)
-            cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
-            cmd += d
-            self._execInChroot(arch, cmd.split())
-            if d.endswith('policy-rc.d'):
-                self._writeFile(arch, d)
-                os.chmod(os.path.join(chroot, d.lstrip('/')), 0700)
-            else:
-                shutil.copy(os.path.join(chroot, 'bin/true'),
-                            os.path.join(chroot, d.lstrip('/')))
-
-
-    def _dpkgUnDivert(self, arch):
-        """Divert some facilities and replace temporaily with /bin/true (or
-        some other more appropiate facility."""
-        chroot = os.path.join(self.temp, arch)
-        for d in self.diverts:
-            self.log.debug("undoing diversion: %s" % d)
-            os.unlink(os.path.join(chroot, d.lstrip('/')))
-            cmd = 'dpkg-divert --remove --rename ' + d
-            self._execInChroot(arch, cmd.split())
-
-
     def _writeFile(self, arch, file):
         """Some file templates."""
         chroot = os.path.join(self.temp, arch)
@@ -798,9 +764,6 @@ class FLLBuilder:
             f.write("# The loopback interface\n")
             f.write("auto lo\n")
             f.write("iface lo inet loopback\n")
-        elif file == '/usr/sbin/policy-rc.d':
-            f.write("#!/bin/sh\n")
-            f.write("exit 101\n")
 
         f.close()
 
@@ -1091,7 +1054,9 @@ class FLLBuilder:
         self.log.info("purging unwanted content from %s chroot..." % arch)
         chroot = os.path.join(self.temp, arch)
 
-        self._execInChroot(arch, 'dpkg --purge fll-live-initramfs'.split())
+        cmd = 'dpkg --purge fll-live-initramfs'
+        cmd += ' cdebootstrap-helper-rc.d'
+        self._execInChroot(arch, cmd.split())
         self._execInChroot(arch, 'apt-get clean'.split())
         self._execInChroot(arch, 'dpkg --clear-avail'.split())
 
@@ -1142,10 +1107,8 @@ class FLLBuilder:
             self._bootStrap(arch)
             self._defaultEtc(arch)
             self._preseedDebconf(arch)
-            self._dpkgAddDivert(arch)
             self._primeApt(arch)
             self._installPkgs(arch)
-            self._dpkgUnDivert(arch)
             self._collectManifest(arch)
             self._initBlackList(arch)
             self._finalEtc(arch)
