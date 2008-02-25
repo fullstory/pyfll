@@ -578,20 +578,27 @@ class FLLBuilder:
         self._mount(chroot)
 
         self.log.debug("%s", ' '.join(cmd))
-        if self.opts.q:
-            retv = call(cmd, stdout = open(os.devnull, 'w'), stderr = STDOUT,
-                        env = self.env)
+        try:
+            c = Popen(cmd, stdout = PIPE, stderr = STDOUT, env = self.env,
+                      close_fds = True)
+        except:
+            self.log.exception('problem excuting command')
         else:
-            retv = call(cmd, env = self.env)
+            for line in c.communicate()[0].splitlines():
+                if self.opts.q:
+                    self.log.debug(line.rstrip())
+                else:
+                    self.log.info(line.rstrip())
 
         self._umount(chroot)
 
-        if retv != 0:
+        if c.returncode != 0:
             if ignore_nonzero:
-                self.log.debug("non zero retval ignored: %d" % retv)
+                self.log.debug("non zero retval ignored: %d" %
+                               c.returncode)
             else:
                 self.log.critical("command failed with return value: %d" %
-                                  retv)
+                                  c.returncode)
                 raise Error
 
 
@@ -617,8 +624,6 @@ class FLLBuilder:
             verbosity = '--debug'
         elif self.opts.v:
             verbosity = '--verbose'
-        elif self.opts.q:
-            verbosity = '--quiet'
 
         debian = self.conf['repos']['debian']
         if 'cached' in debian and debian['cached']:
@@ -636,8 +641,18 @@ class FLLBuilder:
         self.log.info("bootstrapping debian %s..." % arch)
         self.log.debug(' '.join(cmd))
 
-        retv = call(cmd)
-        if retv != 0:
+        try:
+            c = Popen(cmd, stdout = PIPE, stderr = STDOUT, close_fds = True)
+        except:
+            self.log.exception('problem excuting command')
+        else:
+            for line in c.communicate()[0].splitlines():
+                if self.opts.q:
+                    self.log.debug(line.rstrip())
+                else:
+                    self.log.info(line.rstrip())
+
+        if c.returncode != 0:
             self.log.critical("failed to bootstrap %s" % arch)
             raise Error
 
@@ -906,7 +921,7 @@ class FLLBuilder:
                 cmd += ' apt-get -qq --print-uris source ' + p
                 try:
                     q = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                              stderr = open(os.devnull, 'w'))
+                              stderr = open(os.devnull, 'w'), close_fds = True)
                 except:
                     self.log.exception("failed to query src uri's for %s" % p)
                     raise Error
@@ -987,7 +1002,7 @@ class FLLBuilder:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
                 self._mount(chroot)
                 p = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                          stderr = open(os.devnull, 'w'))
+                          stderr = open(os.devnull, 'w'), close_fds = True)
                 p.wait()
                 self._umount(chroot)
                 for file in p.communicate()[0].splitlines():
@@ -1075,7 +1090,7 @@ class FLLBuilder:
 
         if self.opts.d:
             cmd.append('-info')
-        elif not self.opts.v:
+        else:
             cmd.append('-no-progress')
 
         # sortfile, compression
