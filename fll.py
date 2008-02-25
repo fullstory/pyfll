@@ -692,8 +692,7 @@ class FLLBuilder:
 
         if len(keyrings) > 0:
             self._execInChroot(arch, 'apt-get update'.split())
-            cmd = ['apt-get', '--allow-unauthenticated', '--yes',
-                   'install']
+            cmd = 'apt-get --allow-unauthenticated --yes install'.split()
             cmd.extend(keyrings)
             self._execInChroot(arch, cmd)
 
