@@ -197,6 +197,9 @@ class FLLBuilder:
                      help = 'Share directory directory containing data ' +
                      'required for the program to function.')
 
+        p.add_option('-S', '--source', dest = 'B', action = 'store_false',
+                     help = 'Calculate source URIs as part of build process.')
+
         p.add_option('-u', '--uid', dest = 'u', action = 'store',
                      type = 'int', metavar = '<user id>',
                      help = 'User ID of user doing the build. This ' +
@@ -207,7 +210,7 @@ class FLLBuilder:
                      help = 'Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
 
-        p.set_defaults(b = os.getcwd(), B = False, d = False, g = os.getgid(),
+        p.set_defaults(b = os.getcwd(), B = True, d = False, g = os.getgid(),
                        l = None, n = False, o = os.getcwd(), p = False,
                        q = False, s = '/usr/share/fll/', u = os.getuid(),
                        v = False)
