@@ -569,7 +569,7 @@ class FLLBuilder:
             self._nuke(self.temp)
 
 
-    def __execLogged(self, cmd, check_returncode = True):
+    def __execLogged(self, cmd, check_returncode):
         self.log.debug(' '.join(cmd))
         
         try:
@@ -593,7 +593,7 @@ class FLLBuilder:
                 raise Error
 
 
-    def __exec(self, cmd, check_returncode = True):
+    def __exec(self, cmd, check_returncode):
         """Execute subprocess without buffering output in a pipe."""
         self.log.debug(' '.join(cmd))
         
@@ -623,7 +623,7 @@ class FLLBuilder:
         else:
             self.__exec(cmd)
 
-        
+
     def _execInChroot(self, arch, args, check_returncode = True):
         """Run command in a chroot."""
         chroot = os.path.join(self.temp, arch)
