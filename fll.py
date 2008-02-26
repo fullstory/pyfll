@@ -278,17 +278,17 @@ class FLLBuilder:
         stamp = 'FLL_DISTRO_VERSION_STAMP'
         if dd['FLL_DISTRO_VERSION'] == 'snapshot':
             dd[stamp] = dd['FLL_DISTRO_NAME']
-            dd[stamp] += " %s -" % dd['FLL_DISTRO_VERSION']
-            dd[stamp] += " %s" % self.conf['packages']['profile']
+            dd[stamp] += ' %s -' % dd['FLL_DISTRO_VERSION']
+            dd[stamp] += ' %s' % self.conf['packages']['profile']
         else:
             dd[stamp] = dd['FLL_DISTRO_NAME']
-            dd[stamp] += " %s -" % dd['FLL_DISTRO_VERSION']
+            dd[stamp] += ' %s -' % dd['FLL_DISTRO_VERSION']
             if dd['FLL_DISTRO_CODENAME_REV']:
-                dd[stamp] += " %s" % dd['FLL_DISTRO_CODENAME']
-                dd[stamp] += ".%s -" % dd['FLL_DISTRO_CODENAME_REV']
+                dd[stamp] += ' %s' % dd['FLL_DISTRO_CODENAME']
+                dd[stamp] += '.%s -' % dd['FLL_DISTRO_CODENAME_REV']
             else:
-                dd[stamp] += " %s -" % dd['FLL_DISTRO_CODENAME']
-            dd[stamp] += " %s" % self.conf['packages']['profile']
+                dd[stamp] += ' %s -' % dd['FLL_DISTRO_CODENAME']
+            dd[stamp] += ' %s' % self.conf['packages']['profile']
 
 
         return dd
@@ -297,7 +297,7 @@ class FLLBuilder:
     def _processConf(self):
         '''Process configuration options.'''
         if len(self.conf['archs'].keys()) < 1:
-            host_arch = Popen(["dpkg", "--print-architecture"],
+            host_arch = Popen(['dpkg', '--print-architecture'],
                               stdout=PIPE).communicate()[0].rstrip()
             self.conf['archs'][host_arch] = {}
             self.log.debug('default build arch: %s' % host_arch)
