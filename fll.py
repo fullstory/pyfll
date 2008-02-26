@@ -992,7 +992,7 @@ class FLLBuilder:
             for pkg in lines2list(i18n_module[p]):
                 i18n_pkgs_list.extend([('-'.join([pkg, i]), True)
                                        for i in i18n_dict.keys()])
-        
+
         i18n_pkgs_dict = dict(i18n_pkgs_list)
 
         listsdir = os.path.join(self.temp, arch, 'var/lib/apt/lists')
