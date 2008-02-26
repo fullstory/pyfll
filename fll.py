@@ -975,10 +975,10 @@ class FLLBuilder:
             cmd = 'update-initramfs -d -k ' + k
             self._execInChroot(arch, cmd.split())
 
-            if self.opts.v:
-                cmd = 'update-initramfs -v -c -k ' + k
-            else:
+            if self.opts.q:
                 cmd = 'update-initramfs -c -k ' + k
+            else:
+                cmd = 'update-initramfs -v -c -k ' + k
             self._execInChroot(arch, cmd.split())
 
             self.log.debug("copying initrd.img-%s to %s" % (k, boot_dir))
