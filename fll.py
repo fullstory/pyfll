@@ -44,7 +44,7 @@ class FLLBuilder:
     env = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
            'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'SHELL': '/bin/bash',
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
-           'DEBCONF_NOWARNINGS': 'yes', 'XORG_CONFIG': 'custom'}
+           'DEBCONF_NOWARNINGS': 'yes'}
     if os.getenv('http_proxy'):
         env['http_proxy'] = os.getenv('http_proxy')
     if os.getenv('ftp_proxy'):
@@ -967,12 +967,6 @@ class FLLBuilder:
 
         self._aptGetInstall(arch, pkgs)
 
-        # post-install tasks:
-        #  * update-menus
-        #  * fix /usr/bin/X
-        #  * update-locatedb
-        #  * preseed alternatives (pager)
-
 
     def _collectManifest(self, arch):
         '''Collect package and source package URI information from each
@@ -1032,6 +1026,15 @@ class FLLBuilder:
             self._umount(chroot)
 
             self.pkgs[arch]['source'] = self.__filterList(source)
+
+
+    def _postInst(self, arch):
+        '''Perform common post-installation tasks and/or fixups.'''
+        chroot = os.path.join(self.temp, arch)
+
+        if 'menu' in self.pkgs[arch]['manifest']:
+            self.log.debug('running update-menus')
+            self._execInChroot(arch, 'update-menus'.split())
 
 
     def _rebuildInitRamfs(self, arch):
@@ -1094,18 +1097,24 @@ class FLLBuilder:
                     self.log.debug('blacklisting: %s (glob)' % file)
                     bd[file] = True
             else:
-                cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
-                self._mount(chroot)
-                p = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                          stderr = open(os.devnull, 'w'), close_fds = True)
-                p.wait()
-                self._umount(chroot)
-                for file in p.communicate()[0].splitlines():
-                    file = file.strip().split()[0]
-                    if file.startswith(initd):
-                        self.log.debug('blacklisting: %s (%s)' %
-                                       (file, line.rstrip()))
-                        bd[file] = True
+                try:
+                    cmd = 'chroot %s dpkg-query --listfiles ' % chroot
+                    cmd += line
+                    self._mount(chroot)
+                    p = Popen(cmd.split(), env = self.env, stdout = PIPE,
+                              stderr = open(os.devnull, 'w'), close_fds = True)
+                except:
+                    self.log.exception('failed to query files list for %s' %
+                                       line)
+                    raise Error
+                else:
+                    for file in p.communicate()[0].splitlines():
+                        file = file.strip().split()[0]
+                        if file.startswith(initd):
+                            self.log.debug('blacklisting: %s (%s)' %
+                                           (file, line.rstrip()))
+                            bd[file] = True
+                    self._umount(chroot)
 
         wd = {}
         for line in open(os.path.join(self.opts.s, 'data', 'fll_init_whitelist')):
@@ -1120,18 +1129,24 @@ class FLLBuilder:
                     self.log.debug('whitelisting: %s (glob)' % file)
                     wd[file] = True
             else:
-                cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
-                self._mount(chroot)
-                p = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                          stderr = open(os.devnull, 'w'))
-                p.wait()
-                self._umount(chroot)
-                for file in p.communicate()[0].splitlines():
-                    file = file.strip().split()[0]
-                    if file.startswith(initd) and file not in bd:
-                        self.log.debug('whitelisting: %s (%s)' %
-                                       (file, line.rstrip()))
-                        wd[file] = True
+                try:
+                    cmd = 'chroot %s dpkg-query --listfiles ' % chroot
+                    cmd += line
+                    self._mount(chroot)
+                    p = Popen(cmd.split(), env = self.env, stdout = PIPE,
+                              stderr = open(os.devnull, 'w'))
+                except:
+                    self.log.exception('failed to query files list for %s' %
+                                       line)
+                    raise Error
+                else:
+                    for file in p.communicate()[0].splitlines():
+                        file = file.strip().split()[0]
+                        if file.startswith(initd) and file not in bd:
+                            self.log.debug('whitelisting: %s (%s)' %
+                                           (file, line.rstrip()))
+                            wd[file] = True
+                    self._umount(chroot)
 
         try:
             fllinit = open(os.path.join(chroot, 'etc', 'default', 'fll-init'),
@@ -1220,6 +1235,7 @@ class FLLBuilder:
             self._primeApt(arch)
             self._installPkgs(arch)
             self._collectManifest(arch)
+            self._postInst(arch)
             self._initBlackList(arch)
             self._finalEtc(arch)
             self._rebuildInitRamfs(arch)
