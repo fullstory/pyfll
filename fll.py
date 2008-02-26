@@ -568,20 +568,17 @@ class FLLBuilder:
             self._nuke(self.temp)
 
 
-    def _execInChroot(self, arch, args, ignore_nonzero = False):
-        """Run command in a chroot."""
-        chroot = os.path.join(self.temp, arch)
-        cmd = ['chroot', chroot]
-        cmd.extend(args)
-
-        self._mount(chroot)
-
-        self.log.debug("%s", ' '.join(cmd))
+    def __execLogged(self, cmd, check_returncode = True):
+        self.log.debug(' '.join(cmd))
+        
         try:
             c = Popen(cmd, stdout = PIPE, stderr = STDOUT, env = self.env,
                       close_fds = True)
+        except KeyboardInterrupt:
+            raise Error
         except:
-            self.log.exception('problem excuting command')
+            self.log.exception('problem executing command')
+            raise Error
         else:
             for line in c.communicate()[0].splitlines():
                 if self.opts.q:
@@ -589,16 +586,57 @@ class FLLBuilder:
                 else:
                     self.log.info(line.rstrip())
 
-        self._umount(chroot)
-
-        if c.returncode != 0:
-            if ignore_nonzero:
-                self.log.debug("non zero retval ignored: %d" %
-                               c.returncode)
-            else:
+            if c.returncode != 0 and check_returncode:
                 self.log.critical("command failed with return value: %d" %
                                   c.returncode)
                 raise Error
+
+
+    def __exec(self, cmd, check_returncode = True):
+        """Execute subprocess without buffering output in a pipe."""
+        self.log.debug(' '.join(cmd))
+        
+        try:
+            if self.opts.q:
+                retv = call(cmd, stdout = open(os.devnull, 'w'),
+                            stderr = STDOUT, env = self.env,
+                            close_fds = True)
+            else:
+                retv = call(cmd, env = self.env, close_fds = True)
+        except KeyboardInterrupt:
+            raise Error
+        except:
+            self.log.exception('problem executing command')
+            raise Error
+        else:
+            if retv != 0 and check_returncode:
+                self.log.critical("command failed with return value: %d" %
+                                  retv)
+                raise Error
+
+
+    def _execCmd(self, cmd):
+        """Convenience wrapper for subprocess execution."""
+        if self.opts.l:
+            self.__execLogged(cmd)
+        else:
+            self.__exec(cmd)
+
+        
+    def _execInChroot(self, arch, args, check_returncode = True):
+        """Run command in a chroot."""
+        chroot = os.path.join(self.temp, arch)
+        cmd = ['chroot', chroot]
+        cmd.extend(args)
+
+        self._mount(chroot)
+
+        if self.opts.l:
+            self.__execLogged(cmd, check_returncode)
+        else:
+            self.__exec(cmd, check_returncode)
+
+        self._umount(chroot)
 
 
     def _aptGetInstall(self, arch, pkgs):
@@ -638,22 +676,7 @@ class FLLBuilder:
             cmd.append(verbosity)
 
         self.log.info("bootstrapping debian %s..." % arch)
-        self.log.debug(' '.join(cmd))
-
-        try:
-            c = Popen(cmd, stdout = PIPE, stderr = STDOUT, close_fds = True)
-        except:
-            self.log.exception('problem excuting command')
-        else:
-            for line in c.communicate()[0].splitlines():
-                if self.opts.q:
-                    self.log.debug(line.rstrip())
-                else:
-                    self.log.info(line.rstrip())
-
-        if c.returncode != 0:
-            self.log.critical("failed to bootstrap %s" % arch)
-            raise Error
+        self._execCmd(cmd)
 
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
@@ -726,12 +749,12 @@ class FLLBuilder:
                     shutil.copy(r['gpgkey'], dest)
                     cmd = 'gpg --import /root/' + file
                     self._execInChroot(arch, cmd.split(),
-                                       ignore_nonzero = True)
+                                       check_returncode = False)
                 else:
                     cmd = 'gpg --keyserver wwwkeys.eu.pgp.net '
                     cmd += '--recv-keys ' + r['gpgkey']
                     self._execInChroot(arch, cmd.split(),
-                                       ignore_nonzero = True)
+                                       check_returncode = False)
 
         if len(gpgkeys) > 0:
             cmd = 'apt-key add /root/.gnupg/pubring.gpg'
@@ -840,8 +863,8 @@ class FLLBuilder:
         if len(kvers) > 0:
             return kvers
 
-        self.debug.critical("failed to detect linux version installed in " +
-                            "%s chroot" % arch)
+        self.log.critical("failed to detect linux version installed in " +
+                          "%s chroot" % arch)
         raise Error
 
 
@@ -937,6 +960,7 @@ class FLLBuilder:
             self._umount(chroot)
 
             self.pkgs[arch]['source'] = self.__filterList(source)
+
 
     def _rebuildInitRamfs(self, arch):
         """Rebuild the chroot live initramfs after all packages have been
@@ -1087,9 +1111,7 @@ class FLLBuilder:
         image_file = self.distro[arch]['FLL_IMAGE_FILE']
         cmd = ['mksquashfs', '.', image_file, '-noappend']
 
-        if self.opts.d:
-            cmd.append('-info')
-        else:
+        if self.opts.l or self.opts.q:
             cmd.append('-no-progress')
 
         # sortfile, compression
