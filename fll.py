@@ -713,6 +713,7 @@ class FLLBuilder:
 
     def _primeApt(self, arch):
         """Prepare apt for work in each build chroot."""
+        self.log.info("preparing apt in %s chroot..." % arch)
         chroot = os.path.join(self.temp, arch)
 
         self.log.debug("removing sources.list from %s chroot" % arch)
