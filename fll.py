@@ -38,7 +38,7 @@ class FLLBuilder:
     temp = None
     distro = None
 
-    log = logging.getLogger("log")
+    log = logging.getLogger('log')
     log.setLevel(logging.DEBUG)
 
     env = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
@@ -78,7 +78,7 @@ class FLLBuilder:
 
     def _initLogger(self, lvl):
         '''Set up the logger.'''
-        fmt = logging.Formatter("%(asctime)s %(levelname)s - %(message)s")
+        fmt = logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
         out = logging.StreamHandler()
         out.setFormatter(fmt)
         out.setLevel(lvl)
@@ -94,15 +94,15 @@ class FLLBuilder:
 
         if self.opts.l:
             try:
-                fmt = logging.Formatter("%(asctime)s %(levelname)-8s " +
-                                         "%(message)s")
+                fmt = logging.Formatter('%(asctime)s %(levelname)-8s ' +
+                                         '%(message)s')
                 out = os.path.abspath(self.opts.l)
                 file = logging.FileHandler(filename = out, mode = 'w')
                 file.setFormatter(fmt)
                 file.setLevel(logging.DEBUG)
                 self.log.addHandler(file)
             except:
-                self.log.exception("failed to setup logfile")
+                self.log.exception('failed to setup logfile')
                 raise Error
             else:
                 os.chown(out, self.opts.u, self.opts.g)
@@ -514,7 +514,7 @@ class FLLBuilder:
         os.mkdir(os.path.join(self.temp, 'staging', 'boot'))
         os.mkdir(os.path.join(self.temp, 'staging',
                  self.conf['distro']['FLL_IMAGE_DIR']))
-        self.log.debug("staged directory: %s" %
+        self.log.debug('staged directory: %s' %
                        os.path.join(self.temp, 'staging'))
 
 
@@ -528,14 +528,14 @@ class FLLBuilder:
 
             retv = call(cmd)
             if retv != 0:
-                self.log.critical("failed to mount chroot %s" % v[0])
+                self.log.critical('failed to mount chroot %s' % v[0])
                 raise Error
 
 
     def _umount(self, chrootdir):
         '''Umount any mount points in a given chroot directory.'''
         umount_list = []
-        for line in open("/proc/mounts"):
+        for line in open('/proc/mounts'):
             (dev, mnt, fs, options, d, p) = line.split()
             if mnt.startswith(chrootdir):
                 umount_list.append(mnt)
@@ -546,27 +546,27 @@ class FLLBuilder:
         for mpoint in umount_list:
             retv = call(['umount', mpoint])
             if retv != 0:
-                self.log.critical("umount failed for: %s" % mpoint)
+                self.log.critical('umount failed for: %s' % mpoint)
                 raise Error
 
 
     def _nuke(self, dir):
         '''Nuke directory tree.'''
         if os.path.isdir(dir):
-            self.log.debug("nuking directory: %s" % dir)
+            self.log.debug('nuking directory: %s' % dir)
             try:
                 shutil.rmtree(dir)
             except:
-                self.log.exception("unable to remove %s" % dir)
+                self.log.exception('unable to remove %s' % dir)
                 raise Error
         else:
-            self.log.debug("not nuking directory (does not exist): %s" % dir)
+            self.log.debug('not nuking directory (does not exist): %s' % dir)
 
 
     def _nukeChroot(self, arch):
         '''Convenience function to nuke chroot given by arch name.'''
         if not self.opts.p:
-            self.log.info("nuking %s chroot..." % arch)
+            self.log.info('nuking %s chroot...' % arch)
             chroot = os.path.join(self.temp, arch)
             self._umount(chroot)
             self._nuke(chroot)
@@ -579,7 +579,7 @@ class FLLBuilder:
         for arch in self.conf['archs'].keys():
             dir = os.path.join(self.temp, arch)
             if os.path.isdir(dir):
-                self.log.debug("cleaning up %s chroot..." % arch)
+                self.log.debug('cleaning up %s chroot...' % arch)
                 self._umount(dir)
                 if not self.opts.p:
                     self._nuke(dir)
@@ -607,7 +607,7 @@ class FLLBuilder:
                     self.log.info(line.rstrip())
 
             if c.returncode != 0 and check_returncode:
-                self.log.critical("command failed with return value: %d" %
+                self.log.critical('command failed with return value: %d' %
                                   c.returncode)
                 raise Error
 
@@ -630,7 +630,7 @@ class FLLBuilder:
             raise Error
         else:
             if retv != 0 and check_returncode:
-                self.log.critical("command failed with return value: %d" %
+                self.log.critical('command failed with return value: %d' %
                                   retv)
                 raise Error
 
@@ -689,13 +689,13 @@ class FLLBuilder:
             mirror = debian['uri']
 
         dir = os.path.join(self.temp, arch)
-        cmd = ['cdebootstrap', "--arch=%s" % arch, '--include=apt-utils',
-               "--flavour=%s" % flavour, suite, dir, mirror]
+        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils',
+               '--flavour=%s' % flavour, suite, dir, mirror]
 
         if verbosity:
             cmd.append(verbosity)
 
-        self.log.info("bootstrapping debian %s..." % arch)
+        self.log.info('bootstrapping debian %s...' % arch)
         self._execCmd(cmd)
 
 
@@ -719,9 +719,9 @@ class FLLBuilder:
             line.append("\n")
 
             l = ' '.join(line)
-            self.log.debug("%s: %s", repo, l.rstrip())
+            self.log.debug('%s: %s', repo, l.rstrip())
 
-            list = open(file, "w")
+            list = open(file, 'w')
             list.write('deb ' + l)
             if not src_uri or self.opts.B:
                 list.write('#deb-src ' + l)
@@ -732,10 +732,10 @@ class FLLBuilder:
 
     def _primeApt(self, arch):
         '''Prepare apt for work in each build chroot.'''
-        self.log.info("preparing apt in %s chroot..." % arch)
+        self.log.info('preparing apt in %s chroot...' % arch)
         chroot = os.path.join(self.temp, arch)
 
-        self.log.debug("removing sources.list from %s chroot" % arch)
+        self.log.debug('removing sources.list from %s chroot' % arch)
         list = os.path.join(chroot, 'etc/apt/sources.list')
         if os.path.isfile(list):
             os.unlink(list)
@@ -758,7 +758,7 @@ class FLLBuilder:
         for repo in self.conf['repos'].keys():
             r = self.conf['repos'][repo]
             if 'gpgkey' in r:
-                self.log.debug("importing gpg key for '%s'" % r['label'])
+                self.log.debug('importing gpg key for %s' % r['label'])
                 gpgkeys.append(r['gpgkey'])
 
                 if r['gpgkey'].startswith('http'):
@@ -789,41 +789,41 @@ class FLLBuilder:
         chroot = os.path.join(self.temp, arch)
         try:
             f = open(os.path.join(chroot, file.lstrip('/')), 'w')
-            self.log.debug("writing file: %s" % file)
+            self.log.debug('writing file: %s' % file)
         except:
-            self.log.exception("failed to open file for writing: %s" % file)
+            self.log.exception('failed to open file for writing: %s' % file)
             raise Error
 
         if file == '/etc/default/distro':
             d = self.distro[arch].keys()
             d.sort()
             for k in d:
-                f.write("%s=\"%s\"\n" % (k, self.distro[arch][k]))
+                f.write('%s="%s"\n' % (k, self.distro[arch][k]))
         elif file == '/etc/fstab':
-            f.write("# /etc/fstab: static file system information\n")
+            f.write('# /etc/fstab: static file system information\n')
         elif file == '/etc/hostname':
             hostname = self.distro[arch]['FLL_DISTRO_NAME']
-            f.write(hostname + "\n")
+            f.write(hostname + '\n')
         elif file == '/etc/hosts':
             hostname = self.distro[arch]['FLL_DISTRO_NAME']
-            f.write("127.0.0.1\tlocalhost\n")
-            f.write("127.0.0.1\t" + hostname + "\n\n")
-            f.write("# The following lines are for IPv6 capable hosts\n")
-            f.write("::1     ip6-localhost ip6-loopback\n")
-            f.write("fe00::0 ip6-localnet\n")
-            f.write("ff00::0 ip6-mcastprefix\n")
-            f.write("ff02::1 ip6-allnodes\n")
-            f.write("ff02::2 ip6-allrouters\n")
-            f.write("ff02::3 ip6-allhosts\n")
+            f.write('127.0.0.1\tlocalhost\n')
+            f.write('127.0.0.1\t' + hostname + '\n\n')
+            f.write('# The following lines are for IPv6 capable hosts\n')
+            f.write('::1     ip6-localhost ip6-loopback\n')
+            f.write('fe00::0 ip6-localnet\n')
+            f.write('ff00::0 ip6-mcastprefix\n')
+            f.write('ff02::1 ip6-allnodes\n')
+            f.write('ff02::2 ip6-allrouters\n')
+            f.write('ff02::3 ip6-allhosts\n')
         elif file == '/etc/kernel-img.conf':
-            f.write("do_bootloader = No\n")
-            f.write("warn_initrd   = No\n")
+            f.write('do_bootloader = No\n')
+            f.write('warn_initrd   = No\n')
         elif file == '/etc/network/interfaces':
-            f.write("# /etc/network/interfaces - ")
-            f.write("configuration file for ifup(8), ifdown(8)\n\n")
-            f.write("# The loopback interface\n")
-            f.write("auto lo\n")
-            f.write("iface lo inet loopback\n")
+            f.write('# /etc/network/interfaces - ')
+            f.write('configuration file for ifup(8), ifdown(8)\n\n')
+            f.write('# The loopback interface\n')
+            f.write('auto lo\n')
+            f.write('iface lo inet loopback\n')
 
         f.close()
 
@@ -840,7 +840,7 @@ class FLLBuilder:
         chroot = os.path.join(self.temp, arch)
 
         self.log.debug('stamping distro version')
-        distro_version = "%s-version" % \
+        distro_version = '%s-version' % \
                          self.distro[arch]['FLL_DISTRO_NAME'].lower()
         distro_version = os.path.join(chroot, 'etc', distro_version)
         f = open(distro_version, 'w')
@@ -1146,7 +1146,7 @@ class FLLBuilder:
                     self.log.debug('whitelisted: %s' % i)
                 else:
                     self.log.debug('blacklisted: %s' % i)
-                    fllinit.write("%s\n" % os.path.basename(i))
+                    fllinit.write('%s\n' % os.path.basename(i))
             fllinit.close()
 
 
@@ -1229,7 +1229,7 @@ class FLLBuilder:
             self._nukeChroot(arch)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         fll = FLLBuilder()
         fll.parseOpts()
