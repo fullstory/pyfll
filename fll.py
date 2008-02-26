@@ -44,6 +44,10 @@ class FLLBuilder:
            'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'SHELL': '/bin/bash',
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes', 'XORG_CONFIG': 'custom'}
+    if os.getenv('http_proxy'):
+        env['http_proxy'] = os.getenv('http_proxy')
+    if os.getenv('ftp_proxy'):
+        env['ftp_proxy'] = os.getenv('ftp_proxy')
 
 
     def __filterList(self, list, dup_warn = False):
@@ -566,11 +570,6 @@ class FLLBuilder:
 
     def _execInChroot(self, arch, args, ignore_nonzero = False):
         """Run command in a chroot."""
-        if os.getenv('http_proxy'):
-            e['http_proxy'] = os.getenv('http_proxy')
-        if os.getenv('ftp_proxy'):
-            e['ftp_proxy'] = os.getenv('ftp_proxy')
-
         chroot = os.path.join(self.temp, arch)
         cmd = ['chroot', chroot]
         cmd.extend(args)
