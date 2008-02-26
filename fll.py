@@ -178,7 +178,8 @@ class FLLBuilder:
 
         p.add_option('-l', '--log', dest = 'l', action = 'store',
                      type = 'string', metavar = '<file>',
-                     help = 'Log debug output to file.')
+                     help = 'Log debug output to file. Note that when ' +
+                     'logging is enabled, output to the console is buffered.')
 
         p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
                      help = 'Start as noon root user (for debugging).')
