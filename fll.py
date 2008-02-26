@@ -23,7 +23,8 @@ import time
 def lines2list(lines):
     '''Return a list of stripped strings given a group of line
     separated strings'''
-    return [s.strip() for s in lines.splitlines() if s]
+    return [s.strip() for s in lines.splitlines()
+            if s and not s.lstrip().startswith('#')]
 
 
 class Error(Exception):
@@ -941,8 +942,12 @@ class FLLBuilder:
         raise Error
 
 
-    def _detectLinuxModules(self, arch, kvers):
+    def _detectLinuxModules(self, arch):
         '''Detect available linux extra modules.'''
+        self.log.info('determining linux module packages for %s chroot...'
+                      % arch)
+        kvers = self.conf['archs'][arch]['linux']
+
         listsdir = os.path.join(self.temp, arch, 'var/lib/apt/lists')
         lists = [os.path.join(listsdir, l) for l in os.listdir(listsdir)
                  if l.endswith('_Packages')]
@@ -956,14 +961,60 @@ class FLLBuilder:
         return modules
 
 
+    def _detectLocalePkgs(self, arch, pkgs_list):
+        '''Provide detection for locale enhancement packages available for
+        packages that are about to be installed.'''
+        self.log.info('determining i18n packages suitable for %s chroot...'
+                      % arch)
+
+        if 'i18n' not in self.conf['packages'] or \
+            not self.conf['packages']['i18n']:
+            return []
+
+        i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages', 'i18n'))
+
+        i18n_dict = {}
+        for i in lines2list(self.conf['packages']['i18n']):
+            i = i.lower().replace('_', '-')
+            i18n_dict[i] = True
+            if i.find('-') >= 0:
+                i18n_dict[i[i.find('-') + 1:]] = True
+                i18n_dict[i[:i.find('-')]] = True
+                if not i.startswith('en'):
+                    i18n_dict['i18n'] = True
+
+        pkgs_dict = dict([(p, True) for p in pkgs_list])
+
+        i18n_pkgs_list = []
+        for p in i18n_module.keys():
+            if p not in pkgs_dict:
+                continue
+            for pkg in lines2list(i18n_module[p]):
+                i18n_pkgs_list.extend([('-'.join([pkg, i]), True)
+                                       for i in i18n_dict.keys()])
+        
+        i18n_pkgs_dict = dict(i18n_pkgs_list)
+
+        listsdir = os.path.join(self.temp, arch, 'var/lib/apt/lists')
+        lists = [os.path.join(listsdir, l) for l in os.listdir(listsdir)
+                 if l.endswith('_Packages')]
+
+        i18n_list = []
+        for list in lists:
+            i18n_list.extend([pkg['Package'] for pkg in
+                              deb822.Packages.iter_paragraphs(file(list))
+                              if pkg['Package'] in i18n_pkgs_dict])
+
+        return i18n_list
+
+
     def _installPkgs(self, arch):
         '''Install packages.'''
         self.log.info('installing packages in %s chroot...' % arch)
 
         pkgs = self.pkgs[arch]['list']
-
-        linux_meta = self.conf['archs'][arch]['linux']
-        pkgs.extend(self._detectLinuxModules(arch, linux_meta))
+        pkgs.extend(self._detectLinuxModules(arch))
+        pkgs.extend(self._detectLocalePkgs(arch, pkgs))
 
         self._aptGetInstall(arch, pkgs)
 

@@ -1,0 +1,61 @@
+# This is a special package profile module, it contains mappings for
+# packages that have locale support in the form of extra packages.
+#
+# List the package name as the key, and each value should be the string
+# of locale support package name without the locale specific substring as
+# suffix. List standard locale codes (eg. en_AU, de_DE) in the 'i18n'
+# subsection of the 'packages' section in the build configuration.
+
+gcompris = """
+	gcompris-sound
+"""
+
+gimp = """
+	gimp-help
+"""
+
+gwenview = """
+	gwenview
+"""
+
+iceape = """
+	iceape-locale
+"""
+
+icedove = """
+	icedove-locale
+"""
+
+iceweasel = """
+	iceweasel-l10n
+"""
+
+k3b = """
+	k3b
+"""
+
+kdebase = """
+	kde-i18n
+"""
+
+koffice = """
+	koffice-i18n
+"""
+
+myspell-en-us = """
+	myspell
+"""
+
+openoffice.org-core = """
+	openoffice.org-help
+	openoffice.org-l10n
+	openoffice.org-thesaurus
+"""
+
+sidux-manual-en = """
+	sidux-manual
+"""
+
+sylpheed = """
+	sylpheed-i18n
+"""
