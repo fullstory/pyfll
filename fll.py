@@ -616,12 +616,12 @@ class FLLBuilder:
                 raise Error
 
 
-    def _execCmd(self, cmd):
+    def _execCmd(self, cmd, check_returncode = True):
         """Convenience wrapper for subprocess execution."""
         if self.opts.l:
-            self.__execLogged(cmd)
+            self.__execLogged(cmd, check_returncode)
         else:
-            self.__exec(cmd)
+            self.__exec(cmd, check_returncode)
 
 
     def _execInChroot(self, arch, args, check_returncode = True):
