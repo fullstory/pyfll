@@ -10,6 +10,7 @@ from optparse import OptionParser
 from subprocess import *
 
 import atexit
+import fileinput
 import glob
 import logging
 import os
@@ -20,13 +21,13 @@ import time
 
 
 def lines2list(lines):
-    """Return a list of stripped strings given a group of line
-    separated strings"""
+    '''Return a list of stripped strings given a group of line
+    separated strings'''
     return [s.strip() for s in lines.splitlines() if s]
 
 
 class Error(Exception):
-    """A generic error handler that does nothing."""
+    '''A generic error handler that does nothing.'''
     pass
 
 
@@ -51,13 +52,13 @@ class FLLBuilder:
 
 
     def __filterList(self, list, dup_warn = False):
-        """Return a list containing no duplicate items given a list that
-        may have duplicate items."""
+        '''Return a list containing no duplicate items given a list that
+        may have duplicate items.'''
 
         d = {}
         for l in list:
             if l in d and dup_warn:
-                self.log.debug("duplicate: %s" % l)
+                self.log.debug('duplicate: %s' % l)
             else:
                 d[l] = True
 
@@ -68,7 +69,7 @@ class FLLBuilder:
 
 
     def __isexecutable(self, file):
-        """Return True is file is executable, False otherwise."""
+        '''Return True is file is executable, False otherwise.'''
         if os.access(file, os.X_OK) and not os.path.isdir(file):
             return True
         else:
@@ -76,7 +77,7 @@ class FLLBuilder:
 
 
     def _initLogger(self, lvl):
-        """Set up the logger."""
+        '''Set up the logger.'''
         fmt = logging.Formatter("%(asctime)s %(levelname)s - %(message)s")
         out = logging.StreamHandler()
         out.setFormatter(fmt)
@@ -85,7 +86,7 @@ class FLLBuilder:
 
 
     def _processOpts(self):
-        """Process options."""
+        '''Process options.'''
         if self.opts.d:
             self._initLogger(logging.DEBUG)
         else:
@@ -110,16 +111,16 @@ class FLLBuilder:
             if os.path.isfile(self.opts.c):
                 self.opts.c = os.path.abspath(self.opts.c)
             else:
-                self.log.critical("configuration file does not exist: %s" %
+                self.log.critical('configuration file does not exist: %s' %
                                   self.opts.c)
                 raise Error
         else:
-            self.log.critical("no config file specified on command line")
+            self.log.critical('no config file specified on command line')
             raise Error
 
         if self.opts.s:
             if not os.path.isdir(self.opts.s):
-                self.log.critical("share directory not exist: %s" %
+                self.log.critical('share directory not exist: %s' %
                                   self.opts.s)
                 raise Error
 
@@ -129,7 +130,7 @@ class FLLBuilder:
             try:
                 os.makedirs(self.opts.o)
             except:
-                self.log.exception("failed to create output dir: %s" %
+                self.log.exception('failed to create output dir: %s' %
                                    self.opts.o)
                 raise Error
 
@@ -139,7 +140,7 @@ class FLLBuilder:
             try:
                 os.makedirs(self.opts.b)
             except:
-                self.log.exception("failed to create build dir: %s" %
+                self.log.exception('failed to create build dir: %s' %
                                    self.opts.b)
                 raise Error
 
@@ -147,7 +148,7 @@ class FLLBuilder:
 
 
     def parseOpts(self):
-        """Parse command line arguments."""
+        '''Parse command line arguments.'''
         p = OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
                          '-o <directory> -s <directory>] [-dpqv]')
 
@@ -225,8 +226,8 @@ class FLLBuilder:
 
 
     def _processDefaults(self, arch, d):
-        """Form a distro-defaults data structure to be written to
-        /etc/default/distro of each chroot, and used for release name."""
+        '''Form a distro-defaults data structure to be written to
+        /etc/default/distro of each chroot, and used for release name.'''
         for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
                   'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
                   'FLL_LIVE_USER_GROUPS']:
@@ -249,15 +250,17 @@ class FLLBuilder:
 
         if 'FLL_DISTRO_VERSION' in d and d['FLL_DISTRO_VERSION'] and \
             d['FLL_DISTRO_VERSION'] != 'snapshot':
+            if 'FLL_DISTRO_CODENAME_SAFE' not in d or \
+                not d['FLL_DISTRO_CODENAME_SAFE']:
+                self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
+                                  "'FLL_DISTRO_CODENAME_SAFE' is not")
+                raise Error
+
             for k in ['FLL_DISTRO_CODENAME', 'FLL_DISTRO_CODENAME_REV']:
                 safe = k + '_SAFE'
                 if safe in d and d[safe]:
                     if k not in d or not d[k]:
                         d[k] = d[safe]
-                else:
-                    self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
-                                      "'%s' was not specified" % safe)
-                    raise Error
         else:
             d['FLL_DISTRO_VERSION'] = 'snapshot'
 
@@ -272,16 +275,32 @@ class FLLBuilder:
         dd['FLL_IMAGE_LOCATION'] = os.path.join(dd['FLL_IMAGE_DIR'],
                                                 dd['FLL_IMAGE_FILE'])
 
+        stamp = 'FLL_DISTRO_VERSION_STAMP'
+        if dd['FLL_DISTRO_VERSION'] == 'snapshot':
+            dd[stamp] = dd['FLL_DISTRO_NAME']
+            dd[stamp] += " %s -" % dd['FLL_DISTRO_VERSION']
+            dd[stamp] += " %s" % self.conf['packages']['profile']
+        else:
+            dd[stamp] = dd['FLL_DISTRO_NAME']
+            dd[stamp] += " %s -" % dd['FLL_DISTRO_VERSION']
+            if dd['FLL_DISTRO_CODENAME_REV']:
+                dd[stamp] += " %s" % dd['FLL_DISTRO_CODENAME']
+                dd[stamp] += ".%s -" % dd['FLL_DISTRO_CODENAME_REV']
+            else:
+                dd[stamp] += " %s -" % dd['FLL_DISTRO_CODENAME']
+            dd[stamp] += " %s" % self.conf['packages']['profile']
+
+
         return dd
 
 
     def _processConf(self):
-        """Process configuration options."""
+        '''Process configuration options.'''
         if len(self.conf['archs'].keys()) < 1:
             host_arch = Popen(["dpkg", "--print-architecture"],
                               stdout=PIPE).communicate()[0].rstrip()
             self.conf['archs'][host_arch] = {}
-            self.log.debug("default build arch: %s" % host_arch)
+            self.log.debug('default build arch: %s' % host_arch)
 
         for arch in self.conf['archs'].keys():
             if 'linux' not in self.conf['archs'][arch]:
@@ -299,11 +318,11 @@ class FLLBuilder:
                            (arch, self.conf['archs'][arch]['linux']))
 
         if len(self.conf['repos'].keys()) < 1:
-            self.log.critical("no apt repos were specified in build config")
+            self.log.critical('no apt repos were specified in build config')
             raise Error
 
         if 'debian' not in self.conf['repos']:
-            self.log.critical("'debian' repo not configured in build config")
+            self.log.critical('debian repo not configured in build config')
             raise Error
 
         for repo in self.conf['repos'].keys():
@@ -331,23 +350,23 @@ class FLLBuilder:
                 self.log.debug("distro-defaults for %s:" % arch)
                 self.log.debug(self.distro[arch])
         else:
-            self.log.critical("'distro' section not found in build config")
+            self.log.critical('distro section not found in build config')
             raise Error
 
-        self.log.debug("common configuration data")
+        self.log.debug('common configuration data')
         self.log.debug(self.conf)
 
 
     def parseConf(self):
-        """Parse build configuration file and return it in a dict."""
-        self.log.info("reading configuration file...")
+        '''Parse build configuration file and return it in a dict.'''
+        self.log.info('reading configuration file...')
 
         self.conf = ConfigObj(self.opts.c)
         self._processConf()
 
 
     def _processPkgProfile(self, arch, profile, dir):
-        """Return a dict, arch string as keys and package list as values."""
+        '''Return a dict, arch string as keys and package list as values.'''
         pkgs = {'debconf': [], 'list': []}
 
         linux_meta = ['linux-image', 'linux-headers']
@@ -361,7 +380,7 @@ class FLLBuilder:
 
         if 'desc' in pfile:
             for l in lines2list(pfile['desc']):
-                self.log.debug("  %s" % l)
+                self.log.debug('  %s' % l)
 
         if 'repos' in pfile:
             for r in lines2list(pfile['repos']):
@@ -375,44 +394,44 @@ class FLLBuilder:
             self.log.debug("debconf:")
             for d in lines2list(pfile['debconf']):
                 pkgs['debconf'].append(d)
-                self.log.debug("  %s", d)
+                self.log.debug('  %s', d)
 
         if 'debconf' in self.conf['packages']:
             self.log.debug("debconf (config):")
             for d in lines2list(self.conf['packages']['debconf']):
                 pkgs['debconf'].append(d)
-                self.log.debug("  %s" % d)
+                self.log.debug('  %s' % d)
 
         if 'packages' in pfile:
             self.log.debug("packages:")
             for p in lines2list(pfile['packages']):
                 pkgs['list'].append(p)
-                self.log.debug("  %s" % p)
+                self.log.debug('  %s' % p)
 
         if 'packages' in self.conf['packages']:
             self.log.debug("packages (config):")
             for p in lines2list(self.conf['packages']['packages']):
                 pkgs['list'].append(p)
-                self.log.debug("  %s" % p)
+                self.log.debug('  %s' % p)
 
         if arch in pfile:
             self.log.debug("packages (%s):" % arch)
             for p in lines2list(pfile[arch]):
                 pkgs['list'].append(p)
-                self.log.debug("  %s" % p)
+                self.log.debug('  %s' % p)
 
         deps = ['essential']
         if 'deps' in pfile:
             self.log.debug("deps:")
             for dep in lines2list(pfile['deps']):
                 deps.append(dep)
-                self.log.debug("  %s" % dep)
+                self.log.debug('  %s' % dep)
 
         if 'deps' in self.conf['packages']:
             self.log.debug("deps (config):")
             for dep in lines2list(self.conf['packages']['deps']):
                 deps.append(dep)
-                self.log.debug("  %s" % dep)
+                self.log.debug('  %s' % dep)
 
         for dep in deps:
             depfile = os.path.join(dir, 'packages.d', dep)
@@ -428,7 +447,7 @@ class FLLBuilder:
 
             if 'desc' in dfile:
                 for l in lines2list(dfile['desc']):
-                    self.log.debug("  %s" % l)
+                    self.log.debug('  %s' % l)
 
             if 'repos' in dfile:
                 for repo in lines2list(dfile['repos']):
@@ -442,23 +461,23 @@ class FLLBuilder:
                 self.log.debug("debconf:")
                 for d in lines2list(dfile['debconf']):
                     pkgs['debconf'].append(d)
-                    self.log.debug("  %s" % d)
+                    self.log.debug('  %s' % d)
 
             if 'packages' in dfile:
                 self.log.debug("packages:")
                 for p in lines2list(dfile['packages']):
                     pkgs['list'].append(p)
-                    self.log.debug("  %s" % p)
+                    self.log.debug('  %s' % p)
 
             if arch in dfile:
                 self.log.debug("packages (%s):" % arch)
                 for p in lines2list(dfile[arch]):
                     pkgs['list'].append(p)
-                    self.log.debug("  %s" % p)
+                    self.log.debug('  %s' % p)
 
         # i18n, recommended packages, generally refactor this entire function
 
-        self.log.debug("packages + debconf for %s:" % arch)
+        self.log.debug('packages + debconf for %s:' % arch)
         self.log.debug(pkgs)
 
         pkgs['list'] = self.__filterList(pkgs['list'], dup_warn = True)
@@ -467,14 +486,14 @@ class FLLBuilder:
 
 
     def parsePkgProfile(self):
-        """Parse packages profile file(s)."""
-        self.log.info("processing package profile...")
+        '''Parse packages profile file(s).'''
+        self.log.info('processing package profile...')
 
         dir = os.path.join(self.opts.s, 'packages')
         file = os.path.join(dir, self.conf['packages']['profile'])
 
         if not os.path.isfile(file):
-            self.log.critical("no such package profile file: %s" % file)
+            self.log.critical('no such package profile file: %s' % file)
             raise Error
 
         self.pkgs = {}
@@ -483,7 +502,7 @@ class FLLBuilder:
 
 
     def stageBuildArea(self):
-        """Prepare temporary directory to prepare chroots and stage result."""
+        '''Prepare temporary directory to prepare chroots and stage result.'''
         self.log.debug('preparing build area...')
 
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
@@ -500,7 +519,7 @@ class FLLBuilder:
 
 
     def _mount(self, chroot):
-        """Mount virtual filesystems in a shoort dir."""
+        '''Mount virtual filesystems in a shoort dir.'''
         virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
 
         for v in virtfs.items():
@@ -514,7 +533,7 @@ class FLLBuilder:
 
 
     def _umount(self, chrootdir):
-        """Umount any mount points in a given chroot directory."""
+        '''Umount any mount points in a given chroot directory.'''
         umount_list = []
         for line in open("/proc/mounts"):
             (dev, mnt, fs, options, d, p) = line.split()
@@ -532,7 +551,7 @@ class FLLBuilder:
 
 
     def _nuke(self, dir):
-        """Nuke directory tree."""
+        '''Nuke directory tree.'''
         if os.path.isdir(dir):
             self.log.debug("nuking directory: %s" % dir)
             try:
@@ -545,7 +564,7 @@ class FLLBuilder:
 
 
     def _nukeChroot(self, arch):
-        """Convenience function to nuke chroot given by arch name."""
+        '''Convenience function to nuke chroot given by arch name.'''
         if not self.opts.p:
             self.log.info("nuking %s chroot..." % arch)
             chroot = os.path.join(self.temp, arch)
@@ -554,7 +573,7 @@ class FLLBuilder:
 
 
     def cleanup(self):
-        """Clean up the build area."""
+        '''Clean up the build area.'''
         self.log.info('cleaning up...')
 
         for arch in self.conf['archs'].keys():
@@ -571,7 +590,7 @@ class FLLBuilder:
 
     def __execLogged(self, cmd, check_returncode):
         self.log.debug(' '.join(cmd))
-        
+
         try:
             c = Popen(cmd, stdout = PIPE, stderr = STDOUT, env = self.env,
                       close_fds = True)
@@ -594,9 +613,9 @@ class FLLBuilder:
 
 
     def __exec(self, cmd, check_returncode):
-        """Execute subprocess without buffering output in a pipe."""
+        '''Execute subprocess without buffering output in a pipe.'''
         self.log.debug(' '.join(cmd))
-        
+
         try:
             if self.opts.q:
                 retv = call(cmd, stdout = open(os.devnull, 'w'),
@@ -617,7 +636,7 @@ class FLLBuilder:
 
 
     def _execCmd(self, cmd, check_returncode = True):
-        """Convenience wrapper for subprocess execution."""
+        '''Convenience wrapper for subprocess execution.'''
         if self.opts.l:
             self.__execLogged(cmd, check_returncode)
         else:
@@ -625,7 +644,7 @@ class FLLBuilder:
 
 
     def _execInChroot(self, arch, args, check_returncode = True):
-        """Run command in a chroot."""
+        '''Run command in a chroot.'''
         chroot = os.path.join(self.temp, arch)
         cmd = ['chroot', chroot]
         cmd.extend(args)
@@ -641,7 +660,7 @@ class FLLBuilder:
 
 
     def _aptGetInstall(self, arch, pkgs):
-        """An apt-get wrapper."""
+        '''An apt-get wrapper.'''
         aptget = ['apt-get', '--yes']
 
         if self.conf['apt']['recommends'] == 'no':
@@ -657,7 +676,7 @@ class FLLBuilder:
 
     def _bootStrap(self, arch, verbosity = None, dir = None, mirror = None,
                    flavour = 'minimal', suite = 'sid', ):
-        """Bootstrap a debian system with cdebootstrap."""
+        '''Bootstrap a debian system with cdebootstrap.'''
         if self.opts.d:
             verbosity = '--debug'
         elif self.opts.v:
@@ -681,7 +700,7 @@ class FLLBuilder:
 
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
-        """Write apt source lists to /etc/apt/sources.list.d/*."""
+        '''Write apt source lists to /etc/apt/sources.list.d/*.'''
         chroot = os.path.join(self.temp, arch)
         for repo in self.conf['repos'].keys():
             r = self.conf['repos'][repo]
@@ -712,7 +731,7 @@ class FLLBuilder:
 
 
     def _primeApt(self, arch):
-        """Prepare apt for work in each build chroot."""
+        '''Prepare apt for work in each build chroot.'''
         self.log.info("preparing apt in %s chroot..." % arch)
         chroot = os.path.join(self.temp, arch)
 
@@ -766,7 +785,7 @@ class FLLBuilder:
 
 
     def _writeFile(self, arch, file):
-        """Some file templates."""
+        '''Some file templates.'''
         chroot = os.path.join(self.temp, arch)
         try:
             f = open(os.path.join(chroot, file.lstrip('/')), 'w')
@@ -810,14 +829,26 @@ class FLLBuilder:
 
 
     def _defaultEtc(self, arch):
-        """Initial creation of conffiles required in chroot."""
+        '''Initial creation of conffiles required in chroot.'''
         self._writeFile(arch, '/etc/fstab')
         self._writeFile(arch, '/etc/kernel-img.conf')
         self._writeFile(arch, '/etc/network/interfaces')
 
 
     def _finalEtc(self, arch):
-        """Final editing of conffiles in chroot."""
+        '''Final editing of conffiles in chroot.'''
+        chroot = os.path.join(self.temp, arch)
+
+        self.log.debug('stamping distro version')
+        distro_version = "%s-version" % \
+                         self.distro[arch]['FLL_DISTRO_NAME'].lower()
+        distro_version = os.path.join(chroot, 'etc', distro_version)
+        f = open(distro_version, 'w')
+        f.write('%s - (%s)\n' % (self.distro[arch]['FLL_DISTRO_VERSION_STAMP'],
+                                 time.strftime('%Y%m%d%H%M', time.gmtime())))
+        f.close()
+        os.chmod(distro_version, 0444)
+
         self._writeFile(arch, '/etc/default/distro')
         self._writeFile(arch, '/etc/hostname')
         self._writeFile(arch, '/etc/hosts')
@@ -826,24 +857,64 @@ class FLLBuilder:
         self._writeAptLists(arch)
 
         self.log.debug('add grub hooks to /etc/kernel-img.conf')
-        f = open(os.path.join(self.temp, arch, 'etc/kernel-img.conf'), 'a')
-        f.write("postinst_hook = /usr/sbin/update-grub\n")
-        f.write("postrm_hook   = /usr/sbin/update-grub\n")
+        f = open(os.path.join(chroot, 'etc', 'kernel-img.conf'), 'a')
+        f.write('postinst_hook = /usr/sbin/update-grub\n')
+        f.write('postrm_hook   = /usr/sbin/update-grub\n')
         f.close()
 
-        # /etc/distro-version stamp (with funny permissions ;-))
+        self.log.debug('setting adduser.conf homedir perms and extra groups')
+        adduser = os.path.join(chroot, 'etc', 'adduser.conf')
+        for lines in fileinput.input(adduser, inplace = 1):
+            for line in lines.splitlines():
+                if line.startswith('DIR_MODE='):
+                    print('DIR_MODE=0751')
+                elif line.startswith('#EXTRA_GROUPS='):
+                    print('EXTRA_GROUPS="%s"' %
+                          self.distro[arch]['FLL_LIVE_USER_GROUPS'])
+                elif line.startswith('#ADD_EXTRA_GROUPS='):
+                    print('ADD_EXTRA_GROUPS=1')
+                else:
+                    print(line)
+
+        # also restrict /root permissions
+        os.chmod(os.path.join(chroot, 'root'), 0751)
+
+        shadow = os.path.join(chroot, 'etc', 'shadow')
+        if 'root_passwd' in self.conf and self.conf['root_passwd']:
+            for lines in fileinput.input(shadow, inplace = 1):
+                for line in lines.splitlines():
+                    if line.startswith('root:'):
+                        print('root:'+ self.conf['root_passwd'] + 
+                              line[line.index(':', len('root:')):])
+                    else:
+                        print(line)
+
+            # make default runlevel 5 in /etc/inittab
+        else:
+            self.log.debug('hacking /etc/shadow to lock root account...')
+            for lines in fileinput.input(shadow, inplace = 1):
+                for line in lines.splitlines():
+                    if line.startswith('root:'):
+                        print('root:*' + line[line.index(':', len('root:')):])
+                    else:
+                        print(line)
+
+            self.log.debug('substituting /etc/inittab for passwd-less login')
+            inittab = os.path.join(chroot, 'etc', 'inittab')
+            os.unlink(inittab)
+            inittab_live = os.path.join(self.opts.s, 'data', 'inittab')
+            shutil.copy(inittab_live, os.path.dirname(inittab))
 
 
     def _preseedDebconf(self, arch):
-        """Preseed debcong with values read from package lists."""
+        '''Preseed debcong with values read from package lists.'''
         chroot = os.path.join(self.temp, arch)
 
-        if 'debconf' in self.pkgs[arch]:
-            self.log.info("preseeding debconf in %s chroot..." % arch)
-            debconf = open(os.path.join(chroot, 'root/fll_debconf_selections'),
-                           'w')
-            for d in self.pkgs[arch]['debconf']:
-                debconf.write(d + "\n")
+        if 'debconf' in self.pkgs[arch] and self.pkgs[arch]['debconf']:
+            self.log.info('preseeding debconf in %s chroot...' % arch)
+            debconf = open(os.path.join(chroot, 'root',
+                                        'fll_debconf_selections'), 'w')
+            debconf.writelines([d + '\n' for d in self.pkgs[arch]['debconf']])
             debconf.close()
 
             cmd = 'debconf-set-selections '
@@ -855,7 +926,7 @@ class FLLBuilder:
 
 
     def _detectLinuxVersion(self, arch):
-        """Return version string of a singularly installed linux-image."""
+        '''Return version string of a singularly installed linux-image.'''
         chroot = os.path.join(self.temp, arch)
 
         kvers = [f.replace('vmlinuz-', '', 1) for f in
@@ -865,13 +936,13 @@ class FLLBuilder:
         if len(kvers) > 0:
             return kvers
 
-        self.log.critical("failed to detect linux version installed in " +
-                          "%s chroot" % arch)
+        self.log.critical('failed to detect linux version installed in ' +
+                          '%s chroot' % arch)
         raise Error
 
 
     def _detectLinuxModules(self, arch, kvers):
-        """Detect available linux extra modules."""
+        '''Detect available linux extra modules.'''
         listsdir = os.path.join(self.temp, arch, 'var/lib/apt/lists')
         lists = [os.path.join(listsdir, l) for l in os.listdir(listsdir)
                  if l.endswith('_Packages')]
@@ -886,8 +957,8 @@ class FLLBuilder:
 
 
     def _installPkgs(self, arch):
-        """Install packages."""
-        self.log.info("installing packages in %s chroot..." % arch)
+        '''Install packages.'''
+        self.log.info('installing packages in %s chroot...' % arch)
 
         pkgs = self.pkgs[arch]['list']
 
@@ -901,28 +972,27 @@ class FLLBuilder:
         #  * fix /usr/bin/X
         #  * update-locatedb
         #  * preseed alternatives (pager)
-        #  * adduser (groups, homedir perms)
 
 
     def _collectManifest(self, arch):
-        """Collect package and source package URI information from each
-        chroot."""
+        '''Collect package and source package URI information from each
+        chroot.'''
         chroot = os.path.join(self.temp, arch)
         status = os.path.join(chroot, 'var/lib/dpkg/status')
 
-        self.log.info("collecting package manifest for %s..." % arch)
+        self.log.info('collecting package manifest for %s...' % arch)
         try:
             manifest = dict([(p['Package'], p['Version']) for p in
                              deb822.Packages.iter_paragraphs(file(status))
                              if p['Status'].endswith('install ok installed')])
         except:
-            self.conf.exception("failed to collect manifest for %s", arch)
+            self.conf.exception('failed to collect manifest for %s', arch)
             raise Error
         else:
             self.pkgs[arch]['manifest'] = manifest
 
         if not self.opts.B:
-            self.log.info("querying src package uri's for %s..." % arch)
+            self.log.info('querying src package URIs for %s...' % arch)
 
             source = []
             kvers = self._detectLinuxVersion(arch)
@@ -947,7 +1017,7 @@ class FLLBuilder:
                     q = Popen(cmd.split(), env = self.env, stdout = PIPE,
                               stderr = open(os.devnull, 'w'), close_fds = True)
                 except:
-                    self.log.exception("failed to query src uri's for %s" % p)
+                    self.log.exception('failed to query src URIs for %s' % p)
                     raise Error
                 else:
                     uris = q.communicate()[0].splitlines()
@@ -957,7 +1027,7 @@ class FLLBuilder:
                             self.log.debug(uri)
                             source.append(uri)
                     else:
-                        self.log.critical("no source uri's for %s" % p)
+                        self.log.critical('no source URIs for %s' % p)
                         raise Error
             self._umount(chroot)
 
@@ -965,46 +1035,46 @@ class FLLBuilder:
 
 
     def _rebuildInitRamfs(self, arch):
-        """Rebuild the chroot live initramfs after all packages have been
-        installed. Copy the vmlinuz and initramfs to staging area."""
+        '''Rebuild the chroot live initramfs after all packages have been
+        installed. Copy the vmlinuz and initramfs to staging area.'''
         chroot = os.path.join(self.temp, arch)
         boot_dir = os.path.join(self.temp, 'staging', 'boot')
 
         kvers = self._detectLinuxVersion(arch)
         for k in kvers:
-            self.log.info("creating an initial ramdisk for linux %s..." % k)
+            self.log.info('creating an initial ramdisk for linux %s...' % k)
             cmd = 'update-initramfs -d -k ' + k
             self._execInChroot(arch, cmd.split())
 
-            if self.opts.q:
-                cmd = 'update-initramfs -c -k ' + k
-            else:
+            if self.opts.v:
                 cmd = 'update-initramfs -v -c -k ' + k
+            else:
+                cmd = 'update-initramfs -c -k ' + k
             self._execInChroot(arch, cmd.split())
 
-            self.log.debug("copying initrd.img-%s to %s" % (k, boot_dir))
-            initrd = os.path.join(chroot, 'boot/initrd.img-' + k)
+            self.log.debug('copying initrd.img-%s to %s' % (k, boot_dir))
+            initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
             shutil.copy(initrd, boot_dir)
-            self.log.debug("copying vmlinuz-%s to %s" % (k, boot_dir))
-            vmlinuz = os.path.join(chroot, 'boot/vmlinuz-' + k)
+            self.log.debug('copying vmlinuz-%s to %s' % (k, boot_dir))
+            vmlinuz = os.path.join(chroot, 'boot', 'vmlinuz-' + k)
             shutil.copy(vmlinuz, boot_dir)
 
 
     def _initBlackList(self, arch):
-        """Blacklist a group of initscripts present in chroot that should not
-        be executed during live boot per default."""
-        self.log.info("calculating initscript blacklist for %s chroot..." %
+        '''Blacklist a group of initscripts present in chroot that should not
+        be executed during live boot per default.'''
+        self.log.info('calculating initscript blacklist for %s chroot...' %
                       arch)
         chroot = os.path.join(self.temp, arch)
         initd = '/etc/init.d/'
 
-        init_glob = os.path.join(chroot, 'etc/init.d/*')
+        init_glob = os.path.join(chroot, 'etc', 'init.d', '*')
         try:
             initscripts = [i.replace(chroot, '', 1)
                            for i in glob.glob(init_glob)
                            if self.__isexecutable(i)]
         except:
-            log.self.exception("failed to build dict of chroot initscripts")
+            log.self.exception('failed to build dict of chroot initscripts')
             raise Error
         else:
             initscripts.sort()
@@ -1012,7 +1082,7 @@ class FLLBuilder:
         # synchronize & sanitize the lists with fll-installer
 
         bd = {}
-        for line in open(os.path.join(self.opts.s, 'data/fll_init_blacklist')):
+        for line in open(os.path.join(self.opts.s, 'data', 'fll_init_blacklist')):
             if line.startswith('#'):
                 continue
             files = []
@@ -1021,7 +1091,7 @@ class FLLBuilder:
                 files = [f.replace(chroot, '', 1) for f in glob.glob(file_glob)
                          if self.__isexecutable(f)]
                 for file in files:
-                    self.log.debug("blacklisting: %s (glob)" % file)
+                    self.log.debug('blacklisting: %s (glob)' % file)
                     bd[file] = True
             else:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
@@ -1033,12 +1103,12 @@ class FLLBuilder:
                 for file in p.communicate()[0].splitlines():
                     file = file.strip().split()[0]
                     if file.startswith(initd):
-                        self.log.debug("blacklisting: %s (%s)" %
+                        self.log.debug('blacklisting: %s (%s)' %
                                        (file, line.rstrip()))
                         bd[file] = True
 
         wd = {}
-        for line in open(os.path.join(self.opts.s, 'data/fll_init_whitelist')):
+        for line in open(os.path.join(self.opts.s, 'data', 'fll_init_whitelist')):
             if line.startswith('#'):
                 continue
             files = []
@@ -1047,7 +1117,7 @@ class FLLBuilder:
                 files = [f.replace(chroot, '', 1) for f in glob.glob(file_glob)
                          if self.__isexecutable(f)]
                 for file in files:
-                    self.log.debug("whitelisting: %s (glob)" % file)
+                    self.log.debug('whitelisting: %s (glob)' % file)
                     wd[file] = True
             else:
                 cmd = 'chroot ' + chroot + ' dpkg-query --listfiles ' + line
@@ -1059,29 +1129,29 @@ class FLLBuilder:
                 for file in p.communicate()[0].splitlines():
                     file = file.strip().split()[0]
                     if file.startswith(initd) and file not in bd:
-                        self.log.debug("whitelisting: %s (%s)" %
+                        self.log.debug('whitelisting: %s (%s)' %
                                        (file, line.rstrip()))
                         wd[file] = True
 
         try:
-            fllinit = open(os.path.join(chroot, 'etc/default/fll-init'), 'a')
+            fllinit = open(os.path.join(chroot, 'etc', 'default', 'fll-init'),
+                           'a')
         except:
-            self.log.exception("failed to open file: %s" %
-                               os.path.join(chroot, 'etc/default/fll-init'))
+            self.log.exception('failed to open /etc/default/fll-init')
             raise Error
         else:
             self.log.debug('writing file: /etc/default/fll-init')
             for i in initscripts:
                 if i in wd:
-                    self.log.debug("whitelisted: %s" % i)
+                    self.log.debug('whitelisted: %s' % i)
                 else:
-                    self.log.debug("blacklisted: %s" % i)
+                    self.log.debug('blacklisted: %s' % i)
                     fllinit.write("%s\n" % os.path.basename(i))
             fllinit.close()
 
 
     def _zerologs(self, arch, dir, fnames):
-        """Truncate all log files."""
+        '''Truncate all log files.'''
         chroot = os.path.join(self.temp, arch)
         chrootdir = dir.replace(chroot, '', 1)
 
@@ -1092,8 +1162,8 @@ class FLLBuilder:
 
 
     def _cleanChroot(self, arch):
-        """Remove unwanted content from a chroot."""
-        self.log.info("purging unwanted content from %s chroot..." % arch)
+        '''Remove unwanted content from a chroot.'''
+        self.log.info('purging unwanted content from %s chroot...' % arch)
         chroot = os.path.join(self.temp, arch)
 
         cmd = 'dpkg --purge fll-live-initramfs'
@@ -1106,8 +1176,8 @@ class FLLBuilder:
 
 
     def _chrootSquashfs(self, arch):
-        """Make squashfs filesystem image of chroot."""
-        self.log.info("creating squashfs filesystem of %s chroot..." % arch)
+        '''Make squashfs filesystem image of chroot.'''
+        self.log.info('creating squashfs filesystem of %s chroot...' % arch)
         chroot = os.path.join(self.temp, arch)
 
         image_file = self.distro[arch]['FLL_IMAGE_FILE']
@@ -1118,7 +1188,7 @@ class FLLBuilder:
 
         # sortfile, compression
 
-        exclude_file = os.path.join(self.opts.s, 'data/fll_sqfs_exclusion')
+        exclude_file = os.path.join(self.opts.s, 'data', 'fll_sqfs_exclusion')
         shutil.copy(exclude_file, os.path.join(self.temp, arch, 'root'))
         cmd.extend(['-wildcards', '-ef', '/root/fll_sqfs_exclusion'])
 
@@ -1127,8 +1197,8 @@ class FLLBuilder:
 
 
     def _stageArch(self, arch):
-        """Stage files for an arch for final genisofs."""
-        self.log.info("staging live %s media..." % arch)
+        '''Stage files for an arch for final genisofs.'''
+        self.log.info('staging live %s media...' % arch)
 
         image_file = os.path.join(self.temp, arch,
                                   self.distro[arch]['FLL_IMAGE_FILE'])
@@ -1141,7 +1211,7 @@ class FLLBuilder:
 
 
     def buildChroot(self):
-        """Main loop to call all chroot building functions."""
+        '''Main loop to call all chroot building functions.'''
         archs = self.conf['archs'].keys()
         for arch in archs:
             self._bootStrap(arch)
