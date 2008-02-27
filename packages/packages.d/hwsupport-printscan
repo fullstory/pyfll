@@ -19,6 +19,7 @@ packages = """
 	foomatic-filters-ppds
 	hpijs-ppds
 	hplip
+	openprinting-ppds
 	min12xxw
 	pnm2ppa
 	sane
@@ -26,4 +27,3 @@ packages = """
 	libsane-extras
 """
 
-# linuxprinting.org-ppds
