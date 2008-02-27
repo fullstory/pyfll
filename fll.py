@@ -1332,7 +1332,7 @@ class FLLBuilder:
                         raise Error
         else:
             self.log.critical('grub stage files not found')
-            raise Error                    
+            raise Error
 
         # release notes
         # manifest, souces (with s/cached/actual/)
@@ -1399,6 +1399,7 @@ class FLLBuilder:
                     if line.find('@initrd@') >= 0:
                         line = line.replace('@initrd@', initrd)
                     menucpu.write('%s\n' % line)
+
             menucpu.close()
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
