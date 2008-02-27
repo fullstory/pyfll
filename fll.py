@@ -51,7 +51,7 @@ class FLLBuilder:
         env['ftp_proxy'] = os.getenv('ftp_proxy')
 
 
-    def __filterList(self, list, dup_warn = False):
+    def __filterList(self, list, dup_warn = True):
         '''Return a list containing no duplicate items given a list that
         may have duplicate items.'''
 
@@ -480,7 +480,7 @@ class FLLBuilder:
         self.log.debug('packages + debconf for %s:' % arch)
         self.log.debug(pkgs)
 
-        pkgs['list'] = self.__filterList(pkgs['list'], dup_warn = True)
+        pkgs['list'] = self.__filterList(pkgs['list'])
 
         return pkgs
 
@@ -1486,7 +1486,7 @@ class FLLBuilder:
 
 
     def _writeManifests(self, timestamp):
-        '''Write package manifest and source URI lists.'''
+        '''Write package manifest lists.'''
         archs = self.conf['archs'].keys()
         for arch in archs:
             manifest_name = self.conf['distro']['FLL_DISTRO_VERSION_STRING']
@@ -1511,31 +1511,63 @@ class FLLBuilder:
             manifest.close()
             os.chown(manifest_file, self.opts.u, self.opts.g)
 
-            if self.opts.B:
-                return
-
-            sources_name = self.conf['distro']['FLL_DISTRO_VERSION_STRING']
-            sources_name += '-%s' % arch
-            if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
-                sources_name += '-' + timestamp
-            sources_name += '.sources'
-
-            sources_file = os.path.join(self.opts.o, sources_name)
-            try:
-                sources = open(sources_file, 'w')
-            except:
-                self.log.exception('failed to open sources for %s' % arch)
-                raise Error
             
-            try:
-                sources.writelines(["%s\n" % s
-                                    for s in self.pkgs[arch]['source']])
-            except:
-                self.log.exception('error writing sources for %s' % arch)
-                raise Error
+    def _writeSources(self, file):
+        '''Write source URI lists.'''
+        sources_list = []
+        archs = self.conf['archs'].keys()
+        for arch in archs:
+            sources_list.extend(self.pkgs[arch]['source'])
+        sources_list = self.__filterList(sources_list, dup_warn = False)
+        
+        sources_name = file + '.sources'
+        sources_file = os.path.join(self.opts.o, sources_name)
+        try:
+            sources = open(sources_file, 'w')
+        except:
+            self.log.exception('failed to open sources for %s' % arch)
+            raise Error
 
-            sources.close()
-            os.chown(sources_file, self.opts.u, self.opts.g)
+        try:
+            sources.writelines(["%s\n" % s
+                                for s in sources_list])
+        except:
+            self.log.exception('error writing sources for %s' % arch)
+            raise Error
+
+        sources.close()
+        os.chown(sources_file, self.opts.u, self.opts.g)
+
+        cached = {}
+        for r in self.conf['repos']:
+            if 'cached' in self.conf['repos'][r] and \
+               self.conf['repos'][r]['cached']:
+                cached_uri = self.conf['repos'][r]['cached']
+                uri = self.conf['repos'][r]['uri']
+                cached[cached_uri.rstrip('/')] = uri.rstrip('/')
+
+        if len(cached.keys()) > 0:
+            os.rename(sources_file, sources_file + '-cached')
+        else:
+            return
+
+        try:
+            sources = open(sources_file, 'w')
+        except:
+            self.log.exception('failed to open sources for %s' % arch)
+            raise Error
+
+        try:
+            for s in sources_list:
+                for c in cached.keys():
+                    if s.startswith(c):
+                        sources.write(s.replace(c, cached[c], 1) + '\n')
+        except:
+            self.log.exception('error writing sources for %s' % arch)
+            raise Error
+
+        sources.close()
+        os.chown(sources_file, self.opts.u, self.opts.g)
 
 
     def genLiveMedia(self):
@@ -1592,6 +1624,8 @@ class FLLBuilder:
         os.chown(md5_file, self.opts.u, self.opts.g)
 
         self._writeManifests(timestamp)
+        if not self.opts.B:
+            self._writeSources(os.path.splitext(iso_file)[0])
 
 
     def buildChroots(self):
