@@ -31,7 +31,6 @@ hotkey-setup
 ifupdown
 initscripts
 irqbalance
-#klogd
 libc6
 lvm2
 module-init-tools
@@ -39,15 +38,12 @@ netbase
 pcmciautils
 #ppp
 procps
-resolvconf
 #screen
 #setserial
 sudo
-#sysklogd
+#sysklog-ng
 sysv-rc
 udev
-virtualbox-ose-guest-utils
-wpasupplicant
 x11-common
 #################################################
 # extra packages, managed by fll-live-initscripts
@@ -57,3 +53,4 @@ bluez-utils
 cupsys
 powernowd
 powersaved
+virtualbox-ose-guest-utils
