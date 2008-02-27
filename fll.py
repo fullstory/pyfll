@@ -355,10 +355,11 @@ class FLLBuilder:
         self.log.debug("package profile: %s" %
                        self.conf['packages']['profile'])
 
-        if not 'apt' in self.conf:
-            self.conf['apt'] = {}
-        if not 'recommends' in self.conf['apt']:
-            self.conf['apt']['recommends'] = 'no'
+        if not 'options' in self.conf:
+            self.conf['options'] = {}
+
+        if not 'apt_recommends' in self.conf['options']:
+            self.conf['options']['apt_recommends'] = 'no'
 
         if 'distro' in self.conf:
             self.distro = {}
@@ -681,7 +682,7 @@ class FLLBuilder:
         '''An apt-get wrapper.'''
         aptget = ['apt-get', '--yes']
 
-        if self.conf['apt']['recommends'] == 'no':
+        if self.conf['options']['apt_recommends'] == 'no':
             aptget.extend(['-o', 'APT::Install-Recommends=0'])
         if self.opts.d:
             aptget.extend(['-o', 'APT::Get::Show-Versions=1'])
