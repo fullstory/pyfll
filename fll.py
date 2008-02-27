@@ -1487,13 +1487,18 @@ class FLLBuilder:
             manifest_file = os.path.join(self.opts.o, manifest_name)
             try:
                 manifest = open(manifest_file, 'w')
+            except:
+                self.log.exception('failed to open manifest for %s' % arch)
+                raise Error
+
+            try:
                 manifest.writelines(self.__archManifest(arch))
             except:
-                self.log.exception('failed to open/write manifest for %s' %
-                                   arch)
+                self.log.exception('error writing manifest for %s' % arch)
                 raise Error
-            else:
-                manifest.close()
+
+            manifest.close()
+            os.chown(manifest_file, self.opts.u, self.opts.g)
 
             if self.opts.B:
                 return
@@ -1508,13 +1513,18 @@ class FLLBuilder:
             try:
                 sources = open(sources_file, 'w')
             except:
-                self.log.exception('failed to open/write sources for %s' %
-                                   arch)
+                self.log.exception('failed to open sources for %s' % arch)
                 raise Error
-            else:
-                lines = ["%s\n" % s for s in self.pkgs[arch]['source']]
-                sources.writelines(lines)
-                sources.close()
+            
+            try:
+                sources.writelines(["%s\n" % s
+                                    for s in self.pkgs[arch]['source']])
+            except:
+                self.log.exception('error writing sources for %s' % arch)
+                raise Error
+
+            sources.close()
+            os.chown(sources_file, self.opts.u, self.opts.g)
 
 
     def genLiveMedia(self):
@@ -1569,6 +1579,7 @@ class FLLBuilder:
                              os.path.basename(iso_file))
         md5.write(line)
         md5.close()
+        os.chown(md5_file, self.opts.u, self.opts.g)
 
         self._writeManifests(timestamp)
 
