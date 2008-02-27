@@ -819,7 +819,7 @@ class FLLBuilder:
                 f.write('%s="%s"\n' % (k, self.distro[arch][k]))
                 if k == 'FLL_MOUNTPOINT':
                     test = '$([ -d "$%s" ] && echo live || echo installed)' % k
-                    f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test)
+                    f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test))
         elif file == '/etc/fstab':
             f.write('# /etc/fstab: static file system information\n')
         elif file == '/etc/hostname':
