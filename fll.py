@@ -1277,8 +1277,13 @@ class FLLBuilder:
                                   self.distro[arch]['FLL_IMAGE_FILE'])
         image_dir = os.path.join(self.temp, 'staging',
                                  self.distro[arch]['FLL_IMAGE_DIR'])
-        os.chmod(image_file, 0644)
-        shutil.move(image_file, image_dir)
+        try:
+            os.chmod(image_file, 0644)
+            shutil.move(image_file, image_dir)
+        except:
+            self.log.exception('failed to set permissions and copy squashfs ' +
+                               'image to staging dir')
+            raise Error
 
         boot_dir = os.path.join(self.temp, 'staging', 'boot')
 
