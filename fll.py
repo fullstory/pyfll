@@ -271,7 +271,7 @@ class FLLBuilder:
             d[stamp] += ' %s -' % d['FLL_DISTRO_VERSION']
             d[string] = d['FLL_DISTRO_NAME']
             d[string] += ' %s' % d['FLL_DISTRO_VERSION']
-            
+
             if d['FLL_DISTRO_CODENAME_REV']:
                 d[stamp] += ' %s' % d['FLL_DISTRO_CODENAME']
                 d[stamp] += '.%s -' % d['FLL_DISTRO_CODENAME_REV']
@@ -280,7 +280,7 @@ class FLLBuilder:
             else:
                 d[stamp] += ' %s -' % d['FLL_DISTRO_CODENAME']
                 d[string] += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
-            
+
             d[stamp] += ' %s' % self.conf['packages']['profile']
             d[string] += ' %s' % self.conf['packages']['profile']
         else:
@@ -293,7 +293,7 @@ class FLLBuilder:
             d[string] = d['FLL_DISTRO_NAME']
             d[string] += ' %s' % d['FLL_DISTRO_VERSION']
             d[string] += ' %s' % self.conf['packages']['profile']
-        
+
         d[string] = '-'.join(d[string].split())
 
         dd = {}
@@ -817,6 +817,9 @@ class FLLBuilder:
             d.sort()
             for k in d:
                 f.write('%s="%s"\n' % (k, self.distro[arch][k]))
+                if k == 'FLL_MOUNTPOINT':
+                    test = '$([ -d "$%s" ] && echo live || echo installed)' % k
+                    f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test)
         elif file == '/etc/fstab':
             f.write('# /etc/fstab: static file system information\n')
         elif file == '/etc/hostname':
@@ -1475,12 +1478,14 @@ class FLLBuilder:
         else:
             sort.close()
 
+        timestamp = time.strftime('%Y%m%d%H%M', time.gmtime())
+
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
 
         iso_name = self.conf['distro']['FLL_DISTRO_VERSION_STRING']
         iso_name += '-' + '-'.join(self.conf['archs'].keys())
         if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
-            iso_name += '-' + time.strftime('%Y%m%d%H%M', time.gmtime())
+            iso_name += '-' + timestamp
             iso_name += '.iso'
         else:
             iso_name += '.iso'
