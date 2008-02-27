@@ -1463,6 +1463,60 @@ class FLLBuilder:
         os.path.walk(stage, self._md5sums, stage)
 
 
+    def __archManifest(self, arch):
+        '''Write manifest information to file.'''
+        pkgs = self.pkgs[arch]['manifest'].keys()
+        pkgs.sort(key=len)
+        l = len(pkgs[-1])
+        pkgs.sort()
+
+        return ["%s %s\n" % (p.ljust(l), self.pkgs[arch]['manifest'][p])
+                for p in pkgs]
+
+
+    def _writeManifests(self, timestamp):
+        '''Write package manifest and source URI lists.'''
+        archs = self.conf['archs'].keys()
+        for arch in archs:
+            manifest_name = self.conf['distro']['FLL_DISTRO_VERSION_STRING']
+            manifest_name += '-%s' % arch
+            if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
+                manifest_name += '-' + timestamp
+            manifest_name += '.manifest'
+
+            manifest_file = os.path.join(self.opts.o, manifest_name)
+            try:
+                manifest = open(manifest_file, 'w')
+                manifest.writelines(self.__archManifest(arch))
+            except:
+                self.log.exception('failed to open/write manifest for %s' %
+                                   arch)
+                raise Error
+            else:
+                manifest.close()
+
+            if self.opts.B:
+                return
+
+            sources_name = self.conf['distro']['FLL_DISTRO_VERSION_STRING']
+            sources_name += '-%s' % arch
+            if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
+                sources_name += '-' + timestamp
+            sources_name += '.sources'
+
+            sources_file = os.path.join(self.opts.o, sources_name)
+            try:
+                sources = open(sources_file, 'w')
+            except:
+                self.log.exception('failed to open/write sources for %s' %
+                                   arch)
+                raise Error
+            else:
+                lines = ["%s\n" % s for s in self.pkgs[arch]['source']]
+                sources.writelines(lines)
+                sources.close()
+
+
     def genLiveMedia(self):
         '''Generate live media iso image.'''
         stage = os.path.join(self.temp, 'staging')
@@ -1487,10 +1541,8 @@ class FLLBuilder:
         iso_name += '-' + '-'.join(self.conf['archs'].keys())
         if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
             iso_name += '-' + timestamp
-            iso_name += '.iso'
-        else:
-            iso_name += '.iso'
-        
+        iso_name += '.iso'
+
         iso_file = os.path.join(self.opts.o, iso_name)
         sort_file = os.path.join(stage, 'genisoimage.sort')
         md5_file = iso_file + '.md5'
@@ -1505,7 +1557,7 @@ class FLLBuilder:
         cmd += ' -sort %s' % sort_file
         cmd += ' -x genisoimage.sort'
         cmd += ' -o %s %s' % (iso_file, stage)
-        
+
         self.log.info('generating iso image of live media...')
         self._execCmd(cmd.split())
         os.chown(iso_file, self.opts.u, self.opts.g)
@@ -1517,6 +1569,8 @@ class FLLBuilder:
                              os.path.basename(iso_file))
         md5.write(line)
         md5.close()
+
+        self._writeManifests(timestamp)
 
 
     def buildChroots(self):
