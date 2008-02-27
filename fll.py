@@ -913,7 +913,7 @@ class FLLBuilder:
 
         if 'debconf' in self.pkgs[arch] and self.pkgs[arch]['debconf']:
             self.log.info('preseeding debconf in %s chroot...' % arch)
-            debconf = open(os.path.join(chroot, 'root',
+            debconf = open(os.path.join(chroot, 'tmp',
                                         'fll_debconf_selections'), 'w')
             debconf.writelines([d + '\n' for d in self.pkgs[arch]['debconf']])
             debconf.close()
@@ -921,7 +921,7 @@ class FLLBuilder:
             cmd = 'debconf-set-selections '
             if self.opts.v:
                 cmd += '--verbose '
-            cmd += '/root/fll_debconf_selections'
+            cmd += '/tmp/fll_debconf_selections'
 
             self._execInChroot(arch, cmd.split())
 
@@ -1106,12 +1106,18 @@ class FLLBuilder:
                 cmd = 'update-initramfs -c -k ' + k
             self._execInChroot(arch, cmd.split())
 
-            self.log.debug('copying initrd.img-%s to %s' % (k, boot_dir))
-            initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
-            shutil.copy(initrd, boot_dir)
-            self.log.debug('copying vmlinuz-%s to %s' % (k, boot_dir))
-            vmlinuz = os.path.join(chroot, 'boot', 'vmlinuz-' + k)
-            shutil.copy(vmlinuz, boot_dir)
+            try:
+                self.log.debug('copying initrd.img-%s to %s' % (k, boot_dir))
+                initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
+                shutil.copy(initrd, boot_dir)
+
+                self.log.debug('copying vmlinuz-%s to %s' % (k, boot_dir))
+                vmlinuz = os.path.join(chroot, 'boot', 'vmlinuz-' + k)
+                shutil.copy(vmlinuz, boot_dir)
+            except:
+                self.log.exception('problem copying vmlinux and initrd to ' +
+                                   'staging area')
+                raise Error
 
 
     def _initBlackList(self, arch):
@@ -1255,8 +1261,8 @@ class FLLBuilder:
         # sortfile, compression
 
         exclude_file = os.path.join(self.opts.s, 'data', 'fll_sqfs_exclusion')
-        shutil.copy(exclude_file, os.path.join(self.temp, arch, 'root'))
-        cmd.extend(['-wildcards', '-ef', '/root/fll_sqfs_exclusion'])
+        shutil.copy(exclude_file, os.path.join(self.temp, arch, 'tmp'))
+        cmd.extend(['-wildcards', '-ef', '/tmp/fll_sqfs_exclusion'])
 
         cmd.extend(['-e', image_file])
         self._execInChroot(arch, cmd)
@@ -1265,14 +1271,66 @@ class FLLBuilder:
     def _stageArch(self, arch):
         '''Stage files for an arch for final genisofs.'''
         self.log.info('staging live %s media...' % arch)
+        chroot = os.path.join(self.temp, arch)
 
-        image_file = os.path.join(self.temp, arch,
+        image_file = os.path.join(chroot,
                                   self.distro[arch]['FLL_IMAGE_FILE'])
         image_dir = os.path.join(self.temp, 'staging',
                                  self.distro[arch]['FLL_IMAGE_DIR'])
         shutil.move(image_file, image_dir)
 
-        # grub message file, grub menu.lst, release notes, memtest86+
+        boot_dir = os.path.join(self.temp, 'staging', 'boot')
+
+        memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
+        if os.path.isfile(memtest) and \
+            not os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
+            self.log.debug('copying memtest86+ to boot dir')
+            try:
+                shutil.copy(memtest, boot_dir)
+            except:
+                self.log.exception('failed to copy memtest86+.bin to ' +
+                                   'staging dir')
+                raise Error
+
+        message = os.path.join(chroot, 'boot', 'message.live')
+        if os.path.isfile(message) and \
+            not os.path.isfile(os.path.join(boot_dir, 'message')):
+            self.log.debug('copying grub-gfxboot message file to boot dir')
+            try:
+                shutil.copy(message, boot_dir)
+                message = os.path.join(boot_dir, 'message.live')
+                os.rename(message, os.path.splitext(message)[0])
+            except:
+                self.log.exception('failed to copy grub message to ' +
+                                   'staging dir')
+                raise Error
+        else:
+            self.log.critical('grub message file not found')
+            raise Error
+
+        grub_dir = os.path.join(boot_dir, 'grub')
+        if not os.path.isdir(grub_dir):
+            os.mkdir(grub_dir, 0755)
+
+        
+        gstage_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
+        gstages = [s for s in os.listdir(gstage_dir)
+                   if s.startswith('stage2') or s.startswith('iso9660')]
+        if len(gstages) >= 3:
+            self.log.debug('copying grub stage files to boot dir')
+            for stage in gstages:
+                if not os.path.isfile(os.path.join(grub_dir, stage)):
+                    try:
+                        shutil.copy(os.path.join(gstage_dir, stage), grub_dir)
+                    except:
+                        self.log.exception('failed to copy grub stage file ' +
+                                           'to staging dir')
+                        raise Error
+        else:
+            self.log.critical('grub stage files not found')
+            raise Error                    
+
+        # grub menu.lst, release notes
         # manifest, souces (with s/cached/actual/), md5sums
 
 
