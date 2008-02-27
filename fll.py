@@ -37,7 +37,6 @@ class FLLBuilder:
     opts = None
     pkgs = None
     temp = None
-    distro = None
 
     log = logging.getLogger('log')
     log.setLevel(logging.DEBUG)
@@ -228,7 +227,7 @@ class FLLBuilder:
         self._processOpts()
 
 
-    def _processDefaults(self, arch, d):
+    def _processDefaults(self, d):
         '''Form a distro-defaults data structure to be written to
         /etc/default/distro of each chroot, and used for release name.'''
         for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
@@ -296,21 +295,6 @@ class FLLBuilder:
 
         d[string] = '-'.join(d[string].split())
 
-        dd = {}
-        for k, v in d.items():
-            if k == 'FLL_IMAGE_FILE':
-                if arch == 'i386':
-                    dd[k] = '.'.join([v, '686'])
-                else:
-                    dd[k] = '.'.join([v, arch])
-            else:
-                dd[k] = v
-
-        dd['FLL_IMAGE_LOCATION'] = os.path.join(dd['FLL_IMAGE_DIR'],
-                                                dd['FLL_IMAGE_FILE'])
-
-        return dd
-
 
     def _processConf(self):
         '''Process configuration options.'''
@@ -362,12 +346,9 @@ class FLLBuilder:
             self.conf['options']['apt_recommends'] = 'no'
 
         if 'distro' in self.conf:
-            self.distro = {}
-            for arch in self.conf['archs'].keys():
-                self.distro[arch] = self._processDefaults(arch,
-                                                          self.conf['distro'])
-                self.log.debug("distro-defaults for %s:" % arch)
-                self.log.debug(self.distro[arch])
+                self._processDefaults(self.conf['distro'])
+                self.log.debug('distro-defaults:')
+                self.log.debug(self.conf['distro'])
         else:
             self.log.critical('distro section not found in build config')
             raise Error
@@ -392,7 +373,7 @@ class FLLBuilder:
         kvers = self.conf['archs'][arch]['linux']
         pkgs['list'].extend(['-'.join([l, kvers]) for l in linux_meta])
 
-        self.log.debug("processing package profile for %s: %s" %
+        self.log.debug('processing package profile for %s: %s' %
                        (arch, os.path.basename(profile)))
 
         pfile = ConfigObj(profile)
@@ -494,7 +475,7 @@ class FLLBuilder:
                     pkgs['list'].append(p)
                     self.log.debug('  %s' % p)
 
-        # i18n, recommended packages, generally refactor this entire function
+        # recommended packages
 
         self.log.debug('packages + debconf for %s:' % arch)
         self.log.debug(pkgs)
@@ -814,20 +795,35 @@ class FLLBuilder:
             raise Error
 
         if file == '/etc/default/distro':
-            d = self.distro[arch].keys()
+            d = self.conf['distro'].keys()
             d.sort()
             for k in d:
-                f.write('%s="%s"\n' % (k, self.distro[arch][k]))
-                if k == 'FLL_MOUNTPOINT':
+                if k.startswith('FLL_DISTRO_VERSION_S'):
+                    continue
+                elif k.startswith('FLL_DISTRO_CODENAME'):
+                    continue
+                elif k == 'FLL_MOUNTPOINT':
+                    f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
                     test = '$([ -d "$%s" ] && echo live || echo installed)' % k
                     f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test))
+                elif k == 'FLL_IMAGE_FILE':
+                    image_file = self.conf['distro'][k]
+                    if arch == 'i386':
+                        image_file += '.686'
+                    else:
+                        image_file += '.%s' % arch
+                    f.write('%s="%s"\n' % (k, image_file))
+                    f.write('%s="$%s/$%s"\n' % ('FLL_IMAGE_LOCATION',
+                                                'FLL_IMAGE_DIR', k))
+                else:
+                    f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
         elif file == '/etc/fstab':
             f.write('# /etc/fstab: static file system information\n')
         elif file == '/etc/hostname':
-            hostname = self.distro[arch]['FLL_DISTRO_NAME']
+            hostname = self.conf['distro']['FLL_DISTRO_NAME']
             f.write(hostname + '\n')
         elif file == '/etc/hosts':
-            hostname = self.distro[arch]['FLL_DISTRO_NAME']
+            hostname = self.conf['distro']['FLL_DISTRO_NAME']
             f.write('127.0.0.1\tlocalhost\n')
             f.write('127.0.0.1\t' + hostname + '\n\n')
             f.write('# The following lines are for IPv6 capable hosts\n')
@@ -863,11 +859,12 @@ class FLLBuilder:
 
         self.log.debug('stamping distro version')
         distro_version = '%s-version' % \
-                         self.distro[arch]['FLL_DISTRO_NAME'].lower()
+                         self.conf['distro']['FLL_DISTRO_NAME'].lower()
         distro_version = os.path.join(chroot, 'etc', distro_version)
+        version = self.conf['distro']['FLL_DISTRO_VERSION_STAMP']
+        timestamp = time.strftime('%Y%m%d%H%M', time.gmtime())
         f = open(distro_version, 'w')
-        f.write('%s - (%s)\n' % (self.distro[arch]['FLL_DISTRO_VERSION_STAMP'],
-                                 time.strftime('%Y%m%d%H%M', time.gmtime())))
+        f.write('%s - (%s)\n' % (version, timestamp))
         f.close()
         os.chmod(distro_version, 0444)
 
@@ -893,7 +890,7 @@ class FLLBuilder:
                 # Would need to determine what groups exist in chroot
                 #elif line.startswith('#EXTRA_GROUPS='):
                 #    print('EXTRA_GROUPS="%s"' %
-                #          self.distro[arch]['FLL_LIVE_USER_GROUPS'])
+                #          self.conf['distro']['FLL_LIVE_USER_GROUPS'])
                 #elif line.startswith('#ADD_EXTRA_GROUPS='):
                 #    print('ADD_EXTRA_GROUPS=1')
                 else:
@@ -1162,7 +1159,8 @@ class FLLBuilder:
         # synchronize & sanitize the lists with fll-installer
 
         bd = {}
-        for line in open(os.path.join(self.opts.s, 'data', 'fll_init_blacklist')):
+        for line in open(os.path.join(self.opts.s, 'data',
+                                      'fll_init_blacklist')):
             if line.startswith('#'):
                 continue
             files = []
@@ -1194,7 +1192,8 @@ class FLLBuilder:
                     self._umount(chroot)
 
         wd = {}
-        for line in open(os.path.join(self.opts.s, 'data', 'fll_init_whitelist')):
+        for line in open(os.path.join(self.opts.s, 'data',
+                                      'fll_init_whitelist')):
             if line.startswith('#'):
                 continue
             files = []
@@ -1272,7 +1271,12 @@ class FLLBuilder:
         self.log.info('creating squashfs filesystem of %s chroot...' % arch)
         chroot = os.path.join(self.temp, arch)
 
-        image_file = self.distro[arch]['FLL_IMAGE_FILE']
+        image_file = self.conf['distro']['FLL_IMAGE_FILE']
+        if arch == 'i386':
+            image_file += '.686'
+        else:
+            image_file += '.%s' % arch
+
         cmd = ['mksquashfs', '.', image_file, '-noappend']
 
         if self.opts.l or self.opts.q:
@@ -1294,9 +1298,15 @@ class FLLBuilder:
         chroot = os.path.join(self.temp, arch)
 
         image_file = os.path.join(chroot,
-                                  self.distro[arch]['FLL_IMAGE_FILE'])
+                                  self.conf['distro']['FLL_IMAGE_FILE'])
+
+        if arch == 'i386':
+            image_file += '.686'
+        else:
+            image_file += '.%s' % arch
+
         image_dir = os.path.join(self.temp, 'staging',
-                                 self.distro[arch]['FLL_IMAGE_DIR'])
+                                 self.conf['distro']['FLL_IMAGE_DIR'])
         try:
             os.chmod(image_file, 0644)
             shutil.move(image_file, image_dir)
@@ -1403,7 +1413,8 @@ class FLLBuilder:
             menulst.write('configfile /boot/grub/menu.lst.%s\n' % cpu)
 
             try:
-                menucpu = open(os.path.join(grub_dir, 'menu.lst.%s' % cpu), 'w')
+                menucpu = open(os.path.join(grub_dir, 'menu.lst.%s' % cpu),
+                                            'w')
             except:
                 self.log.exception('failed to open menu.lst submenu in ' +
                                    'staging dir for writing')
@@ -1533,10 +1544,9 @@ class FLLBuilder:
 
         try:
             sort = open(os.path.join(stage, 'genisoimage.sort'), 'w')
-            sort.write('%s/boot/grub/* 10000\n' % stage)
-            sort.write('%s/boot/* 1000\n' % stage)
-            sort.write('%s/%s 100\n' % (self.conf['distro']['FLL_IMAGE_DIR'],
-                                        stage))
+            sort.write('boot/grub/* 10000\n')
+            sort.write('boot/* 1000\n')
+            sort.write('%s/* 100\n' % self.conf['distro']['FLL_IMAGE_DIR'])
         except:
             self.log.exception('failed to open/write genisoimage sort file')
             raise Error
