@@ -130,6 +130,7 @@ class FLLBuilder:
         if not os.path.isdir(self.opts.o):
             try:
                 os.makedirs(self.opts.o)
+                os.chown(self.opts.o, self.opts.u, self.opts.g)
             except:
                 self.log.exception('failed to create output dir: %s' %
                                    self.opts.o)
@@ -140,6 +141,7 @@ class FLLBuilder:
         if not os.path.isdir(self.opts.b):
             try:
                 os.makedirs(self.opts.b)
+                os.chown(self.opts.b, self.opts.u, self.opts.g)
             except:
                 self.log.exception('failed to create build dir: %s' %
                                    self.opts.b)
@@ -249,6 +251,8 @@ class FLLBuilder:
                 self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
                 raise Error
 
+        stamp = 'FLL_DISTRO_VERSION_STAMP'
+        string = 'FLL_DISTRO_VERSION_STRING'
         if 'FLL_DISTRO_VERSION' in d and d['FLL_DISTRO_VERSION'] and \
             d['FLL_DISTRO_VERSION'] != 'snapshot':
             if 'FLL_DISTRO_CODENAME_SAFE' not in d or \
@@ -262,9 +266,35 @@ class FLLBuilder:
                 if safe in d and d[safe]:
                     if k not in d or not d[k]:
                         d[k] = d[safe]
+
+            d[stamp] = d['FLL_DISTRO_NAME']
+            d[stamp] += ' %s -' % d['FLL_DISTRO_VERSION']
+            d[string] = d['FLL_DISTRO_NAME']
+            d[string] += ' %s' % d['FLL_DISTRO_VERSION']
+            
+            if d['FLL_DISTRO_CODENAME_REV']:
+                d[stamp] += ' %s' % d['FLL_DISTRO_CODENAME']
+                d[stamp] += '.%s -' % d['FLL_DISTRO_CODENAME_REV']
+                d[string] += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
+                d[string] += '.%s ' % d['FLL_DISTRO_CODENAME_REV_SAFE']
+            else:
+                d[stamp] += ' %s -' % d['FLL_DISTRO_CODENAME']
+                d[string] += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
+            
+            d[stamp] += ' %s' % self.conf['packages']['profile']
+            d[string] += ' %s' % self.conf['packages']['profile']
         else:
             d['FLL_DISTRO_VERSION'] = 'snapshot'
 
+            d[stamp] = d['FLL_DISTRO_NAME']
+            d[stamp] += ' %s -' % d['FLL_DISTRO_VERSION']
+            d[stamp] += ' %s' % self.conf['packages']['profile']
+
+            d[string] = d['FLL_DISTRO_NAME']
+            d[string] += ' %s' % d['FLL_DISTRO_VERSION']
+            d[string] += ' %s' % self.conf['packages']['profile']
+        
+        d[string] = '-'.join(d[string].split())
 
         dd = {}
         for k, v in d.items():
@@ -278,22 +308,6 @@ class FLLBuilder:
 
         dd['FLL_IMAGE_LOCATION'] = os.path.join(dd['FLL_IMAGE_DIR'],
                                                 dd['FLL_IMAGE_FILE'])
-
-        stamp = 'FLL_DISTRO_VERSION_STAMP'
-        if dd['FLL_DISTRO_VERSION'] == 'snapshot':
-            dd[stamp] = dd['FLL_DISTRO_NAME']
-            dd[stamp] += ' %s -' % dd['FLL_DISTRO_VERSION']
-            dd[stamp] += ' %s' % self.conf['packages']['profile']
-        else:
-            dd[stamp] = dd['FLL_DISTRO_NAME']
-            dd[stamp] += ' %s -' % dd['FLL_DISTRO_VERSION']
-            if dd['FLL_DISTRO_CODENAME_REV']:
-                dd[stamp] += ' %s' % dd['FLL_DISTRO_CODENAME']
-                dd[stamp] += '.%s -' % dd['FLL_DISTRO_CODENAME_REV']
-            else:
-                dd[stamp] += ' %s -' % dd['FLL_DISTRO_CODENAME']
-            dd[stamp] += ' %s' % self.conf['packages']['profile']
-
 
         return dd
 
@@ -1445,6 +1459,60 @@ class FLLBuilder:
         os.path.walk(stage, self._md5sums, stage)
 
 
+    def genLiveMedia(self):
+        '''Generate live media iso image.'''
+        stage = os.path.join(self.temp, 'staging')
+
+        try:
+            sort = open(os.path.join(stage, 'genisoimage.sort'), 'w')
+            sort.write('%s/boot/grub/* 10000\n' % stage)
+            sort.write('%s/boot/* 1000\n' % stage)
+            sort.write('%s/%s 100\n' % (self.conf['distro']['FLL_IMAGE_DIR'],
+                                        stage))
+        except:
+            self.log.exception('failed to open/write genisoimage sort file')
+            raise Error
+        else:
+            sort.close()
+
+        distro_name = self.conf['distro']['FLL_DISTRO_NAME']
+
+        iso_name = self.conf['distro']['FLL_DISTRO_VERSION_STRING']
+        iso_name += '-' + '-'.join(self.conf['archs'].keys())
+        if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
+            iso_name += '-' + time.strftime('%Y%m%d%H%M', time.gmtime())
+            iso_name += '.iso'
+        else:
+            iso_name += '.iso'
+        
+        iso_file = os.path.join(self.opts.o, iso_name)
+        sort_file = os.path.join(stage, 'genisoimage.sort')
+        md5_file = iso_file + '.md5'
+
+        cmd = 'genisoimage'
+        if self.opts.v:
+            cmd += ' -v'
+        cmd += ' -pad -l -J -r -hide-rr-moved'
+        cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
+        cmd += ' -b boot/grub/iso9660_stage1_5 -c boot/grub/boot.cat'
+        cmd += ' -V %s' % distro_name[:32]
+        cmd += ' -sort %s' % sort_file
+        cmd += ' -x genisoimage.sort'
+        cmd += ' -o %s %s' % (iso_file, stage)
+        
+        self.log.info('generating iso image of live media...')
+        self._execCmd(cmd.split())
+        os.chown(iso_file, self.opts.u, self.opts.g)
+
+        self.log.info('calculating md5sum of live media iso image..')
+        md5 = open(md5_file, 'w')
+        p = Popen(['md5sum', '-b', iso_file], stdout = PIPE)
+        line = "%s *%s\n" % (p.communicate()[0].split()[0],
+                             os.path.basename(iso_file))
+        md5.write(line)
+        md5.close()
+
+
     def buildChroots(self):
         '''Main loop to call all chroot building functions.'''
         archs = self.conf['archs'].keys()
@@ -1479,6 +1547,7 @@ if __name__ == '__main__':
         fll.buildChroots()
         fll.writeMenuList()
         fll.writeMd5Sums()
+        fll.genLiveMedia()
     except KeyboardInterrupt:
         pass
     except Error:
