@@ -1277,6 +1277,7 @@ class FLLBuilder:
                                   self.distro[arch]['FLL_IMAGE_FILE'])
         image_dir = os.path.join(self.temp, 'staging',
                                  self.distro[arch]['FLL_IMAGE_DIR'])
+        os.chmod(image_file, 0644)
         shutil.move(image_file, image_dir)
 
         boot_dir = os.path.join(self.temp, 'staging', 'boot')
@@ -1304,15 +1305,11 @@ class FLLBuilder:
                 self.log.exception('failed to copy grub message to ' +
                                    'staging dir')
                 raise Error
-        else:
-            self.log.critical('grub message file not found')
-            raise Error
 
         grub_dir = os.path.join(boot_dir, 'grub')
         if not os.path.isdir(grub_dir):
             os.mkdir(grub_dir, 0755)
 
-        
         gstage_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
         gstages = [s for s in os.listdir(gstage_dir)
                    if s.startswith('stage2') or s.startswith('iso9660')]
@@ -1331,7 +1328,42 @@ class FLLBuilder:
             raise Error                    
 
         # grub menu.lst, release notes
-        # manifest, souces (with s/cached/actual/), md5sums
+        # manifest, souces (with s/cached/actual/)
+
+
+    def _md5sums(self, base, dir, fnames):
+        '''Function given to os.path.walk of self.writeMd5Sums().'''
+        try:
+            md5sums = open(os.path.join(base, 'md5sums'), 'a')
+        except:
+            self.log.exception('failed to open md5sums file for writing')
+
+        for f in fnames:
+            file = os.path.join(dir, f)
+            if not os.path.isfile(file) or f == 'md5sums':
+                continue
+            if dir.endswith('grub') and f.find('stage') >= 0:
+                continue
+            self.log.debug('md5sum -b %s' % file)
+            try:
+                p = Popen(['md5sum', '-b', file], stdout = PIPE)
+                line = "%s %s\n" % (p.communicate()[0].split()[0],
+                                    file.replace(base, '*', 1).lstrip('/'))
+            except:
+                self.log.exception('problem calculating/writing md5sum for %s'
+                                   % file)
+                raise Error
+            else:
+                md5sums.write(line)
+
+        md5sums.close()
+
+
+    def writeMd5Sums(self):
+        '''Calculate md5sums of major release contents.'''
+        self.log.info('calculating md5sums of live media...')
+        stage = os.path.join(self.temp, 'staging')
+        os.path.walk(stage, self._md5sums, stage)
 
 
     def buildChroot(self):
@@ -1366,6 +1398,7 @@ if __name__ == '__main__':
             sys.exit(0)
 
         fll.buildChroot()
+        fll.writeMd5Sums()
     except KeyboardInterrupt:
         pass
     except Error:
