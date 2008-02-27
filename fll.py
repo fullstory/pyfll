@@ -269,7 +269,10 @@ class FLLBuilder:
         dd = {}
         for k, v in d.items():
             if k == 'FLL_IMAGE_FILE':
-                dd[k] = '.'.join([v, arch])
+                if arch == 'i386':
+                    dd[k] = '.'.join([v, '686'])
+                else:
+                    dd[k] = '.'.join([v, arch])
             else:
                 dd[k] = v
 
@@ -869,11 +872,12 @@ class FLLBuilder:
             for line in lines.splitlines():
                 if line.startswith('DIR_MODE='):
                     print('DIR_MODE=0751')
-                elif line.startswith('#EXTRA_GROUPS='):
-                    print('EXTRA_GROUPS="%s"' %
-                          self.distro[arch]['FLL_LIVE_USER_GROUPS'])
-                elif line.startswith('#ADD_EXTRA_GROUPS='):
-                    print('ADD_EXTRA_GROUPS=1')
+                # Would need to determine what groups exist in chroot
+                #elif line.startswith('#EXTRA_GROUPS='):
+                #    print('EXTRA_GROUPS="%s"' %
+                #          self.distro[arch]['FLL_LIVE_USER_GROUPS'])
+                #elif line.startswith('#ADD_EXTRA_GROUPS='):
+                #    print('ADD_EXTRA_GROUPS=1')
                 else:
                     print(line)
 
@@ -926,15 +930,14 @@ class FLLBuilder:
             self._execInChroot(arch, cmd.split())
 
 
-    def _detectLinuxVersion(self, arch):
+    def _detectLinuxVersion(self, chroot):
         '''Return version string of a singularly installed linux-image.'''
-        chroot = os.path.join(self.temp, arch)
-
         kvers = [f.replace('vmlinuz-', '', 1) for f in
                  os.listdir(os.path.join(chroot, 'boot'))
                  if f.startswith('vmlinuz-')]
 
         if len(kvers) > 0:
+            kvers.sort()
             return kvers
 
         self.log.critical('failed to detect linux version installed in ' +
@@ -1010,12 +1013,11 @@ class FLLBuilder:
 
     def _installPkgs(self, arch):
         '''Install packages.'''
-        self.log.info('installing packages in %s chroot...' % arch)
-
         pkgs = self.pkgs[arch]['list']
         pkgs.extend(self._detectLinuxModules(arch))
         pkgs.extend(self._detectLocalePkgs(arch, pkgs))
 
+        self.log.info('installing packages in %s chroot...' % arch)
         self._aptGetInstall(arch, pkgs)
 
 
@@ -1040,7 +1042,7 @@ class FLLBuilder:
             self.log.info('querying src package URIs for %s...' % arch)
 
             source = []
-            kvers = self._detectLinuxVersion(arch)
+            kvers = self._detectLinuxVersion(chroot)
             packages = manifest.keys()
             packages.sort()
 
@@ -1094,7 +1096,7 @@ class FLLBuilder:
         chroot = os.path.join(self.temp, arch)
         boot_dir = os.path.join(self.temp, 'staging', 'boot')
 
-        kvers = self._detectLinuxVersion(arch)
+        kvers = self._detectLinuxVersion(chroot)
         for k in kvers:
             self.log.info('creating an initial ramdisk for linux %s...' % k)
             cmd = 'update-initramfs -d -k ' + k
@@ -1332,8 +1334,79 @@ class FLLBuilder:
             self.log.critical('grub stage files not found')
             raise Error                    
 
-        # grub menu.lst, release notes
+        # release notes
         # manifest, souces (with s/cached/actual/)
+
+
+    def writeMenuList(self):
+        '''Write final menu.lst for live media.'''
+        self.log.debug('writing grub menu.lst for live media')
+        stage_dir = os.path.join(self.temp, 'staging')
+        boot_dir = os.path.join(stage_dir, 'boot')
+        grub_dir = os.path.join(boot_dir, 'grub')
+
+        try:
+            menulst = open(os.path.join(grub_dir, 'menu.lst'), 'w')
+        except:
+            self.log.exception('failed to open menu.lst in staging dir for ' +
+                               'writing')
+            raise Error
+
+        menulst.write('default 0\n')
+        menulst.write('timeout 30\n')
+        menulst.write('color red/black light-red/black\n')
+        menulst.write('foreground EE0000\n')
+        menulst.write('background 400000\n')
+        menulst.write('gfxmenu /boot/message\n')
+
+        kvers = self._detectLinuxVersion(stage_dir)
+        if len(kvers) < 1:
+            self.log.critical('failed to find linux kernels to include in ' +
+                              'menu.lst')
+            raise Error
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz-%s' % k
+            initrd = 'initrd.img-%s' % k
+
+            for f in [vmlinuz, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            menulst.write('\n')
+            menulst.write('title  %s %s\n' % (distro, cpu))
+            menulst.write('kernel /boot/%s boot=fll quiet vga=791\n' % vmlinuz)
+            menulst.write('initrd /boot/%s\n' % initrd)
+            menulst.write('\n')
+            menulst.write('title  %s %s Advanced Menu\n' % (distro, cpu))
+            menulst.write('configfile /boot/grub/menu.lst.%s\n' % cpu)
+
+            try:
+                menucpu = open(os.path.join(grub_dir, 'menu.lst.%s' % cpu), 'w')
+            except:
+                self.log.exception('failed to open menu.lst submenu in ' +
+                                   'staging dir for writing')
+                raise Error
+
+            for lines in fileinput.input(os.path.join(self.opts.s, 'data',
+                                                      'menu.lst.cpu')):
+                for line in lines.splitlines():
+                    if line.find('@vmlinuz@') >= 0:
+                        line = line.replace('@vmlinuz@', vmlinuz)
+                    if line.find('@initrd@') >= 0:
+                        line = line.replace('@initrd@', initrd)
+                    menucpu.write('%s\n' % line)
+            menucpu.close()
+
+        if os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
+            menulst.write('\n')
+            menulst.write('title  memtest86+\n')
+            menulst.write('kernel /boot/memtest86+.bin\n')
+
+        menulst.close()
 
 
     def _md5sums(self, base, dir, fnames):
@@ -1371,7 +1444,7 @@ class FLLBuilder:
         os.path.walk(stage, self._md5sums, stage)
 
 
-    def buildChroot(self):
+    def buildChroots(self):
         '''Main loop to call all chroot building functions.'''
         archs = self.conf['archs'].keys()
         for arch in archs:
@@ -1402,7 +1475,8 @@ if __name__ == '__main__':
         if fll.opts.n:
             sys.exit(0)
 
-        fll.buildChroot()
+        fll.buildChroots()
+        fll.writeMenuList()
         fll.writeMd5Sums()
     except KeyboardInterrupt:
         pass
