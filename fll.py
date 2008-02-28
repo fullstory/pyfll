@@ -1069,6 +1069,7 @@ class FLLBuilder:
             if len(rec_list) > 0:
                 extra_pkgs.extend(rec_list)
 
+        self.log.debug('detecting linux modules packages')
         kvers = self.conf['archs'][arch]['linux']
         kvers_list = [p.Name for p in packages
                       if p.Name.endswith('-modules-' + kvers)]
