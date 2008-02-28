@@ -1075,7 +1075,7 @@ class FLLBuilder:
                                            for i in i18n_dict.keys()])
 
             i18n_pkgs_dict = dict(i18n_pkgs_list)
-            self.log.debug('i18n_pkgs_dict')
+            self.log.debug('i18n_pkgs_dict:')
             self.log.debug(i18n_pkgs_dict)
 
             i18n_list = [p.Name for p in packages if p.Name in i18n_pkgs_dict]
