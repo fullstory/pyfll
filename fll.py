@@ -205,9 +205,6 @@ class FLLBuilder:
                      help = 'Share directory directory containing data ' +
                      'required for the program to function.')
 
-        p.add_option('-S', '--source', dest = 'B', action = 'store_false',
-                     help = 'Calculate source URIs as part of build process.')
-
         p.add_option('-u', '--uid', dest = 'u', action = 'store',
                      type = 'int', metavar = '<user id>',
                      help = 'User ID of user doing the build. This ' +
@@ -218,7 +215,7 @@ class FLLBuilder:
                      help = 'Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
 
-        p.set_defaults(b = os.getcwd(), B = True, d = False, g = os.getgid(),
+        p.set_defaults(b = os.getcwd(), B = False, d = False, g = os.getgid(),
                        l = None, n = False, o = os.getcwd(), p = False,
                        q = False, s = '/usr/share/fll/', u = os.getuid(),
                        v = False)
@@ -900,7 +897,8 @@ class FLLBuilder:
         os.chmod(os.path.join(chroot, 'root'), 0751)
 
         shadow = os.path.join(chroot, 'etc', 'shadow')
-        if 'root_passwd' in self.conf and self.conf['root_passwd']:
+        if 'root_passwd' in self.conf['options'] and \
+           self.conf['options']['root_passwd']:
             for lines in fileinput.input(shadow, inplace = 1):
                 for line in lines.splitlines():
                     if line.startswith('root:'):
@@ -1363,7 +1361,6 @@ class FLLBuilder:
             raise Error
 
         # release notes
-        # manifest, souces (with s/cached/actual/)
 
 
     def writeMenuList(self):
@@ -1511,7 +1508,7 @@ class FLLBuilder:
             manifest.close()
             os.chown(manifest_file, self.opts.u, self.opts.g)
 
-            
+
     def _writeSources(self, file):
         '''Write source URI lists.'''
         sources_list = []
@@ -1519,7 +1516,7 @@ class FLLBuilder:
         for arch in archs:
             sources_list.extend(self.pkgs[arch]['source'])
         sources_list = self.__filterList(sources_list, dup_warn = False)
-        
+
         sources_name = file + '.sources'
         sources_file = os.path.join(self.opts.o, sources_name)
         try:
