@@ -1042,9 +1042,7 @@ class FLLBuilder:
             for p in pkgs_dict.keys():
                 if not p in rec_dict:
                     continue
-                
                 package = cache[p]
-                
                 current = package.CurrentVer
                 if not current:
                     versions = package.VersionList
@@ -1056,7 +1054,7 @@ class FLLBuilder:
                                                   other_version.VerStr) < 0:
                             version = other_version
                     current = version
-                
+
                 depends = current.DependsList
                 list = depends.get('Recommends', [])
                 for dependency in list:
@@ -1065,7 +1063,7 @@ class FLLBuilder:
                     if dep.CurrentVer:
                         continue
                     rec_list.append(dep.Name)
-            
+
             self.log.debug(rec_list)
             if len(rec_list) > 0:
                 extra_pkgs.extend(rec_list)
