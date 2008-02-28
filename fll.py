@@ -344,6 +344,9 @@ class FLLBuilder:
         if not 'apt_recommends' in self.conf['options']:
             self.conf['options']['apt_recommends'] = 'no'
 
+        if not 'media_include' in self.conf['options']:
+            self.conf['options']['media_include'] = None
+
         if 'distro' in self.conf:
                 self._processDefaults(self.conf['distro'])
                 self.log.debug('distro-defaults:')
@@ -498,6 +501,30 @@ class FLLBuilder:
             self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
 
 
+    def _stageMedia(self, point, dir, fnames):
+        '''Copy content from a directory to media staging area.'''
+        orig, dest = point
+        dirname = dir.replace(orig, '', 1).lstrip('/')
+        
+        remove = []
+        for f in fnames:
+            if f.startswith('.') or f.endswith('~'):
+                remove.append(f)
+            elif os.path.isdir(os.path.join(dir, f)) and
+                 f == 'boot':
+                remove.append(f)
+            elif os.path.isdir(os.path.join(dir, f)):
+                if not os.path.isdir(os.path.join(dest, dirname, f)):
+                    os.mkdir(os.path.join(dest, dirname, f))
+            else:
+                if not os.path.isfile(os.path.join(dest, dirname, f)):
+                    shutil.copy(os.path.join(dir, f),
+                                os.path.join(dest, dirname))
+
+        for r in remove:
+            fnames.remove(r)
+
+
     def stageBuildArea(self):
         '''Prepare temporary directory to prepare chroots and stage result.'''
         self.log.debug('preparing build area...')
@@ -507,12 +534,21 @@ class FLLBuilder:
 
         atexit.register(self.cleanup)
 
-        os.mkdir(os.path.join(self.temp, 'staging'))
-        os.mkdir(os.path.join(self.temp, 'staging', 'boot'))
-        os.mkdir(os.path.join(self.temp, 'staging',
-                 self.conf['distro']['FLL_IMAGE_DIR']))
-        self.log.debug('staged directory: %s' %
-                       os.path.join(self.temp, 'staging'))
+        stage = os.path.join(self.temp, 'staging')
+        os.mkdir(stage)
+        os.mkdir(os.path.join(stage, 'boot'))
+        os.mkdir(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR']))
+
+        if self.conf['options']['media_include']:
+            media_include = self.conf['options']['media_include']
+            if os.path.isdir(media_include):
+                try:
+                    os.path.walk(media_include, self._stageMedia,
+                                 (media_include, stage))
+                except:
+                    self.log.exception('problem copying media_include ' +
+                                       'contents to staging dir')
+                    raise Error
 
 
     def _mount(self, chroot):
