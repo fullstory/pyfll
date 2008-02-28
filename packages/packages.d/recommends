@@ -9,6 +9,7 @@ repos = """
 """
 
 packages = """
+	bash
 	kontact
 	siduxcc
 """
