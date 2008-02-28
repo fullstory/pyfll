@@ -706,7 +706,7 @@ class FLLBuilder:
 
             if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
                 s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
-                s.write('#   %-75s#\n' % file.replace(chroot, '', 1))
+                s.write('#   %-74s#\n' % file.replace(chroot, '', 1))
                 s.close()
 
             self.log.debug("creating %s" % file)
