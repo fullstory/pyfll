@@ -510,7 +510,7 @@ class FLLBuilder:
         for f in fnames:
             if f.startswith('.') or f.endswith('~'):
                 remove.append(f)
-            elif os.path.isdir(os.path.join(dir, f)) and
+            elif os.path.isdir(os.path.join(dir, f)) and \
                  f == 'boot':
                 remove.append(f)
             elif os.path.isdir(os.path.join(dir, f)):
