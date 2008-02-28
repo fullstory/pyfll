@@ -474,8 +474,6 @@ class FLLBuilder:
                     pkgs['list'].append(p)
                     self.log.debug('  %s' % p)
 
-        # recommended packages
-
         self.log.debug('packages + debconf for %s:' % arch)
         self.log.debug(pkgs)
 
@@ -996,7 +994,9 @@ class FLLBuilder:
 
         cache = apt_pkg.GetCache()
         packages = cache.Packages
+
         pkgs_list.extend([p.Name for p in packages if p.CurrentVer])
+        pkgs_dict = dict([(p, True) for p in pkgs_list])
 
         if 'i18n' in self.conf['packages'] and self.conf['packages']['i18n']:
             self.log.debug('detecting suitable i18n packages')
@@ -1012,8 +1012,6 @@ class FLLBuilder:
                     i18n_dict[i[:i.find('-')]] = True
                     if not i.startswith('en'):
                         i18n_dict['i18n'] = True
-
-            pkgs_dict = dict([(p, True) for p in pkgs_list])
 
             i18n_pkgs_list = []
             for p in i18n_module.keys():
