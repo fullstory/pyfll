@@ -505,7 +505,7 @@ class FLLBuilder:
         '''Copy content from a directory to media staging area.'''
         orig, dest = point
         dirname = dir.replace(orig, '', 1).lstrip('/')
-        
+
         remove = []
         for f in fnames:
             if f.startswith('.') or f.endswith('~'):
@@ -1063,6 +1063,8 @@ class FLLBuilder:
                     i18n_dict[i[:i.find('-')]] = True
                     if not i.startswith('en'):
                         i18n_dict['i18n'] = True
+            self.log.debug('i18n_dict:')
+            self.log.debug(i18n_dict)
 
             i18n_pkgs_list = []
             for p in i18n_module.keys():
@@ -1073,6 +1075,8 @@ class FLLBuilder:
                                            for i in i18n_dict.keys()])
 
             i18n_pkgs_dict = dict(i18n_pkgs_list)
+            self.log.debug('i18n_pkgs_dict')
+            self.log.debug(i18n_pkgs_dict)
 
             i18n_list = [p.Name for p in packages if p.Name in i18n_pkgs_dict]
             self.log.debug(i18n_list)
