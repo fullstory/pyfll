@@ -1017,7 +1017,8 @@ class FLLBuilder:
             not self.conf['packages']['i18n']:
             return []
 
-        i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages', 'i18n'))
+        i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages',
+                                             'packages.d', 'i18n'))
 
         i18n_dict = {}
         for i in lines2list(self.conf['packages']['i18n']):
