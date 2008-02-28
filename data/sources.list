@@ -1,0 +1,10 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# See sources.list(5) for more information, especialy remember that you can   #
+# only use http, ftp or file URIs, CDROMs are managed through apt-cdrom.      #
+#                                                                             #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Please use /etc/apt/sources.list.d/ instead of this file and create a       #
+# separate *.list configuration file for each repository, containing the      #
+# actual deb/deb-src desired suites and components for that repository.       #
+#                                                                             #
+# The following apt archives have been preconfigured on this system:          #

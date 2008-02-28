@@ -703,6 +703,12 @@ class FLLBuilder:
             r = self.conf['repos'][repo]
             file = os.path.join(chroot, 'etc/apt/sources.list.d',
                                 r['label'] + '.list')
+
+            if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
+                s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
+                s.write('#   %-75s#\n' % file.replace(chroot, '', 1))
+                s.close()
+
             self.log.debug("creating %s" % file)
 
             line = []
@@ -725,6 +731,11 @@ class FLLBuilder:
             else:
                 list.write('deb-src ' + l)
             list.close()
+
+        if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
+            s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
+            s.write('# ' * 39 + '#\n')
+            s.close()
 
 
     def _primeApt(self, arch):
@@ -898,6 +909,10 @@ class FLLBuilder:
         self._writeFile(arch, '/etc/hosts')
         self._writeFile(arch, '/etc/resolv.conf')
 
+        self.log.debug('writing final apt sources.list(s)')
+        slist = os.path.join(chroot, 'etc/apt/sources.list')
+        slist_new = os.path.join(self.opts.s, 'data/sources.list')
+        shutil.copy(slist_new, os.path.dirname(slist))
         self._writeAptLists(arch)
 
         self.log.debug('add grub hooks to /etc/kernel-img.conf')
