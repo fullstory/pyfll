@@ -9,6 +9,7 @@ from debian_bundle import deb822
 from optparse import OptionParser
 from subprocess import *
 
+import apt_pkg
 import atexit
 import fileinput
 import glob
@@ -49,6 +50,8 @@ class FLLBuilder:
         env['http_proxy'] = os.getenv('http_proxy')
     if os.getenv('ftp_proxy'):
         env['ftp_proxy'] = os.getenv('ftp_proxy')
+
+    diverts = ['/sbin/modprobe', '/usr/sbin/update-initramfs']
 
 
     def __filterList(self, list, dup_warn = True):
@@ -780,6 +783,33 @@ class FLLBuilder:
 
         self._execInChroot(arch, 'apt-get update'.split())
 
+        apt_pkg.InitConfig()
+        apt_pkg.Config.Set('RootDir', chroot)
+        apt_pkg.InitSystem()
+
+
+    def _dpkgAddDivert(self, arch):
+        """Divert some facilities and replace temporaily with /bin/true (or
+        some other more appropiate facility."""
+        chroot = os.path.join(self.temp, arch)
+        for d in self.diverts:
+            self.log.debug("diverting %s" % d)
+            cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
+            cmd += d
+            self._execInChroot(arch, cmd.split())
+            os.symlink('/bin/true', os.path.join(chroot, d.lstrip('/')))
+
+
+    def _dpkgUnDivert(self, arch):
+        """Divert some facilities and replace temporaily with /bin/true (or
+        some other more appropiate facility."""
+        chroot = os.path.join(self.temp, arch)
+        for d in self.diverts:
+            self.log.debug("undoing diversion: %s" % d)
+            os.unlink(os.path.join(chroot, d.lstrip('/')))
+            cmd = 'dpkg-divert --remove --rename ' + d
+            self._execInChroot(arch, cmd.split())
+
 
     def _writeFile(self, arch, file):
         '''Some file templates.'''
@@ -1038,69 +1068,66 @@ class FLLBuilder:
         '''Collect package and source package URI information from each
         chroot.'''
         chroot = os.path.join(self.temp, arch)
-        status = os.path.join(chroot, 'var/lib/dpkg/status')
 
         self.log.info('collecting package manifest for %s...' % arch)
-        try:
-            manifest = dict([(p['Package'], p['Version']) for p in
-                             deb822.Packages.iter_paragraphs(file(status))
-                             if p['Status'].endswith('install ok installed')])
-        except:
-            self.conf.exception('failed to collect manifest for %s', arch)
-            raise Error
-        else:
-            self.pkgs[arch]['manifest'] = manifest
 
-        if not self.opts.B:
-            self.log.info('querying src package URIs for %s...' % arch)
+        c = apt_pkg.GetCache()
+        manifest = dict([(p.Name, p.CurrentVer.VerStr)
+                         for p in c.Packages if p.CurrentVer])
+        self.pkgs[arch]['manifest'] = manifest
 
-            source = []
-            kvers = self._detectLinuxVersion(chroot)
-            packages = manifest.keys()
-            packages.sort()
+        if self.opts.B:
+            return
 
-            self._mount(chroot)
-            for p in packages:
-                for k in kvers:
-                    if p.endswith('-modules-' + k):
-                        if p.startswith('virtualbox-ose-guest'):
-                            p = 'virtualbox-ose'
-                        else:
-                            p = p[:p.find('-modules-' + k)]
+        self.log.info('querying src package URIs for %s...' % arch)
 
-                if not self.opts.q:
-                    self.log.info(p)
+        s = apt_pkg.GetPkgSrcRecords()
+        s.Restart()
 
-                cmd = 'chroot ' + chroot
-                cmd += ' apt-get -qq --print-uris source ' + p
-                try:
-                    q = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                              stderr = open(os.devnull, 'w'), close_fds = True)
-                except:
-                    self.log.exception('failed to query src URIs for %s' % p)
-                    raise Error
-                else:
-                    uris = q.communicate()[0].splitlines()
-                    if len(uris) > 0:
-                        for u in uris:
-                            uri = u.split()[0].strip("'")
-                            self.log.debug(uri)
-                            source.append(uri)
+        uris = []
+        for p in manifest.keys():
+            for k in self._detectLinuxVersion(chroot):
+                if p.endswith('-modules-' + k):
+                    if p.startswith('virtualbox-ose-guest'):
+                        p = 'virtualbox-ose'
                     else:
-                        self.log.critical('no source URIs for %s' % p)
-                        raise Error
-            self._umount(chroot)
+                        p = p[:p.find('-modules-' + k)]
 
-            self.pkgs[arch]['source'] = self.__filterList(source)
+            if p.startswith('cdebootstrap-helper'):
+                continue
+
+            self.log.debug('querying uris for %s' % p)
+
+            u = []
+            while s.Lookup(p):
+                u.extend([s.Index.ArchiveURI(s.Files[f][2])
+                          for f in range(len(s.Files))])
+            if len(u) > 0:
+                uris.extend(u)
+            else:
+                self.log.critical('failed to query source uris for %s' % p)
+                raise Error
+
+        self.pkgs[arch]['source'] = self.__filterList(uris)
 
 
     def _postInst(self, arch):
         '''Perform common post-installation tasks and/or fixups.'''
         chroot = os.path.join(self.temp, arch)
 
+        self.log.info('performing post-install tasks in %s chroot...' % arch)
+
         if 'menu' in self.pkgs[arch]['manifest']:
             self.log.debug('running update-menus')
             self._execInChroot(arch, 'update-menus'.split())
+
+        if 'fontconfig' in self.pkgs[arch]['manifest']:
+            nobitmaps = os.path.join(chroot,
+                                     'etc/fonts/conf.d/70-no-bitmaps.conf')
+            if not os.path.islink(nobitmaps):
+                self.log.debug('disabling bitmap fonts')
+                os.symlink('/etc/fonts/conf.avail/70-no-bitmaps.conf',
+                           nobitmaps)
 
 
     def _rebuildInitRamfs(self, arch):
@@ -1121,19 +1148,6 @@ class FLLBuilder:
                 cmd = 'update-initramfs -c -k ' + k
             self._execInChroot(arch, cmd.split())
 
-            try:
-                self.log.debug('copying initrd.img-%s to %s' % (k, boot_dir))
-                initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
-                shutil.copy(initrd, boot_dir)
-
-                self.log.debug('copying vmlinuz-%s to %s' % (k, boot_dir))
-                vmlinuz = os.path.join(chroot, 'boot', 'vmlinuz-' + k)
-                shutil.copy(vmlinuz, boot_dir)
-            except:
-                self.log.exception('problem copying vmlinux and initrd to ' +
-                                   'staging area')
-                raise Error
-
 
     def _initBlackList(self, arch):
         '''Blacklist a group of initscripts present in chroot that should not
@@ -1144,15 +1158,9 @@ class FLLBuilder:
         initd = '/etc/init.d/'
 
         init_glob = os.path.join(chroot, 'etc', 'init.d', '*')
-        try:
-            initscripts = [i.replace(chroot, '', 1)
-                           for i in glob.glob(init_glob)
-                           if self.__isexecutable(i)]
-        except:
-            log.self.exception('failed to build dict of chroot initscripts')
-            raise Error
-        else:
-            initscripts.sort()
+        initscripts = [i.replace(chroot, '', 1) for i in glob.glob(init_glob)
+                       if self.__isexecutable(i)]
+        initscripts.sort()
 
         # synchronize & sanitize the lists with fll-installer
 
@@ -1315,15 +1323,19 @@ class FLLBuilder:
 
         boot_dir = os.path.join(self.temp, 'staging', 'boot')
 
-        memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
-        if os.path.isfile(memtest) and \
-            not os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
-            self.log.debug('copying memtest86+ to boot dir')
+        kvers = self._detectLinuxVersion(chroot)
+        for k in kvers:
             try:
-                shutil.copy(memtest, boot_dir)
+                self.log.debug('copying initrd.img-%s to %s' % (k, boot_dir))
+                initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
+                shutil.copy(initrd, boot_dir)
+
+                self.log.debug('copying vmlinuz-%s to %s' % (k, boot_dir))
+                vmlinuz = os.path.join(chroot, 'boot', 'vmlinuz-' + k)
+                shutil.copy(vmlinuz, boot_dir)
             except:
-                self.log.exception('failed to copy memtest86+.bin to ' +
-                                   'staging dir')
+                self.log.exception('problem copying vmlinux and initrd to ' +
+                                   'staging area')
                 raise Error
 
         message = os.path.join(chroot, 'boot', 'message.live')
@@ -1360,7 +1372,16 @@ class FLLBuilder:
             self.log.critical('grub stage files not found')
             raise Error
 
-        # release notes
+        memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
+        if os.path.isfile(memtest) and \
+            not os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
+            self.log.debug('copying memtest86+ to boot dir')
+            try:
+                shutil.copy(memtest, boot_dir)
+            except:
+                self.log.exception('failed to copy memtest86+.bin to ' +
+                                   'staging dir')
+                raise Error
 
 
     def writeMenuList(self):
@@ -1370,13 +1391,7 @@ class FLLBuilder:
         boot_dir = os.path.join(stage_dir, 'boot')
         grub_dir = os.path.join(boot_dir, 'grub')
 
-        try:
-            menulst = open(os.path.join(grub_dir, 'menu.lst'), 'w')
-        except:
-            self.log.exception('failed to open menu.lst in staging dir for ' +
-                               'writing')
-            raise Error
-
+        menulst = open(os.path.join(grub_dir, 'menu.lst'), 'w')
         menulst.write('default 0\n')
         menulst.write('timeout 30\n')
         menulst.write('color red/black light-red/black\n')
@@ -1409,14 +1424,7 @@ class FLLBuilder:
             menulst.write('title  %s %s Advanced Menu\n' % (distro, cpu))
             menulst.write('configfile /boot/grub/menu.lst.%s\n' % cpu)
 
-            try:
-                menucpu = open(os.path.join(grub_dir, 'menu.lst.%s' % cpu),
-                                            'w')
-            except:
-                self.log.exception('failed to open menu.lst submenu in ' +
-                                   'staging dir for writing')
-                raise Error
-
+            menucpu = open(os.path.join(grub_dir, 'menu.lst.%s' % cpu), 'w')
             for lines in fileinput.input(os.path.join(self.opts.s, 'data',
                                                       'menu.lst.cpu')):
                 for line in lines.splitlines():
@@ -1425,7 +1433,6 @@ class FLLBuilder:
                     if line.find('@initrd@') >= 0:
                         line = line.replace('@initrd@', initrd)
                     menucpu.write('%s\n' % line)
-
             menucpu.close()
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
@@ -1493,18 +1500,8 @@ class FLLBuilder:
             manifest_name += '.manifest'
 
             manifest_file = os.path.join(self.opts.o, manifest_name)
-            try:
-                manifest = open(manifest_file, 'w')
-            except:
-                self.log.exception('failed to open manifest for %s' % arch)
-                raise Error
-
-            try:
-                manifest.writelines(self.__archManifest(arch))
-            except:
-                self.log.exception('error writing manifest for %s' % arch)
-                raise Error
-
+            manifest = open(manifest_file, 'w')
+            manifest.writelines(self.__archManifest(arch))
             manifest.close()
             os.chown(manifest_file, self.opts.u, self.opts.g)
 
@@ -1519,19 +1516,8 @@ class FLLBuilder:
 
         sources_name = file + '.sources'
         sources_file = os.path.join(self.opts.o, sources_name)
-        try:
-            sources = open(sources_file, 'w')
-        except:
-            self.log.exception('failed to open sources for %s' % arch)
-            raise Error
-
-        try:
-            sources.writelines(["%s\n" % s
-                                for s in sources_list])
-        except:
-            self.log.exception('error writing sources for %s' % arch)
-            raise Error
-
+        sources = open(sources_file, 'w')
+        sources.writelines(["%s\n" % s for s in sources_list])
         sources.close()
         os.chown(sources_file, self.opts.u, self.opts.g)
 
@@ -1548,21 +1534,11 @@ class FLLBuilder:
         else:
             return
 
-        try:
-            sources = open(sources_file, 'w')
-        except:
-            self.log.exception('failed to open sources for %s' % arch)
-            raise Error
-
-        try:
-            for s in sources_list:
-                for c in cached.keys():
-                    if s.startswith(c):
-                        sources.write(s.replace(c, cached[c], 1) + '\n')
-        except:
-            self.log.exception('error writing sources for %s' % arch)
-            raise Error
-
+        sources = open(sources_file, 'w')
+        for s in sources_list:
+            for c in cached.keys():
+                if s.startswith(c):
+                    sources.write(s.replace(c, cached[c], 1) + '\n')
         sources.close()
         os.chown(sources_file, self.opts.u, self.opts.g)
 
@@ -1571,16 +1547,11 @@ class FLLBuilder:
         '''Generate live media iso image.'''
         stage = os.path.join(self.temp, 'staging')
 
-        try:
-            sort = open(os.path.join(stage, 'genisoimage.sort'), 'w')
-            sort.write('boot/grub/* 10000\n')
-            sort.write('boot/* 1000\n')
-            sort.write('%s/* 100\n' % self.conf['distro']['FLL_IMAGE_DIR'])
-        except:
-            self.log.exception('failed to open/write genisoimage sort file')
-            raise Error
-        else:
-            sort.close()
+        sort = open(os.path.join(stage, 'genisoimage.sort'), 'w')
+        sort.write('boot/grub/* 10000\n')
+        sort.write('boot/* 1000\n')
+        sort.write('%s/* 100\n' % self.conf['distro']['FLL_IMAGE_DIR'])
+        sort.close()
 
         timestamp = time.strftime('%Y%m%d%H%M', time.gmtime())
 
@@ -1633,7 +1604,9 @@ class FLLBuilder:
             self._defaultEtc(arch)
             self._preseedDebconf(arch)
             self._primeApt(arch)
+            self._dpkgAddDivert(arch)
             self._installPkgs(arch)
+            self._dpkgUnDivert(arch)
             self._collectManifest(arch)
             self._postInst(arch)
             self._initBlackList(arch)
