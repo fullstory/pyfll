@@ -1065,7 +1065,7 @@ class FLLBuilder:
                         continue
                     rec_list.append(dep.Name)
             
-            kvers_list(rec_list)
+            self.log.debug(rec_list)
             if len(rec_list) > 0:
                 extra_pkgs.extend(rec_list)
 
