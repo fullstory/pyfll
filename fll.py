@@ -784,6 +784,7 @@ class FLLBuilder:
 
         apt_pkg.InitConfig()
         apt_pkg.Config.Set('RootDir', chroot)
+        apt_pkg.Config.Set('APT::Architecture', arch)
         apt_pkg.InitSystem()
 
 
