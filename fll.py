@@ -5,7 +5,6 @@ __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
 __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
-from debian_bundle import deb822
 from optparse import OptionParser
 from subprocess import *
 
@@ -988,78 +987,102 @@ class FLLBuilder:
         raise Error
 
 
-    def _detectLinuxModules(self, arch):
-        '''Detect available linux extra modules.'''
-        self.log.info('determining linux module packages for %s chroot...'
+    def _detectExtraPkgs(self, arch, pkgs_list):
+        '''Provide automated detection for extra packages.'''
+        self.log.info('determining extra packages for %s chroot...'
                       % arch)
+        extra_pkgs = []
+
+        cache = apt_pkg.GetCache()
+        packages = cache.Packages
+        pkgs_list.extend([p.Name for p in packages if p.CurrentVer])
+
+        if 'i18n' in self.conf['packages'] and self.conf['packages']['i18n']:
+            self.log.debug('detecting suitable i18n packages')
+            i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages',
+                                                 'packages.d', 'i18n'))
+
+            i18n_dict = {}
+            for i in lines2list(self.conf['packages']['i18n']):
+                i = i.lower().replace('_', '-')
+                i18n_dict[i] = True
+                if i.find('-') >= 0:
+                    i18n_dict[i[i.find('-') + 1:]] = True
+                    i18n_dict[i[:i.find('-')]] = True
+                    if not i.startswith('en'):
+                        i18n_dict['i18n'] = True
+
+            pkgs_dict = dict([(p, True) for p in pkgs_list])
+
+            i18n_pkgs_list = []
+            for p in i18n_module.keys():
+                if p not in pkgs_dict:
+                    continue
+                for pkg in lines2list(i18n_module[p]):
+                    i18n_pkgs_list.extend([('-'.join([pkg, i]), True)
+                                           for i in i18n_dict.keys()])
+
+            i18n_pkgs_dict = dict(i18n_pkgs_list)
+
+            i18n_list = [p.Name for p in packages if p.Name in i18n_pkgs_dict]
+            self.log.debug(i18n_list)
+            if len(i18n_list) > 0:
+                extra_pkgs.extend(i18n_list)
+
+
+        if self.conf['options']['apt_recommends'] == 'no':
+            self.log.debug('detecting recommends packages')
+            rec_module = ConfigObj(os.path.join(self.opts.s, 'packages',
+                                                'packages.d', 'recommends'))
+            rec_dict = dict([(p, True)
+                             for p in lines2list(rec_module['packages'])])
+
+            rec_list = []
+            for p in pkgs_dict.keys():
+                if not p in rec_dict:
+                    continue
+                
+                package = cache[p]
+                
+                current = package.CurrentVer
+                if not current:
+                    versions = package.VersionList
+                    if not versions:
+                        continue
+                    version = versions[0]
+                    for other_version in versions:
+                        if apt_pkg.VersionCompare(version.VerStr,
+                                                  other_version.VerStr) < 0:
+                            version = other_version
+                    current = version
+                
+                depends = current.DependsList
+                list = depends.get('Recommends', [])
+                for dependency in list:
+                    name = dependency[0].TargetPkg.Name
+                    dep = cache[name]
+                    if dep.CurrentVer:
+                        continue
+                    rec_list.append(dep.Name)
+            
+            kvers_list(rec_list)
+            if len(rec_list) > 0:
+                extra_pkgs.extend(rec_list)
+
         kvers = self.conf['archs'][arch]['linux']
+        kvers_list = [p.Name for p in packages
+                      if p.Name.endswith('-modules-' + kvers)]
+        self.log.debug(kvers_list)
+        if len(kvers_list) > 0:
+            extra_pkgs.extend(kvers_list)
 
-        listsdir = os.path.join(self.temp, arch, 'var/lib/apt/lists')
-        lists = [os.path.join(listsdir, l) for l in os.listdir(listsdir)
-                 if l.endswith('_Packages')]
-
-        modules = []
-        for list in lists:
-            modules.extend([pkg['Package'] for pkg in
-                            deb822.Packages.iter_paragraphs(file(list))
-                            if pkg['Package'].endswith('-modules-' + kvers)])
-
-        return modules
-
-
-    def _detectLocalePkgs(self, arch, pkgs_list):
-        '''Provide detection for locale enhancement packages available for
-        packages that are about to be installed.'''
-        self.log.info('determining i18n packages suitable for %s chroot...'
-                      % arch)
-
-        if 'i18n' not in self.conf['packages'] or \
-            not self.conf['packages']['i18n']:
-            return []
-
-        i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages',
-                                             'packages.d', 'i18n'))
-
-        i18n_dict = {}
-        for i in lines2list(self.conf['packages']['i18n']):
-            i = i.lower().replace('_', '-')
-            i18n_dict[i] = True
-            if i.find('-') >= 0:
-                i18n_dict[i[i.find('-') + 1:]] = True
-                i18n_dict[i[:i.find('-')]] = True
-                if not i.startswith('en'):
-                    i18n_dict['i18n'] = True
-
-        pkgs_dict = dict([(p, True) for p in pkgs_list])
-
-        i18n_pkgs_list = []
-        for p in i18n_module.keys():
-            if p not in pkgs_dict:
-                continue
-            for pkg in lines2list(i18n_module[p]):
-                i18n_pkgs_list.extend([('-'.join([pkg, i]), True)
-                                       for i in i18n_dict.keys()])
-
-        i18n_pkgs_dict = dict(i18n_pkgs_list)
-
-        listsdir = os.path.join(self.temp, arch, 'var/lib/apt/lists')
-        lists = [os.path.join(listsdir, l) for l in os.listdir(listsdir)
-                 if l.endswith('_Packages')]
-
-        i18n_list = []
-        for list in lists:
-            i18n_list.extend([pkg['Package'] for pkg in
-                              deb822.Packages.iter_paragraphs(file(list))
-                              if pkg['Package'] in i18n_pkgs_dict])
-
-        return i18n_list
+        return extra_pkgs
 
 
     def _installPkgs(self, arch):
         '''Install packages.'''
         pkgs = self.pkgs[arch]['list']
-        pkgs.extend(self._detectLinuxModules(arch))
-        pkgs.extend(self._detectLocalePkgs(arch, pkgs))
+        pkgs.extend(self._detectExtraPkgs(arch, pkgs))
 
         self.log.info('installing packages in %s chroot...' % arch)
         self._aptGetInstall(arch, pkgs)
