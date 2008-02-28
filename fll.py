@@ -1502,7 +1502,7 @@ class FLLBuilder:
                 raise Error
 
             md5sums.write("%s *%s\n" % (p.communicate()[0].split()[0],
-                                        file.replace(base, '', 1).lstrip('/'))
+                                        file.replace(base, '', 1).lstrip('/')))
 
         md5sums.close()
 
