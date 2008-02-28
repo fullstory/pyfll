@@ -916,13 +916,13 @@ class FLLBuilder:
         self._writeAptLists(arch)
 
         self.log.debug('add grub hooks to /etc/kernel-img.conf')
-        f = open(os.path.join(chroot, 'etc', 'kernel-img.conf'), 'a')
+        f = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'a')
         f.write('postinst_hook = /usr/sbin/update-grub\n')
         f.write('postrm_hook   = /usr/sbin/update-grub\n')
         f.close()
 
         self.log.debug('setting adduser.conf homedir perms and extra groups')
-        adduser = os.path.join(chroot, 'etc', 'adduser.conf')
+        adduser = os.path.join(chroot, 'etc/adduser.conf')
         for lines in fileinput.input(adduser, inplace = 1):
             for line in lines.splitlines():
                 if line.startswith('DIR_MODE='):
@@ -939,7 +939,7 @@ class FLLBuilder:
         # also restrict /root permissions
         os.chmod(os.path.join(chroot, 'root'), 0751)
 
-        shadow = os.path.join(chroot, 'etc', 'shadow')
+        shadow = os.path.join(chroot, 'etc/shadow')
         if 'root_passwd' in self.conf['options'] and \
            self.conf['options']['root_passwd']:
             for lines in fileinput.input(shadow, inplace = 1):
@@ -961,7 +961,7 @@ class FLLBuilder:
                         print(line)
 
             self.log.debug('substituting /etc/inittab for passwd-less login')
-            inittab = os.path.join(chroot, 'etc', 'inittab')
+            inittab = os.path.join(chroot, 'etc/inittab')
             os.unlink(inittab)
             inittab_live = os.path.join(self.opts.s, 'data', 'inittab')
             shutil.copy(inittab_live, os.path.dirname(inittab))
