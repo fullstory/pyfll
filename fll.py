@@ -1481,14 +1481,13 @@ class FLLBuilder:
             self.log.debug('md5sum -b %s' % file)
             try:
                 p = Popen(['md5sum', '-b', file], stdout = PIPE)
-                line = "%s %s\n" % (p.communicate()[0].split()[0],
-                                    file.replace(base, '*', 1).lstrip('/'))
             except:
                 self.log.exception('problem calculating/writing md5sum for %s'
                                    % file)
                 raise Error
-            else:
-                md5sums.write(line)
+
+            md5sums.write("%s *%s\n" % (p.communicate()[0].split()[0],
+                                        file.replace(base, '', 1).lstrip('/'))
 
         md5sums.close()
 
