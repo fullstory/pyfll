@@ -1132,7 +1132,7 @@ class FLLBuilder:
         pkgs.extend(self._detectExtraPkgs(arch, pkgs))
 
         self.log.info('installing packages in %s chroot...' % arch)
-        self._aptGetInstall(arch, pkgs)
+        self._aptGetInstall(arch, self.__filterList(pkgs))
 
 
     def _collectManifest(self, arch):
