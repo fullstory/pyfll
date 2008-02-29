@@ -26,7 +26,6 @@ packages = """
 	sidux-searchplugins
 	setpassword
 	tvtime
-	ttf-mona
 	xsane
 	zenity
 """

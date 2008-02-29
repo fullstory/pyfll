@@ -87,6 +87,12 @@ pushd ${old} >/dev/null
 
 		do_headers=1
 		if [[ ${UPDATE} ]]; then
+			case "${bm}" in
+				*/distro.bm|*/utils-essential.bm)
+					echo "Skipping ${bm}..."
+					continue
+					;;
+			esac
 			if [[ -f ${newm} ]]; then
 				sed -n '/^desc = """/,/^"""/p' ${newm}    >  ${newm}~
 				sed -n '/^repos = """/,/^"""/p' ${newm}	  >> ${newm}~
