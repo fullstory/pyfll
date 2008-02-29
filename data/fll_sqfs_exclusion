@@ -20,6 +20,7 @@ root/.*
 sys/*
 tmp/*
 tmp/.*
+var/cache/apt/*.bin
 var/cache/apt-show-versions/*
 var/cache/debconf/*-old
 var/lib/apt/extended_states
