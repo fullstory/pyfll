@@ -1651,7 +1651,7 @@ class FLLBuilder:
         self._execCmd(cmd.split())
         os.chown(iso_file, self.opts.u, self.opts.g)
 
-        self.log.info('calculating md5sum of live media iso image..')
+        self.log.info('calculating md5sum of live media iso image...')
         md5 = open(md5_file, 'w')
         p = Popen(['md5sum', '-b', iso_file], stdout = PIPE)
         line = "%s *%s\n" % (p.communicate()[0].split()[0],
