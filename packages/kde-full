@@ -19,6 +19,7 @@ deps = """
 	openoffice-lite
 	utils-essential
 	utils-extra
+	utils-x
 	xserver
 """
 

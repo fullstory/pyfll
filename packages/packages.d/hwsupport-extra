@@ -15,8 +15,6 @@ packages = """
 	laptop-detect
 	libsmbios-bin
 	lirc
-	pm-utils
-	powersaved
 	vbetool
 """
 

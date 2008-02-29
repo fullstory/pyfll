@@ -36,6 +36,7 @@ lvm2
 module-init-tools
 netbase
 pcmciautils
+powersaved
 #ppp
 procps
 #screen
@@ -51,6 +52,4 @@ x11-common
 acpid
 bluez-utils
 cupsys
-powernowd
-powersaved
 virtualbox-ose-guest-utils

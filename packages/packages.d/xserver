@@ -37,3 +37,8 @@ packages = """
 	xutils
 """
 
+i386 = """
+	virtualbox-ose-guest-utils
+	xserver-xorg-video-amd
+"""
+

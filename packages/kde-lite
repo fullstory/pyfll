@@ -18,6 +18,7 @@ deps = """
 	hwsupport-printscan
 	utils-essential
 	utils-extra
+	utils-x
 	xserver
 """
 
