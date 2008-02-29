@@ -38,6 +38,9 @@ class FLLBuilder:
     pkgs = None
     temp = None
 
+    stamp = None
+    stamp_safe = None
+
     log = logging.getLogger('log')
     log.setLevel(logging.DEBUG)
 
@@ -249,8 +252,6 @@ class FLLBuilder:
                 self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
                 raise Error
 
-        stamp = 'FLL_DISTRO_VERSION_STAMP'
-        string = 'FLL_DISTRO_VERSION_STRING'
         if 'FLL_DISTRO_VERSION' in d and d['FLL_DISTRO_VERSION'] and \
             d['FLL_DISTRO_VERSION'] != 'snapshot':
             if 'FLL_DISTRO_CODENAME_SAFE' not in d or \
@@ -265,34 +266,28 @@ class FLLBuilder:
                     if k not in d or not d[k]:
                         d[k] = d[safe]
 
-            d[stamp] = d['FLL_DISTRO_NAME']
-            d[stamp] += ' %s -' % d['FLL_DISTRO_VERSION']
-            d[string] = d['FLL_DISTRO_NAME']
-            d[string] += ' %s' % d['FLL_DISTRO_VERSION']
-
+            self.stamp = self.stamp_safe = ' '.join([d['FLL_DISTRO_NAME'],
+                                                     d['FLL_DISTRO_VERSION']])
             if d['FLL_DISTRO_CODENAME_REV']:
-                d[stamp] += ' %s' % d['FLL_DISTRO_CODENAME']
-                d[stamp] += '.%s -' % d['FLL_DISTRO_CODENAME_REV']
-                d[string] += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
-                d[string] += '.%s ' % d['FLL_DISTRO_CODENAME_REV_SAFE']
+                self.stamp += ' - %s' % d['FLL_DISTRO_CODENAME']
+                self.stamp += '.%s -' % d['FLL_DISTRO_CODENAME_REV']
+                self.stamp_safe += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
+                self.stamp_safe += '.%s ' % d['FLL_DISTRO_CODENAME_REV_SAFE']
             else:
-                d[stamp] += ' %s -' % d['FLL_DISTRO_CODENAME']
-                d[string] += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
+                self.stamp += ' %s -' % d['FLL_DISTRO_CODENAME']
+                self.stamp_safe += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
 
-            d[stamp] += ' %s' % self.conf['packages']['profile']
-            d[string] += ' %s' % self.conf['packages']['profile']
+            self.stamp += ' %s' % self.conf['packages']['profile']
+            self.stamp_safe += ' %s' % self.conf['packages']['profile']
         else:
             d['FLL_DISTRO_VERSION'] = 'snapshot'
 
-            d[stamp] = d['FLL_DISTRO_NAME']
-            d[stamp] += ' %s -' % d['FLL_DISTRO_VERSION']
-            d[stamp] += ' %s' % self.conf['packages']['profile']
+            self.stamp = self.stamp_safe = ' '.join([d['FLL_DISTRO_NAME'],
+                                                     d['FLL_DISTRO_VERSION']])
+            self.stamp += ' - %s' % self.conf['packages']['profile']
+            self.stamp_safe += ' %s' % self.conf['packages']['profile']
 
-            d[string] = d['FLL_DISTRO_NAME']
-            d[string] += ' %s' % d['FLL_DISTRO_VERSION']
-            d[string] += ' %s' % self.conf['packages']['profile']
-
-        d[string] = '-'.join(d[string].split())
+        self.stamp_safe = '-'.join(self.stamp_safe.split())
 
 
     def _processConf(self):
@@ -933,10 +928,9 @@ class FLLBuilder:
         distro_version = '%s-version' % \
                          self.conf['distro']['FLL_DISTRO_NAME'].lower()
         distro_version = os.path.join(chroot, 'etc', distro_version)
-        version = self.conf['distro']['FLL_DISTRO_VERSION_STAMP']
         timestamp = time.strftime('%Y%m%d%H%M', time.gmtime())
         f = open(distro_version, 'w')
-        f.write('%s - (%s)\n' % (version, timestamp))
+        f.write('%s - (%s)\n' % (self.stamp, timestamp))
         f.close()
         os.chmod(distro_version, 0444)
 
@@ -1308,8 +1302,7 @@ class FLLBuilder:
                     self._umount(chroot)
 
         try:
-            fllinit = open(os.path.join(chroot, 'etc', 'default', 'fll-init'),
-                           'a')
+            fllinit = open(os.path.join(chroot, 'etc/default/fll-init'), 'a')
         except:
             self.log.exception('failed to open /etc/default/fll-init')
             raise Error
@@ -1569,7 +1562,7 @@ class FLLBuilder:
         '''Write package manifest lists.'''
         archs = self.conf['archs'].keys()
         for arch in archs:
-            manifest_name = self.conf['distro']['FLL_DISTRO_VERSION_STRING']
+            manifest_name = self.stamp_safe
             manifest_name += '-%s' % arch
             if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
                 manifest_name += '-' + timestamp
@@ -1633,7 +1626,7 @@ class FLLBuilder:
 
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
 
-        iso_name = self.conf['distro']['FLL_DISTRO_VERSION_STRING']
+        iso_name = self.stamp_safe
         iso_name += '-' + '-'.join(self.conf['archs'].keys())
         if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
             iso_name += '-' + timestamp
