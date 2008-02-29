@@ -1,0 +1,13 @@
+Usage:
+  See ./fll --help
+
+Example Usage:
+  1) cp fll.conf ..; edit ../fll.conf
+  2) ./fll -c ../fll.conf -b /tmp/fll/ -o /tmp/fll/
+
+Dependencies:
+  python (>= 2.4)
+  python-apt
+  python-configobj
+  cdebootstrap
+  genisoimage
