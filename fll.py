@@ -1191,7 +1191,10 @@ class FLLBuilder:
 
         if 'menu' in self.pkgs[arch]['manifest']:
             self.log.debug('running update-menus')
-            self._execInChroot(arch, 'update-menus'.split())
+            cmd = 'update-menus'
+            if self.opts.v:
+                cmd += ' -v'
+            self._execInChroot(arch, cmd.split())
 
         if 'fontconfig' in self.pkgs[arch]['manifest']:
             nobitmaps = os.path.join(chroot,
