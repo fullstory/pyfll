@@ -1,5 +1,16 @@
 #!/bin/sh -e
 
+#
+# This script is executed in the chroot just before cleaning up.
+#
+# At the time of execution, no access to the wild is possible (ag, apt-get).
+#
+# /etc/default/distro will be sourced, and those variables are available
+# for use.
+#
+
+. /etc/default/distro
+
 if [ ! -L /etc/fonts/conf.d/70-no-bitmaps.conf ] && \
 	[ -f /etc/fonts/conf.avail/70-no-bitmaps.conf ]; then
 	echo 'Disabling bitmap fonts...'
@@ -11,3 +22,26 @@ if [ -x /usr/bin/update-menus ]; then
 	echo 'Updating menus...'
 	/usr/bin/update-menus -v
 fi
+
+echo 'Disabling system wide readable /home...'
+sed -i 's/^DIR_MODE=.*/DIR_MODE=0751/' /etc/adduser.conf
+
+EXTRA_GROUPS=
+if [ "${FLL_LIVE_USER_GROUPS}" ]; then
+	echo 'Configuring adduser.conf for extra groups...'
+	for g in ${FLL_LIVE_USER_GROUPS}; do
+		if getent group ${g} >/dev/null; then
+			EXTRA_GROUPS="${EXTRA_GROUPS} ${g}"
+		fi
+	done
+fi
+
+if [ "${EXTRA_GROUPS}" ]; then
+	sed -i -e 's/^#\?EXTRA_GROUPS=.*/EXTRA_GROUPS="'"${EXTRA_GROUPS# }"'"/' \
+	       -e 's/^#\?ADD_EXTRA_GROUPS=.*/ADD_EXTRA_GROUPS=1/' \
+			/etc/adduser.conf
+fi
+	
+echo 'Locking down root account...'
+sed -i 's#^root:[^:]*:#root:\*:#' /etc/shadow
+chmod 0751 /root

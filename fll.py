@@ -958,50 +958,11 @@ class FLLBuilder:
         f.write('postrm_hook   = /usr/sbin/update-grub\n')
         f.close()
 
-        self.log.debug('setting adduser.conf homedir perms and extra groups')
-        adduser = os.path.join(chroot, 'etc/adduser.conf')
-        for lines in fileinput.input(adduser, inplace = 1):
-            for line in lines.splitlines():
-                if line.startswith('DIR_MODE='):
-                    print('DIR_MODE=0751')
-                # Would need to determine what groups exist in chroot
-                #elif line.startswith('#EXTRA_GROUPS='):
-                #    print('EXTRA_GROUPS="%s"' %
-                #          self.conf['distro']['FLL_LIVE_USER_GROUPS'])
-                #elif line.startswith('#ADD_EXTRA_GROUPS='):
-                #    print('ADD_EXTRA_GROUPS=1')
-                else:
-                    print(line)
-
-        # also restrict /root permissions
-        os.chmod(os.path.join(chroot, 'root'), 0751)
-
-        shadow = os.path.join(chroot, 'etc/shadow')
-        if 'root_passwd' in self.conf['options'] and \
-           self.conf['options']['root_passwd']:
-            for lines in fileinput.input(shadow, inplace = 1):
-                for line in lines.splitlines():
-                    if line.startswith('root:'):
-                        print('root:'+ self.conf['root_passwd'] + 
-                              line[line.index(':', len('root:')):])
-                    else:
-                        print(line)
-
-            # make default runlevel 5 in /etc/inittab
-        else:
-            self.log.debug('hacking /etc/shadow to lock root account...')
-            for lines in fileinput.input(shadow, inplace = 1):
-                for line in lines.splitlines():
-                    if line.startswith('root:'):
-                        print('root:*' + line[line.index(':', len('root:')):])
-                    else:
-                        print(line)
-
-            self.log.debug('substituting /etc/inittab for passwd-less login')
-            inittab = os.path.join(chroot, 'etc/inittab')
-            os.unlink(inittab)
-            inittab_live = os.path.join(self.opts.s, 'data', 'inittab')
-            shutil.copy(inittab_live, os.path.dirname(inittab))
+        self.log.debug('substituting /etc/inittab for passwd-less login')
+        inittab = os.path.join(chroot, 'etc/inittab')
+        os.unlink(inittab)
+        inittab_live = os.path.join(self.opts.s, 'data', 'inittab')
+        shutil.copy(inittab_live, os.path.dirname(inittab))
 
 
     def _preseedDebconf(self, arch):
@@ -1721,8 +1682,8 @@ class FLLBuilder:
             self._dpkgUnDivert(arch)
             self._finalEtc(arch)
             self._initBlackList(arch)
-            self._postInst(arch)
             self._rebuildInitRamfs(arch)
+            self._postInst(arch)
             self._cleanChroot(arch)
             self._chrootSquashfs(arch)
             self._stageArch(arch)
