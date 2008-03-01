@@ -488,7 +488,8 @@ class FLLBuilder:
 
     def parsePkgProfile(self):
         '''Parse packages profile file(s).'''
-        self.log.info('processing package profile...')
+        self.log.info('processing package profile (%s)...' %
+                      self.conf['packages']['profile'])
 
         dir = os.path.join(self.opts.s, 'packages')
         file = os.path.join(dir, self.conf['packages']['profile'])
