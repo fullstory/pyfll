@@ -1729,21 +1729,26 @@ class FLLBuilder:
             self._nukeChroot(arch)
 
 
+    def main(self):
+        '''Main loop.'''
+        self.parseOpts()
+        self.parseConf()
+        self.parsePkgProfile()
+        self.stageBuildArea()
+
+        if self.opts.n:
+            sys.exit(0)
+
+        self.buildChroots()
+        self.writeMenuList()
+        self.writeMd5Sums()
+        self.genLiveMedia()
+
+
 if __name__ == '__main__':
     try:
         fll = FLLBuilder()
-        fll.parseOpts()
-        fll.parseConf()
-        fll.parsePkgProfile()
-        fll.stageBuildArea()
-
-        if fll.opts.n:
-            sys.exit(0)
-
-        fll.buildChroots()
-        fll.writeMenuList()
-        fll.writeMd5Sums()
-        fll.genLiveMedia()
+        fll.main()
     except KeyboardInterrupt:
         pass
     except Error:
