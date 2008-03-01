@@ -1682,8 +1682,7 @@ class FLLBuilder:
 
         iso_name = self.stamp_safe
         iso_name += '-' + '-'.join(self.conf['archs'].keys())
-        if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
-            iso_name += '-' + timestamp
+        iso_name += '-' + timestamp
         iso_name += '.iso'
 
         iso_file = os.path.join(self.opts.o, iso_name)
