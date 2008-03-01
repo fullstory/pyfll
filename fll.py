@@ -1567,8 +1567,7 @@ class FLLBuilder:
         for arch in archs:
             manifest_name = self.stamp_safe
             manifest_name += '-%s' % arch
-            if self.conf['distro']['FLL_DISTRO_VERSION'] == 'snapshot':
-                manifest_name += '-' + timestamp
+            manifest_name += '-' + timestamp
             manifest_name += '.manifest'
 
             manifest_file = os.path.join(self.opts.o, manifest_name)
