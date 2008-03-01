@@ -50,8 +50,13 @@ echo 'Locking down root account...'
 sed -i 's#^root:[^:]*:#root:\*:#' /etc/shadow
 chmod 0751 /root
 
-# disable lastlog for autologin on console
+# Disable lastlog for autologin on console
 if [ -f /etc/pam.d/login ]; then
 	echo 'Disabling pam_lastlog for live autologin...'
 	sed -i '/^[^#].*pam_lastlog\.so/s/^/# /' /etc/pam.d/login
+fi
+
+# Fix Debian kppp noauth defaults
+if [ -w /etc/ppp/peers/kppp-options ]; then
+	sed -i 's/^#noauth/noauth/' /etc/ppp/peers/kppp-options
 fi
