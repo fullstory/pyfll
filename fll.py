@@ -330,8 +330,14 @@ class FLLBuilder:
 
         if 'profile' not in self.conf['packages']:
             self.conf['packages']['profile'] = 'kde-lite'
-        self.log.debug("package profile: %s" %
+        self.log.debug('package profile: %s' %
                        self.conf['packages']['profile'])
+
+        if 'i18n' not in self.conf['packages'] or \
+           not self.__lines2list(self.conf['packages']['i18n']):
+            self.conf['packages']['i18n'] = 'en_US'
+        self.log.debug('i18n support: %s' %
+                       self.conf['packages']['i18n'])
 
         if not 'options' in self.conf:
             self.conf['options'] = {}
@@ -1032,108 +1038,116 @@ class FLLBuilder:
         raise Error
 
 
-    def _detectExtraPkgs(self, arch, pkgs_list):
-        '''Provide automated detection for extra packages.'''
-        self.log.info('determining extra packages for %s chroot...'
-                      % arch)
-        extra_pkgs = []
+    def _detectLocalePkgs(self, wanted, cache):
+        '''Provide automated detection for extra i18n packages.'''
+        i18n = self.__lines2list(self.conf['packages']['i18n'])
+        self.log.info('detecting i18n packages for %s...' % ' '.join(i18n))
 
-        cache = apt_pkg.GetCache()
-        packages = cache.Packages
+        i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages',
+                                             'packages.d', 'i18n'))
+        self.log.debug('i18n_module:')
+        self.log.debug(i18n_module)
 
-        pkgs_list.extend([p.Name for p in packages if p.CurrentVer])
-        pkgs_dict = dict([(p, True) for p in pkgs_list])
+        i18n_dict = {}
+        for i in i18n:
+            i = i.lower().replace('_', '-')
+            i18n_dict[i] = True
+            if i.find('-') >= 0:
+                i18n_dict[i[i.find('-') + 1:]] = True
+                i18n_dict[i[:i.find('-')]] = True
+                if not i.startswith('en'):
+                    i18n_dict['i18n'] = True
+        self.log.debug('i18n_dict:')
+        self.log.debug(i18n_dict)
 
-        if 'i18n' in self.conf['packages'] and self.conf['packages']['i18n']:
-            self.log.debug('detecting suitable i18n packages')
-            i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages',
-                                                 'packages.d', 'i18n'))
+        i18n_pkgs_list = []
+        for p in i18n_module.keys():
+            if p not in wanted:
+                continue
+            for pkg in self.__lines2list(i18n_module[p]):
+                i18n_pkgs_list.extend([('-'.join([pkg, i]), True)
+                                       for i in i18n_dict.keys()])
 
-            i18n_dict = {}
-            for i in self.__lines2list(self.conf['packages']['i18n']):
-                i = i.lower().replace('_', '-')
-                i18n_dict[i] = True
-                if i.find('-') >= 0:
-                    i18n_dict[i[i.find('-') + 1:]] = True
-                    i18n_dict[i[:i.find('-')]] = True
-                    if not i.startswith('en'):
-                        i18n_dict['i18n'] = True
-            self.log.debug('i18n_dict:')
-            self.log.debug(i18n_dict)
+        i18n_pkgs_dict = dict(i18n_pkgs_list)
+        self.log.debug('i18n_pkgs_dict:')
+        self.log.debug(i18n_pkgs_dict)
 
-            i18n_pkgs_list = []
-            for p in i18n_module.keys():
-                if p not in pkgs_dict:
+        i18n_list = [p.Name for p in cache.Packages
+                     if p.Name in i18n_pkgs_dict]
+        self.log.debug('i18n_list:')
+        self.log.debug(i18n_list)
+        return i18n_list
+
+
+    def _detectRecommendedPkgs(self, wanted, cache):
+        '''Provide automated detection for packages in recommends whitelist.'''
+        if self.conf['options']['apt_recommends'] == 'yes':
+            return []
+
+        self.log.info('detecting whitelisted recommended packages...')
+        rec_module = ConfigObj(os.path.join(self.opts.s, 'packages',
+                                            'packages.d', 'recommends'))
+        rec_dict = dict([(p, True) for p in
+                         self.__lines2list(rec_module['packages'])])
+        self.log.debug('rec_dict:')
+        self.log.debug(rec_dict)
+
+        rec_list = []
+        for p in wanted.keys():
+            if not p in rec_dict:
+                continue
+            package = cache[p]
+            current = package.CurrentVer
+            if not current:
+                versions = package.VersionList
+                if not versions:
                     continue
-                for pkg in self.__lines2list(i18n_module[p]):
-                    i18n_pkgs_list.extend([('-'.join([pkg, i]), True)
-                                           for i in i18n_dict.keys()])
+                version = versions[0]
+                for other_version in versions:
+                    if apt_pkg.VersionCompare(version.VerStr,
+                                              other_version.VerStr) < 0:
+                        version = other_version
+                current = version
 
-            i18n_pkgs_dict = dict(i18n_pkgs_list)
-            self.log.debug('i18n_pkgs_dict:')
-            self.log.debug(i18n_pkgs_dict)
-
-            i18n_list = [p.Name for p in packages if p.Name in i18n_pkgs_dict]
-            self.log.debug(i18n_list)
-            if len(i18n_list) > 0:
-                extra_pkgs.extend(i18n_list)
-
-
-        if self.conf['options']['apt_recommends'] == 'no':
-            self.log.debug('detecting recommends packages')
-            rec_module = ConfigObj(os.path.join(self.opts.s, 'packages',
-                                                'packages.d', 'recommends'))
-            rec_dict = dict([(p, True) for p in
-                             self.__lines2list(rec_module['packages'])])
-
-            rec_list = []
-            for p in pkgs_dict.keys():
-                if not p in rec_dict:
+            depends = current.DependsList
+            list = depends.get('Recommends', [])
+            for dependency in list:
+                name = dependency[0].TargetPkg.Name
+                dep = cache[name]
+                if dep.CurrentVer:
                     continue
-                package = cache[p]
-                current = package.CurrentVer
-                if not current:
-                    versions = package.VersionList
-                    if not versions:
-                        continue
-                    version = versions[0]
-                    for other_version in versions:
-                        if apt_pkg.VersionCompare(version.VerStr,
-                                                  other_version.VerStr) < 0:
-                            version = other_version
-                    current = version
+                rec_list.append(dep.Name)
 
-                depends = current.DependsList
-                list = depends.get('Recommends', [])
-                for dependency in list:
-                    name = dependency[0].TargetPkg.Name
-                    dep = cache[name]
-                    if dep.CurrentVer:
-                        continue
-                    rec_list.append(dep.Name)
+        self.log.debug('rec_list:')
+        self.log.debug(rec_list)
+        return rec_list
 
-            self.log.debug(rec_list)
-            if len(rec_list) > 0:
-                extra_pkgs.extend(rec_list)
 
+    def _detectLinuxModulePkgs(self, arch, cache):
+        '''Provide automated detection for extra linux module packages.'''
         self.log.debug('detecting linux modules packages')
         kvers = self.conf['archs'][arch]['linux']
-        kvers_list = [p.Name for p in packages
+        kvers_list = [p.Name for p in cache.Packages
                       if p.Name.endswith('-modules-' + kvers)]
         self.log.debug(kvers_list)
-        if len(kvers_list) > 0:
-            extra_pkgs.extend(kvers_list)
-
-        return extra_pkgs
+        return kvers_list
 
 
     def _installPkgs(self, arch):
         '''Install packages.'''
-        pkgs = self.pkgs[arch]['list']
-        pkgs.extend(self._detectExtraPkgs(arch, pkgs))
-
         self.log.info('installing packages in %s chroot...' % arch)
-        self._aptGetInstall(arch, self.__filterList(pkgs))
+
+        cache = apt_pkg.GetCache()
+
+        pkgs_want = self.pkgs[arch]['list']
+        pkgs_base = [p.Name for p in cache.Packages if p.CurrentVer]
+        pkgs_dict = dict([(p, True) for p in pkgs_base + pkgs_want])
+
+        pkgs_want.extend(self._detectLocalePkgs(pkgs_dict, cache))
+        pkgs_want.extend(self._detectRecommendedPkgs(pkgs_dict, cache))
+        pkgs_want.extend(self._detectLinuxModulePkgs(arch, cache))
+
+        self._aptGetInstall(arch, self.__filterList(pkgs_want))
 
 
     def _collectManifest(self, arch):
