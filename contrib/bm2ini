@@ -20,9 +20,6 @@ while getopts n:o:u opt; do
 		o)
 			old=${OPTARG}
 			;;
-		u)
-			((UPDATE++))
-			;;
 		\?)
 			echo "wtf is '${opt}' ?"
 			exit 1
@@ -86,26 +83,22 @@ pushd ${old} >/dev/null
 		fi
 
 		do_headers=1
-		if [[ ${UPDATE} ]]; then
-			case "${bm}" in
-				*/distro.bm|*/utils-essential.bm)
-					echo "Skipping ${bm}..."
-					continue
-					;;
-			esac
-			if [[ -f ${newm} ]]; then
-				sed -n '/^desc = """/,/^"""/p' ${newm}    >  ${newm}~
-				sed -n '/^repos = """/,/^"""/p' ${newm}	  >> ${newm}~
-				sed -n '/^debconf = """/,/^"""/p' ${newm} >> ${newm}~
-				sed -n '/^early = """/,/^"""/p' ${newm}   >> ${newm}~
-				rm -f ${newm}
-				if [[ -s ${newm}~ ]]; then
-					do_headers=0
-					sed '/^"""/G' ${newm}~ > ${newm}
-					rm -f ${newm}~
-				fi
-			else
+		case "${bm}" in
+			*/distro.bm|*/utils-essential.bm)
+				echo "Skipping ${bm}..."
 				continue
+				;;
+		esac
+		if [[ -f ${newm} ]]; then
+			sed -n '/^desc = """/,/^"""/p' ${newm}    >  ${newm}~
+			sed -n '/^repos = """/,/^"""/p' ${newm}	  >> ${newm}~
+			sed -n '/^debconf = """/,/^"""/p' ${newm} >> ${newm}~
+			sed -n '/^early = """/,/^"""/p' ${newm}   >> ${newm}~
+			rm -f ${newm}
+			if [[ -s ${newm}~ ]]; then
+				do_headers=0
+				sed '/^"""/G' ${newm}~ > ${newm}
+				rm -f ${newm}~
 			fi
 		fi
 		
