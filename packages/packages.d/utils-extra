@@ -36,6 +36,7 @@ packages = """
 	smbclient
 	smbfs
 	strace
+	testdisk
 	traceroute
 	xfsprogs
 	unzip
@@ -45,4 +46,3 @@ packages = """
 """
 
 #	resolvconf	# clobbers host when installed in chroot
-#	testdisk	# libntfs9 --> libntfs10, FTBS.
