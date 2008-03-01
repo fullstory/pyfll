@@ -40,8 +40,8 @@ for g in ${FLL_LIVE_USER_GROUPS}; do
 done
 
 if [ "${EXTRA_GROUPS}" ]; then
-	sed -i -e 's/^#\?\(EXTRA_GROUPS=\).*/\1="'"${EXTRA_GROUPS# }"'"/' \
-	       -e 's/^#\?\(ADD_EXTRA_GROUPS=\).*/\1=1/' \
+	sed -i -e 's/^#\?\(EXTRA_GROUPS=\).*/\1"'"${EXTRA_GROUPS# }"'"/' \
+	       -e 's/^#\?\(ADD_EXTRA_GROUPS=\).*/\11/' \
 		/etc/adduser.conf
 fi
 
