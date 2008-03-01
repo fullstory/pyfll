@@ -1032,7 +1032,7 @@ class FLLBuilder:
         self.log.debug(i18n_pkgs_dict)
 
         i18n_list = [p.Name for p in cache.Packages
-                     if p.Name in i18n_pkgs_dict]
+                     if p.Name in i18n_pkgs_dict and p.VersionList]
         self.log.debug('i18n_list:')
         self.log.debug(i18n_list)
         return i18n_list
@@ -1085,9 +1085,9 @@ class FLLBuilder:
     def _detectLinuxModulePkgs(self, arch, cache):
         '''Provide automated detection for extra linux module packages.'''
         self.log.debug('detecting linux modules packages')
-        kvers = self.conf['archs'][arch]['linux']
+        kvers = '-modules-' + self.conf['archs'][arch]['linux']
         kvers_list = [p.Name for p in cache.Packages
-                      if p.Name.endswith('-modules-' + kvers)]
+                      if p.Name.endswith(kvers) and p.VersionList]
         self.log.debug('kvers_list:')
         self.log.debug(kvers_list)
         return kvers_list
