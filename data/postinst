@@ -67,3 +67,9 @@ if [ -x /etc/init.d/irqbalance ]; then
 	echo 'Removing irqbalance shutdown links...'
 	rm -f /etc/rc[06].d/K??irqbalance
 fi
+
+# If insserv is installed, it should be active
+if [ -x /usr/sbin/update-bootsystem-insserv ]; then
+	echo 'Enabling insserv boot system...'
+	/usr/sbin/update-bootsystem-insserv
+fi
