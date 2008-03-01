@@ -1239,20 +1239,10 @@ class FLLBuilder:
 
         self.log.info('performing post-install tasks in %s chroot...' % arch)
 
-        if 'menu' in self.pkgs[arch]['manifest']:
-            self.log.debug('running update-menus')
-            cmd = 'update-menus'
-            if self.opts.v:
-                cmd += ' -v'
-            self._execInChroot(arch, cmd.split())
-
-        if 'fontconfig' in self.pkgs[arch]['manifest']:
-            nobitmaps = os.path.join(chroot,
-                                     'etc/fonts/conf.d/70-no-bitmaps.conf')
-            if not os.path.islink(nobitmaps):
-                self.log.debug('disabling bitmap fonts')
-                os.symlink('/etc/fonts/conf.avail/70-no-bitmaps.conf',
-                           nobitmaps)
+        postinst = os.path.join(self.opts.s, 'data', 'postinst')
+        shutil.copy(postinst, os.path.join(chroot, 'tmp'))
+        os.chmod(os.path.join(chroot, 'tmp'), 0700)
+        self._execInChroot(arch, '/bin/sh /tmp/postinst'.split())
 
 
     def _rebuildInitRamfs(self, arch):
@@ -1730,9 +1720,9 @@ class FLLBuilder:
             self._installPkgs(arch)
             self._dpkgUnDivert(arch)
             self._postInst(arch)
-            self._initBlackList(arch)
             self._finalEtc(arch)
             self._rebuildInitRamfs(arch)
+            self._initBlackList(arch)
             self._cleanChroot(arch)
             self._chrootSquashfs(arch)
             self._stageArch(arch)

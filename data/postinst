@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+if [ ! -L /etc/fonts/conf.d/70-no-bitmaps.conf ] && \
+	[ -f /etc/fonts/conf.avail/70-no-bitmaps.conf ]; then
+	echo 'Disabling bitmap fonts...'
+	ln -vs /etc/fonts/conf.avail/70-no-bitmaps.conf \
+		/etc/fonts/conf.d/70-no-bitmaps.conf
+fi
+
+if [ -x /usr/bin/update-menus ]; then
+	echo 'Updating menus...'
+	/usr/bin/update-menus -v
+fi
