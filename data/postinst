@@ -51,7 +51,7 @@ sed -i 's#^root:[^:]*:#root:\*:#' /etc/shadow
 chmod 0751 /root
 
 # Disable lastlog for autologin on console
-if [ -f /etc/pam.d/login ]; then
+if [ -w /etc/pam.d/login ]; then
 	echo 'Disabling pam_lastlog...'
 	sed -i '/^[^#].*pam_lastlog\.so/s/^/# /' /etc/pam.d/login
 fi
