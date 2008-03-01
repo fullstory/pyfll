@@ -2,6 +2,7 @@ boot/initrd.img-*
 dev/*
 dev/.*
 etc/.*lock
+etc/*-
 etc/adjtime
 etc/localtime
 etc/timezone
