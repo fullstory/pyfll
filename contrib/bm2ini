@@ -4,7 +4,7 @@
 # Convert old package bash modules into new configobj ini modules
 #
 # Options:
-# -e  Existing modules only
+# -a  Import all modules
 # -n  Path to new packages module folder
 # -o  Path to old packages module folder (with the .bm files)
 #
@@ -12,10 +12,10 @@
 new=~/svn/fullstory/fll-builder/branches/pyfll/packages/
 old=~/svn/fullstory/fll-builder/trunk/etc/fll-builder/packages/
 
-while getopts en:o: opt; do
+while getopts an:o: opt; do
 	case "${opt}" in
-		e)
-			((EXISTING++))
+		a)
+			((ALL++))
 			;;
 		n)
 			new=${OPTARG}
@@ -103,7 +103,7 @@ pushd ${old} >/dev/null
 				sed '/^"""/G' ${newm}~ > ${newm}
 				rm -f ${newm}~
 			fi
-		elif [[ ${EXISTING} ]]; then
+		elif [[ -z ${ALL} ]]; then
 			continue
 		fi
 		
