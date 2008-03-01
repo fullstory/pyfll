@@ -52,11 +52,18 @@ chmod 0751 /root
 
 # Disable lastlog for autologin on console
 if [ -f /etc/pam.d/login ]; then
-	echo 'Disabling pam_lastlog for live autologin...'
+	echo 'Disabling pam_lastlog...'
 	sed -i '/^[^#].*pam_lastlog\.so/s/^/# /' /etc/pam.d/login
 fi
 
 # Fix Debian kppp noauth defaults
 if [ -w /etc/ppp/peers/kppp-options ]; then
+	echo 'Allowing KPPP noauth...'
 	sed -i 's/^#noauth/noauth/' /etc/ppp/peers/kppp-options
+fi
+
+# Do not wait for maintainer to fix his package...
+if [ -x /etc/init.d/irqbalance ]; then
+	echo 'Removing irqbalance shutdown links...'
+	rm -f /etc/rc[06].d/K??irqbalance
 fi
