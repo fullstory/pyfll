@@ -871,9 +871,7 @@ class FLLBuilder:
             d = self.conf['distro'].keys()
             d.sort()
             for k in d:
-                if k.startswith('FLL_DISTRO_VERSION_S'):
-                    continue
-                elif k.startswith('FLL_DISTRO_CODENAME'):
+                if k.startswith('FLL_DISTRO_CODENAME'):
                     continue
                 elif k == 'FLL_MOUNTPOINT':
                     f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
