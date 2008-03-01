@@ -20,13 +20,6 @@ import tempfile
 import time
 
 
-def lines2list(lines):
-    '''Return a list of stripped strings given a group of line
-    separated strings'''
-    return [s.strip() for s in lines.splitlines()
-            if s and not s.lstrip().startswith('#')]
-
-
 class Error(Exception):
     '''A generic error handler that does nothing.'''
     pass
@@ -71,6 +64,13 @@ class FLLBuilder:
         list.sort()
 
         return list
+
+
+    def __lines2list(self, lines):
+        '''Return a list of stripped strings given a group of line
+        separated strings'''
+        return [s.strip() for s in lines.splitlines()
+                if s and not s.lstrip().startswith('#')]
 
 
     def __isexecutable(self, file):
@@ -376,11 +376,11 @@ class FLLBuilder:
         pfile = ConfigObj(profile)
 
         if 'desc' in pfile:
-            for l in lines2list(pfile['desc']):
+            for l in self.__lines2list(pfile['desc']):
                 self.log.debug('  %s' % l)
 
         if 'repos' in pfile:
-            for r in lines2list(pfile['repos']):
+            for r in self.__lines2list(pfile['repos']):
                 if r not in self.conf['repos']:
                     self.log.critical("'%s' repo is required " % r +
                                       "by package module '%s'" %
@@ -389,44 +389,44 @@ class FLLBuilder:
 
         if 'debconf' in pfile:
             self.log.debug("debconf:")
-            for d in lines2list(pfile['debconf']):
+            for d in self.__lines2list(pfile['debconf']):
                 pkgs['debconf'].append(d)
                 self.log.debug('  %s', d)
 
         if 'debconf' in self.conf['packages']:
             self.log.debug("debconf (config):")
-            for d in lines2list(self.conf['packages']['debconf']):
+            for d in self.__lines2list(self.conf['packages']['debconf']):
                 pkgs['debconf'].append(d)
                 self.log.debug('  %s' % d)
 
         if 'packages' in pfile:
             self.log.debug("packages:")
-            for p in lines2list(pfile['packages']):
+            for p in self.__lines2list(pfile['packages']):
                 pkgs['list'].append(p)
                 self.log.debug('  %s' % p)
 
         if 'packages' in self.conf['packages']:
             self.log.debug("packages (config):")
-            for p in lines2list(self.conf['packages']['packages']):
+            for p in self.__lines2list(self.conf['packages']['packages']):
                 pkgs['list'].append(p)
                 self.log.debug('  %s' % p)
 
         if arch in pfile:
             self.log.debug("packages (%s):" % arch)
-            for p in lines2list(pfile[arch]):
+            for p in self.__lines2list(pfile[arch]):
                 pkgs['list'].append(p)
                 self.log.debug('  %s' % p)
 
         deps = ['essential']
         if 'deps' in pfile:
             self.log.debug("deps:")
-            for dep in lines2list(pfile['deps']):
+            for dep in self.__lines2list(pfile['deps']):
                 deps.append(dep)
                 self.log.debug('  %s' % dep)
 
         if 'deps' in self.conf['packages']:
             self.log.debug("deps (config):")
-            for dep in lines2list(self.conf['packages']['deps']):
+            for dep in self.__lines2list(self.conf['packages']['deps']):
                 deps.append(dep)
                 self.log.debug('  %s' % dep)
 
@@ -443,11 +443,11 @@ class FLLBuilder:
             dfile = ConfigObj(depfile)
 
             if 'desc' in dfile:
-                for l in lines2list(dfile['desc']):
+                for l in self.__lines2list(dfile['desc']):
                     self.log.debug('  %s' % l)
 
             if 'repos' in dfile:
-                for repo in lines2list(dfile['repos']):
+                for repo in self.__lines2list(dfile['repos']):
                     if repo not in self.conf['repos']:
                         self.log.critical("'%s' repo is required " % r +
                                           "by package module '%s'" %
@@ -456,19 +456,19 @@ class FLLBuilder:
 
             if 'debconf' in dfile:
                 self.log.debug("debconf:")
-                for d in lines2list(dfile['debconf']):
+                for d in self.__lines2list(dfile['debconf']):
                     pkgs['debconf'].append(d)
                     self.log.debug('  %s' % d)
 
             if 'packages' in dfile:
                 self.log.debug("packages:")
-                for p in lines2list(dfile['packages']):
+                for p in self.__lines2list(dfile['packages']):
                     pkgs['list'].append(p)
                     self.log.debug('  %s' % p)
 
             if arch in dfile:
                 self.log.debug("packages (%s):" % arch)
-                for p in lines2list(dfile[arch]):
+                for p in self.__lines2list(dfile[arch]):
                     pkgs['list'].append(p)
                     self.log.debug('  %s' % p)
 
@@ -1050,7 +1050,7 @@ class FLLBuilder:
                                                  'packages.d', 'i18n'))
 
             i18n_dict = {}
-            for i in lines2list(self.conf['packages']['i18n']):
+            for i in self.__lines2list(self.conf['packages']['i18n']):
                 i = i.lower().replace('_', '-')
                 i18n_dict[i] = True
                 if i.find('-') >= 0:
@@ -1065,7 +1065,7 @@ class FLLBuilder:
             for p in i18n_module.keys():
                 if p not in pkgs_dict:
                     continue
-                for pkg in lines2list(i18n_module[p]):
+                for pkg in self.__lines2list(i18n_module[p]):
                     i18n_pkgs_list.extend([('-'.join([pkg, i]), True)
                                            for i in i18n_dict.keys()])
 
@@ -1083,8 +1083,8 @@ class FLLBuilder:
             self.log.debug('detecting recommends packages')
             rec_module = ConfigObj(os.path.join(self.opts.s, 'packages',
                                                 'packages.d', 'recommends'))
-            rec_dict = dict([(p, True)
-                             for p in lines2list(rec_module['packages'])])
+            rec_dict = dict([(p, True) for p in
+                             self.__lines2list(rec_module['packages'])])
 
             rec_list = []
             for p in pkgs_dict.keys():
