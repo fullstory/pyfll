@@ -1129,14 +1129,95 @@ class FLLBuilder:
         kvers = self.conf['archs'][arch]['linux']
         kvers_list = [p.Name for p in cache.Packages
                       if p.Name.endswith('-modules-' + kvers)]
+        self.log.debug('kvers_list:')
         self.log.debug(kvers_list)
         return kvers_list
 
 
+    def __getSourcePkg(self, pkg, depcache, records):
+        """ get the source package name of a given package """
+        version = depcache.GetCandidateVer(pkg)
+
+        if not version:
+            return None
+        file, index = version.FileList.pop(0)
+        records.Lookup((file, index))
+
+        if records.SourcePkg != "":
+            srcpkg = records.SourcePkg
+        else:
+            srcpkg = pkg.Name
+        return srcpkg
+
+
+    def _collectManifest(self, arch):
+        '''Collect package and source package URI information from each
+        chroot.'''
+        chroot = os.path.join(self.temp, arch)
+        self.log.info('collecting package manifest for %s...' % arch)
+
+        cache = apt_pkg.GetCache()
+        records = apt_pkg.GetPkgRecords(cache)
+        depcache = apt_pkg.GetDepCache(cache)
+        depcache.Init()
+
+        manifest = dict([(p.Name, p.CurrentVer.VerStr)
+                         for p in cache.Packages if p.CurrentVer])
+        self.pkgs[arch]['manifest'] = manifest
+
+        if self.opts.B:
+            return
+
+        self.log.info('querying source package URIs for %s...' % arch)
+
+        sources = apt_pkg.GetPkgSrcRecords()
+        sources.Restart()
+
+        packages = manifest.keys()
+        packages.sort()
+        srcpkg_seen = {}
+        uris = []
+        for p in packages:
+            for k in self._detectLinuxVersion(chroot):
+                if p.endswith('-modules-' + k):
+                    if p.startswith('virtualbox-ose-guest'):
+                        p = 'virtualbox-ose'
+                    else:
+                        p = p[:p.find('-modules-' + k)]
+                    p += '-source'
+
+            if p.startswith('cdebootstrap-helper'):
+                continue
+
+            srcpkg = self.__getSourcePkg(cache[p], depcache, records)
+            if not srcpkg:
+                self.log.critical('failed to lookup srcpkg name for %s' % p)
+                raise Error
+            self.log.debug('%s -> %s' % (p, srcpkg))
+
+            if srcpkg in srcpkg_seen:
+                self.log.debug('already processed %s, skipping...' % srcpkg)
+                continue
+            else:
+                srcpkg_seen[srcpkg] = True
+
+            u = []
+            while sources.Lookup(srcpkg):
+                u.extend([sources.Index.ArchiveURI(sources.Files[f][2])
+                          for f in range(len(sources.Files))])
+            if len(u) > 0:
+                self.log.debug(u)
+                uris.extend(u)
+            else:
+                self.log.critical('failed to query source uris for %s' % srcpkg)
+                raise Error
+
+        uris.sort()
+        self.pkgs[arch]['source'] = uris
+
+
     def _installPkgs(self, arch):
         '''Install packages.'''
-        self.log.info('installing packages in %s chroot...' % arch)
-
         cache = apt_pkg.GetCache()
 
         pkgs_want = self.pkgs[arch]['list']
@@ -1147,54 +1228,9 @@ class FLLBuilder:
         pkgs_want.extend(self._detectRecommendedPkgs(pkgs_dict, cache))
         pkgs_want.extend(self._detectLinuxModulePkgs(arch, cache))
 
+        self.log.info('installing packages in %s chroot...' % arch)
         self._aptGetInstall(arch, self.__filterList(pkgs_want))
-
-
-    def _collectManifest(self, arch):
-        '''Collect package and source package URI information from each
-        chroot.'''
-        chroot = os.path.join(self.temp, arch)
-
-        self.log.info('collecting package manifest for %s...' % arch)
-
-        c = apt_pkg.GetCache()
-        manifest = dict([(p.Name, p.CurrentVer.VerStr)
-                         for p in c.Packages if p.CurrentVer])
-        self.pkgs[arch]['manifest'] = manifest
-
-        if self.opts.B:
-            return
-
-        self.log.info('querying src package URIs for %s...' % arch)
-
-        s = apt_pkg.GetPkgSrcRecords()
-        s.Restart()
-
-        uris = []
-        for p in manifest.keys():
-            for k in self._detectLinuxVersion(chroot):
-                if p.endswith('-modules-' + k):
-                    if p.startswith('virtualbox-ose-guest'):
-                        p = 'virtualbox-ose'
-                    else:
-                        p = p[:p.find('-modules-' + k)]
-
-            if p.startswith('cdebootstrap-helper'):
-                continue
-
-            self.log.debug('querying uris for %s' % p)
-
-            u = []
-            while s.Lookup(p):
-                u.extend([s.Index.ArchiveURI(s.Files[f][2])
-                          for f in range(len(s.Files))])
-            if len(u) > 0:
-                uris.extend(u)
-            else:
-                self.log.critical('failed to query source uris for %s' % p)
-                raise Error
-
-        self.pkgs[arch]['source'] = self.__filterList(uris)
+        self._collectManifest(arch)
 
 
     def _postInst(self, arch):
@@ -1694,7 +1730,6 @@ class FLLBuilder:
             self._dpkgAddDivert(arch)
             self._installPkgs(arch)
             self._dpkgUnDivert(arch)
-            self._collectManifest(arch)
             self._postInst(arch)
             self._initBlackList(arch)
             self._finalEtc(arch)
