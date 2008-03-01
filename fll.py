@@ -1609,7 +1609,9 @@ class FLLBuilder:
         for s in sources_list:
             for c in cached.keys():
                 if s.startswith(c):
-                    sources.write(s.replace(c, cached[c], 1) + '\n')
+                    s = s.replace(c, cached[c], 1)
+                    break
+            sources.write('%s\n' % s)
         sources.close()
         os.chown(sources_file, self.opts.u, self.opts.g)
 
