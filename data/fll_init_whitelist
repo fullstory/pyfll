@@ -11,6 +11,11 @@
 #################################################
 /etc/init.d/libdevmapper*
 #################################################
+# allow sysloggers to start in these days of
+# >= 64M of system memory.
+#################################################
+/etc/init.d/*syslog*
+#################################################
 # core packages, same list as in fll-installer
 #################################################
 alsa-base
