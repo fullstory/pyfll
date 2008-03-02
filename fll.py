@@ -270,9 +270,9 @@ class FLLBuilder:
                                                      d['FLL_DISTRO_VERSION']])
             if d['FLL_DISTRO_CODENAME_REV']:
                 self.stamp += ' - %s' % d['FLL_DISTRO_CODENAME']
-                self.stamp += '.%s -' % d['FLL_DISTRO_CODENAME_REV']
+                self.stamp += ' %s -' % d['FLL_DISTRO_CODENAME_REV']
                 self.stamp_safe += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
-                self.stamp_safe += '.%s ' % d['FLL_DISTRO_CODENAME_REV_SAFE']
+                self.stamp_safe += '_%s ' % d['FLL_DISTRO_CODENAME_REV_SAFE']
             else:
                 self.stamp += ' %s -' % d['FLL_DISTRO_CODENAME']
                 self.stamp_safe += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
