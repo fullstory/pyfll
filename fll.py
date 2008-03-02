@@ -1562,14 +1562,11 @@ class FLLBuilder:
                 for p in pkgs]
 
 
-    def _writeManifests(self, timestamp):
+    def _writeManifests(self, file):
         '''Write package manifest lists.'''
         archs = self.conf['archs'].keys()
         for arch in archs:
-            manifest_name = self.stamp_safe
-            manifest_name += '-%s' % arch
-            manifest_name += '-' + timestamp
-            manifest_name += '.manifest'
+            manifest_name = '%s.%s.manifest' % (file, arch)
 
             manifest_file = os.path.join(self.opts.o, manifest_name)
             manifest = open(manifest_file, 'w')
@@ -1664,7 +1661,7 @@ class FLLBuilder:
         md5.close()
         os.chown(md5_file, self.opts.u, self.opts.g)
 
-        self._writeManifests(timestamp)
+        self._writeManifests(os.path.splitext(iso_file)[0])
         if not self.opts.B:
             self._writeSources(os.path.splitext(iso_file)[0])
 
