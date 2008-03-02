@@ -14,6 +14,9 @@
 /etc/init.d/cron
 /etc/init.d/halt
 /etc/init.d/hwclock.sh
+/etc/init.d/mountnfs.sh
+/etc/init.d/mountnfs-bootclean.sh
+/etc/init.d/mountoverflowtmp
 /etc/init.d/reboot
 /etc/init.d/stop-bootlogd
 /etc/init.d/stop-bootlogd-single
