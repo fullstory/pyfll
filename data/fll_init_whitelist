@@ -16,6 +16,7 @@
 alsa-base
 alsa-utils
 avahi-daemon
+bootchart
 console-tools
 console-common
 cpufrequtils
