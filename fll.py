@@ -77,7 +77,7 @@ class FLLBuilder:
             return False
 
 
-    def _initLogger(self, lvl):
+    def __initLogger(self, lvl):
         '''Set up the logger.'''
         fmt = logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
         out = logging.StreamHandler()
@@ -89,9 +89,9 @@ class FLLBuilder:
     def _processOpts(self):
         '''Process options.'''
         if self.opts.d:
-            self._initLogger(logging.DEBUG)
+            self.__initLogger(logging.DEBUG)
         else:
-            self._initLogger(logging.INFO)
+            self.__initLogger(logging.INFO)
 
         if self.opts.l:
             try:
