@@ -115,11 +115,10 @@ class FLLBuilder:
                 file.setFormatter(fmt)
                 file.setLevel(logging.DEBUG)
                 self.log.addHandler(file)
+                os.chown(out, self.opts.u, self.opts.g)
             except:
                 self.log.exception('failed to setup logfile')
                 raise Error
-            else:
-                os.chown(out, self.opts.u, self.opts.g)
 
         if self.opts.c:
             if os.path.isfile(self.opts.c):
