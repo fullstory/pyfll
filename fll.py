@@ -77,15 +77,6 @@ class FLLBuilder:
             return False
 
 
-    def __initLogger(self, lvl):
-        '''Set up the logger.'''
-        fmt = logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
-        out = logging.StreamHandler()
-        out.setFormatter(fmt)
-        out.setLevel(lvl)
-        self.log.addHandler(out)
-
-
     def __prepDir(self, dir):
         '''Set up working directories.'''
         if not os.path.isdir(dir):
@@ -99,6 +90,34 @@ class FLLBuilder:
         return os.path.abspath(dir)
 
 
+    def __initLogger(self, lvl):
+        '''Set up the logger.'''
+        fmt = logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
+        out = logging.StreamHandler()
+        out.setFormatter(fmt)
+        out.setLevel(lvl)
+        self.log.addHandler(out)
+
+
+    def __initLogFile(self, file):
+        '''Set up a log file.'''
+        file = os.path.abspath(file)
+        dir = os.path.dirname(file)
+        self.__prepDir(dir)
+
+        try:
+            fmt = logging.Formatter('%(asctime)s %(levelname)-8s ' +
+                                     '%(message)s')
+            logfile = logging.FileHandler(filename = file, mode = 'w')
+            logfile.setFormatter(fmt)
+            logfile.setLevel(logging.DEBUG)
+            self.log.addHandler(logfile)
+            os.chown(file, self.opts.u, self.opts.g)
+        except:
+            self.log.exception('failed to setup logfile')
+            raise Error
+    
+    
     def _processOpts(self):
         '''Process options.'''
         if self.opts.d:
@@ -107,18 +126,7 @@ class FLLBuilder:
             self.__initLogger(logging.INFO)
 
         if self.opts.l:
-            try:
-                fmt = logging.Formatter('%(asctime)s %(levelname)-8s ' +
-                                         '%(message)s')
-                out = os.path.abspath(self.opts.l)
-                file = logging.FileHandler(filename = out, mode = 'w')
-                file.setFormatter(fmt)
-                file.setLevel(logging.DEBUG)
-                self.log.addHandler(file)
-                os.chown(out, self.opts.u, self.opts.g)
-            except:
-                self.log.exception('failed to setup logfile')
-                raise Error
+            self.__initLogFile(self.opts.l)
 
         if self.opts.c:
             if os.path.isfile(self.opts.c):
@@ -351,6 +359,11 @@ class FLLBuilder:
         else:
             if not self.opts.o:
                 self.opts.o = self.__prepDir(os.getcwd())
+
+        if 'build_log' in self.conf['options'] and \
+           self.conf['options']['build_log']:
+            if not self.opts.l:
+                self.__initLogFile(self.conf['options']['build_log'])
 
         if 'http_proxy' in self.conf['options'] and \
            self.conf['options']['http_proxy']:
