@@ -139,8 +139,11 @@ class FLLBuilder:
 
         self.opts.s = os.path.abspath(self.opts.s)
 
-        self.opts.o = self.__prepDir(self.opts.o)
-        self.opts.b = self.__prepDir(self.opts.b)
+        if self.opts.o:
+            self.opts.o = self.__prepDir(self.opts.o)
+
+        if self.opts.b:
+            self.opts.b = self.__prepDir(self.opts.b)
 
 
     def parseOpts(self):
@@ -209,8 +212,8 @@ class FLLBuilder:
                      help = 'Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
 
-        p.set_defaults(b = os.getcwd(), B = False, d = False, g = os.getgid(),
-                       l = None, n = False, o = os.getcwd(), p = False,
+        p.set_defaults(b = None, B = False, d = False, g = os.getgid(),
+                       l = None, n = False, o = None, p = False,
                        q = False, s = '/usr/share/fll/', u = os.getuid(),
                        v = False)
 
@@ -330,6 +333,24 @@ class FLLBuilder:
 
         if not 'options' in self.conf:
             self.conf['options'] = {}
+
+        if 'build_dir' in self.conf['options'] and \
+           self.conf['options']['build_dir']:
+            if not self.opts.b:
+                dir = self.conf['options']['build_dir']
+                self.opts.b = self.__prepDir(dir)
+        else:
+            if not self.opts.b:
+                self.opts.b = self.__prepDir(os.getcwd())
+
+        if 'output_dir' in self.conf['options'] and \
+           self.conf['options']['output_dir']:
+            if not self.opts.o:
+                dir = self.conf['options']['output_dir']
+                self.opts.o = self.__prepDir(dir)
+        else:
+            if not self.opts.o:
+                self.opts.o = self.__prepDir(os.getcwd())
 
         if 'http_proxy' in self.conf['options'] and \
            self.conf['options']['http_proxy']:
