@@ -41,10 +41,6 @@ class FLLBuilder:
            'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'SHELL': '/bin/bash',
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes'}
-    if os.getenv('http_proxy'):
-        env['http_proxy'] = os.getenv('http_proxy')
-    if os.getenv('ftp_proxy'):
-        env['ftp_proxy'] = os.getenv('ftp_proxy')
 
     diverts = ['/sbin/modprobe', '/usr/sbin/update-initramfs']
 
@@ -341,6 +337,14 @@ class FLLBuilder:
 
         if not 'options' in self.conf:
             self.conf['options'] = {}
+
+        if 'http_proxy' in self.conf['options'] and \
+           self.conf['options']['http_proxy']:
+            self.env['http_proxy'] = self.conf['options']['http_proxy']
+
+        if 'ftp_proxy' in self.conf['options'] and \
+           self.conf['options']['ftp_proxy']:
+            self.env['ftp_proxy'] = self.conf['options']['ftp_proxy']
 
         if not 'apt_recommends' in self.conf['options']:
             self.conf['options']['apt_recommends'] = 'no'
