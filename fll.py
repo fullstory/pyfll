@@ -363,7 +363,8 @@ class FLLBuilder:
         if 'build_log' in self.conf['options'] and \
            self.conf['options']['build_log']:
             if not self.opts.l:
-                self.__initLogFile(self.conf['options']['build_log'])
+                self.opts.l = self.conf['options']['build_log']
+                self.__initLogFile(self.opts.l)
 
         if 'http_proxy' in self.conf['options'] and \
            self.conf['options']['http_proxy']:
