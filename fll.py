@@ -86,6 +86,19 @@ class FLLBuilder:
         self.log.addHandler(out)
 
 
+    def __prepDir(self, dir):
+        '''Set up working directories.'''
+        if not os.path.isdir(dir):
+            try:
+                os.makedirs(dir)
+                os.chown(dir, self.opts.u, self.opts.g)
+            except:
+                self.log.exception('failed to create dir: %s' % dir)
+                raise Error
+
+        return os.path.abspath(dir)
+
+
     def _processOpts(self):
         '''Process options.'''
         if self.opts.d:
@@ -127,27 +140,8 @@ class FLLBuilder:
 
         self.opts.s = os.path.abspath(self.opts.s)
 
-        if not os.path.isdir(self.opts.o):
-            try:
-                os.makedirs(self.opts.o)
-                os.chown(self.opts.o, self.opts.u, self.opts.g)
-            except:
-                self.log.exception('failed to create output dir: %s' %
-                                   self.opts.o)
-                raise Error
-
-        self.opts.o = os.path.abspath(self.opts.o)
-
-        if not os.path.isdir(self.opts.b):
-            try:
-                os.makedirs(self.opts.b)
-                os.chown(self.opts.b, self.opts.u, self.opts.g)
-            except:
-                self.log.exception('failed to create build dir: %s' %
-                                   self.opts.b)
-                raise Error
-
-        self.opts.b = os.path.abspath(self.opts.b)
+        self.opts.o = self.__prepDir(self.opts.o)
+        self.opts.b = self.__prepDir(self.opts.b)
 
 
     def parseOpts(self):
