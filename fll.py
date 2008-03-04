@@ -116,8 +116,8 @@ class FLLBuilder:
         except:
             self.log.exception('failed to setup logfile')
             raise Error
-    
-    
+
+
     def _processOpts(self):
         '''Process options.'''
         if self.opts.d:
