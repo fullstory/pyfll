@@ -1,0 +1,31 @@
+desc = """
+	Minimal GNOME desktop environment.
+"""
+
+repos = """
+	debian
+	sidux
+"""
+
+deps = """
+	cli
+	distro
+	distro-gnome
+	distro-tools
+	distro-tools-x
+	hwsupport-essential
+	utils-essential
+	xserver
+"""
+
+packages = """
+	epiphany-browser
+	epiphany-extensions
+	gdm
+	gdm-themes-sidux
+	gnome-core
+	xchat
+	xchat-systray
+	vim-tiny
+"""
+

@@ -1,0 +1,16 @@
+desc = """
+	Distro specific GNOME packages.
+"""
+
+repos = """
+	debian
+	sidux
+"""
+
+packages = """
+	desktop-defaults-gnome
+	gksu
+	sidux-art-gnome
+	siduxcc-common
+"""
+

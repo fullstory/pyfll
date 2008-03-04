@@ -1,0 +1,39 @@
+desc = """
+	Basic GNOME desktop environment.
+"""
+
+repos = """
+	debian
+	sidux
+"""
+
+deps = """
+	cli
+	distro
+	distro-gnome
+	distro-tools
+	distro-tools-x
+	hwsupport-essential
+	hwsupport-extra
+	hwsupport-printscan
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+	gdm
+	gdm-themes-sidux
+	gnome-core
+	nautilus-open-terminal
+	xchat
+	xchat-systray
+	epiphany-browser
+	epiphany-extensions
+	evolution
+	pidgin
+	pidgin-encryption
+	file-roller
+"""
+
