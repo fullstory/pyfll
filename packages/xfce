@@ -35,6 +35,7 @@ packages = """
 	gxine
 	gxineplugin
 	iceweasel
+	kuake
 	mousepad
 	orage
 	shared-mime-info
