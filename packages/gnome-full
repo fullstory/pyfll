@@ -15,7 +15,7 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
-	oppenoffice-lite
+	openoffice-lite
 	utils-essential
 	utils-extra
 	xserver
