@@ -953,6 +953,7 @@ class FLLBuilder:
     def _defaultEtc(self, arch):
         '''Initial creation of conffiles required in chroot.'''
         self._writeFile(arch, '/etc/fstab')
+        self._writeFile(arch, '/etc/hostname')
         self._writeFile(arch, '/etc/kernel-img.conf')
         self._writeFile(arch, '/etc/network/interfaces')
 
@@ -972,7 +973,6 @@ class FLLBuilder:
         os.chmod(distro_version, 0444)
 
         self._writeFile(arch, '/etc/default/distro')
-        self._writeFile(arch, '/etc/hostname')
         self._writeFile(arch, '/etc/hosts')
         self._writeFile(arch, '/etc/motd.tail')
         self._writeFile(arch, '/etc/resolv.conf')
