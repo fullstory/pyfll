@@ -11,6 +11,11 @@
 
 . /etc/default/distro
 
+# Run distro-defaults postinst again, to ensure our defaults are in place
+# after instalation of _all_ packages
+echo 'Reconfiguring distro-defaults...'
+dpkg-reconfigure -pcritical -fnoninteractive distro-defaults
+
 # Disable bitmap fonts, they are fugly
 if [ ! -L /etc/fonts/conf.d/70-no-bitmaps.conf ] && \
 	[ -f /etc/fonts/conf.avail/70-no-bitmaps.conf ]; then
@@ -19,13 +24,11 @@ if [ ! -L /etc/fonts/conf.d/70-no-bitmaps.conf ] && \
 		/etc/fonts/conf.d/70-no-bitmaps.conf
 fi
 
-
 # Update menu system, fluxbox _needs_ this
 if [ -x /usr/bin/update-menus ]; then
 	echo 'Updating menus...'
 	/usr/bin/update-menus
 fi
-
 
 # Prepare defaults for users of this system
 echo 'Disabling system wide readable /home...'
