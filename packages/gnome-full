@@ -4,7 +4,6 @@ desc = """
 
 repos = """
 	debian
-	sidux
 """
 
 deps = """
@@ -24,7 +23,7 @@ deps = """
 
 packages = """
 	gdm
-	gdm-themes-sidux
+	gksu
 	gnome-core
 	gnome-commander
 	gnome-applets
@@ -80,7 +79,6 @@ packages = """
 	gkrellm
 	moto4lin
 	samba
-	wodim
 	file-roller
 """
 

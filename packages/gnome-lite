@@ -4,7 +4,6 @@ desc = """
 
 repos = """
 	debian
-	sidux
 """
 
 deps = """
@@ -24,7 +23,7 @@ deps = """
 
 packages = """
 	gdm
-	gdm-themes-sidux
+	gksu
 	gnome-core
 	nautilus-open-terminal
 	xchat

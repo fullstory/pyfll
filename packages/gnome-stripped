@@ -4,7 +4,6 @@ desc = """
 
 repos = """
 	debian
-	sidux
 """
 
 deps = """
@@ -22,7 +21,7 @@ packages = """
 	epiphany-browser
 	epiphany-extensions
 	gdm
-	gdm-themes-sidux
+	gksu
 	gnome-core
 	xchat
 	xchat-systray

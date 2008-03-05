@@ -3,13 +3,12 @@ desc = """
 """
 
 repos = """
-	debian
 	sidux
 """
 
 packages = """
 	desktop-defaults-gnome
-	gksu
+	gdm-themes-sidux
 	sidux-art-gnome
 	siduxcc-common
 """
