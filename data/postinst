@@ -58,9 +58,3 @@ if [ -w /etc/ppp/peers/kppp-options ]; then
 	echo 'Allowing KPPP noauth...'
 	sed -i 's/^#noauth/noauth/' /etc/ppp/peers/kppp-options
 fi
-
-# Do not wait for maintainer to fix his package...
-if [ -x /etc/init.d/irqbalance ]; then
-	echo 'Removing irqbalance shutdown links...'
-	rm -f /etc/rc[06].d/K??irqbalance
-fi
