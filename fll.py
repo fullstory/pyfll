@@ -1264,13 +1264,11 @@ class FLLBuilder:
         initd = '/etc/init.d/'
 
         init_glob = os.path.join(chroot, 'etc', 'init.d', '*')
-        initscripts = [i.replace(chroot, '', 1) for i in glob.glob(init_glob)
-                       if self.__isexecutable(i)]
-        initscripts.sort()
+        initscripts = set([i.replace(chroot, '', 1)
+                           for i in glob.glob(init_glob)
+                           if self.__isexecutable(i)])
 
-        # synchronize & sanitize the lists with fll-installer
-
-        bd = {}
+        blacklist = set()
         for line in open(os.path.join(self.opts.s, 'data',
                                       'fll_init_blacklist')):
             if line.startswith('#'):
@@ -1282,7 +1280,7 @@ class FLLBuilder:
                          if self.__isexecutable(f)]
                 for file in files:
                     self.log.debug('blacklisting: %s (glob)' % file)
-                    bd[file] = True
+                    blacklist.add(file)
             else:
                 try:
                     cmd = 'chroot %s dpkg-query --listfiles ' % chroot
@@ -1300,10 +1298,10 @@ class FLLBuilder:
                         if file.startswith(initd):
                             self.log.debug('blacklisting: %s (%s)' %
                                            (file, line.rstrip()))
-                            bd[file] = True
+                            blacklist.add([file])
                     self._umount(chroot)
 
-        wd = {}
+        whitelist = set()
         for line in open(os.path.join(self.opts.s, 'data',
                                       'fll_init_whitelist')):
             if line.startswith('#'):
@@ -1315,7 +1313,7 @@ class FLLBuilder:
                          if self.__isexecutable(f)]
                 for file in files:
                     self.log.debug('whitelisting: %s (glob)' % file)
-                    wd[file] = True
+                    whitelist.add(file)
             else:
                 try:
                     cmd = 'chroot %s dpkg-query --listfiles ' % chroot
@@ -1330,11 +1328,20 @@ class FLLBuilder:
                 else:
                     for file in p.communicate()[0].splitlines():
                         file = file.strip().split()[0]
-                        if file.startswith(initd) and file not in bd:
+                        if file.startswith(initd) and file not in blacklist:
                             self.log.debug('whitelisting: %s (%s)' %
                                            (file, line.rstrip()))
-                            wd[file] = True
+                            whitelist.add(file)
                     self._umount(chroot)
+
+        fllinitblacklist = [os.path.basename(i) + '\n'
+                            for i in initscripts.difference(whitelist)]
+        fllinitblacklist.sort()
+
+        self.log.debug('fllinitblacklist:')
+        for f in fllinitblacklist:
+            self.log.debug('  %s' % f.rstrip())
+        self.log.debug('---')
 
         try:
             fllinit = open(os.path.join(chroot, 'etc/default/fll-init'), 'a')
@@ -1343,12 +1350,7 @@ class FLLBuilder:
             raise Error
         else:
             self.log.debug('writing file: /etc/default/fll-init')
-            for i in initscripts:
-                if i in wd:
-                    self.log.debug('whitelisted: %s' % i)
-                else:
-                    self.log.debug('blacklisted: %s' % i)
-                    fllinit.write('%s\n' % os.path.basename(i))
+            fllinit.writelines(fllinitblacklist)
             fllinit.close()
 
 
