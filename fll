@@ -26,7 +26,7 @@ USER_GID=$(getent passwd ${USER} | cut -d\: -f4)
 
 for arg in "${@}"; do
 	case "${arg}" in
-		--help|-h|-n|--non-root)
+		-h*|--help|-n*|--non-root)
 			ROOTEXEC=no
 			break
 			;;

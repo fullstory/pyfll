@@ -92,7 +92,7 @@ class FLLBuilder:
 
     def __initLogger(self, lvl):
         '''Set up the logger.'''
-        fmt = logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
+        fmt = logging.Formatter('%(asctime)s %(levelname)-5s - %(message)s')
         out = logging.StreamHandler()
         out.setFormatter(fmt)
         out.setLevel(lvl)
@@ -106,7 +106,7 @@ class FLLBuilder:
         self.__prepDir(dir)
 
         try:
-            fmt = logging.Formatter('%(asctime)s %(levelname)-8s ' +
+            fmt = logging.Formatter('%(asctime)s %(levelname)-5s ' +
                                      '%(message)s')
             logfile = logging.FileHandler(filename = file, mode = 'w')
             logfile.setFormatter(fmt)
@@ -235,7 +235,7 @@ class FLLBuilder:
         for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
                   'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
                   'FLL_LIVE_USER_GROUPS']:
-            if not k in d or not d[k]:
+            if not d.get(k):
                 self.log.critical("%s' is required in 'distro' section " % k +
                                   "of build conf")
                 raise Error
@@ -243,7 +243,7 @@ class FLLBuilder:
         for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
                   'FLL_LIVE_USER', 'FLL_DISTRO_CODENAME_SAFE',
                   'FLL_DISTRO_CODENAME_REV_SAFE']:
-            if k not in d or not d[k]:
+            if not d.get(k):
                 continue
             if not d[k].isalnum():
                 self.log.critical("'%s' is not alphanumeric: %s" % (k, d[k]))
@@ -252,19 +252,17 @@ class FLLBuilder:
                 self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
                 raise Error
 
-        if 'FLL_DISTRO_VERSION' in d and d['FLL_DISTRO_VERSION'] and \
-            d['FLL_DISTRO_VERSION'] != 'snapshot':
-            if 'FLL_DISTRO_CODENAME_SAFE' not in d or \
-                not d['FLL_DISTRO_CODENAME_SAFE']:
+        if d.get('FLL_DISTRO_VERSION') and \
+           d['FLL_DISTRO_VERSION'] != 'snapshot':
+            if d.get('FLL_DISTRO_CODENAME_SAFE'):
                 self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
                                   "'FLL_DISTRO_CODENAME_SAFE' is not")
                 raise Error
 
             for k in ['FLL_DISTRO_CODENAME', 'FLL_DISTRO_CODENAME_REV']:
                 safe = k + '_SAFE'
-                if safe in d and d[safe]:
-                    if k not in d or not d[k]:
-                        d[k] = d[safe]
+                if d.get(safe) and not d.get(k):
+                    d[k] = d[safe]
 
             self.stamp = self.stamp_safe = ' '.join([d['FLL_DISTRO_NAME'],
                                                      d['FLL_DISTRO_VERSION']])
@@ -292,26 +290,26 @@ class FLLBuilder:
 
     def _processConf(self):
         '''Process configuration options.'''
-        if len(self.conf['archs'].keys()) < 1:
+        if not self.conf.get('archs'):
             host_arch = Popen(['dpkg', '--print-architecture'],
                               stdout=PIPE).communicate()[0].rstrip()
-            self.conf['archs'][host_arch] = {}
-            self.log.debug('default build arch: %s' % host_arch)
+            self.conf['archs'] = {host_arch: dict()}
+            self.log.debug('arch: %s' % host_arch)
 
         for arch in self.conf['archs'].keys():
             if 'linux' not in self.conf['archs'][arch]:
                 if arch == 'i386':
-                    if os.path.isfile('/etc/sidux-version'):
-                        self.conf['archs'][arch]['linux'] = '2.6-sidux-686'
-                    else:
-                        self.conf['archs'][arch]['linux'] = '2.6-686'
+                    cpu = '686'
                 else:
-                    if os.path.isfile('/etc/sidux-version'):
-                        self.conf['archs'][arch]['linux'] = '2.6-sidux-' + arch
-                    else:
-                        self.conf['archs'][arch]['linux'] = '2.6-' + arch
-            self.log.debug("arch = %s, linux = %s" %
-                           (arch, self.conf['archs'][arch]['linux']))
+                    cpu = arch
+
+                if os.path.isfile('/etc/sidux-version'):
+                    linux = '2.6-sidux-' + cpu
+                else:
+                    linux = '2.6-' + cpu
+
+                self.conf['archs'][arch].setdefault('linux', linux)
+            self.log.debug("linux: %s" % self.conf['archs'][arch]['linux'])
 
         if len(self.conf['repos'].keys()) < 1:
             self.log.critical('no apt repos were specified in build config')
@@ -330,20 +328,19 @@ class FLLBuilder:
 
         if 'profile' not in self.conf['packages']:
             self.conf['packages']['profile'] = 'kde-lite'
-        self.log.debug('package profile: %s' %
+        self.log.debug('profile: %s' %
                        self.conf['packages']['profile'])
 
         if 'i18n' not in self.conf['packages'] or \
            not self.__lines2list(self.conf['packages']['i18n']):
             self.conf['packages']['i18n'] = 'en_US'
-        self.log.debug('i18n support: %s' %
-                       self.conf['packages']['i18n'])
+        i18n = self.__lines2list(self.conf['packages']['i18n'])
+        self.log.debug('i18n: %s' % ' '.join(i18n))
 
         if not 'options' in self.conf:
             self.conf['options'] = {}
 
-        if 'build_dir' in self.conf['options'] and \
-           self.conf['options']['build_dir']:
+        if self.conf['options'].get('build_dir'):
             if not self.opts.b:
                 dir = self.conf['options']['build_dir']
                 self.opts.b = self.__prepDir(dir)
@@ -351,8 +348,7 @@ class FLLBuilder:
             if not self.opts.b:
                 self.opts.b = self.__prepDir(os.getcwd())
 
-        if 'output_dir' in self.conf['options'] and \
-           self.conf['options']['output_dir']:
+        if self.conf['options'].get('output_dir'):
             if not self.opts.o:
                 dir = self.conf['options']['output_dir']
                 self.opts.o = self.__prepDir(dir)
@@ -360,36 +356,28 @@ class FLLBuilder:
             if not self.opts.o:
                 self.opts.o = self.__prepDir(os.getcwd())
 
-        if 'build_log' in self.conf['options'] and \
-           self.conf['options']['build_log']:
+        if self.conf['options'].get('build_log'):
             if not self.opts.l:
                 self.opts.l = self.conf['options']['build_log']
                 self.__initLogFile(self.opts.l)
 
-        if 'http_proxy' in self.conf['options'] and \
-           self.conf['options']['http_proxy']:
+        if self.conf['options'].get('http_proxy'):
             self.env['http_proxy'] = self.conf['options']['http_proxy']
 
-        if 'ftp_proxy' in self.conf['options'] and \
-           self.conf['options']['ftp_proxy']:
+        if self.conf['options'].get('ftp_proxy'):
             self.env['ftp_proxy'] = self.conf['options']['ftp_proxy']
 
-        if not 'apt_recommends' in self.conf['options']:
-            self.conf['options']['apt_recommends'] = 'no'
-
-        if not 'media_include' in self.conf['options']:
-            self.conf['options']['media_include'] = None
+        self.conf['options'].setdefault('apt_recommends', 'no')
+        self.conf['options'].setdefault('media_include', None)
 
         if 'distro' in self.conf:
                 self._processDefaults(self.conf['distro'])
                 self.log.debug('distro-defaults:')
-                self.log.debug(self.conf['distro'])
+                for k, v in self.conf['distro'].items():
+                    self.log.debug('%s="%s"' % (k, v))
         else:
             self.log.critical('distro section not found in build config')
             raise Error
-
-        self.log.debug('common configuration data')
-        self.log.debug(self.conf)
 
 
     def parseConf(self):
@@ -468,6 +456,8 @@ class FLLBuilder:
                 deps.append(dep)
                 self.log.debug('  %s' % dep)
 
+        self.log.debug('---')
+
         for dep in deps:
             depfile = os.path.join(dir, 'packages.d', dep)
 
@@ -475,7 +465,7 @@ class FLLBuilder:
                 self.log.critical("no such dep file: %s" % depfile)
                 raise Error
 
-            self.log.debug("processing dependency file: %s" %
+            self.log.debug('processing dependency file: %s' %
                            os.path.basename(depfile))
 
             dfile = ConfigObj(depfile)
@@ -510,8 +500,17 @@ class FLLBuilder:
                     pkgs['list'].append(p)
                     self.log.debug('  %s' % p)
 
-        self.log.debug('packages + debconf for %s:' % arch)
-        self.log.debug(pkgs)
+            self.log.debug('---')
+
+        self.log.debug('package summary for %s:' % arch)
+        pkgs['list'].sort()
+        for p in pkgs['list']:
+            self.log.debug('  %s' % p)
+
+        self.log.debug('debconf summary for %s:' % arch)
+        pkgs['debconf'].sort()
+        for d in pkgs['debconf']:
+            self.log.debug('  %s' % d)
 
         pkgs['list'] = self.__filterList(pkgs['list'])
 
