@@ -396,8 +396,8 @@ class FLLBuilder:
         kvers = self.conf['archs'][arch]['linux']
         pkgs['list'].extend(['-'.join([l, kvers]) for l in linux_meta])
 
-        self.log.debug('processing package profile for %s: %s' %
-                       (arch, os.path.basename(profile)))
+        pname = os.path.basename(profile)
+        self.log.debug('processing package profile for %s: %s' % (arch, pname))
 
         pfile = ConfigObj(profile)
 
@@ -409,8 +409,7 @@ class FLLBuilder:
             for r in self.__lines2list(pfile['repos']):
                 if r not in self.conf['repos']:
                     self.log.critical("'%s' repo is required " % r +
-                                      "by package module '%s'" %
-                                      os.path.basename(profile))
+                                      "by package module '%s'" % pname)
                     raise Error
 
         if 'debconf' in pfile:
@@ -420,38 +419,38 @@ class FLLBuilder:
                 self.log.debug('  %s', d)
 
         if 'debconf' in self.conf['packages']:
-            self.log.debug("debconf (config):")
+            self.log.debug('debconf (config):')
             for d in self.__lines2list(self.conf['packages']['debconf']):
                 pkgs['debconf'].append(d)
                 self.log.debug('  %s' % d)
 
         if 'packages' in pfile:
-            self.log.debug("packages:")
+            self.log.debug('packages:')
             for p in self.__lines2list(pfile['packages']):
                 pkgs['list'].append(p)
                 self.log.debug('  %s' % p)
 
         if 'packages' in self.conf['packages']:
-            self.log.debug("packages (config):")
+            self.log.debug('packages (config):')
             for p in self.__lines2list(self.conf['packages']['packages']):
                 pkgs['list'].append(p)
                 self.log.debug('  %s' % p)
 
         if arch in pfile:
-            self.log.debug("packages (%s):" % arch)
+            self.log.debug('packages (%s):' % arch)
             for p in self.__lines2list(pfile[arch]):
                 pkgs['list'].append(p)
                 self.log.debug('  %s' % p)
 
         deps = ['essential']
         if 'deps' in pfile:
-            self.log.debug("deps:")
+            self.log.debug('deps:')
             for dep in self.__lines2list(pfile['deps']):
                 deps.append(dep)
                 self.log.debug('  %s' % dep)
 
         if 'deps' in self.conf['packages']:
-            self.log.debug("deps (config):")
+            self.log.debug('deps (config):')
             for dep in self.__lines2list(self.conf['packages']['deps']):
                 deps.append(dep)
                 self.log.debug('  %s' % dep)
@@ -462,11 +461,11 @@ class FLLBuilder:
             depfile = os.path.join(dir, 'packages.d', dep)
 
             if not os.path.isfile(depfile):
-                self.log.critical("no such dep file: %s" % depfile)
+                self.log.critical('no such dep file: %s' % depfile)
                 raise Error
 
-            self.log.debug('processing dependency file: %s' %
-                           os.path.basename(depfile))
+            dname = os.path.basename(depfile)
+            self.log.debug('processing dependency file: %s' % dname)
 
             dfile = ConfigObj(depfile)
 
@@ -483,19 +482,19 @@ class FLLBuilder:
                         raise Error
 
             if 'debconf' in dfile:
-                self.log.debug("debconf:")
+                self.log.debug('debconf:')
                 for d in self.__lines2list(dfile['debconf']):
                     pkgs['debconf'].append(d)
                     self.log.debug('  %s' % d)
 
             if 'packages' in dfile:
-                self.log.debug("packages:")
+                self.log.debug('packages:')
                 for p in self.__lines2list(dfile['packages']):
                     pkgs['list'].append(p)
                     self.log.debug('  %s' % p)
 
             if arch in dfile:
-                self.log.debug("packages (%s):" % arch)
+                self.log.debug('packages (%s):' % arch)
                 for p in self.__lines2list(dfile[arch]):
                     pkgs['list'].append(p)
                     self.log.debug('  %s' % p)
