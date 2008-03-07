@@ -254,7 +254,7 @@ class FLLBuilder:
 
         if d.get('FLL_DISTRO_VERSION') and \
            d['FLL_DISTRO_VERSION'] != 'snapshot':
-            if d.get('FLL_DISTRO_CODENAME_SAFE'):
+            if not d.get('FLL_DISTRO_CODENAME_SAFE'):
                 self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
                                   "'FLL_DISTRO_CODENAME_SAFE' is not")
                 raise Error
