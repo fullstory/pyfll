@@ -157,7 +157,7 @@ class FLLBuilder:
     def parseOpts(self):
         '''Parse command line arguments.'''
         p = OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
-                         '-o <directory> -s <directory>] [-dpqv]')
+                         '-o <directory> -s <directory> -l <file>] [-Bdgpquv]')
 
         p.add_option('-b', '--build', dest = 'b', action = 'store',
                      type = 'string', metavar = '<directory>',
@@ -389,8 +389,9 @@ class FLLBuilder:
 
 
     def _processPkgProfile(self, arch, profile, dir):
-        '''Return a dict, arch string as keys and package list as values.'''
-        pkgs = {'debconf': [], 'list': []}
+        '''Return a dict, arch string as key and package, debconf and postinst
+        lists.'''
+        pkgs = {'debconf': [], 'list': [], 'postinst': []}
 
         linux_meta = ['linux-image', 'linux-headers']
         kvers = self.conf['archs'][arch]['linux']
@@ -413,7 +414,7 @@ class FLLBuilder:
                     raise Error
 
         if 'debconf' in pfile:
-            self.log.debug("debconf:")
+            self.log.debug('debconf:')
             for d in self.__lines2list(pfile['debconf']):
                 pkgs['debconf'].append(d)
                 self.log.debug('  %s', d)
@@ -454,6 +455,10 @@ class FLLBuilder:
             for dep in self.__lines2list(self.conf['packages']['deps']):
                 deps.append(dep)
                 self.log.debug('  %s' % dep)
+
+        if os.path.isfile(profile + '.postinst'):
+            self.log.debug('registering postinst script')
+            pkgs['postinst'].append(profile + '.postinst')
 
         self.log.debug('---')
 
@@ -499,6 +504,10 @@ class FLLBuilder:
                     pkgs['list'].append(p)
                     self.log.debug('  %s' % p)
 
+            if os.path.isfile(depfile + '.postinst'):
+                self.log.debug('registering postinst script')
+                pkgs['postinst'].append(depfile + '.postinst')
+
             self.log.debug('---')
 
         self.log.debug('package summary for %s:' % arch)
@@ -534,7 +543,7 @@ class FLLBuilder:
 
 
     def _stageMedia(self, point, dir, fnames):
-        '''Copy content from a directory to media staging area.'''
+        '''Copy content from a directory to live media staging area.'''
         orig, dest = point
         dirname = dir.replace(orig, '', 1).lstrip('/')
 
@@ -558,7 +567,7 @@ class FLLBuilder:
 
 
     def stageBuildArea(self):
-        '''Prepare temporary directory to prepare chroots and stage result.'''
+        '''Prepare temporary directory for chroots and result staging area.'''
         self.log.debug('preparing build area...')
 
         self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
@@ -584,7 +593,7 @@ class FLLBuilder:
 
 
     def _mount(self, chroot):
-        '''Mount virtual filesystems in a shoort dir.'''
+        '''Mount virtual filesystems in a chroot.'''
         virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
 
         for v in virtfs.items():
@@ -598,7 +607,7 @@ class FLLBuilder:
 
 
     def _umount(self, chrootdir):
-        '''Umount any mount points in a given chroot directory.'''
+        '''Umount any mount points in a chroot.'''
         umount_list = []
         for line in open('/proc/mounts'):
             (dev, mnt, fs, options, d, p) = line.split()
@@ -638,7 +647,8 @@ class FLLBuilder:
 
 
     def cleanup(self):
-        '''Clean up the build area.'''
+        '''Clean up the build area after taking care that all build chroots
+        have been taken care of.'''
         self.log.info('cleaning up...')
 
         for arch in self.conf['archs'].keys():
@@ -654,6 +664,8 @@ class FLLBuilder:
 
 
     def __execLogged(self, cmd, check_returncode):
+        '''Execute a command logging all output. Output sent to the console is
+        buffered until the command has finished execution.'''
         self.log.debug(' '.join(cmd))
 
         try:
@@ -725,7 +737,8 @@ class FLLBuilder:
 
 
     def _aptGetInstall(self, arch, pkgs):
-        '''An apt-get wrapper.'''
+        '''An apt-get install wrapper. Automatic insallation of recommended
+        packages defaults to disabled.'''
         aptget = ['apt-get', '--yes']
 
         if self.conf['options']['apt_recommends'] == 'no':
@@ -807,7 +820,8 @@ class FLLBuilder:
 
 
     def _primeApt(self, arch):
-        '''Prepare apt for work in each build chroot.'''
+        '''Prepare apt for work in each build chroot. Fect all required gpg
+        keys and initialize apt_pkg config.'''
         self.log.info('preparing apt in %s chroot...' % arch)
         chroot = os.path.join(self.temp, arch)
 
@@ -866,8 +880,8 @@ class FLLBuilder:
 
 
     def _dpkgAddDivert(self, arch):
-        """Divert some facilities and replace temporaily with /bin/true (or
-        some other more appropiate facility."""
+        '''Divert some facilities and replace temporaily with /bin/true (or
+        some other more appropiate facility.'''
         chroot = os.path.join(self.temp, arch)
         for d in self.diverts:
             self.log.debug("diverting %s" % d)
@@ -878,8 +892,7 @@ class FLLBuilder:
 
 
     def _dpkgUnDivert(self, arch):
-        """Divert some facilities and replace temporaily with /bin/true (or
-        some other more appropiate facility."""
+        '''Undivert facilities diverted by self._dpkgAddDivert().'''
         chroot = os.path.join(self.temp, arch)
         for d in self.diverts:
             self.log.debug("undoing diversion: %s" % d)
@@ -889,7 +902,8 @@ class FLLBuilder:
 
 
     def _writeFile(self, arch, file):
-        '''Some file templates.'''
+        '''Write a file in a chroot. Templates for common files included
+        below.'''
         chroot = os.path.join(self.temp, arch)
         try:
             f = open(os.path.join(chroot, file.lstrip('/')), 'w')
@@ -995,7 +1009,7 @@ class FLLBuilder:
 
 
     def _preseedDebconf(self, arch):
-        '''Preseed debcong with values read from package lists.'''
+        '''Preseed debconf with values read from package lists.'''
         chroot = os.path.join(self.temp, arch)
 
         if 'debconf' in self.pkgs[arch] and self.pkgs[arch]['debconf']:
@@ -1125,7 +1139,7 @@ class FLLBuilder:
 
 
     def __getSourcePkg(self, pkg, depcache, records):
-        """ get the source package name of a given package """
+        '''Get the source package name of a given package.'''
         version = depcache.GetCandidateVer(pkg)
 
         if not version:
@@ -1224,15 +1238,24 @@ class FLLBuilder:
 
 
     def _postInst(self, arch):
-        '''Perform common post-installation tasks and/or fixups.'''
+        '''Run package module postinst scripts in a chroot.'''
         chroot = os.path.join(self.temp, arch)
 
         self.log.info('performing post-install tasks in %s chroot...' % arch)
 
-        postinst = os.path.join(self.opts.s, 'data', 'postinst')
-        shutil.copy(postinst, os.path.join(chroot, 'tmp'))
-        os.chmod(os.path.join(chroot, 'tmp'), 0700)
-        self._execInChroot(arch, '/bin/sh /tmp/postinst'.split())
+        for script in self.pkgs[arch]['postinst']:
+            sname = os.path.basename(script)
+            try:
+                shutil.copy(script, os.path.join(chroot, 'tmp'))
+                os.chmod(os.path.join(chroot, 'tmp', sname), 0755)
+            except:
+                self.log.exception('error preparing postinst script: %s' %
+                                   sname)
+                raise Error
+            else:
+                cmd = '/tmp/%s postinst' % sname
+                self._execInChroot(arch, cmd.split())
+                os.unlink(os.path.join(chroot, 'tmp', sname))
 
 
     def _rebuildInitRamfs(self, arch):
@@ -1297,7 +1320,7 @@ class FLLBuilder:
                         if file.startswith(initd):
                             self.log.debug('blacklisting: %s (%s)' %
                                            (file, line.rstrip()))
-                            blacklist.add([file])
+                            blacklist.add(file)
                     self._umount(chroot)
 
         whitelist = set()
@@ -1490,7 +1513,7 @@ class FLLBuilder:
                 raise Error
 
 
-    def writeMenuList(self):
+    def writeMenuLst(self):
         '''Write final menu.lst for live media.'''
         self.log.debug('writing grub menu.lst for live media')
         stage_dir = os.path.join(self.temp, 'staging')
@@ -1511,6 +1534,11 @@ class FLLBuilder:
                               'menu.lst')
             raise Error
 
+        if self.conf['options'].get('boot_cmdline'):
+            boot = self.conf['options']['boot_cmdline']
+        else:
+            boot = 'quiet vga=791'
+        
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         for k in kvers:
             cpu = k[k.rfind('-') + 1:]
@@ -1524,7 +1552,7 @@ class FLLBuilder:
 
             menulst.write('\n')
             menulst.write('title  %s %s\n' % (distro, cpu))
-            menulst.write('kernel /boot/%s boot=fll quiet vga=791\n' % vmlinuz)
+            menulst.write('kernel /boot/%s boot=fll %s\n' % (vmlinuz, boot))
             menulst.write('initrd /boot/%s\n' % initrd)
             menulst.write('\n')
             menulst.write('title  %s %s Advanced Menu\n' % (distro, cpu))
@@ -1624,8 +1652,7 @@ class FLLBuilder:
 
         cached = {}
         for r in self.conf['repos']:
-            if 'cached' in self.conf['repos'][r] and \
-               self.conf['repos'][r]['cached']:
+            if self.conf['repos'][r].get('cached'):
                 cached_uri = self.conf['repos'][r]['cached']
                 uri = self.conf['repos'][r]['uri']
                 cached[cached_uri.rstrip('/')] = uri.rstrip('/')
@@ -1730,7 +1757,7 @@ class FLLBuilder:
             sys.exit(0)
 
         self.buildChroots()
-        self.writeMenuList()
+        self.writeMenuLst()
         self.writeMd5Sums()
         self.genLiveMedia()
 

@@ -1,0 +1,21 @@
+#!/bin/sh -e
+
+do_postinst() {
+	# Disable bitmap fonts, they are fugly
+	ln -sf /etc/fonts/conf.avail/70-no-bitmaps.conf \
+		/etc/fonts/conf.d/70-no-bitmaps.conf
+
+	# Update menu system, fluxbox _needs_ this
+	/usr/bin/update-menus
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
