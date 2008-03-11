@@ -1520,9 +1520,14 @@ class FLLBuilder:
         boot_dir = os.path.join(stage_dir, 'boot')
         grub_dir = os.path.join(boot_dir, 'grub')
 
+        if self.conf['options'].get('boot_timeout'):
+            timeout = self.conf['options']['boot_timeout']
+        else:
+            timeout = '30'
+
         menulst = open(os.path.join(grub_dir, 'menu.lst'), 'w')
         menulst.write('default 0\n')
-        menulst.write('timeout 30\n')
+        menulst.write('timeout %d\n' % int(timeout))
         menulst.write('color red/black light-red/black\n')
         menulst.write('foreground EE0000\n')
         menulst.write('background 400000\n')
