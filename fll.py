@@ -287,6 +287,9 @@ class FLLBuilder:
 
         self.stamp_safe = '-'.join(self.stamp_safe.split())
 
+        self.log.debug('stamp: %s' % self.stamp)
+        self.log.debug('stamp_safe: %s' % self.stamp_safe)
+
 
     def _processConf(self):
         '''Process configuration options.'''
