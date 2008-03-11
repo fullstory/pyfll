@@ -1429,7 +1429,8 @@ class FLLBuilder:
                 self.log.exception('failed to open /etc/default/fll-init')
                 raise Error
         finally:
-            fllinit.close()
+            if fllinit:
+                fllinit.close()
 
 
     def _zerologs(self, arch, dir, fnames):
