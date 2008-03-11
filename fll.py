@@ -990,9 +990,6 @@ class FLLBuilder:
         self._writeFile(arch, '/etc/resolv.conf')
 
         self.log.debug('writing final apt sources.list(s)')
-        slist = os.path.join(chroot, 'etc/apt/sources.list')
-        slist_new = os.path.join(self.opts.s, 'data/sources.list')
-        shutil.copy(slist_new, os.path.dirname(slist))
         self._writeAptLists(arch)
 
         self.log.debug('add grub hooks to /etc/kernel-img.conf')
@@ -1543,7 +1540,7 @@ class FLLBuilder:
             boot = self.conf['options']['boot_cmdline']
         else:
             boot = 'quiet vga=791'
-        
+
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         for k in kvers:
             cpu = k[k.rfind('-') + 1:]
