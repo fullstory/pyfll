@@ -10,6 +10,5 @@ repos = """
 packages = """
 	acct
 	bootchart
-	bootchart-view
 """
 
