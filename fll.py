@@ -935,7 +935,7 @@ class FLLBuilder:
         '''Write a file in a chroot. Templates for common files included
         below.'''
         chroot = os.path.join(self.temp, arch)
-        
+
         f = None
         try:
             try:
@@ -1012,7 +1012,7 @@ class FLLBuilder:
                          self.conf['distro']['FLL_DISTRO_NAME'].lower()
         distro_version = os.path.join(chroot, 'etc', distro_version)
         timestamp = time.strftime('%Y%m%d%H%M', time.gmtime())
-        
+
         self.log.debug('stamping distro version: %s' % distro_version)
         f = None
         try:
@@ -1652,7 +1652,7 @@ class FLLBuilder:
         except:
             self.log.exception('error calculating md5sum of %s' % file)
             raise Error
-        
+
         md5sum = pout.split()[0]
         if md5sum:
             self.log.debug(md5sum)
@@ -1711,7 +1711,7 @@ class FLLBuilder:
             manifest_name = '%s.%s.manifest' % (file, arch)
 
             manifest_file = os.path.join(self.opts.o, manifest_name)
-            
+
             manifest = None
             try:
                 try:
