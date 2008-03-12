@@ -1829,6 +1829,7 @@ class FLLBuilder:
         self.log.info('generating iso image of live media...')
         self._execCmd(cmd.split())
         os.chown(iso_file, self.opts.u, self.opts.g)
+        self.log.info('iso generated in %s ...' % iso_file)
 
         self.log.info('calculating md5sum of live media iso image...')
         md5 = None
