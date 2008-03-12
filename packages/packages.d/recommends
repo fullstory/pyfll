@@ -10,6 +10,7 @@ repos = """
 
 packages = """
 	bash
+	install-gui
 	kontact
 	siduxcc
 """
