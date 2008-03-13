@@ -49,7 +49,7 @@ class FLLBuilder:
         '''Return a list containing no duplicate items given a list that
         may have duplicate items.'''
 
-        d = {}
+        d = dict()
         for l in list:
             if l in d and dup_warn:
                 self.log.debug('duplicate: %s' % l)
@@ -341,7 +341,7 @@ class FLLBuilder:
         self.log.debug('i18n: %s' % ' '.join(i18n))
 
         if not 'options' in self.conf:
-            self.conf['options'] = {}
+            self.conf['options'] = dict()
 
         if self.conf['options'].get('build_dir'):
             if not self.opts.b:
@@ -540,7 +540,7 @@ class FLLBuilder:
             self.log.critical('no such package profile file: %s' % file)
             raise Error
 
-        self.pkgs = {}
+        self.pkgs = dict()
         for arch in self.conf['archs'].keys():
             self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
 
@@ -1106,7 +1106,7 @@ class FLLBuilder:
         self.log.debug('i18n_module:')
         self.log.debug(i18n_module)
 
-        i18n_dict = {}
+        i18n_dict = dict()
         for i in i18n:
             i = i.lower().replace('_', '-')
             i18n_dict[i] = True
@@ -1233,7 +1233,7 @@ class FLLBuilder:
 
         packages = manifest.keys()
         packages.sort()
-        srcpkg_seen = {}
+        srcpkg_seen = dict()
         uris = []
         for p in packages:
             for k in self._detectLinuxVersion(chroot):
