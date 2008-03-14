@@ -17,6 +17,7 @@ packages = """
 	foomatic-db-hpijs
 	foomatic-filters
 	foomatic-filters-ppds
+	ghostscript-x
 	hpijs-ppds
 	hplip
 	openprinting-ppds
