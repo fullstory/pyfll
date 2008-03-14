@@ -4,9 +4,12 @@ dev/.*
 etc/.*lock
 etc/*-
 etc/adjtime
-etc/localtime
-etc/timezone
 etc/apt/*~
+etc/localtime
+etc/lvm/archive
+etc/lvm/backup
+etc/lvm/cache
+etc/timezone
 etc/ssh/ssh_host_*key*
 etc/udev/rules.d/z25_persistent-*.rules
 etc/X11/xorg.conf
