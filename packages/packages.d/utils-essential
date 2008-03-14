@@ -21,6 +21,7 @@ packages = """
 	lilo
 	logrotate
 	netbase
+	resolvconf
 	rsync
 	sudo
 	wget
