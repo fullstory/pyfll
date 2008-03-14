@@ -1031,7 +1031,9 @@ class FLLBuilder:
         self._writeFile(arch, '/etc/default/distro')
         self._writeFile(arch, '/etc/hosts')
         self._writeFile(arch, '/etc/motd.tail')
-        self._writeFile(arch, '/etc/resolv.conf')
+
+        if os.path.isfile(chroot, 'etc/resolv.conf'):
+            self._writeFile(arch, '/etc/resolv.conf')
 
         self.log.debug('writing final apt sources.list(s)')
         self._writeAptLists(arch)
