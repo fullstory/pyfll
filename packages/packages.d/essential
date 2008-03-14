@@ -17,7 +17,6 @@ packages = """
 	adduser
 	fll-live-initramfs
 	fll-live-initscripts
-	genisoimage
 	grub-gfxboot
 	locales
 	squashfs-tools

@@ -12,7 +12,6 @@ packages = """
 	dmidecode
 	dmsetup
 	hwinfo
-	laptop-detect
 	libsmbios-bin
 	lirc
 	vbetool

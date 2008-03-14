@@ -45,4 +45,3 @@ packages = """
 	zip
 """
 
-#	resolvconf	# clobbers host when installed in chroot

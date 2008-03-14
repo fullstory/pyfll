@@ -7,7 +7,6 @@ repos = """
 """
 
 packages = """
-	adduser
 	anacron
 	bzip2
 	console-data
