@@ -87,7 +87,7 @@ class FLLBuilder:
                 self.log.exception('failed to create dir: %s' % dir)
                 raise Error
 
-        return os.path.abspath(dir)
+        return os.path.realpath(dir)
 
 
     def __initLogger(self, lvl):
@@ -101,7 +101,7 @@ class FLLBuilder:
 
     def __initLogFile(self, file):
         '''Set up a log file.'''
-        file = os.path.abspath(file)
+        file = os.path.realpath(file)
         dir = os.path.dirname(file)
         self.__prepDir(dir)
 
@@ -130,7 +130,7 @@ class FLLBuilder:
 
         if self.opts.c:
             if os.path.isfile(self.opts.c):
-                self.opts.c = os.path.abspath(self.opts.c)
+                self.opts.c = os.path.realpath(self.opts.c)
             else:
                 self.log.critical('configuration file does not exist: %s' %
                                   self.opts.c)
@@ -145,7 +145,7 @@ class FLLBuilder:
                                   self.opts.s)
                 raise Error
 
-        self.opts.s = os.path.abspath(self.opts.s)
+        self.opts.s = os.path.realpath(self.opts.s)
 
         if self.opts.o:
             self.opts.o = self.__prepDir(self.opts.o)
