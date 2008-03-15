@@ -1,0 +1,105 @@
+desc = """
+"""
+
+repos = """
+"""
+
+deps = """
+	cli
+	distro-seminarix
+	distro-kde
+	distro-tools
+	distro-tools-x
+	hwsupport-essential
+	hwsupport-extra
+	hwsupport-printscan
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+	gfxboot-theme-sidux-2007-04-eros-de
+	ark
+	gtk2-engines-qtcurve
+	gwenview
+	k3b
+	kaffeine
+	kde-core
+	kdm
+	kmix
+	knemo
+	konversation
+	kpdf
+	kpowersave
+	kppp
+	ksnapshot
+	siduxcc
+	seminarix-handbook
+	iceweasel
+	sidux-edu
+	audacity
+	inkscape
+	karbon
+	kchart
+	keduca
+	kexi
+	kformula
+	kimagemapeditor
+	kivio
+	koffice-i18n-de
+	koshell
+	kplato
+	kpresenter
+	kspread
+	krusader
+	ksociograma
+	kword
+	quanta
+	scribus
+	vym
+	chemtool
+	gperiodic
+	kalzium
+	katomic
+	kgeography
+	sunclock
+	kturtle
+	dia
+	digikam
+	kino
+	kolourpaint
+	krita
+	stopmotion
+	tuxpaint
+	childsplay
+	childsplay-alphabet-sounds-de
+	childsplay-plugins
+	ktuberling
+	ktouch
+	tuxmath
+	gnuplot
+	kbruch
+	kig
+	kmplot
+	kpercentage
+	wxmaxima
+	hydrogen
+	juk
+	kstars
+	bibletime
+	bibletime-i18n
+	itools
+	hebcal
+	hdate-applet
+	minbar
+	hanzim
+	kdict
+	klatin
+	kvoctrain
+	kwordquiz
+	klogic
+	ksimus
+"""
+
