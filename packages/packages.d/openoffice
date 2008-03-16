@@ -12,6 +12,7 @@ packages = """
 	openoffice.org-draw
 	openoffice.org-impress
 	openoffice.org-math
+	openoffice.org-thesaurus-en-us
 	openoffice.org-writer
 """
 

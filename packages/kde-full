@@ -16,7 +16,7 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
-	openoffice-lite
+	openoffice
 	utils-essential
 	utils-extra
 	utils-x
@@ -106,7 +106,6 @@ packages = """
 	myspell-en-us
 	nano
 	openoffice.org-kde
-	openoffice.org-thesaurus-en-us
 	pdfedit
 	rdiff-backup
 	siduxcc
