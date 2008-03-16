@@ -1,0 +1,11 @@
+desc = """
+"""
+
+repos = """
+"""
+
+packages = """
+	dmraid
+	mdadm
+"""
+

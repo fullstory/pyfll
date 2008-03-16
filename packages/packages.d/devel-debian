@@ -1,0 +1,16 @@
+desc = """
+"""
+
+repos = """
+"""
+
+packages = """
+	cdbs
+	debhelper
+	debconf-utils
+	devscripts
+	fakeroot
+	pbuilder
+	lintian
+"""
+

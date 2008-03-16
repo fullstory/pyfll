@@ -1,0 +1,25 @@
+desc = """
+"""
+
+repos = """
+"""
+
+packages = """
+	wine
+	wine-utils
+	libwine
+	libwine-alsa
+	libwine-capi
+	libwine-cms
+	libwine-dev
+	libwine-esd
+	libwine-gl
+	libwine-gphoto2
+	libwine-jack
+	libwine-ldap
+	libwine-nas
+	libwine-print
+	libwine-sane
+	xwine
+"""
+

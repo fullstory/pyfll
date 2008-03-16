@@ -1,4 +1,6 @@
 desc = """
+	Full KDE Environment, with a plethora of free software, showcasing
+	what is avilable in Debian.
 """
 
 repos = """
@@ -7,27 +9,16 @@ repos = """
 deps = """
 	cli
 	data-rescue
-	devel-basic
 	devel-debian
-	devel-eclipse-environment
-	devel-mono
-	devel-qt3
-	devel-qt4
-	devel-web
 	distro
 	distro-kde
 	distro-tools
 	distro-tools-x
 	distro-xfce
-	gimp-basic
-	gimp-heavy
-	gkrellm-meta
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
-	lang-extra-ja
-	openoffice-meta
-	pidgin-meta
+	openoffice
 	tex-latex
 	utils-essential
 	utils-extra
@@ -64,6 +55,7 @@ packages = """
 	chkrootkit
 	clamav
 	clamav-freshclam
+	classpath-doc
 	claws-mail
 	claws-mail-extra-plugins
 	conky
@@ -82,6 +74,8 @@ packages = """
 	d3lphin
 	dvdauthor
 	easytag
+	eclipse
+	eclipse-platform-gcj
 	ekiga
 	elinks
 	emacs
@@ -158,7 +152,6 @@ packages = """
 	kdepim
 	kdeprint
 	kdesdk
-	kdeservicemenus-sidux
 	kdesktop
 	kde-style-klearlook
 	kde-style-lipstik
@@ -226,6 +219,9 @@ packages = """
 	metacam
 	meterbridge
 	mhwaveedit
+	mono-gmcs
+	mono-smcs
+	mono-xbuild
 	mousepad
 	moto4lin
 	mozilla-plugin-vlc
@@ -245,6 +241,14 @@ packages = """
 	pdfedit
 	photon
 	photoprint
+	pidgin
+	pidgin-encryption
+	pidgin-extprefs
+	pidgin-guifications
+	pidgin-hotkeys
+	pidgin-libnotify
+	pidgin-librvp
+	pidgin-plugin-pack
 	pixelize
 	postfix
 	postfix-ldap
@@ -252,6 +256,10 @@ packages = """
 	praat
 	qcad
 	qemu
+	qt3-designer
+	qt3-dev-tools
+	qt4-designer
+	qt4-dev-tools
 	qtemu
 	quodlibet
 	rdiff-backup
@@ -265,11 +273,6 @@ packages = """
 	screenkast
 	scribus-ng
 	sendemail
-	siduxcc
-	sidux-kernelhacking
-	sidux-manual
-	sidux-vdr
-	sidux-vdr-server-extra
 	smartmontools
 	spamassassin
 	squashfs-tools

@@ -1,0 +1,10 @@
+desc = """
+"""
+
+repos = """
+	texlive-latex-base
+	texlive-latex-recommended
+	texmaker
+	vim-latexsuite
+"""
+

@@ -1,0 +1,15 @@
+desc = """
+"""
+
+repos = """
+"""
+
+packages = """
+	dar
+	ddrescue
+	hexedit
+	magicrescue
+	mindi
+	mondo
+"""
+
