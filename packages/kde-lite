@@ -15,7 +15,7 @@ deps = """
 	distro-tools-x
 	hwsupport-essential
 	hwsupport-extra
-#	hwsupport-printscan
+	hwsupport-printscan
 	utils-essential
 	utils-extra
 	utils-x
