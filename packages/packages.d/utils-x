@@ -8,7 +8,7 @@ repos = """
 
 packages = """
 	gparted
-	hplip-gui
+#	hplip-gui
 	libxine1-xvdr
 	tvtime
 	xsane
