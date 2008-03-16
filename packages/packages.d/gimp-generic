@@ -1,0 +1,16 @@
+desc = """
+	Packages needed for gimp
+"""
+
+repos = """
+	debian
+"""
+
+packages = """
+	gimp
+	gimp-plugin-registry
+	gimp-data-extras
+	gimp-texturize
+	gimp-ufraw
+"""
+
