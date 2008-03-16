@@ -1,7 +1,10 @@
 desc = """
+	Kde based sidux-edu project.
 """
 
 repos = """
+	debian
+	sidux
 """
 
 deps = """
