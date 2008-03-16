@@ -66,7 +66,7 @@ class FLLBuilder:
         '''Return a list of stripped strings given a group of line
         separated strings'''
         return [s.strip() for s in lines.splitlines()
-                if s and not s.lstrip().startswith('#')]
+                if s.strip() and not s.lstrip().startswith('#')]
 
 
     def __isexecutable(self, file):
