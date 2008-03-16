@@ -1,0 +1,17 @@
+desc = """
+	Minimal system. Useful for debugging apt-cacher-ng.
+"""
+
+repos = """
+	sidux
+"""
+
+deps = """
+	distro
+	hwsupport-essential
+	utils-essential
+"""
+
+packages = """
+"""
+
