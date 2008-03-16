@@ -1,16 +1,14 @@
 desc = """
+	Distro specific common packages (sidux-edu project).
 """
 
 repos = """
+	sidux
 """
 
 packages = """
 	apt-conf-sidux
-	desktop-defaults-common
-	fll-live-initscripts
 	gfxboot-theme-sidux
-	grub-gfxboot
-	irqbalance
 	sidux-keyrings
 	sidux-scripts
 	udev-config-sidux

@@ -1,7 +1,9 @@
 desc = """
+	Complete WINE (Windows API Implementation) suite.
 """
 
 repos = """
+	debian
 """
 
 packages = """

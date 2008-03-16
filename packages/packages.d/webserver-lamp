@@ -1,7 +1,9 @@
 desc = """
+	LAMP application suite.
 """
 
 repos = """
+	debian
 """
 
 packages = """

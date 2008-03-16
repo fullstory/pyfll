@@ -19,7 +19,6 @@ deps = """
 	hwsupport-extra
 	hwsupport-printscan
 	openoffice
-	tex-latex
 	utils-essential
 	utils-extra
 	utils-x
@@ -171,6 +170,7 @@ packages = """
 	kguitar
 	kid3-qt
 	kig
+	kile
 	kino
 	kio-apt
 	kiosktool
@@ -282,6 +282,9 @@ packages = """
 	subversion
 	subversion-tools
 	svn-buildpackage
+	texlive-latex-base
+	texlive-latex-recommended
+	texmaker
 	tipa
 	tipa-doc
 	transcriber
@@ -292,6 +295,7 @@ packages = """
 	vcdimager
 	vdr-gui
 	vim-full
+	vim-latexsuite
 	virtualbox-ose
 	vlc
 	vorbis-tools

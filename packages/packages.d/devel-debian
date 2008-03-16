@@ -1,7 +1,9 @@
 desc = """
+	Debian development utilities.
 """
 
 repos = """
+	debian
 """
 
 packages = """
