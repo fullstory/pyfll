@@ -2,10 +2,6 @@ desc = """
 	Packages needed for gimp
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	gimp
 	gimp-plugin-registry

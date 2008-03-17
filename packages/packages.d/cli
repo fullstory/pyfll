@@ -2,10 +2,6 @@ desc = """
 	Common command line utilities.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	elinks
 	gpm

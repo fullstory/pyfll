@@ -3,10 +3,6 @@ desc = """
 	absolutely required.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	alsa-utils
 	dmidecode

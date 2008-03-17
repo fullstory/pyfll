@@ -2,10 +2,6 @@ desc = """
 	Package that provide support for printing or scanning.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	cupsys
 	cupsys-client

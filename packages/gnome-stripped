@@ -2,10 +2,6 @@ desc = """
 	Minimal GNOME desktop environment.
 """
 
-repos = """
-	debian
-"""
-
 deps = """
 	cli
 	distro

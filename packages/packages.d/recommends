@@ -3,11 +3,6 @@ desc = """
 	function properly.
 """
 
-repos = """
-	debian
-	sidux
-"""
-
 packages = """
 	bash
 	install-gui

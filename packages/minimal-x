@@ -3,10 +3,6 @@ desc = """
 	configuration.
 """
 
-repos = """
-	sidux
-"""
-
 deps = """
 	distro
 	hwsupport-essential

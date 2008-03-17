@@ -2,10 +2,6 @@ desc = """
 	Distro specific KDE packages.
 """
 
-repos = """
-	sidux
-"""
-
 packages = """
 	desktop-defaults-kde
 	sidux-art-kde

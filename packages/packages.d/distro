@@ -2,10 +2,6 @@ desc = """
 	Distro specific common packages.
 """
 
-repos = """
-	sidux
-"""
-
 packages = """
 	apt-conf-sidux
 	gfxboot-theme-sidux

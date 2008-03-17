@@ -3,9 +3,6 @@ desc = """
 	what is avilable in Debian.
 """
 
-repos = """
-"""
-
 deps = """
 	cli
 	data-rescue

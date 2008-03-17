@@ -2,10 +2,6 @@ desc = """
 	LAMP application suite.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	apache2-mpm-prefork
 	libapache2-mod-php5

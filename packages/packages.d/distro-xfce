@@ -2,10 +2,6 @@ desc = """
 	Distro specific packages for an XFCE desktop.
 """
 
-repos = """
-	sidux
-"""
-
 packages = """
 	desktop-defaults-xfce
 	sidux-art-gnome

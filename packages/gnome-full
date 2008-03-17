@@ -2,10 +2,6 @@ desc = """
 	Complete GNOME desktop environment with OpenOffice.
 """
 
-repos = """
-	debian
-"""
-
 deps = """
 	cli
 	distro

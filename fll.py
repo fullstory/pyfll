@@ -409,13 +409,6 @@ class FLLBuilder:
             for l in self.__lines2list(pfile['desc']):
                 self.log.debug('  %s' % l)
 
-        if 'repos' in pfile:
-            for r in self.__lines2list(pfile['repos']):
-                if r not in self.conf['repos']:
-                    self.log.critical("'%s' repo is required " % r +
-                                      "by package module '%s'" % pname)
-                    raise Error
-
         if 'debconf' in pfile:
             self.log.debug('debconf:')
             for d in self.__lines2list(pfile['debconf']):
@@ -480,14 +473,6 @@ class FLLBuilder:
             if 'desc' in dfile:
                 for l in self.__lines2list(dfile['desc']):
                     self.log.debug('  %s' % l)
-
-            if 'repos' in dfile:
-                for repo in self.__lines2list(dfile['repos']):
-                    if repo not in self.conf['repos']:
-                        self.log.critical("'%s' repo is required " % r +
-                                          "by package module '%s'" %
-                                          os.path.basename(depfile))
-                        raise Error
 
             if 'debconf' in dfile:
                 self.log.debug('debconf:')

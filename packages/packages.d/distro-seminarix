@@ -2,10 +2,6 @@ desc = """
 	Packages for the sidux-edu project.
 """
 
-repos = """
-	sidux
-"""
-
 packages = """
 	gfxboot-theme-sidux-2007-04-eros-de
 	seminarix-handbook

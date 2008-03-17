@@ -2,10 +2,6 @@ desc = """
 	Misc. utilities that should always be installed.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	anacron
 	bzip2

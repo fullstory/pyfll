@@ -2,10 +2,6 @@ desc = """
 	Distro specific tools.
 """
 
-repos = """
-	sidux
-"""
-
 packages = """
 	capi-isdnconf
 	ceni

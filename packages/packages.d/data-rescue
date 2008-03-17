@@ -2,10 +2,6 @@ desc = """
 	A collection of tools for data rescue situations.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	dar
 	ddrescue

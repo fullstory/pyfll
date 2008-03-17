@@ -2,10 +2,6 @@ desc = """
 	Distro specific GNOME packages.
 """
 
-repos = """
-	sidux
-"""
-
 packages = """
 	desktop-defaults-gnome
 	gdm-themes-sidux

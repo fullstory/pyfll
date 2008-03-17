@@ -2,11 +2,6 @@ desc = """
 	A complete XFCE desktop environment.
 """
 
-repos = """
-	debian
-	sidux
-"""
-
 deps = """
 	cli
 	distro

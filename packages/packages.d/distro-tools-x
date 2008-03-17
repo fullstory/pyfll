@@ -2,10 +2,6 @@ desc = """
 	Distro specific packages with dependencies on X Window System.
 """
 
-repos = """
-	sidux
-"""
-
 packages = """
 	configure-cups
 	fix-fonts

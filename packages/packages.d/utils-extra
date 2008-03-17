@@ -2,10 +2,6 @@ desc = """
 	Utilities that are very useful, but not absolutely required.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	build-essential
 	cdebootstrap

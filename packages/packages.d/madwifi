@@ -4,10 +4,6 @@ desc = """
 	is built and includes madwifi, it may not be freely redistributed.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	madwifi-source
 	madwifi-tools

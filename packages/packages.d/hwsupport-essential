@@ -2,10 +2,6 @@ desc = """
 	Packages that provide some kind of support for very common harware.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	acpid
 	alsa-base

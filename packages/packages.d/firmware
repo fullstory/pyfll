@@ -5,11 +5,6 @@ desc = """
 	it may not be freely redistributed.
 """
 
-repos = """
-	debian
-	sidux
-"""
-
 debconf = """
 	b43-fwcutter b43-fwcutter/cut_firmware boolean true
 	ipw2100-firmware ipw2100-firmware/accepted-intel boolean true

@@ -2,10 +2,6 @@ desc = """
 	Complete WINE (Windows API Implementation) suite.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	wine
 	wine-utils

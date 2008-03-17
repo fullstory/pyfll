@@ -2,10 +2,6 @@ desc = """
 	Essential openoffice.org packages.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	openoffice.org-calc
 	openoffice.org-core

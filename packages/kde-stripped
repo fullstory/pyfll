@@ -2,11 +2,6 @@ desc = """
 	Minimal KDE desktop environment.
 """
 
-repos = """
-	debian
-	sidux
-"""
-
 deps = """
 	cli
 	distro

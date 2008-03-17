@@ -2,10 +2,6 @@ desc = """
 	X Server packages.
 """
 
-repos = """
-	debian
-"""
-
 debconf = """
 	fontconfig-config fontconfig/hinting_type select Native
 	fontconfig-config fontconfig/subpixel_rendering select Automatic

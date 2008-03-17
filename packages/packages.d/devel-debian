@@ -2,10 +2,6 @@ desc = """
 	Debian development utilities.
 """
 
-repos = """
-	debian
-"""
-
 packages = """
 	cdbs
 	debhelper
