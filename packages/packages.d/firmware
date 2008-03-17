@@ -19,6 +19,7 @@ packages = """
 	firmware-ralink
 	ipw2100-firmware
 	ipw2200-firmware
+	libertas-firmware
 	zd1211-firmware
 """
 
