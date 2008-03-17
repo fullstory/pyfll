@@ -76,7 +76,6 @@ packages = """
 	eclipse
 	eclipse-platform-gcj
 	ekiga
-	elinks
 	emacs
 	enigmail
 	epiphany
@@ -124,7 +123,6 @@ packages = """
 	idjc
 	imagemagick
 	inkscape
-	iproute
 	irssi
 	istanbul
 	jackd
@@ -269,13 +267,10 @@ packages = """
 	ruby-full
 	samba
 	scite
-	screen
-	screenkast
 	scribus-ng
 	sendemail
 	smartmontools
 	spamassassin
-	squashfs-tools
 	squid
 	streamripper
 	streamtuner
@@ -291,7 +286,6 @@ packages = """
 	tuxpaint
 	ufraw
 	unison
-	unp
 	vcdimager
 	vdr-gui
 	vim-full
