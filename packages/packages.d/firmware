@@ -1,0 +1,28 @@
+desc = """
+	Collection of non-free firmware and/or drivers. The non-free section
+	of the debian and sidux repositories is required for installation of
+	these packages. If a live medium is built and includes these packages,
+	it may not be freely redistributed.
+"""
+
+repos = """
+	debian
+	sidux
+"""
+
+debconf = """
+	b43-fwcutter b43-fwcutter/cut_firmware boolean true
+	ipw2100-firmware ipw2100-firmware/accepted-intel boolean true
+	ipw2200-firmware ipw2200-firmware/accepted-intel boolean true
+"""
+
+packages = """
+	atmel-firmware
+	b43-fwcutter
+	firmware-iwlwifi
+	firmware-ralink
+	ipw2100-firmware
+	ipw2200-firmware
+	zd1211-firmware
+"""
+
