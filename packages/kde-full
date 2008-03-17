@@ -28,7 +28,6 @@ packages = """
 	amarok
 	ark
 	basket
-	debhelper
 	dnsutils
 	digikam
 	dnsutils
