@@ -1,0 +1,15 @@
+desc = """
+	The non-free madwifi driver. The non-free section of the debian
+	repository is required for installation of madwifi. If a live medium
+	is built and includes madwifi, it may not be freely redistributed.
+"""
+
+repos = """
+	debian
+"""
+
+packages = """
+	madwifi-source
+	madwifi-tools
+"""
+
