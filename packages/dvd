@@ -267,6 +267,7 @@ packages = """
 	ruby-full
 	samba
 	scite
+	screenkast
 	scribus-ng
 	sendemail
 	smartmontools
