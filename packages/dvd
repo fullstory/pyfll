@@ -23,7 +23,7 @@ deps = """
 	utils-extra
 	utils-x
 	webserver-lamp
-	wine-base
+	wine
 	xserver
 """
 
