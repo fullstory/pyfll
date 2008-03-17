@@ -74,6 +74,7 @@ packages = """
 	ding
 	djtools
 	dnsmasq
+	dnsutils
 	docbook2x
 	d3lphin
 	dvdauthor
@@ -100,6 +101,14 @@ packages = """
 	geany
 	gettext
 	gftp
+	gkrellm
+	gkrellm-mailwatch
+	gkrellmoon
+	gkrellmitime
+	gkrellm-volume
+	gkrellm-hdplop
+	gkrellm-alltraxclock
+	glade
 	gnucash
 	gnumeric
 	gnusound
@@ -289,9 +298,13 @@ packages = """
 	texlive-latex-base
 	texlive-latex-recommended
 	texmaker
+	tidy
 	tipa
 	tipa-doc
+	traceroute
 	transcriber
+	ttf-kochi-gothic
+	ttf-mona
 	tuxpaint
 	ufraw
 	unison
