@@ -14,6 +14,7 @@ debconf = """
 packages = """
 	atmel-firmware
 	b43-fwcutter
+	bluez-firmware
 	firmware-iwlwifi
 	firmware-ralink
 	ipw2100-firmware
