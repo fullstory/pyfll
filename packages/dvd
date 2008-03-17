@@ -40,6 +40,8 @@ packages = """
 	audacious-plugins
 	audacious-plugins-extra
 	audacity
+	autoconf
+	automake
 	bazaar
 	bittorrent
 	bittorrent-gui
@@ -57,6 +59,7 @@ packages = """
 	classpath-doc
 	claws-mail
 	claws-mail-extra-plugins
+	cmake
 	conky
 	cvs
 	dcraw
@@ -65,6 +68,8 @@ packages = """
 	dia
 	dia2code
 	dict
+	diff
+	diffstat
 	dillo
 	ding
 	djtools
@@ -93,6 +98,7 @@ packages = """
 	fujiplay
 	flac
 	geany
+	gettext
 	gftp
 	gnucash
 	gnumeric
@@ -201,6 +207,7 @@ packages = """
 	kworldclock
 	lazarus
 	libqt-perl
+	libtool
 	licq
 	licq-plugin-kde
 	licq-plugin-qt
@@ -235,6 +242,7 @@ packages = """
 	openssh-server
 	original-awk
 	p7zip-full
+	patchutils
 	parted
 	pdfedit
 	photon
