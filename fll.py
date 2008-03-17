@@ -394,11 +394,11 @@ class FLLBuilder:
     def _processPkgProfile(self, arch, profile, dir):
         '''Return a dict, arch string as key and package, debconf and postinst
         lists.'''
-        pkgs = {'debconf': [], 'list': [], 'postinst': []}
+        pkgs = {'debconf': [], 'packages': [], 'postinst': []}
 
         linux_meta = ['linux-image', 'linux-headers']
         kvers = self.conf['archs'][arch]['linux']
-        pkgs['list'].extend(['-'.join([l, kvers]) for l in linux_meta])
+        pkgs['packages'].extend(['-'.join([l, kvers]) for l in linux_meta])
 
         pname = os.path.basename(profile)
         self.log.debug('processing package profile for %s: %s' % (arch, pname))
@@ -431,19 +431,19 @@ class FLLBuilder:
         if 'packages' in pfile:
             self.log.debug('packages:')
             for p in self.__lines2list(pfile['packages']):
-                pkgs['list'].append(p)
+                pkgs['packages'].append(p)
                 self.log.debug('  %s' % p)
 
         if 'packages' in self.conf['packages']:
             self.log.debug('packages (config):')
             for p in self.__lines2list(self.conf['packages']['packages']):
-                pkgs['list'].append(p)
+                pkgs['packages'].append(p)
                 self.log.debug('  %s' % p)
 
         if arch in pfile:
             self.log.debug('packages (%s):' % arch)
             for p in self.__lines2list(pfile[arch]):
-                pkgs['list'].append(p)
+                pkgs['packages'].append(p)
                 self.log.debug('  %s' % p)
 
         deps = ['essential']
@@ -498,13 +498,13 @@ class FLLBuilder:
             if 'packages' in dfile:
                 self.log.debug('packages:')
                 for p in self.__lines2list(dfile['packages']):
-                    pkgs['list'].append(p)
+                    pkgs['packages'].append(p)
                     self.log.debug('  %s' % p)
 
             if arch in dfile:
                 self.log.debug('packages (%s):' % arch)
                 for p in self.__lines2list(dfile[arch]):
-                    pkgs['list'].append(p)
+                    pkgs['packages'].append(p)
                     self.log.debug('  %s' % p)
 
             if os.path.isfile(depfile + '.postinst'):
@@ -514,8 +514,8 @@ class FLLBuilder:
             self.log.debug('---')
 
         self.log.debug('package summary for %s:' % arch)
-        pkgs['list'].sort()
-        for p in pkgs['list']:
+        pkgs['packages'].sort()
+        for p in pkgs['packages']:
             self.log.debug('  %s' % p)
 
         self.log.debug('debconf summary for %s:' % arch)
@@ -523,7 +523,7 @@ class FLLBuilder:
         for d in pkgs['debconf']:
             self.log.debug('  %s' % d)
 
-        pkgs['list'] = self.__filterList(pkgs['list'])
+        pkgs['packages'] = self.__filterList(pkgs['packages'])
 
         return pkgs
 
@@ -1004,6 +1004,11 @@ class FLLBuilder:
         self._writeFile(arch, '/etc/network/interfaces')
 
 
+    def _distroDefaultEtc(self, arch):
+        '''Write the /etc/default/distro file.'''
+        self._writeFile(arch, '/etc/default/distro')
+
+
     def _finalEtc(self, arch):
         '''Final editing of conffiles in chroot.'''
         chroot = os.path.join(self.temp, arch)
@@ -1028,7 +1033,6 @@ class FLLBuilder:
                 f.close()
                 os.chmod(distro_version, 0444)
 
-        self._writeFile(arch, '/etc/default/distro')
         self._writeFile(arch, '/etc/hosts')
         self._writeFile(arch, '/etc/motd.tail')
 
@@ -1222,7 +1226,8 @@ class FLLBuilder:
         depcache.Init()
 
         manifest = dict([(p.Name, p.CurrentVer.VerStr)
-                         for p in cache.Packages if p.CurrentVer])
+                         for p in cache.Packages if p.CurrentVer
+                         and not p.Name.startswith('cdebootstrap-helper')])
         self.pkgs[arch]['manifest'] = manifest
 
         if self.opts.B:
@@ -1280,7 +1285,7 @@ class FLLBuilder:
         '''Install packages.'''
         cache = apt_pkg.GetCache()
 
-        pkgs_want = self.pkgs[arch]['list']
+        pkgs_want = self.pkgs[arch]['packages']
         pkgs_base = [p.Name for p in cache.Packages if p.CurrentVer]
         pkgs_dict = dict([(p, True) for p in pkgs_base + pkgs_want])
 
@@ -1290,7 +1295,6 @@ class FLLBuilder:
 
         self.log.info('installing packages in %s chroot...' % arch)
         self._aptGetInstall(arch, self.__filterList(pkgs_want))
-        self._collectManifest(arch)
 
 
     def _postInst(self, arch):
@@ -1864,10 +1868,12 @@ class FLLBuilder:
             self._dpkgAddDivert(arch)
             self._installPkgs(arch)
             self._dpkgUnDivert(arch)
-            self._finalEtc(arch)
-            self._initBlackList(arch)
-            self._rebuildInitRamfs(arch)
+            self._distroDefaultEtc(arch)
             self._postInst(arch)
+            self._rebuildInitRamfs(arch)
+            self._collectManifest(arch)
+            self._initBlackList(arch)
+            self._finalEtc(arch)
             self._cleanChroot(arch)
             self._chrootSquashfs(arch)
             self._stageArch(arch)
