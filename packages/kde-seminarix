@@ -9,8 +9,9 @@ repos = """
 
 deps = """
 	cli
-	distro-seminarix
+	distro
 	distro-kde
+	distro-seminarix
 	distro-tools
 	distro-tools-x
 	hwsupport-essential
@@ -23,7 +24,6 @@ deps = """
 """
 
 packages = """
-	gfxboot-theme-sidux-2007-04-eros-de
 	ark
 	gtk2-engines-qtcurve
 	gwenview
@@ -39,7 +39,6 @@ packages = """
 	kppp
 	ksnapshot
 	siduxcc
-	seminarix-handbook
 	iceweasel
 	sidux-edu
 	audacity

@@ -1,5 +1,5 @@
 desc = """
-	Distro specific common packages (sidux-edu project).
+	Packages for the sidux-edu project.
 """
 
 repos = """
@@ -7,11 +7,8 @@ repos = """
 """
 
 packages = """
-	apt-conf-sidux
-	gfxboot-theme-sidux
-	sidux-keyrings
-	sidux-scripts
-	udev-config-sidux
+	gfxboot-theme-sidux-2007-04-eros-de
+	seminarix-handbook
 	sidux-art-wallpaper-nyx-edu
 """
 
