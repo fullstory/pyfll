@@ -9,7 +9,6 @@ etc/localtime
 etc/lvm/archive
 etc/lvm/backup
 etc/lvm/cache
-etc/resolv.conf
 etc/timezone
 etc/ssh/ssh_host_*key*
 etc/udev/rules.d/z25_persistent-*.rules

@@ -1024,6 +1024,10 @@ class FLLBuilder:
         self.log.debug('writing final apt sources.list(s)')
         self._writeAptLists(arch)
 
+        if os.path.isfile(os.path.join(chroot, 'etc/resolv.conf')) and \
+           not os.path.islink(os.path.join(chroot, 'etc/resolv.conf')):
+            self._writeFile(arch, '/etc/resolv.conf')
+
         self.log.debug('add grub hooks to /etc/kernel-img.conf')
         f = None
         try:
