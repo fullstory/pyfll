@@ -9,9 +9,12 @@ do_postinst() {
 	ln -sf /etc/fonts/conf.avail/70-no-bitmaps.conf \
 		/etc/fonts/conf.d/70-no-bitmaps.conf
 
-	say 'Invoking update-menus'
-	flock --exclusive --wait 30 /var/run/update-menus.pid \
-	      --command update-menus
+	say 'Invoking update-menus (with 30s flock wait)'
+	# Wait until an exclusive lock can be acquired, then release it to
+	# run a manual update-menus process
+	( flock --wait 30 --exclusive 200 ) 200>/var/run/update-menus.pid
+	rm -f /var/run/update-menus.pid
+	update-menus -v
 }
 
 case "${1}" in
