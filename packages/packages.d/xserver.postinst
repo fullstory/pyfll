@@ -7,7 +7,7 @@ do_postinst() {
 		/etc/fonts/conf.d/70-no-bitmaps.conf
 
 	# Update menu system, fluxbox _needs_ this
-	/usr/bin/update-menus
+	/usr/bin/update-menus -v
 }
 
 case "${1}" in
