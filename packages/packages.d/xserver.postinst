@@ -16,7 +16,7 @@ do_postinst() {
 		( flock --wait 30 --exclusive 200 ) 200>/var/run/update-menus.pid
 	fi
 	say 'Invoking update-menus'
-	update-menus -v
+	update-menus
 }
 
 case "${1}" in
