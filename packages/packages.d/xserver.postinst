@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
 do_postinst() {
+	set -x
 	# Disable bitmap fonts, they are fugly
 	ln -sf /etc/fonts/conf.avail/70-no-bitmaps.conf \
 		/etc/fonts/conf.d/70-no-bitmaps.conf
