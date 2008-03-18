@@ -1,8 +1,12 @@
 #!/bin/sh -e
 
+say() {
+	echo "I: $@..."
+}
+
 do_postinst() {
-	# Fix Debian kppp noauth defaults
 	if [ -w /etc/ppp/peers/kppp-options ]; then
+		say 'Allowing kppp noauth capability'
 		sed -i 's/^#noauth/noauth/' /etc/ppp/peers/kppp-options
 	fi
 }

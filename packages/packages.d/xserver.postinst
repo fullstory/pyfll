@@ -1,13 +1,17 @@
 #!/bin/sh -e
 
+say() {
+	echo "I: $@..."
+}
+
 do_postinst() {
-	set -x
-	# Disable bitmap fonts, they are fugly
+	say 'Disabling bitmap fonts'
 	ln -sf /etc/fonts/conf.avail/70-no-bitmaps.conf \
 		/etc/fonts/conf.d/70-no-bitmaps.conf
 
-	# Update menu system, fluxbox _needs_ this
-	/usr/bin/update-menus -v
+	say 'Invoking update-menus'
+	flock --exclusive --wait 30 /var/run/update-menus.pid \
+	      --command update-menus
 }
 
 case "${1}" in

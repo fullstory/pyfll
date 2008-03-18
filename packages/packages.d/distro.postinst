@@ -1,22 +1,25 @@
 #!/bin/sh -e
 
+say() {
+	echo "I: $@..."
+}
+
 do_postinst() {
-	# Run distro-defaults postinst again, to ensure our defaults
-	# are in place after instalation of _all_ packages
+	say 'Reconfiguring distro-defaults'
 	dpkg-reconfigure distro-defaults
 
-	# Substitute in our live /etc/inittab
+	say 'Hacking /etc/inittab for passwdless login'
 	sed -e 's#^id:[0-6]:initdefault:#id:5:initdefault:#' \
 	    -e 's#:/sbin/getty#:/sbin/getty -n -i -l /usr/bin/fll_login#' \
 	    -e 's#^\([0-6]\):23:#\1:2345:#' \
 		/usr/share/sysvinit/inittab > /etc/inittab
 	
-	# Lock the root account
+	say 'Locking root account'
 	sed -i 's#^root:[^:]*:#root:\*:#' /etc/shadow
-
-	# Prepare defaults for users of this system
-	sed -i 's/^DIR_MODE=.*/DIR_MODE=0751/' /etc/adduser.conf
 	chmod 0751 /root
+
+	say 'Preseeding /etc/adduser.conf'
+	sed -i 's/^DIR_MODE=.*/DIR_MODE=0751/' /etc/adduser.conf
 
 	. /etc/default/distro
 	
