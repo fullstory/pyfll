@@ -1446,7 +1446,7 @@ class FLLBuilder(object):
         self.log.info('staging live %s media...' % arch)
         chroot = os.path.join(self.temp, arch)
 
-        image_file = .os.path.join(chroot, self._getDistroImageFile(arch))
+        image_file = os.path.join(chroot, self._getDistroImageFile(arch))
         image_dir = os.path.join(self.temp, 'staging',
                                  self.conf['distro']['FLL_IMAGE_DIR'])
         try:
