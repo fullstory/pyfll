@@ -25,24 +25,23 @@ class Error(Exception):
     pass
 
 
-class FLLBuilder:
-    conf = None
-    opts = None
-    pkgs = None
-    temp = None
-
-    stamp = None
-    stamp_safe = None
-
-    log = logging.getLogger('log')
-    log.setLevel(logging.DEBUG)
-
+class FLLBuilder(object):
     env = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
            'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'SHELL': '/bin/bash',
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes'}
 
     diverts = ['/sbin/modprobe', '/usr/sbin/update-initramfs']
+
+
+    def __init__(self, options):
+        '''Accept options dict, setup logging.'''
+        self.opts = options
+        self.conf = None
+        self.temp = None
+
+        self.log = logging.getLogger('log')
+        self.log.setLevel(logging.DEBUG)
 
 
     def __filterList(self, list, dup_warn = True):
@@ -118,8 +117,8 @@ class FLLBuilder:
             raise Error
 
 
-    def _processOpts(self):
-        '''Process options.'''
+    def checkOpts(self):
+        '''Check and provide default class options.'''
         if self.opts.d:
             self.__initLogger(logging.DEBUG)
         else:
@@ -154,80 +153,6 @@ class FLLBuilder:
             self.opts.b = self.__prepDir(self.opts.b)
 
 
-    def parseOpts(self):
-        '''Parse command line arguments.'''
-        p = OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
-                         '-o <directory> -s <directory> -l <file>] [-Bdgpquv]')
-
-        p.add_option('-b', '--build', dest = 'b', action = 'store',
-                     type = 'string', metavar = '<directory>',
-                     help = 'Build directory. A large amount of free space ' +
-                     'is required.')
-
-        p.add_option('-B', '--binary', dest = 'B', action = 'store_true',
-                     help = 'Do binary build only. Disable generation of ' +
-                     'URI lists. Default: %default')
-
-        p.add_option('-c', '--config', dest = 'c', action = 'store',
-                     type = 'string', metavar = '<config file>',
-                     help = 'Configuration file. This option may be used ' +
-                     'more than once to process multiple configurations. ' +
-                     'A configuration file must be specified.')
-
-        p.add_option('-d', '--debug', dest = 'd', action = 'store_true',
-                     help = 'Enable debug mode. Extra output will be ' +
-                     'to assist in development. Default: %default')
-
-        p.add_option('-g', '--gid', dest = 'g', action = 'store',
-                     type = 'int', metavar = '<group id>',
-                     help = 'Group ID of user doing the build. This ' +
-                     'should not normally be required, the wrapper script ' +
-                     'will take care of this for you.')
-
-        p.add_option('-l', '--log', dest = 'l', action = 'store',
-                     type = 'string', metavar = '<file>',
-                     help = 'Log debug output to file. Note that when ' +
-                     'logging is enabled, output to the console is buffered.')
-
-        p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
-                     help = 'Start as noon root user (for debugging).')
-
-        p.add_option('-o', '--output', dest = 'o', action = 'store',
-                     type = 'string', metavar = '<directory>',
-                     help = 'Output directory, where the product of this ' +
-                     'program will be generated.')
-
-        p.add_option('-p', '--preserve', dest = 'p', action = 'store_true',
-                     help = 'Preserve build directory. Disable automatic ' +
-                     'cleanup of the build area at exit.')
-
-        p.add_option('-q', '--quiet', dest = 'q', action = 'store_true',
-                     help = 'Enable quiet mode. Only high priority messages ' +
-                     'will be generated.')
-
-        p.add_option('-s', '--share', dest = 's', action = 'store',
-                     type = 'string', metavar = '<directory>',
-                     help = 'Share directory directory containing data ' +
-                     'required for the program to function.')
-
-        p.add_option('-u', '--uid', dest = 'u', action = 'store',
-                     type = 'int', metavar = '<user id>',
-                     help = 'User ID of user doing the build. This ' +
-                     'should not normally be required, the wrapper script ' +
-                     'will take care of this for you.')
-
-        p.add_option('-v', '--verbose', dest = 'v', action = 'store_true',
-                     help = 'Enable verbose mode. All messages will be ' +
-                     'generated, such as announcing current operation.')
-
-        p.set_defaults(b = None, B = False, d = False, g = os.getgid(),
-                       l = None, n = False, o = None, p = False,
-                       q = False, s = '/usr/share/fll/', u = os.getuid(),
-                       v = False)
-
-        self.opts = p.parse_args()[0]
-        self._processOpts()
-
 
     def _processDefaults(self, d):
         '''Form a distro-defaults data structure to be written to
@@ -252,8 +177,8 @@ class FLLBuilder:
                 self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
                 raise Error
 
-        if d.get('FLL_DISTRO_VERSION') and \
-           d['FLL_DISTRO_VERSION'] != 'snapshot':
+        version = d.get('FLL_DISTRO_VERSION')
+        if version and version != 'snapshot':
             if not d.get('FLL_DISTRO_CODENAME_SAFE'):
                 self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
                                   "'FLL_DISTRO_CODENAME_SAFE' is not")
@@ -263,32 +188,63 @@ class FLLBuilder:
                 safe = k + '_SAFE'
                 if d.get(safe) and not d.get(k):
                     d[k] = d[safe]
-
-            self.stamp = self.stamp_safe = ' '.join([d['FLL_DISTRO_NAME'],
-                                                     d['FLL_DISTRO_VERSION']])
-            if d['FLL_DISTRO_CODENAME_REV']:
-                self.stamp += ' - %s' % d['FLL_DISTRO_CODENAME']
-                self.stamp += ' %s -' % d['FLL_DISTRO_CODENAME_REV']
-                self.stamp_safe += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
-                self.stamp_safe += '_%s ' % d['FLL_DISTRO_CODENAME_REV_SAFE']
-            else:
-                self.stamp += ' %s -' % d['FLL_DISTRO_CODENAME']
-                self.stamp_safe += ' %s' % d['FLL_DISTRO_CODENAME_SAFE']
-
-            self.stamp += ' %s' % self.conf['packages']['profile']
-            self.stamp_safe += ' %s' % self.conf['packages']['profile']
         else:
             d['FLL_DISTRO_VERSION'] = 'snapshot'
 
-            self.stamp = self.stamp_safe = ' '.join([d['FLL_DISTRO_NAME'],
-                                                     d['FLL_DISTRO_VERSION']])
-            self.stamp += ' - %s' % self.conf['packages']['profile']
-            self.stamp_safe += ' %s' % self.conf['packages']['profile']
 
-        self.stamp_safe = '-'.join(self.stamp_safe.split())
+    def _getDistroImageFile(self, arch):
+        '''Return image file that compressed chroot will be archived to.'''
+        image_file = self.conf['distro']['FLL_IMAGE_FILE']
+        if arch == 'i386':
+            image_file += '.686'
+        else:
+            image_file += '.%s' % arch
 
-        self.log.debug('stamp: %s' % self.stamp)
-        self.log.debug('stamp_safe: %s' % self.stamp_safe)
+        self.log.debug('image_file: %s' % image_file)
+        return image_file
+
+
+    def _getDistroStamp(self):
+        '''Return a string suitable for the distro stamp file.'''
+        d = self.conf['distro']
+        stamp = ' '.join([d['FLL_DISTRO_NAME'], d['FLL_DISTRO_VERSION']])
+        if d.get('FLL_DISTRO_VERSION') == 'snapshot':
+            stamp += ' - %s' % self.conf['packages']['profile']
+        else:
+            if d['FLL_DISTRO_CODENAME_REV']:
+                stamp += ' - %s' % d['FLL_DISTRO_CODENAME']
+                stamp += ' %s -' % d['FLL_DISTRO_CODENAME_REV']
+            else:
+                stamp += ' %s -' % d['FLL_DISTRO_CODENAME']
+
+            stamp += ' %s' % self.conf['packages']['profile']
+
+        stamp += ' - (%s)' % time.strftime('%Y%m%d%H%M', time.gmtime())
+
+        self.log.debug('stamp: %s' % stamp)
+        return stamp
+
+
+    def _getDistroMediaName(self):
+        '''Return a string suitable for the distro stamp file.'''
+        d = self.conf['distro']
+        name = '-'.join([d['FLL_DISTRO_NAME'], d['FLL_DISTRO_VERSION']])
+        if d.get('FLL_DISTRO_VERSION') == 'snapshot':
+            name += '-%s' % self.conf['packages']['profile']
+        else:
+            if d['FLL_DISTRO_CODENAME_REV']:
+                name = '-%s-%s' % (d['FLL_DISTRO_CODENAME_SAFE'],
+                                    d['FLL_DISTRO_CODENAME_REV_SAFE'])
+            else:
+                name += '-%s' % d['FLL_DISTRO_CODENAME']
+
+            name += '-%s' % self.conf['packages']['profile']
+
+        name += '-' + '-'.join(self.conf['archs'].keys())
+        name += '-%s' % time.strftime('%Y%m%d%H%M', time.gmtime())
+
+        self.log.debug('name: %s' % name)
+        return name
 
 
     def _processConf(self):
@@ -312,7 +268,8 @@ class FLLBuilder:
                     linux = '2.6-' + cpu
 
                 self.conf['archs'][arch].setdefault('linux', linux)
-            self.log.debug("linux: %s" % self.conf['archs'][arch]['linux'])
+            self.log.debug("linux (%s): %s" %
+                           (arch, self.conf['archs'][arch]['linux']))
 
         if len(self.conf['repos'].keys()) < 1:
             self.log.critical('no apt repos were specified in build config')
@@ -528,6 +485,21 @@ class FLLBuilder:
         self.pkgs = dict()
         for arch in self.conf['archs'].keys():
             self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
+
+
+    def _getDebconfList(self, arch):
+        '''Return debconf list for arch.'''
+        return self.pkgs[arch]['debconf']
+
+
+    def _getPackageList(self, arch):
+        '''Return package list for arch.'''
+        return self.pkgs[arch]['packages']
+
+
+    def _getPostinstList(self, arch):
+        '''Return postinst list for arch.'''
+        return self.pkgs[arch]['postinst']
 
 
     def _stageMedia(self, point, dir, fnames):
@@ -938,11 +910,7 @@ class FLLBuilder:
                             test += ' || echo installed)'
                             f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test))
                         elif k == 'FLL_IMAGE_FILE':
-                            image_file = self.conf['distro'][k]
-                            if arch == 'i386':
-                                image_file += '.686'
-                            else:
-                                image_file += '.%s' % arch
+                            image_file = self._getDistroImageFile(arch)
                             f.write('%s="%s"\n' % (k, image_file))
                             f.write('%s="$%s/$%s"\n' % ('FLL_IMAGE_LOCATION',
                                                         'FLL_IMAGE_DIR', k))
@@ -1001,14 +969,13 @@ class FLLBuilder:
         distro_version = '%s-version' % \
                          self.conf['distro']['FLL_DISTRO_NAME'].lower()
         distro_version = os.path.join(chroot, 'etc', distro_version)
-        timestamp = time.strftime('%Y%m%d%H%M', time.gmtime())
 
         self.log.debug('stamping distro version: %s' % distro_version)
         f = None
         try:
             try:
                 f = open(distro_version, 'w')
-                f.write('%s - (%s)\n' % (self.stamp, timestamp))
+                f.write(self._getDistroStamp())
             except IOError:
                 self.log.exception('failed to open file for writing: %s' %
                                    distro_version)
@@ -1047,16 +1014,16 @@ class FLLBuilder:
     def _preseedDebconf(self, arch):
         '''Preseed debconf with values read from package lists.'''
         chroot = os.path.join(self.temp, arch)
+        debconf_list = self._getDebconfList(arch)
 
-        if 'debconf' in self.pkgs[arch] and self.pkgs[arch]['debconf']:
+        if debconf_list:
             self.log.info('preseeding debconf in %s chroot...' % arch)
             debconf = None
             try:
                 try:
                     debconf = open(os.path.join(chroot, 'tmp',
                                                 'fll_debconf_selections'), 'w')
-                    debconf.writelines([d + '\n'
-                                        for d in self.pkgs[arch]['debconf']])
+                    debconf.writelines([d + '\n' for d in debconf_list])
                 except IOError:
                     self.log.exception('failed to open file for writing: %s' %
                                        '/tmp/fll_debconf_selections')
@@ -1271,7 +1238,7 @@ class FLLBuilder:
         '''Install packages.'''
         cache = apt_pkg.GetCache()
 
-        pkgs_want = self.pkgs[arch]['packages']
+        pkgs_want = self._getPackageList(arch)
         pkgs_base = [p.Name for p in cache.Packages if p.CurrentVer]
         pkgs_dict = dict([(p, True) for p in pkgs_base + pkgs_want])
 
@@ -1289,7 +1256,7 @@ class FLLBuilder:
 
         self.log.info('performing post-install tasks in %s chroot...' % arch)
 
-        for script in self.pkgs[arch]['postinst']:
+        for script in self._getPostinstList(arch):
             sname = os.path.basename(script)
             try:
                 shutil.copy(script, os.path.join(chroot, 'tmp'))
@@ -1458,12 +1425,7 @@ class FLLBuilder:
         self.log.info('creating squashfs filesystem of %s chroot...' % arch)
         chroot = os.path.join(self.temp, arch)
 
-        image_file = self.conf['distro']['FLL_IMAGE_FILE']
-        if arch == 'i386':
-            image_file += '.686'
-        else:
-            image_file += '.%s' % arch
-
+        image_file = self._getDistroImageFile(arch)
         cmd = ['mksquashfs', '.', image_file, '-noappend']
 
         if self.opts.l or self.opts.q:
@@ -1484,14 +1446,7 @@ class FLLBuilder:
         self.log.info('staging live %s media...' % arch)
         chroot = os.path.join(self.temp, arch)
 
-        image_file = os.path.join(chroot,
-                                  self.conf['distro']['FLL_IMAGE_FILE'])
-
-        if arch == 'i386':
-            image_file += '.686'
-        else:
-            image_file += '.%s' % arch
-
+        image_file = self._getDistroImageFile(arch)
         image_dir = os.path.join(self.temp, 'staging',
                                  self.conf['distro']['FLL_IMAGE_DIR'])
         try:
@@ -1794,14 +1749,9 @@ class FLLBuilder:
             if sort:
                 sort.close()
 
-        timestamp = time.strftime('%Y%m%d%H%M', time.gmtime())
-
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
 
-        iso_name = self.stamp_safe
-        iso_name += '-' + '-'.join(self.conf['archs'].keys())
-        iso_name += '-' + timestamp
-        iso_name += '.iso'
+        iso_name = self._getDistroMediaName() + '.iso'
 
         iso_file = os.path.join(self.opts.o, iso_name)
         sort_file = os.path.join(stage, 'genisoimage.sort')
@@ -1868,7 +1818,7 @@ class FLLBuilder:
 
     def main(self):
         '''Main loop.'''
-        self.parseOpts()
+        self.checkOpts()
         self.parseConf()
         self.parsePkgProfile()
         self.stageBuildArea()
@@ -1883,8 +1833,78 @@ class FLLBuilder:
 
 
 if __name__ == '__main__':
+    p = OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
+                     '-o <directory> -s <directory> -l <file>] [-Bdgpquv]')
+
+    p.add_option('-b', '--build', dest = 'b', action = 'store',
+                 type = 'string', metavar = '<directory>',
+                 help = 'Build directory. A large amount of free space ' +
+                 'is required.')
+
+    p.add_option('-B', '--binary', dest = 'B', action = 'store_true',
+                 help = 'Do binary build only. Disable generation of ' +
+                 'URI lists. Default: %default')
+
+    p.add_option('-c', '--config', dest = 'c', action = 'store',
+                 type = 'string', metavar = '<config file>',
+                 help = 'Configuration file. This option may be used ' +
+                 'more than once to process multiple configurations. ' +
+                 'A configuration file must be specified.')
+
+    p.add_option('-d', '--debug', dest = 'd', action = 'store_true',
+                 help = 'Enable debug mode. Extra output will be ' +
+                 'to assist in development. Default: %default')
+
+    p.add_option('-g', '--gid', dest = 'g', action = 'store',
+                 type = 'int', metavar = '<group id>',
+                 help = 'Group ID of user doing the build. This ' +
+                 'should not normally be required, the wrapper script ' +
+                 'will take care of this for you.')
+
+    p.add_option('-l', '--log', dest = 'l', action = 'store',
+                 type = 'string', metavar = '<file>',
+                 help = 'Log debug output to file. Note that when ' +
+                 'logging is enabled, output to the console is buffered.')
+
+    p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
+                 help = 'Start as noon root user (for debugging).')
+
+    p.add_option('-o', '--output', dest = 'o', action = 'store',
+                 type = 'string', metavar = '<directory>',
+                 help = 'Output directory, where the product of this ' +
+                 'program will be generated.')
+
+    p.add_option('-p', '--preserve', dest = 'p', action = 'store_true',
+                 help = 'Preserve build directory. Disable automatic ' +
+                 'cleanup of the build area at exit.')
+
+    p.add_option('-q', '--quiet', dest = 'q', action = 'store_true',
+                 help = 'Enable quiet mode. Only high priority messages ' +
+                 'will be generated.')
+
+    p.add_option('-s', '--share', dest = 's', action = 'store',
+                 type = 'string', metavar = '<directory>',
+                 help = 'Share directory directory containing data ' +
+                 'required for the program to function.')
+
+    p.add_option('-u', '--uid', dest = 'u', action = 'store',
+                 type = 'int', metavar = '<user id>',
+                 help = 'User ID of user doing the build. This ' +
+                 'should not normally be required, the wrapper script ' +
+                 'will take care of this for you.')
+
+    p.add_option('-v', '--verbose', dest = 'v', action = 'store_true',
+                 help = 'Enable verbose mode. All messages will be ' +
+                 'generated, such as announcing current operation.')
+
+    p.set_defaults(b = None, B = False, d = False, g = os.getgid(), l = None,
+                   n = False, o = None, p = False, q = False, s = None,
+                   u = os.getuid(), v = False)
+
+    options = p.parse_args()[0]
+
     try:
-        fll = FLLBuilder()
+        fll = FLLBuilder(options)
         fll.main()
     except KeyboardInterrupt:
         pass
