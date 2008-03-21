@@ -11,13 +11,10 @@ do_postinst() {
 	    -e 's#:/sbin/getty#:/sbin/getty -n -i -l /usr/bin/fll_login#' \
 	    -e 's#^\([0-6]\):23:#\1:2345:#' \
 		/usr/share/sysvinit/inittab > /etc/inittab
-	
+
 	say 'Locking root account'
 	sed -i 's#^root:[^:]*:#root:\*:#' /etc/shadow
 	chmod 0751 /root
-
-	say 'Preseeding /etc/adduser.conf'
-	sed -i 's/^DIR_MODE=.*/DIR_MODE=0751/' /etc/adduser.conf
 
 	say 'Reconfiguring distro-defaults'
 	# Reconfigure to ensure out LSB defaults are in place for
@@ -25,7 +22,10 @@ do_postinst() {
 	dpkg-reconfigure distro-defaults
 
 	. /etc/default/distro
-	
+
+	say 'Preseeding /etc/adduser.conf'
+	sed -i 's/^DIR_MODE=.*/DIR_MODE=0751/' /etc/adduser.conf
+
 	unset GROUPS
 	for g in ${FLL_LIVE_USER_GROUPS}; do
 		if getent group ${g} >/dev/null; then
