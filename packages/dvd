@@ -46,7 +46,6 @@ packages = """
 	blender
 	bluefish
 	brasero
-	brasero
 	camediaplay
 	camorama
 	camserv
@@ -91,13 +90,11 @@ packages = """
 	etherape
 	etherwake
 	evolution
-	evolution
 	fakechroot
 	fetchmail
 	fetchmailconf
 	ffmpeg
 	ffmpeg2theora
-	file-roller
 	file-roller
 	filezilla
 	firestarter
@@ -107,12 +104,10 @@ packages = """
 	gconf2
 	gconf-editor
 	gdm
-	gdm
 	geany
 	gettext
 	gftp
 	gimp
-	gkrellm
 	gkrellm
 	gkrellm-alltraxclock
 	gkrellm-hdplop
@@ -120,7 +115,6 @@ packages = """
 	gkrellm-mailwatch
 	gkrellmoon
 	gkrellm-volume
-	gksu
 	gksu
 	glade
 	gnome-applets
@@ -147,7 +141,6 @@ packages = """
 	gnome-utils
 	gnucash
 	gnumeric
-	gnumeric
 	gnusound
 	gossip
 	gplanarity
@@ -171,8 +164,6 @@ packages = """
 	iceape
 	icedove
 	icemc
-	iceweasel
-	iceweasel
 	iceweasel
 	iceweasel-gnome-support
 	icewm
@@ -252,7 +243,6 @@ packages = """
 	krename
 	kreversi
 	kstreamripper
-#	ksynaptics		#not in main anymore
 	ksysguard
 	kthesaurus
 	kuake
@@ -285,8 +275,6 @@ packages = """
 	mono-smcs
 	mono-xbuild
 	moto4lin
-	moto4lin
-	mousepad
 	mousepad
 	mozilla-plugin-vlc
 	mozplugger
@@ -307,17 +295,13 @@ packages = """
 	orage
 	original-awk
 	p7zip-full
-	p7zip-full
 	parted
 	patchutils
-	pdfedit
 	pdfedit
 	photon
 	photoprint
 	pidgin
-	pidgin
 	pidgin-data
-	pidgin-encryption
 	pidgin-encryption
 	pidgin-extprefs
 	pidgin-guifications
@@ -346,14 +330,13 @@ packages = """
 	rox-filer
 	ruby-full
 	samba
-	samba
 	scite
 	screenkast
-	scribus-ng
 	scribus-ng
 	seahorse
 	sendemail
 	shared-mime-info
+	sidux-vdr
 	smartmontools
 	spamassassin
 	squid
@@ -390,7 +373,6 @@ packages = """
 	virtualbox-ose
 	vlc
 	vorbis-tools
-	vorbis-tools
 	wengophone
 	wireshark
 	wmauda
@@ -398,10 +380,6 @@ packages = """
 	xbase-clients
 	xbitmaps
 	xchat
-	xchat
-	xchat
-	xchat-systray
-	xchat-systray
 	xchat-systray
 	xdelta
 	xfce4
