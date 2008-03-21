@@ -5,10 +5,8 @@ say() {
 }
 
 do_postinst() {
-	say 'Reconfiguring distro-defaults'
-	dpkg-reconfigure distro-defaults
-
 	say 'Hacking /etc/inittab for passwdless login'
+	# We also set default runlevel to 5
 	sed -e 's#^id:[0-6]:initdefault:#id:5:initdefault:#' \
 	    -e 's#:/sbin/getty#:/sbin/getty -n -i -l /usr/bin/fll_login#' \
 	    -e 's#^\([0-6]\):23:#\1:2345:#' \
@@ -20,6 +18,11 @@ do_postinst() {
 
 	say 'Preseeding /etc/adduser.conf'
 	sed -i 's/^DIR_MODE=.*/DIR_MODE=0751/' /etc/adduser.conf
+
+	say 'Reconfiguring distro-defaults'
+	# Reconfigure to ensure out LSB defaults are in place for
+	# starting desktop managers in runlevel 5 only
+	dpkg-reconfigure distro-defaults
 
 	. /etc/default/distro
 	
