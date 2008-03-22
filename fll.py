@@ -335,8 +335,9 @@ class FLLBuilder(object):
                 self.log.debug('distro-defaults:')
                 for k, v in self.conf['distro'].items():
                     self.log.debug('%s="%s"' % (k, v))
-                self.log.debug(self._getDistroStamp())
-                self.log.debug(self._getDistroMediaName())
+                self.log.debug('testing stamp/name:')
+                self._getDistroStamp()
+                self._getDistroMediaName()
         else:
             self.log.critical('distro section not found in build config')
             raise Error
