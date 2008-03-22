@@ -4,6 +4,7 @@ desc = """
 
 packages = """
 	desktop-defaults-xfce
+	gksu
 	sidux-art-gnome
 """
 

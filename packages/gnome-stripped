@@ -17,7 +17,6 @@ packages = """
 	epiphany-browser
 	epiphany-extensions
 	gdm
-	gksu
 	gnome-core
 	xchat
 	xchat-systray

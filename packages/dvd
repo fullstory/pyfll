@@ -115,7 +115,6 @@ packages = """
 	gkrellm-mailwatch
 	gkrellmoon
 	gkrellm-volume
-	gksu
 	glade
 	gnome-applets
 	gnome-art

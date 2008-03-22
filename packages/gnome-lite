@@ -19,7 +19,6 @@ deps = """
 
 packages = """
 	gdm
-	gksu
 	gnome-core
 	nautilus-open-terminal
 	xchat

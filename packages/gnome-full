@@ -19,7 +19,6 @@ deps = """
 
 packages = """
 	gdm
-	gksu
 	gnome-core
 	gnome-commander
 	gnome-applets

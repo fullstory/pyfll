@@ -5,6 +5,7 @@ desc = """
 packages = """
 	desktop-defaults-gnome
 	gdm-themes-sidux
+	gksu
 	sidux-art-gnome
 	siduxcc-common
 """
