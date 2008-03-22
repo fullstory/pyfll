@@ -233,7 +233,7 @@ class FLLBuilder(object):
             name += '-%s' % self.conf['packages']['profile']
         else:
             if d.get('FLL_DISTRO_CODENAME_REV'):
-                name = '-%s-%s' % (d['FLL_DISTRO_CODENAME_SAFE'],
+                name += '-%s-%s' % (d['FLL_DISTRO_CODENAME_SAFE'],
                                     d['FLL_DISTRO_CODENAME_REV_SAFE'])
             else:
                 name += '-%s' % d['FLL_DISTRO_CODENAME_SAFE']
