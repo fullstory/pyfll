@@ -211,7 +211,7 @@ class FLLBuilder(object):
         if d.get('FLL_DISTRO_VERSION') == 'snapshot':
             stamp += ' - %s' % self.conf['packages']['profile']
         else:
-            if d['FLL_DISTRO_CODENAME_REV']:
+            if d.get('FLL_DISTRO_CODENAME_REV'):
                 stamp += ' - %s' % d['FLL_DISTRO_CODENAME']
                 stamp += ' %s -' % d['FLL_DISTRO_CODENAME_REV']
             else:
@@ -232,7 +232,7 @@ class FLLBuilder(object):
         if d.get('FLL_DISTRO_VERSION') == 'snapshot':
             name += '-%s' % self.conf['packages']['profile']
         else:
-            if d['FLL_DISTRO_CODENAME_REV']:
+            if d.get('FLL_DISTRO_CODENAME_REV'):
                 name = '-%s-%s' % (d['FLL_DISTRO_CODENAME_SAFE'],
                                     d['FLL_DISTRO_CODENAME_REV_SAFE'])
             else:
