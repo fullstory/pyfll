@@ -20,83 +20,84 @@ deps = """
 
 packages = """
 	ark
-	gtk2-engines-qtcurve
-	gwenview
-	k3b
-	kaffeine
-	kde-core
-	kdm
-	kmix
-	knemo
-	konversation
-	kpdf
-	kpowersave
-	kppp
-	ksnapshot
-	siduxcc
-	iceweasel
-	sidux-edu
 	audacity
-	inkscape
-	karbon
-	kchart
-	keduca
-	kexi
-	kformula
-	kimagemapeditor
-	kivio
-	koffice-i18n-de
-	koshell
-	kplato
-	kpresenter
-	kspread
-	krusader
-	ksociograma
-	kword
-	quanta
-	scribus
-	vym
+	bibletime
+	bibletime-i18n
 	chemtool
-	gperiodic
-	kalzium
-	katomic
-	kgeography
-	sunclock
-	kturtle
-	dia
-	digikam
-	kino
-	kolourpaint
-	krita
-	stopmotion
-	tuxpaint
 	childsplay
 	childsplay-alphabet-sounds-de
 	childsplay-plugins
-	ktuberling
-	ktouch
-	tuxmath
+	dia
+	digikam
 	gnuplot
-	kbruch
-	kig
-	kmplot
-	kpercentage
-	wxmaxima
-	hydrogen
-	juk
-	kstars
-	bibletime
-	bibletime-i18n
-	itools
-	hebcal
-	hdate-applet
-	minbar
+	gperiodic
+	gtk2-engines-qtcurve
+	gwenview
 	hanzim
+	hdate-applet
+	hebcal
+	hydrogen
+	iceweasel
+	inkscape
+	itools
+	juk
+	k3b
+	kaffeine
+	kalzium
+	karbon
+	katomic
+	kbruch
+	kchart
+	kde-core
 	kdict
+	kdm
+	keduca
+	kexi
+	kformula
+	kgeography
+	kig
+	kimagemapeditor
+	kino
+	kivio
 	klatin
-	kvoctrain
-	kwordquiz
 	klogic
+	kmix
+	kmplot
+	knemo
+	koffice-i18n-de
+	kolourpaint
+	konversation
+	koshell
+	kpdf
+	kpercentage
+	kplato
+	kpowersave
+	kppp
+	kpresenter
+	krita
+	krusader
 	ksimus
+	ksnapshot
+	ksociograma
+	kspread
+	kstars
+	ktouch
+	ktuberling
+	kturtle
+	kvoctrain
+	kword
+	kwordquiz
+	manpages-de
+	minbar
+	quanta
+	scribus
+	siduxcc
+	sidux-edu
+	stopmotion
+	sunclock
+	tuxmath
+	tuxpaint
+	vym
+	wxmaxima
 """
 
