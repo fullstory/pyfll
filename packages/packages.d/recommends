@@ -5,6 +5,7 @@ desc = """
 
 packages = """
 	bash
+	hal
 	install-gui
 	kontact
 	siduxcc

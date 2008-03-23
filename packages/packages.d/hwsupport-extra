@@ -8,7 +8,6 @@ packages = """
 	dmidecode
 	dmsetup
 	hwinfo
-	libsmbios-bin
 	lirc
 	vbetool
 """
