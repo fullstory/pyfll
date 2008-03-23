@@ -29,7 +29,6 @@ dbus
 fuse-utils
 gpm
 hal
-hotkey-setup
 ifupdown
 initscripts
 irqbalance
