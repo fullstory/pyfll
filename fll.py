@@ -1838,7 +1838,7 @@ class FLLBuilder(object):
         self.genLiveMedia()
 
         duration = datetime.datetime.now() - self.time
-        self.log.info('Build duration: %d minutes and %d seconds' %
+        self.log.info('build duration was %d minutes and %d seconds' %
                       divmod(duration.seconds, 60))
 
 
