@@ -4,6 +4,7 @@ desc = """
 
 packages = """
 	acpid
+	acpi-support-base
 	alsa-base
 	br2684ctl
 	cpufrequtils
