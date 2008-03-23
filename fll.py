@@ -767,7 +767,7 @@ class FLLBuilder(object):
             self.log.debug("creating %s" % file)
 
             line = []
-            if cached and 'cached' in r and r['cached']:
+            if cached and r.get('cached'):
                 line.append(r['cached'])
             else:
                 line.append(r['uri'])
