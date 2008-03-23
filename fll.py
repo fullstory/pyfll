@@ -10,6 +10,7 @@ from subprocess import *
 
 import apt_pkg
 import atexit
+import datetime
 import fileinput
 import glob
 import logging
@@ -42,6 +43,8 @@ class FLLBuilder(object):
 
         self.log = logging.getLogger('log')
         self.log.setLevel(logging.DEBUG)
+
+        self.time = datetime.datetime.now()
 
 
     def __filterList(self, list, dup_warn = True):
@@ -1833,6 +1836,10 @@ class FLLBuilder(object):
         self.writeMenuLst()
         self.writeMd5Sums()
         self.genLiveMedia()
+
+        duration = datetime.datetime.now() - self.time
+        self.log.info('Build duration: %d minutes and %d seconds' %
+                      divmod(duration.seconds, 60))
 
 
 if __name__ == '__main__':
