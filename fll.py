@@ -18,7 +18,6 @@ import os
 import sys
 import shutil
 import tempfile
-import time
 
 
 class Error(Exception):
@@ -44,7 +43,7 @@ class FLLBuilder(object):
         self.log = logging.getLogger('log')
         self.log.setLevel(logging.DEBUG)
 
-        self.time = datetime.datetime.now()
+        self.time = datetime.datetime.utcnow()
 
 
     def __filterList(self, list, dup_warn = True):
@@ -222,7 +221,7 @@ class FLLBuilder(object):
 
             stamp += ' %s' % self.conf['packages']['profile']
 
-        stamp += ' - (%s)' % time.strftime('%Y%m%d%H%M', time.gmtime())
+        stamp += ' - (%s)' % datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
 
         self.log.debug('stamp: %s' % stamp)
         return stamp
@@ -244,7 +243,7 @@ class FLLBuilder(object):
             name += '-%s' % self.conf['packages']['profile']
 
         name += '-' + '-'.join(self.conf['archs'].keys())
-        name += '-%s' % time.strftime('%Y%m%d%H%M', time.gmtime())
+        name += '-%s' % datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
 
         self.log.debug('name: %s' % name)
         return name
@@ -1837,7 +1836,7 @@ class FLLBuilder(object):
         self.writeMd5Sums()
         self.genLiveMedia()
 
-        duration = datetime.datetime.now() - self.time
+        duration = datetime.datetime.utcnow() - self.time
         self.log.info('build duration was %d minutes and %d seconds' %
                       divmod(duration.seconds, 60))
 
