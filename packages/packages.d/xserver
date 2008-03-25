@@ -20,6 +20,7 @@ packages = """
 	ttf-bitstream-vera
 	ttf-dejavu
 	ttf-freefont
+	xauth
 	xfonts-base
 	xfonts-75dpi
 	xfonts-75dpi-transcoded
