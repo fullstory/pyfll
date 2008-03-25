@@ -322,6 +322,7 @@ packages = """
 	qt4-dev-tools
 	qt4-qtconfig
 	qtemu
+	qtnx
 	quodlibet
 	rdiff-backup
 	ripperx
