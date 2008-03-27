@@ -703,7 +703,7 @@ class FLLBuilder(object):
 
 
     def _aptGetInstall(self, arch, pkgs):
-        '''An apt-get install wrapper. Automatic insallation of recommended
+        '''An apt-get install wrapper. Automatic installation of recommended
         packages defaults to disabled.'''
         aptget = ['apt-get', '--yes']
 
@@ -812,7 +812,7 @@ class FLLBuilder(object):
 
 
     def _primeApt(self, arch):
-        '''Prepare apt for work in each build chroot. Fect all required gpg
+        '''Prepare apt for work in each build chroot. Fetch all required gpg
         keys and initialize apt_pkg config.'''
         self.log.info('preparing apt in %s chroot...' % arch)
         chroot = os.path.join(self.temp, arch)
@@ -1893,7 +1893,7 @@ if __name__ == '__main__':
 
     p.add_option('-s', '--share', dest = 's', action = 'store',
                  type = 'string', metavar = '<directory>',
-                 help = 'Share directory directory containing data ' +
+                 help = 'Share directory containing data ' +
                  'required for the program to function.')
 
     p.add_option('-u', '--uid', dest = 'u', action = 'store',
