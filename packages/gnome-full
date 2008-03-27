@@ -25,7 +25,7 @@ packages = """
 	gnome-audio
 	gnome-btdownload
 	gnome-chess
-	gnome-games
+#	gnome-games	# python-gnome2-desktop
 	gnome-mag
 	gnome-media
 	gnome-art
