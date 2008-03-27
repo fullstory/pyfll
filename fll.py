@@ -288,7 +288,9 @@ class FLLBuilder(object):
                                      (word, repo))
                     raise Error
 
-        if 'profile' not in self.conf['packages']:
+        if self.opts.p:
+            self.conf['packages']['profile'] = self.opts.p
+        elif 'profile' not in self.conf['packages']:
             self.conf['packages']['profile'] = 'kde-lite'
         self.log.debug('profile: %s' %
                        self.conf['packages']['profile'])
@@ -604,7 +606,7 @@ class FLLBuilder(object):
 
     def _nukeChroot(self, arch):
         '''Convenience function to nuke chroot given by arch name.'''
-        if not self.opts.p:
+        if not self.opts.P:
             self.log.info('nuking %s chroot...' % arch)
             chroot = os.path.join(self.temp, arch)
             self._umount(chroot)
@@ -621,10 +623,10 @@ class FLLBuilder(object):
             if os.path.isdir(dir):
                 self.log.debug('cleaning up %s chroot...' % arch)
                 self._umount(dir)
-                if not self.opts.p:
+                if not self.opts.P:
                     self._nuke(dir)
 
-        if not self.opts.p:
+        if not self.opts.P:
             self._nuke(self.temp)
 
 
@@ -1883,7 +1885,11 @@ if __name__ == '__main__':
                  help = 'Output directory, where the product of this ' +
                  'program will be generated.')
 
-    p.add_option('-p', '--preserve', dest = 'p', action = 'store_true',
+    p.add_option('-p', '--profile', dest = 'p', action = 'store',
+                 type = 'string', metavar = '<profile>',
+                 help = 'Package profile, overrides config file.')
+
+    p.add_option('-P', '--preserve', dest = 'P', action = 'store_true',
                  help = 'Preserve build directory. Disable automatic ' +
                  'cleanup of the build area at exit.')
 
@@ -1907,8 +1913,8 @@ if __name__ == '__main__':
                  'generated, such as announcing current operation.')
 
     p.set_defaults(b = None, B = False, d = False, g = os.getgid(), l = None,
-                   n = False, o = None, p = False, q = False, s = None,
-                   u = os.getuid(), v = False)
+                   n = False, o = None, p = None, P = False, q = False,
+                   s = None, u = os.getuid(), v = False)
 
     options = p.parse_args()[0]
 
