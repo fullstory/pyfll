@@ -12,6 +12,7 @@ deps = """
 	hwsupport-extra
 	utils-essential
 	utils-extra
+	utils-x
 	xserver
 """
 
@@ -30,6 +31,7 @@ packages = """
 	gxine
 	gxineplugin
 	iceweasel
+	libnotify-bin
 	mousepad
 	orage
 	shared-mime-info
