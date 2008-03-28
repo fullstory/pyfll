@@ -251,7 +251,10 @@ class FLLBuilder(object):
 
     def _processConf(self):
         '''Process configuration options.'''
-        if not self.conf.get('archs'):
+        if self.opts.a:
+            self.conf['archs'] = {self.opts.a: dict()}
+            self.log.debug('arch: %s' % self.opts.a)
+        elif not self.conf.get('archs'):
             host_arch = Popen(['dpkg', '--print-architecture'],
                               stdout=PIPE).communicate()[0].rstrip()
             self.conf['archs'] = {host_arch: dict()}
@@ -1846,6 +1849,10 @@ class FLLBuilder(object):
 if __name__ == '__main__':
     p = OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
                      '-o <directory> -s <directory> -l <file>] [-Bdgpquv]')
+
+    p.add_option('-a', '--arch', dest = 'a', action = 'store',
+                 type = 'string', metavar = '<arch>',
+                 help = 'Build architecture, overrides config file.')
 
     p.add_option('-b', '--build', dest = 'b', action = 'store',
                  type = 'string', metavar = '<directory>',
