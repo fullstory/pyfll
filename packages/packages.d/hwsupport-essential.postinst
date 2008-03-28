@@ -1,0 +1,26 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	say 'Setting sane(r) defaults for lvm2'
+	DEFAULT_LVM_FILTER='[ "r|/dev/cdrom|", "r|/dev/dvd|" ]'
+
+	sed -i -e 's%^\([[:space:]]*# By default\) we accept every block device:$%\1 we exclude optical drives:%' \
+	       -e 's%^\([[:space:]]*filter =\).*%\1 '"${DEFAULT_LVM_FILTER}"'%' \
+	        /etc/lvm/lvm.conf
+	
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
