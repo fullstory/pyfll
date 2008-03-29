@@ -19,39 +19,30 @@ deps = """
 """
 
 packages = """
-# GNOME
+	ark
+	build-essential
+	cdebootstrap
+	desktop-file-utils
 	epiphany-browser
 	epiphany-extensions
 	gdm
 	gnome-core
-	xchat
-	xchat-systray
-	vim-tiny
-# KDE
-	ark
-	build-essential
-	cdebootstrap
+	gtk2-engines-xfce
 	hwinfo
 	kaffeine
 	kde-core
 	kdm
 	konversation
 	kpowersave
-# XFCE
-	desktop-file-utils
-	gdm
-	gtk2-engines-xfce
 	libnotify-bin
-	mousepad
 	shared-mime-info
 	thunar
 	thunar-archive-plugin
 	thunar-data
 	thunar-media-tags-plugin
 	thunar-volman
+	vim-tiny
 	xarchiver
-	xchat
-	xchat-systray
 	xfce4
 	xfwm4
 """
