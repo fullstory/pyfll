@@ -1,0 +1,58 @@
+desc = """
+	A combined stripped kde, gnome and xfce.
+"""
+
+deps = """
+	cli
+	distro
+	distro-gnome
+	distro-kde
+	distro-xfce
+	distro-tools
+	distro-tools-x
+	hwsupport-essential
+	hwsupport-extra
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+# GNOME
+	epiphany-browser
+	epiphany-extensions
+	gdm
+	gnome-core
+	xchat
+	xchat-systray
+	vim-tiny
+# KDE
+	ark
+	build-essential
+	cdebootstrap
+	hwinfo
+	kaffeine
+	kde-core
+	kdm
+	konversation
+	kpowersave
+# XFCE
+	desktop-file-utils
+	gdm
+	gtk2-engines-xfce
+	libnotify-bin
+	mousepad
+	shared-mime-info
+	thunar
+	thunar-archive-plugin
+	thunar-data
+	thunar-media-tags-plugin
+	thunar-volman
+	xarchiver
+	xchat
+	xchat-systray
+	xfce4
+	xfwm4
+"""
+
