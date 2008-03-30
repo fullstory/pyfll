@@ -1576,7 +1576,7 @@ class FLLBuilder(object):
             menulst.write('kernel /boot/%s boot=fll %s\n' % (vmlinuz, boot))
             menulst.write('initrd /boot/%s\n' % initrd)
             menulst.write('\n')
-            menulst.write('title  %s %s Advanced Menu\n' % (distro, cpu))
+            menulst.write('title  %s %s Extra Options\n' % (distro, cpu))
             menulst.write('configfile /boot/grub/menu.lst.%s\n' % cpu)
 
             menucpu = open(os.path.join(grub_dir, 'menu.lst.%s' % cpu), 'w')
