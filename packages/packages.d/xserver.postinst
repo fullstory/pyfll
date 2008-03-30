@@ -9,13 +9,10 @@ do_postinst() {
 	ln -sf /etc/fonts/conf.avail/70-no-bitmaps.conf \
 		/etc/fonts/conf.d/70-no-bitmaps.conf
 
-	if [ -f /var/run/update-menus.pid ]; then
-		say 'Waiting for flock on /var/run/update-menus.pid'
-		# Wait until an exclusive lock can be acquired, then release it
-		# to run one final, manual, update-menus process
-		flock --wait 30 --exclusive /var/run/update-menus.pid /bin/true
-	fi
 	say 'Invoking update-menus'
+	# Wait until an exclusive lock can be acquired, then release it
+	# to run one final, manual, update-menus process
+	flock --wait 30 --exclusive /var/run/update-menus.pid true
 	update-menus
 }
 
