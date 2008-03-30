@@ -5,7 +5,6 @@ __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
 __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
-from optparse import OptionParser
 from subprocess import *
 
 import apt_pkg
@@ -14,6 +13,7 @@ import datetime
 import fileinput
 import glob
 import logging
+import optparse
 import os
 import sys
 import shutil
@@ -1847,8 +1847,9 @@ class FLLBuilder(object):
 
 
 if __name__ == '__main__':
-    p = OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
-                     '-o <directory> -s <directory> -l <file>] [-Bdgpquv]')
+    p = optparse.OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
+                              '-o <directory> -s <directory> -l <file>] ' +
+                              '[-Bdgpquv]')
 
     p.add_option('-a', '--arch', dest = 'a', action = 'store',
                  type = 'string', metavar = '<arch>',
@@ -1875,9 +1876,7 @@ if __name__ == '__main__':
 
     p.add_option('-g', '--gid', dest = 'g', action = 'store',
                  type = 'int', metavar = '<group id>',
-                 help = 'Group ID of user doing the build. This ' +
-                 'should not normally be required, the wrapper script ' +
-                 'will take care of this for you.')
+                 help = optparse.SUPPRESS_HELP)
 
     p.add_option('-l', '--log', dest = 'l', action = 'store',
                  type = 'string', metavar = '<file>',
@@ -1885,7 +1884,7 @@ if __name__ == '__main__':
                  'logging is enabled, output to the console is buffered.')
 
     p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
-                 help = 'Start as noon root user (for debugging).')
+                 help = optparse.SUPPRESS_HELP)
 
     p.add_option('-o', '--output', dest = 'o', action = 'store',
                  type = 'string', metavar = '<directory>',
@@ -1906,14 +1905,11 @@ if __name__ == '__main__':
 
     p.add_option('-s', '--share', dest = 's', action = 'store',
                  type = 'string', metavar = '<directory>',
-                 help = 'Share directory containing data ' +
-                 'required for the program to function.')
+                 help = optparse.SUPPRESS_HELP)
 
     p.add_option('-u', '--uid', dest = 'u', action = 'store',
                  type = 'int', metavar = '<user id>',
-                 help = 'User ID of user doing the build. This ' +
-                 'should not normally be required, the wrapper script ' +
-                 'will take care of this for you.')
+                 help = optparse.SUPPRESS_HELP)
 
     p.add_option('-v', '--verbose', dest = 'v', action = 'store_true',
                  help = 'Enable verbose mode. All messages will be ' +
