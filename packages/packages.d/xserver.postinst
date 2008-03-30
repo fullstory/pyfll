@@ -13,7 +13,7 @@ do_postinst() {
 		say 'Waiting for flock on /var/run/update-menus.pid'
 		# Wait until an exclusive lock can be acquired, then release it
 		# to run one final, manual, update-menus process
-		( flock --wait 30 --exclusive 200 ) 200>/var/run/update-menus.pid
+		flock --wait 30 --exclusive /var/run/update-menus.pid /bin/true
 	fi
 	say 'Invoking update-menus'
 	update-menus
