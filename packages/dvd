@@ -8,6 +8,7 @@ deps = """
 	data-rescue
 	devel-debian
 	distro
+	distro-gnome
 	distro-kde
 	distro-tools
 	distro-tools-x
@@ -32,7 +33,7 @@ packages = """
 	amsn
 	amule
 	aqualung
-	ardour
+	# ardour
 	atlantik
 	audacious
 	audacious-plugins
