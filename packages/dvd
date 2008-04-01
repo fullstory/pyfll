@@ -100,7 +100,6 @@ packages = """
 	filezilla
 	firestarter
 	flac
-	f-spot
 	fujiplay
 	gconf2
 	gconf-editor
