@@ -16,11 +16,14 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
+	kde-essential
+	kde-basic
+	kde-desktop
 	openoffice
 	utils-essential
 	utils-extra
 	utils-x
-	webserver-lamp
+#	webserver-lamp
 	wine
 	xserver
 """
@@ -33,8 +36,8 @@ packages = """
 	amsn
 	amule
 	aqualung
-	# ardour
-	atlantik
+	ardour
+#	atlantik
 	audacious
 	audacious-plugins
 	audacious-plugins-extra
@@ -56,7 +59,7 @@ packages = """
 	chkrootkit
 	clamav
 	clamav-freshclam
-	classpath-doc
+#	classpath-doc
 #	claws-mail
 #	claws-mail-extra-plugins
 #	cmake
@@ -125,7 +128,7 @@ packages = """
 	gnome-commander
 	gnome-core
 	gnome-cups-manager
-	gnome-games
+#	gnome-games
 	gnome-icon-theme
 	gnome-mag
 	gnome-media
@@ -140,9 +143,9 @@ packages = """
 	gnome-utils
 	gnucash
 	gnumeric
-	gnusound
-	gossip
-	gplanarity
+#	gnusound
+#	gossip
+#	gplanarity
 	gstreamer0.10-fluendo-mp3
 	gstreamer0.10-plugins-base
 	gthumb
@@ -157,12 +160,13 @@ packages = """
 	highlight
 	html2text
 	httrack
-	hugs
+#	hugs
 	hydrogen
 	hydrogen-drumkits
-	iceape
+#	iceape
 	icedove
 	icemc
+	iceowl
 	iceweasel
 	iceweasel-gnome-support
 	icewm
@@ -174,7 +178,7 @@ packages = """
 	imagemagick
 	inkscape
 	irssi
-	istanbul
+	#istanbul
 	jackd
 	jack-tools
 	java2html
@@ -182,22 +186,18 @@ packages = """
 	kallery
 	karbon
 	katapult
-	kbattleship
+#	kbattleship
 	kbibtex
-	kdeaccessibility
 	kdeaddons
-	kdeadmin
 	kdebase-dev
-	kdebluetooth
-	kde-core
 	kdeedu
+	kdegames
 	kdegraphics
 	kde-icons-crystalclear
 	kde-icons-crystalproject
 	kdemultimedia
 	kdenetwork
 	kdepim
-	kdeprint
 	kdesdk
 	kdesktop
 	kde-style-klearlook
@@ -205,12 +205,10 @@ packages = """
 	kde-style-qtcurve
 	kdesvn
 	kdesvn-kio-plugins
-	kdetv
 	kdeutils
 	kdevelop
 	kdewallpapers
 	kdewebdev
-	kdm
 	kfind
 	kflickr
 	kformula
@@ -220,27 +218,21 @@ packages = """
 	kig
 	kile
 	kino
-	kio-apt
 	kiosktool
-	kipi-plugins
 	kitty
 	klamav
 	klash
 	klik
 	klineakconfig
 	kmag
-	kmahjongg
 	kmess
 	kmidimon
 	kmobiletools
 	kmousetool
 	kmouth
-	konversation
-	kpat
 	kradio
 	krecordmydesktop
 	krename
-	kreversi
 	kstreamripper
 	ksysguard
 	kthesaurus
@@ -248,10 +240,9 @@ packages = """
 	kwiki
 	kwirelessmonitor
 	kworldclock
-	lazarus
+	#lazarus
 	libgnome2-perl
 	libgnomevfs2-extra
-	libqt-perl
 	libtool
 	licq
 	licq-plugin-kde
@@ -259,20 +250,19 @@ packages = """
 	lilypond
 	lineak-kdeplugins
 	links2
-	linphone
+#	linphone
 	lisa
 	lmms
 	lynx
 	lyx
-	mediawiki
-	mediawiki-extensions
+#	mediawiki
+#	mediawiki-extensions
 	metacam
 	meterbridge
 	mhwaveedit
-	mono-gmcs
-	mono-smcs
-	mono-xbuild
-	moto4lin
+#	mono-gmcs
+#	mono-smcs
+#	mono-xbuild
 	mousepad
 	mozilla-plugin-vlc
 	mozplugger
@@ -281,7 +271,6 @@ packages = """
 	mutt
 	muttprint
 	muttprofile
-	myspell-de-de
 	myspell-en-us
 	nano
 	nautilus-cd-burner
@@ -291,8 +280,9 @@ packages = """
 	nvram-wakeup
 	openssh-server
 	orage
-	original-awk
+#	original-awk
 	p7zip-full
+	packagesearch
 	parted
 	patchutils
 	pdfedit
@@ -308,19 +298,20 @@ packages = """
 	pidgin-librvp
 	pidgin-plugin-pack
 	pixelize
-	postfix
-	postfix-ldap
-	postfix-mysql
-	praat
+#	postfix
+#	postfix-ldap
+#	postfix-mysql
+#	praat
 	python-nautilus
 	qcad
-	qemu
-	qt3-designer
-	qt3-dev-tools
+#	qemu
+	qjackctl
+#	qt3-designer
+#	qt3-dev-tools
 	qt4-designer
 	qt4-dev-tools
 	qt4-qtconfig
-	qtemu
+#	qtemu
 	qtnx
 	quodlibet
 	rdiff-backup
@@ -328,7 +319,7 @@ packages = """
 	rosegarden
 	rox-filer
 	ruby-full
-	samba
+#	samba
 	scite
 	screenkast
 	scribus-ng
@@ -338,13 +329,13 @@ packages = """
 	sidux-vdr
 	smartmontools
 	spamassassin
-	squid
+#	squid
 	streamripper
 	streamtuner
 	subversion
 	subversion-tools
 	svn-buildpackage
-	synaptic
+#	synaptic
 	texlive-latex-base
 	texlive-latex-recommended
 	texmaker
@@ -354,15 +345,15 @@ packages = """
 	thunar-media-tags-plugin
 	thunar-volman
 	tidy
-	tipa
-	tipa-doc
+#	tipa
+#	tipa-doc
 	totem
 	traceroute
 	transcriber
 	trayer
 	ttf-kochi-gothic
 	ttf-mona
-	tuxpaint
+#	tuxpaint
 	ufraw
 	unison
 	vcdimager
@@ -415,7 +406,6 @@ packages = """
 	xine-ui
 	xpaint
 	xtrlock
-	yakuake
 	zsh
 """
 

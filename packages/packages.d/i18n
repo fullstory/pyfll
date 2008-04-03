@@ -26,6 +26,10 @@ icedove = """
 	icedove-locale
 """
 
+iceowl = """
+	iceowl-l10n
+"""
+
 iceweasel = """
 	iceweasel-l10n
 """
@@ -50,6 +54,7 @@ openoffice.org-core = """
 	openoffice.org-help
 	openoffice.org-l10n
 	openoffice.org-thesaurus
+	openoffice.org-hyphenation
 """
 
 sidux-manual-en = """

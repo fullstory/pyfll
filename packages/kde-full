@@ -11,6 +11,9 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
+	kde-essential
+	kde-basic
+	kde-desktop
 	openoffice
 	utils-essential
 	utils-extra
@@ -19,84 +22,8 @@ deps = """
 """
 
 packages = """
-	akregator
-	amarok
-	ark
-	basket
 	dnsutils
-	digikam
-	dnsutils
-	gtk2-engines-qtcurve
-	gwenview
 	iceweasel
-	k3b
-	kaffeine
-	kaddressbook
-	kaddressbook-plugins
-	karm
-	kate
-	kate-plugins
-	kcalc
-	kcharselect
-	kbattleship
-	kde-core
-	kdeaccessibility
-	kdeaddons-kfile-plugins
-	kdeadmin
-	kdebluetooth
-	kdegraphics-kfile-plugins
-	kdelirc
-	kdemultimedia-kfile-plugins
-	kdemultimedia-kio-plugins
-	kdenetwork-kfile-plugins
-	kdepim-kfile-plugins
-	kdepim-kio-plugins
-	kdepim-kresources
-	kdepim-wizards
-	kdeprint
-	kdeservicemenus-sidux
-	kdetv
-	kdf
-	kdict
-	kdnssd
-	kdm
-	kfax
-	kfaxview
-	kget
-	kghostview
-	kgpg
-	kicker-applets
-	kiconedit
-	kio-apt
-	kipi-plugins
-	kmahjongg
-	kmail
-	kmailcvt
-	konq-plugins
-	kontact
-	konversation
-	kooka
-	kopete
-	korganizer
-	kpilot
-	kmix
-	knemo
-	kpat
-	kpdf
-	kpowersave
-	kppp
-	krdc
-	kreversi
-	krita
-	krusader
-	ksnapshot
-	ksvg
-	ktorrent
-	kvpnc
-	kwalletmanager
-	kwifimanager
-	libqt-perl
-	moto4lin
 	myspell-en-us
 	nano
 	openoffice.org-kde
@@ -105,7 +32,6 @@ packages = """
 	siduxcc
 	virtualbox-ose
 	wengophone
-	yakuake
 """
 
 #	sidux-vdr

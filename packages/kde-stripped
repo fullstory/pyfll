@@ -9,19 +9,14 @@ deps = """
 	distro-tools
 	distro-tools-x
 	hwsupport-essential
+	kde-essential
 	utils-essential
 	xserver
 """
 
 packages = """
-	ark
 	build-essential
 	cdebootstrap
 	hwinfo
-	kaffeine
-	kde-core
-	kdm
-	konversation
-	kpowersave
 """
 

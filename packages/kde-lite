@@ -11,6 +11,8 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
+	kde-essential
+	kde-basic
 	utils-essential
 	utils-extra
 	utils-x
@@ -18,20 +20,5 @@ deps = """
 """
 
 packages = """
-	ark
-	gwenview
-	k3b
-	kaffeine
-	kde-core
-	kdm
-	konversation
-	kmix
-	knemo
-	kpowersave
-	kppp
-	kpdf
-	ksnapshot
-	gtk2-engines-qtcurve
 	siduxcc
 """
-

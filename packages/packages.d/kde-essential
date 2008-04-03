@@ -1,0 +1,13 @@
+desc = """
+	Minimal KDE desktop apps.
+"""
+
+packages = """
+	ark
+	kaffeine
+	kde-core
+	kdm
+	konversation
+	kpowersave
+"""
+

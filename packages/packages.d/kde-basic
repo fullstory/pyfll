@@ -1,0 +1,15 @@
+desc = """
+	Lite KDE desktop Applications
+"""
+
+packages = """
+	gwenview
+	k3b
+	kmix
+	knemo
+	kppp
+	kpdf
+	ksnapshot
+	gtk2-engines-qtcurve
+"""
+

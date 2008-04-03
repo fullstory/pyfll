@@ -1,0 +1,69 @@
+desc = """
+	Normal KDE desktop Applications
+"""
+
+packages = """
+	akregator
+	amarok
+	basket
+	digikam
+	kaddressbook
+	kaddressbook-plugins
+	karm
+	kate
+	kate-plugins
+	kcalc
+	kcharselect
+	kbattleship
+	kdeaccessibility
+	kdeaddons-kfile-plugins
+	kdeadmin
+	kdebluetooth
+	kdegraphics-kfile-plugins
+	kdelirc
+	kdemultimedia-kfile-plugins
+	kdemultimedia-kio-plugins
+	kdenetwork-kfile-plugins
+	kdepim-kfile-plugins
+	kdepim-kio-plugins
+	kdepim-kresources
+	kdepim-wizards
+	kdeprint
+	kdeservicemenus-sidux
+	kdetv
+	kdf
+	kdict
+	kdnssd
+	kfax
+	kfaxview
+	kget
+	kghostview
+	kgpg
+	kicker-applets
+	kiconedit
+	kio-apt
+	kipi-plugins
+	kmahjongg
+	kmail
+	kmailcvt
+	konq-plugins
+	kontact
+	kooka
+	kopete
+	korganizer
+	kpilot
+	kpat
+	krdc
+	kreversi
+	krita
+	krusader
+	ksvg
+	ktorrent
+	kvpnc
+	kwalletmanager
+	kwifimanager
+	libqt-perl
+	moto4lin
+	yakuake
+"""
+

@@ -12,6 +12,8 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
+	kde-essential
+	kde-basic
 	utils-essential
 	utils-extra
 	utils-x
@@ -19,7 +21,6 @@ deps = """
 """
 
 packages = """
-	ark
 	audacity
 	bibletime
 	bibletime-i18n
@@ -31,8 +32,6 @@ packages = """
 	digikam
 	gnuplot
 	gperiodic
-	gtk2-engines-qtcurve
-	gwenview
 	hanzim
 	hdate-applet
 	hebcal
@@ -41,16 +40,12 @@ packages = """
 	inkscape
 	itools
 	juk
-	k3b
-	kaffeine
 	kalzium
 	karbon
 	katomic
 	kbruch
 	kchart
-	kde-core
 	kdict
-	kdm
 	keduca
 	kexi
 	kformula
@@ -61,23 +56,16 @@ packages = """
 	kivio
 	klatin
 	klogic
-	kmix
 	kmplot
-	knemo
 	koffice-i18n-de
 	kolourpaint
-	konversation
 	koshell
-	kpdf
 	kpercentage
 	kplato
-	kpowersave
-	kppp
 	kpresenter
 	krita
 	krusader
 	ksimus
-	ksnapshot
 	ksociograma
 	kspread
 	kstars
