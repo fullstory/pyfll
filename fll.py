@@ -1781,7 +1781,6 @@ class FLLBuilder(object):
         self.log.info('generating iso image of live media...')
         self._execCmd(cmd.split())
         os.chown(iso_file, self.opts.u, self.opts.g)
-        self.log.info('iso generated in %s ...' % iso_file)
 
         self.log.info('calculating md5sum of live media iso image...')
         md5 = None
@@ -1801,6 +1800,9 @@ class FLLBuilder(object):
         self._writeManifests(os.path.splitext(iso_file)[0])
         if not self.opts.B:
             self._writeSources(os.path.splitext(iso_file)[0])
+
+        for f in glob.glob('%s*' % os.path.splitext(iso_file)[0]):
+            self.log.info(f)
 
 
     def buildChroots(self):
