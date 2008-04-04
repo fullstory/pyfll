@@ -33,7 +33,7 @@ packages = """
 	abiword-plugins
 	albumshaper
 	alsamixergui
-	amsn
+#	amsn
 	amule
 	aqualung
 	ardour
@@ -244,7 +244,7 @@ packages = """
 	libgnome2-perl
 	libgnomevfs2-extra
 	libtool
-	licq
+#	licq
 	licq-plugin-kde
 	licq-plugin-qt
 	lilypond
