@@ -8,18 +8,14 @@ deps = """
 	distro-gnome
 	distro-tools
 	distro-tools-x
+	gnome-essential
 	hwsupport-essential
 	utils-essential
 	xserver
 """
 
 packages = """
-	epiphany-browser
-	epiphany-extensions
-	gdm
-	gnome-core
-	xchat
-	xchat-systray
-	vim-tiny
+	build-essential
+	cdebootstrap
+	hwinfo
 """
-

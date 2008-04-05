@@ -8,6 +8,9 @@ deps = """
 	distro-gnome
 	distro-tools
 	distro-tools-x
+	gnome-essential
+	gnome-basic
+	gnome-desktop
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
@@ -18,62 +21,15 @@ deps = """
 """
 
 packages = """
-	gdm
-	gnome-core
-	gnome-commander
-	gnome-applets
-	gnome-audio
-	gnome-btdownload
-	gnome-chess
-#	gnome-games	# python-gnome2-desktop
-	gnome-mag
-	gnome-media
-	gnome-art
-	gnome-mount
-	gnome-nettool
-	gnome-osd
-	gnome-photo-printer
-	gnome-schedule
-	gnome-system-tools
-	gnome-icon-theme
-	gnome-themes
-	gnome-themes-extras
-	gnome-utils
-	gnome-cups-manager
-	nautilus-open-terminal
-	nautilus-cd-burner
-	nautilus-gksu
-	python-nautilus
-	seahorse
-	libgnomevfs2-extra
-	gconf-editor
-	gimp
-	xchat
-	xchat-systray
 	iceweasel
 	iceweasel-gnome-support
-	evolution
-	scribus-ng
-	epiphany-browser
-	epiphany-extensions
-	mpg123
-	vorbis-tools
-	gnomebaker
-	bluefish
-	libgnome2-perl
-	p7zip-full
-	pidgin
-	pidgin-data
-	pidgin-encryption
-	totem
-	wireshark
-	netcat
-	synaptic
-	etherape
-	pdfedit
-	gkrellm
 	moto4lin
-	samba
-	file-roller
+	mpg123
+	netcat
+	p7zip-full
+	pdfedit
+#	samba
+	scribus-ng
+	vorbis-tools
 """
 

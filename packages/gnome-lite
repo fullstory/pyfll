@@ -8,6 +8,8 @@ deps = """
 	distro-gnome
 	distro-tools
 	distro-tools-x
+	gnome-essential
+	gnome-basic
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
@@ -18,16 +20,4 @@ deps = """
 """
 
 packages = """
-	gdm
-	gnome-core
-	nautilus-open-terminal
-	xchat
-	xchat-systray
-	epiphany-browser
-	epiphany-extensions
-	evolution
-	pidgin
-	pidgin-encryption
-	file-roller
 """
-

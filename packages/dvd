@@ -13,6 +13,9 @@ deps = """
 	distro-tools
 	distro-tools-x
 	distro-xfce
+	gnome-essential
+	gnome-basic
+	gnome-desktop
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
@@ -25,17 +28,16 @@ deps = """
 	utils-x
 #	webserver-lamp
 	wine
+	xfce-desktop
 	xserver
 """
 
 packages = """
-	abiword
 	abiword-plugins
 	albumshaper
 	alsamixergui
 #	amsn
 	amule
-	aqualung
 	ardour
 #	atlantik
 	audacious
@@ -48,8 +50,6 @@ packages = """
 	bittorrent
 	bittorrent-gui
 	blender
-	bluefish
-	brasero
 	camediaplay
 	camorama
 	camserv
@@ -69,7 +69,6 @@ packages = """
 	dcraw
 	debarchiver
 	denemo
-	desktop-file-utils
 	dia
 	dia2code
 	dict
@@ -89,11 +88,7 @@ packages = """
 	emacs
 	enigmail
 	epiphany
-	epiphany-browser
-	epiphany-extensions
-	etherape
 	etherwake
-	evolution
 	fakechroot
 	fetchmail
 	fetchmailconf
@@ -104,14 +99,9 @@ packages = """
 	firestarter
 	flac
 	fujiplay
-	gconf2
-	gconf-editor
-	gdm
 	geany
 	gettext
 	gftp
-	gimp
-	gkrellm
 	gkrellm-alltraxclock
 	gkrellm-hdplop
 	gkrellmitime
@@ -119,44 +109,16 @@ packages = """
 	gkrellmoon
 	gkrellm-volume
 	glade
-	gnome-applets
-	gnome-art
-	gnome-audio
-	gnomebaker
-	gnome-btdownload
-	gnome-chess
-	gnome-commander
-	gnome-core
-	gnome-cups-manager
-#	gnome-games
-	gnome-icon-theme
-	gnome-mag
-	gnome-media
-	gnome-mount
-	gnome-nettool
-	gnome-osd
-	gnome-photo-printer
-	gnome-schedule
-	gnome-system-tools
-	gnome-themes
-	gnome-themes-extras
-	gnome-utils
 	gnucash
-	gnumeric
 #	gnusound
 #	gossip
 #	gplanarity
-	gstreamer0.10-fluendo-mp3
-	gstreamer0.10-plugins-base
 	gthumb
 	gtk2-engines-qtcurve
-	gtk2-engines-xfce
 	gtkam
 	gtkam-gimp
 	gtkpod
 	gutenbrowser
-	gxine
-	gxineplugin
 	highlight
 	html2text
 	httrack
@@ -263,7 +225,6 @@ packages = """
 #	mono-gmcs
 #	mono-smcs
 #	mono-xbuild
-	mousepad
 	mozilla-plugin-vlc
 	mozplugger
 	mpg123
@@ -273,24 +234,16 @@ packages = """
 	muttprofile
 	myspell-en-us
 	nano
-	nautilus-cd-burner
-	nautilus-gksu
-	nautilus-open-terminal
 	netcat
 	nvram-wakeup
 	openssh-server
-	orage
 #	original-awk
 	p7zip-full
-	packagesearch
 	parted
 	patchutils
 	pdfedit
 	photon
 	photoprint
-	pidgin
-	pidgin-data
-	pidgin-encryption
 	pidgin-extprefs
 	pidgin-guifications
 	pidgin-hotkeys
@@ -323,9 +276,7 @@ packages = """
 	scite
 	screenkast
 	scribus-ng
-	seahorse
 	sendemail
-	shared-mime-info
 	sidux-vdr
 	smartmontools
 	spamassassin
@@ -335,22 +286,14 @@ packages = """
 	subversion
 	subversion-tools
 	svn-buildpackage
-#	synaptic
 	texlive-latex-base
 	texlive-latex-recommended
 	texmaker
-	thunar
-	thunar-archive-plugin
-	thunar-data
-	thunar-media-tags-plugin
-	thunar-volman
 	tidy
 #	tipa
 #	tipa-doc
-	totem
 	traceroute
 	transcriber
-	trayer
 	ttf-kochi-gothic
 	ttf-mona
 #	tuxpaint
@@ -364,48 +307,11 @@ packages = """
 	vlc
 	vorbis-tools
 	wengophone
-	wireshark
-	wmauda
-	xarchiver
-	xbase-clients
-	xbitmaps
-	xchat
-	xchat-systray
 	xdelta
-	xfce4
-	xfce4-artwork
-	xfce4-battery-plugin
-	xfce4-clipman-plugin
-	xfce4-cpufreq-plugin
-	xfce4-cpugraph-plugin
-	xfce4-dev-tools
-	xfce4-fsguard-plugin
-	xfce4-genmon-plugin
-	xfce4-goodies
-	xfce4-icon-theme
-	xfce4-mcs-manager
-	xfce4-mcs-plugins
-	xfce4-mixer
-	xfce4-mixer-alsa
-	xfce4-mount-plugin
-	xfce4-panel
-	xfce4-quicklauncher-plugin
-	xfce4-screenshooter-plugin
-	xfce4-sensors-plugin
-	xfce4-session
-	xfce4-systemload-plugin
-	xfce4-terminal
-	xfce4-utils
-	xfce4-verve-plugin
-	xfce4-weather-plugin
-	xfdesktop4
 	xfonts-intl-phonetic
 	xfonts-tipa
-	xfprint4
-	xfwm4
 	xine-ui
 	xpaint
-	xtrlock
 	zsh
 """
 
