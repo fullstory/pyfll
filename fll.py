@@ -1850,8 +1850,7 @@ class FLLBuilder(object):
 
 if __name__ == '__main__':
     p = optparse.OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
-                              '-o <directory> -s <directory> -l <file>] ' +
-                              '[-Bdgpquv]')
+                              '-o <directory> -l <file>] [-Bdpqv]')
 
     p.add_option('-a', '--arch', dest = 'a', action = 'store',
                  type = 'string', metavar = '<arch>',
