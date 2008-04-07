@@ -16,7 +16,7 @@ packages = """
 	gnome-chess
 	gnome-commander
 	gnome-cups-manager
-#	gnome-games	# python-gnome2-desktop
+	gnome-games
 	gnome-icon-theme
 	gnome-mag
 	gnome-media
@@ -37,7 +37,6 @@ packages = """
 	pidgin-data
 	python-nautilus
 	seahorse
-#	synaptic
 	totem
 	wireshark
 """
