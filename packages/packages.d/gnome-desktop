@@ -1,0 +1,43 @@
+desc = """
+	Normal GNOME desktop applications
+"""
+
+packages = """
+	bluefish
+	etherape
+	gconf-editor
+	gimp
+	gkrellm
+	gnome-applets
+	gnome-art
+	gnome-audio
+	gnomebaker
+	gnome-btdownload
+	gnome-chess
+	gnome-commander
+	gnome-cups-manager
+#	gnome-games	# python-gnome2-desktop
+	gnome-icon-theme
+	gnome-mag
+	gnome-media
+	gnome-mount
+	gnome-nettool
+	gnome-osd
+	gnome-photo-printer
+	gnome-schedule
+	gnome-system-tools
+	gnome-themes
+	gnome-themes-extras
+	gnome-utils
+	libgnome2-perl
+	libgnomevfs2-extra
+	nautilus-cd-burner
+	nautilus-gksu
+	packagesearch
+	pidgin-data
+	python-nautilus
+	seahorse
+#	synaptic
+	totem
+	wireshark
+"""

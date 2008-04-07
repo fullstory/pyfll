@@ -1,0 +1,11 @@
+desc = """
+	Lite GNOME desktop applications
+"""
+
+packages = """
+	evolution
+	file-roller
+	nautilus-open-terminal
+	pidgin
+	pidgin-encryption
+"""
