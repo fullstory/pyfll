@@ -18,6 +18,5 @@ packages = """
 	libwine-nas
 	libwine-print
 	libwine-sane
-#	xwine		(not in main)
 """
 
