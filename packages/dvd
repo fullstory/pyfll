@@ -26,7 +26,6 @@ deps = """
 	utils-essential
 	utils-extra
 	utils-x
-#	webserver-lamp
 	wine
 	xfce-desktop
 	xserver
@@ -36,10 +35,8 @@ packages = """
 	abiword-plugins
 	albumshaper
 	alsamixergui
-#	amsn
 	amule
 	ardour
-#	atlantik
 	audacious
 	audacious-plugins
 	audacious-plugins-extra
@@ -59,10 +56,6 @@ packages = """
 	chkrootkit
 	clamav
 	clamav-freshclam
-#	classpath-doc
-#	claws-mail
-#	claws-mail-extra-plugins
-#	cmake
 	conky
 	cvs
 	d3lphin
@@ -110,9 +103,6 @@ packages = """
 	gkrellm-volume
 	glade
 	gnucash
-#	gnusound
-#	gossip
-#	gplanarity
 	gthumb
 	gtk2-engines-qtcurve
 	gtkam
@@ -122,10 +112,8 @@ packages = """
 	highlight
 	html2text
 	httrack
-#	hugs
 	hydrogen
 	hydrogen-drumkits
-#	iceape
 	icedove
 	icemc
 	iceowl
@@ -140,7 +128,6 @@ packages = """
 	imagemagick
 	inkscape
 	irssi
-	#istanbul
 	jackd
 	jack-tools
 	java2html
@@ -148,7 +135,6 @@ packages = """
 	kallery
 	karbon
 	katapult
-#	kbattleship
 	kbibtex
 	kdeaddons
 	kdebase-dev
@@ -202,29 +188,21 @@ packages = """
 	kwiki
 	kwirelessmonitor
 	kworldclock
-	#lazarus
 	libgnome2-perl
 	libgnomevfs2-extra
 	libtool
-#	licq
 	licq-plugin-kde
 	licq-plugin-qt
 	lilypond
 	lineak-kdeplugins
 	links2
-#	linphone
 	lisa
 	lmms
 	lynx
 	lyx
-#	mediawiki
-#	mediawiki-extensions
 	metacam
 	meterbridge
 	mhwaveedit
-#	mono-gmcs
-#	mono-smcs
-#	mono-xbuild
 	mozilla-plugin-vlc
 	mozplugger
 	mpg123
@@ -237,7 +215,6 @@ packages = """
 	netcat
 	nvram-wakeup
 	openssh-server
-#	original-awk
 	p7zip-full
 	parted
 	patchutils
@@ -251,20 +228,12 @@ packages = """
 	pidgin-librvp
 	pidgin-plugin-pack
 	pixelize
-#	postfix
-#	postfix-ldap
-#	postfix-mysql
-#	praat
 	python-nautilus
 	qcad
-#	qemu
 	qjackctl
-#	qt3-designer
-#	qt3-dev-tools
 	qt4-designer
 	qt4-dev-tools
 	qt4-qtconfig
-#	qtemu
 	qtnx
 	quodlibet
 	rdiff-backup
@@ -272,7 +241,6 @@ packages = """
 	rosegarden
 	rox-filer
 	ruby-full
-#	samba
 	scite
 	screenkast
 	scribus-ng
@@ -280,7 +248,6 @@ packages = """
 	sidux-vdr
 	smartmontools
 	spamassassin
-#	squid
 	streamripper
 	streamtuner
 	subversion
@@ -290,13 +257,10 @@ packages = """
 	texlive-latex-recommended
 	texmaker
 	tidy
-#	tipa
-#	tipa-doc
 	traceroute
 	transcriber
 	ttf-kochi-gothic
 	ttf-mona
-#	tuxpaint
 	ufraw
 	unison
 	vcdimager
