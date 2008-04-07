@@ -30,9 +30,9 @@ packages = """
 	pdfedit
 	rdiff-backup
 	siduxcc
+	sidux-vdr
+	vdr-gui
 	virtualbox-ose
 	wengophone
 """
 
-#	sidux-vdr
-#	vdr-gui
