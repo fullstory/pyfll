@@ -43,9 +43,6 @@ packages = """
 	audacity
 	autoconf
 	automake
-	bazaar
-	bittorrent
-	bittorrent-gui
 	blender
 	camediaplay
 	camorama
@@ -95,12 +92,6 @@ packages = """
 	geany
 	gettext
 	gftp
-	gkrellm-alltraxclock
-	gkrellm-hdplop
-	gkrellmitime
-	gkrellm-mailwatch
-	gkrellmoon
-	gkrellm-volume
 	glade
 	gnucash
 	gthumb
@@ -207,9 +198,6 @@ packages = """
 	mozplugger
 	mpg123
 	multisync
-	mutt
-	muttprint
-	muttprofile
 	myspell-en-us
 	nano
 	netcat
@@ -237,19 +225,15 @@ packages = """
 	qtnx
 	quodlibet
 	rdiff-backup
-	ripperx
 	rosegarden
 	rox-filer
 	ruby-full
 	scite
 	screenkast
 	scribus-ng
-	sendemail
 	sidux-vdr
 	smartmontools
 	spamassassin
-	streamripper
-	streamtuner
 	subversion
 	subversion-tools
 	svn-buildpackage
