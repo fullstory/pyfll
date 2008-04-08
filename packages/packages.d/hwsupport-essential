@@ -4,7 +4,6 @@ desc = """
 
 packages = """
 	acpid
-	acpi-support-base
 	alsa-base
 	br2684ctl
 	cpufrequtils
@@ -13,6 +12,7 @@ packages = """
 	lvm2
 	pcmciautils
 	pciutils
+	powersaved
 	udev
 """
 
