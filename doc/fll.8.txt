@@ -1,11 +1,11 @@
-FLL_BUILDER(8)
+FLL(8)
 ==============
 Kel Modderman <kel@otaku42.de>
 
 
 NAME
 ----
-fll_builder - FULLSTORY build script for sid/sidux
+fll - FULLSTORY build script for sid/sidux
 
 
 SYNOPSIS
@@ -15,7 +15,7 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-fll_builder(8) is a python script that provides a framework to build an ISO Image from the current repositories of sid/sidux.
+fll(8) is a python script that provides a framework to build an ISO Image from the current repositories of sid/sidux.
 
 
 OPTIONS
