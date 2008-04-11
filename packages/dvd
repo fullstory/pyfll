@@ -49,7 +49,7 @@ packages = """
 	camserv
 	camserv-relay
 	cdparanoia
-	centericq
+	centerim-common
 	chkrootkit
 	clamav
 	clamav-freshclam
