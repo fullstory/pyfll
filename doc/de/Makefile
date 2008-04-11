@@ -6,7 +6,7 @@ man: $(MAN)
 
 %.1 %.2 %.3 %.4 %.5 %.6 %.7 %.8 : %.*.txt
 	$(RM) $@ $@.xml
-	a2x -d manpage -f manpage $<
+	a2x -a lang=de -d manpage -f manpage $<
 
 clean:
 	$(RM) $(MAN) $(XML)
