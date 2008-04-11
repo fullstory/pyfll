@@ -8,6 +8,7 @@ packages = """
 	aqualung
 	brasero
 	desktop-file-utils
+	evince
 	gconf2
 	gdm
 	gksu

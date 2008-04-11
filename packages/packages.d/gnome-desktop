@@ -32,10 +32,11 @@ packages = """
 	libgnomevfs2-extra
 	nautilus-cd-burner
 	nautilus-gksu
-	packagesearch
 	pidgin-data
 	python-nautilus
 	seahorse
 	totem
 	wireshark
 """
+
+#	packagesearch   # broken libqt4 deps 080410 - cleary
