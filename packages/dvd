@@ -75,7 +75,7 @@ packages = """
 	eclipse
 	eclipse-platform-gcj
 	ekiga
-	emacs
+	xemacs21
 	enigmail
 	epiphany
 	etherwake
