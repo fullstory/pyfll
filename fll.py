@@ -1065,9 +1065,8 @@ class FLLBuilder(object):
         raise Error
 
 
-    def _detectLocalePkgs(self, wanted, cache):
+    def _detectLocalePkgs(self, i18n, wanted, cache):
         '''Provide automated detection for extra i18n packages.'''
-        i18n = self.__lines2list(self.conf['packages']['i18n'])
         self.log.info('detecting i18n packages for %s...' % ' '.join(i18n))
 
         i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages',
@@ -1248,11 +1247,12 @@ class FLLBuilder(object):
         '''Install packages.'''
         cache = apt_pkg.GetCache()
 
+        i18n_list = self.__lines2list(self.conf['packages']['i18n'])
         pkgs_want = self._getPackageList(arch)
         pkgs_base = [p.Name for p in cache.Packages if p.CurrentVer]
         pkgs_dict = dict([(p, True) for p in pkgs_base + pkgs_want])
 
-        pkgs_want.extend(self._detectLocalePkgs(pkgs_dict, cache))
+        pkgs_want.extend(self._detectLocalePkgs(i18n_list, pkgs_dict, cache))
         pkgs_want.extend(self._detectRecommendedPkgs(pkgs_dict, cache))
         pkgs_want.extend(self._detectLinuxModulePkgs(arch, cache))
 
