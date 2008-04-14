@@ -1619,6 +1619,27 @@ class FLLBuilder(object):
             raise Error
 
 
+    def __sha256sum(self, file):
+        '''Calculate sha256sum of a file and return it.'''
+        self.log.debug('sha256sum -b %s' % file)
+        sha256sum = None
+
+        try:
+            p = Popen(['sha256sum', '-b', file], stdout = PIPE)
+            pout = p.communicate()[0]
+        except:
+            self.log.exception('error calculating sha256sum of %s' % file)
+            raise Error
+
+        sha256sum = pout.split()[0]
+        if sha256sum:
+            self.log.debug(sha256sum)
+            return sha256sum
+        else:
+            self.log.critical('failed to get sha256sum of %s' % file)
+            raise Error
+
+
     def _md5sums(self, base, dir, fnames):
         '''Function given to os.path.walk of self.writeMd5Sums().'''
         for f in fnames:
@@ -1766,6 +1787,7 @@ class FLLBuilder(object):
         iso_file = os.path.join(self.opts.o, iso_name)
         sort_file = os.path.join(stage, 'genisoimage.sort')
         md5_file = iso_file + '.md5'
+        sha256_file = iso_file + '.sha256'
 
         cmd = 'genisoimage'
         if self.opts.v:
@@ -1796,6 +1818,21 @@ class FLLBuilder(object):
             if md5:
                 md5.close()
                 os.chown(md5_file, self.opts.u, self.opts.g)
+
+        self.log.info('calculating sha256sum of live media iso image...')
+        sha256 = None
+        try:
+            try:
+                sha256 = open(sha256_file, 'w')
+                sha256.write("%s *%s\n" % (self.__sha256sum(iso_file),
+                                           os.path.basename(iso_file)))
+            except IOError:
+                self.log.exception('failed to write sha256sums file')
+                raise Error
+        finally:
+            if sha256:
+                sha256.close()
+                os.chown(sha256_file, self.opts.u, self.opts.g)
 
         self._writeManifests(os.path.splitext(iso_file)[0])
         if not self.opts.B:
