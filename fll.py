@@ -31,7 +31,8 @@ class FLLBuilder(object):
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes'}
 
-    diverts = ['/sbin/modprobe', '/usr/sbin/update-initramfs']
+    diverts = ['/sbin/modprobe', '/usr/sbin/update-initramfs',
+               '/usr/sbin/policy-rc.d']
 
 
     def __init__(self, options):
@@ -723,29 +724,52 @@ class FLLBuilder(object):
         self._execInChroot(arch, aptget)
 
 
-    def _bootStrap(self, arch, verbosity = None, dir = None, mirror = None,
-                   flavour = 'minimal', suite = 'sid', ):
+    def __cdebBootStrap(self, arch, dir, mirror):
         '''Bootstrap a debian system with cdebootstrap.'''
-        if self.opts.d:
-            verbosity = '--debug'
-        elif self.opts.v:
-            verbosity = '--verbose'
+        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils',
+               '--flavour=minimal', 'sid', dir, mirror]
 
+        if self.opts.d:
+            cmd.append('--debug')
+        elif self.opts.v:
+            cmd.append('--verbose')
+        
+        self._execCmd(cmd)
+
+        cmd = 'dpkg --purge cdebootstrap-helper-rc.d'
+        self._execInChroot(arch, cmd.split())
+
+
+    def __debBootStrap(self, arch, dir, mirror):
+        '''Bootstrap a debian system with debootstrap.'''
+        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils',
+               '--variant=minbase', 'sid', dir, mirror]
+
+        if self.opts.d or self.opts.v:
+            cmd.insert(1, '--verbose')
+        
+        self._execCmd(cmd)
+        shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
+        shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
+
+
+    def _bootStrap(self, arch):
+        '''Bootstrap a debian system with cdebootstrap.'''
         debian = self.conf['repos']['debian']
-        if 'cached' in debian and debian['cached']:
+        if debian.get('cached'):
             mirror = debian['cached']
         else:
             mirror = debian['uri']
 
         dir = os.path.join(self.temp, arch)
-        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils',
-               '--flavour=%s' % flavour, suite, dir, mirror]
-
-        if verbosity:
-            cmd.append(verbosity)
-
+        
         self.log.info('bootstrapping debian %s...' % arch)
-        self._execCmd(cmd)
+        
+        bootstrapper = self.conf['options'].get('bootstrapper')
+        if bootstrapper == 'debootstrap':
+            self.__debBootStrap(arch, dir, mirror)
+        else:
+            self.__cdebBootStrap(arch, dir, mirror)
 
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
@@ -885,7 +909,13 @@ class FLLBuilder(object):
             cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
             cmd += d
             self._execInChroot(arch, cmd.split())
-            os.symlink('/bin/true', os.path.join(chroot, d.lstrip('/')))
+
+            if d == '/usr/sbin/policy-rc.d':
+                self._writeFile(arch, d)
+                cmd = 'chmod +x %s' % d
+                os.chmod(os.path.join(chroot, d.lstrip('/')), 0755)
+            else:
+                os.symlink('/bin/true', os.path.join(chroot, d.lstrip('/')))
 
 
     def _dpkgUnDivert(self, arch):
@@ -951,6 +981,10 @@ class FLLBuilder(object):
                     f.write('# The loopback interface\n')
                     f.write('auto lo\n')
                     f.write('iface lo inet loopback\n')
+                elif file == '/usr/sbin/policy-rc.d':
+                    f.write('#!/bin/sh\n')
+                    f.write('echo "$0 denied action: \`$1 $2\'" >&2\n')
+                    f.write('exit 101\n')
             except IOError:
                 self.log.exception('failed to open file for writing: %s' % file)
                 raise Error
@@ -1422,7 +1456,6 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
 
         cmd = 'dpkg --purge fll-live-initramfs'
-        cmd += ' cdebootstrap-helper-rc.d'
         self._execInChroot(arch, cmd.split())
         self._execInChroot(arch, 'apt-get clean'.split())
         self._execInChroot(arch, 'dpkg --clear-avail'.split())
