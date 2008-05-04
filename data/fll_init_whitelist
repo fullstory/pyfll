@@ -32,6 +32,7 @@ hal
 ifupdown
 initscripts
 irqbalance
+kbd
 libc6
 lvm2
 module-init-tools
