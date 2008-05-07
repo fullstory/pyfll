@@ -4,7 +4,7 @@ desc = """
 
 packages = """
 	configure-cups
-	fix-fonts
+#	fix-fonts
 	fll-live-xorgconfig
 	gprsconnect
 	install-gui
