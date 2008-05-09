@@ -31,8 +31,7 @@ class FLLBuilder(object):
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes'}
 
-    diverts = ['/sbin/modprobe', '/usr/sbin/update-initramfs',
-               '/usr/sbin/policy-rc.d']
+    diverts = ['/usr/sbin/policy-rc.d']
 
 
     def __init__(self, options):
@@ -1880,18 +1879,18 @@ class FLLBuilder(object):
         archs = self.conf['archs'].keys()
         for arch in archs:
             self._bootStrap(arch)
+            self._dpkgAddDivert(arch)
             self._defaultEtc(arch)
             self._preseedDebconf(arch)
             self._primeApt(arch)
-            self._dpkgAddDivert(arch)
             self._installPkgs(arch)
-            self._dpkgUnDivert(arch)
             self._distroDefaultEtc(arch)
             self._postInst(arch)
             self._rebuildInitRamfs(arch)
             self._collectManifest(arch)
             self._initBlackList(arch)
             self._finalEtc(arch)
+            self._dpkgUnDivert(arch)
             self._cleanChroot(arch)
             self._chrootSquashfs(arch)
             self._stageArch(arch)
