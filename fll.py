@@ -1309,25 +1309,6 @@ class FLLBuilder(object):
             os.unlink(os.path.join(chroot, 'tmp', sname))
 
 
-    def _rebuildInitRamfs(self, arch):
-        '''Rebuild the chroot live initramfs after final confiuration files
-        have been written.'''
-        chroot = os.path.join(self.temp, arch)
-        boot_dir = os.path.join(self.temp, 'staging', 'boot')
-
-        kvers = self._detectLinuxVersion(chroot)
-        for k in kvers:
-            self.log.info('creating an initial ramdisk for linux %s...' % k)
-            cmd = 'update-initramfs -d -k ' + k
-            self._execInChroot(arch, cmd.split())
-
-            if self.opts.v:
-                cmd = 'update-initramfs -v -c -k ' + k
-            else:
-                cmd = 'update-initramfs -c -k ' + k
-            self._execInChroot(arch, cmd.split())
-
-
     def _initBlackList(self, arch):
         '''Blacklist a group of initscripts present in chroot that should not
         be executed during live boot per default.'''
@@ -1865,12 +1846,11 @@ class FLLBuilder(object):
             self._bootStrap(arch)
             self._dpkgAddDivert(arch)
             self._defaultEtc(arch)
+            self._distroDefaultEtc(arch)
             self._preseedDebconf(arch)
             self._primeApt(arch)
             self._installPkgs(arch)
-            self._distroDefaultEtc(arch)
             self._postInst(arch)
-            self._rebuildInitRamfs(arch)
             self._collectManifest(arch)
             self._initBlackList(arch)
             self._finalEtc(arch)

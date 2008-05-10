@@ -7,5 +7,8 @@ pyfll (1.0) UNRELEASED; urgency=low
   * Use partition string method of python2.5 to determine pathnames inside of
     a build chroot.
   * Update README file to indicate current minimum requirements.
+  * No longer explicitly rebuild the initramfs for installed kernels.
+  * Write /etc/default/distro configuration file before installation of
+    package so that the live initramfs may be preseeded correctly.
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 10 May 2008 11:19:49 +1000
+ -- Kel Modderman <kel@otaku42.de>  Sat, 10 May 2008 15:30:22 +1000
