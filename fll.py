@@ -579,10 +579,14 @@ class FLLBuilder(object):
     def _umount(self, chrootdir):
         '''Umount any mount points in a chroot.'''
         umount_list = []
-        for line in open('/proc/mounts'):
-            (dev, mnt, fs, options, d, p) = line.split()
-            if mnt.startswith(chrootdir):
-                umount_list.append(mnt)
+        try:
+            for line in open('/proc/mounts'):
+                (dev, mnt, fs, options, d, p) = line.split()
+                if mnt.startswith(chrootdir):
+                    umount_list.append(mnt)
+        except IOError:
+            self.log.exception('failed to open /proc/mounts')
+            raise Error
 
         umount_list.sort(key=len)
         umount_list.reverse()
@@ -646,7 +650,7 @@ class FLLBuilder(object):
         except KeyboardInterrupt:
             raise Error
         except:
-            self.log.exception('problem executing command')
+            self.log.exception('problem executing command: %s' % ' '.join(cmd))
             raise Error
 
         for line in cout.splitlines():
@@ -675,7 +679,7 @@ class FLLBuilder(object):
         except KeyboardInterrupt:
             raise Error
         except:
-            self.log.exception('problem executing command')
+            self.log.exception('problem executing command: %s' % ' '.join(cmd))
             raise Error
 
         if retv != 0 and check_returncode:
@@ -782,14 +786,11 @@ class FLLBuilder(object):
             if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
                 s = None
                 try:
-                    try:
-                        s = open(os.path.join(chroot, 'etc/apt/sources.list'),
-                                 'a')
-                        s.write('#   %-74s#\n' % file.replace(chroot, '', 1))
-                    except IOError:
-                        self.log.exception('failed to open ' +
-                                           '/etc/apt/sources.list')
-                        raise Error
+                    s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
+                    s.write('#   %-74s#\n' % file.replace(chroot, '', 1))
+                except IOError:
+                    self.log.exception('failed to open /etc/apt/sources.list')
+                    raise Error
                 finally:
                     if s:
                         s.close()
@@ -811,16 +812,15 @@ class FLLBuilder(object):
 
             list = None
             try:
-                try:
-                    list = open(file, 'w')
-                    list.write('deb ' + l)
-                    if not src_uri or self.opts.B:
-                        list.write('#deb-src ' + l)
-                    else:
-                        list.write('deb-src ' + l)
-                except IOError:
-                    self.log.exception('failed to open %s' % file)
-                    raise Error
+                list = open(file, 'w')
+                list.write('deb ' + l)
+                if not src_uri or self.opts.B:
+                    list.write('#deb-src ' + l)
+                else:
+                    list.write('deb-src ' + l)
+            except IOError:
+                self.log.exception('failed to open %s' % file)
+                raise Error
             finally:
                 if list:
                     list.close()
@@ -828,12 +828,11 @@ class FLLBuilder(object):
         if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
             s = None
             try:
-                try:
-                    s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
-                    s.write('# ' * 39 + '#\n')
-                except IOError:
-                    self.log.exception('failed to open %s' % file)
-                    raise Error
+                s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
+                s.write('# ' * 39 + '#\n')
+            except IOError:
+                self.log.exception('failed to open %s' % file)
+                raise Error
             finally:
                 if s:
                     s.close()
@@ -934,59 +933,58 @@ class FLLBuilder(object):
 
         f = None
         try:
-            try:
-                f = open(os.path.join(chroot, file.lstrip('/')), 'w')
-                self.log.debug('writing file: %s' % file)
-                if file == '/etc/default/distro':
-                    d = self.conf['distro'].keys()
-                    d.sort()
-                    for k in d:
-                        if k.startswith('FLL_DISTRO_CODENAME'):
-                            continue
-                        elif k == 'FLL_MOUNTPOINT':
-                            f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
-                            test = '$([ -d "$%s" ] && echo live' % k
-                            test += ' || echo installed)'
-                            f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test))
-                        elif k == 'FLL_IMAGE_FILE':
-                            image_file = self._getDistroImageFile(arch)
-                            f.write('%s="%s"\n' % (k, image_file))
-                            f.write('%s="$%s/$%s"\n' % ('FLL_IMAGE_LOCATION',
-                                                        'FLL_IMAGE_DIR', k))
-                        else:
-                            f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
-                elif file == '/etc/fstab':
-                    f.write('# /etc/fstab: static file system information\n')
-                elif file == '/etc/hostname':
-                    hostname = self.conf['distro']['FLL_DISTRO_NAME']
-                    f.write(hostname + '\n')
-                elif file == '/etc/hosts':
-                    hostname = self.conf['distro']['FLL_DISTRO_NAME']
-                    f.write('127.0.0.1\tlocalhost\n')
-                    f.write('127.0.0.1\t' + hostname + '\n\n')
-                    f.write('# Below lines are for IPv6 capable hosts\n')
-                    f.write('::1     ip6-localhost ip6-loopback\n')
-                    f.write('fe00::0 ip6-localnet\n')
-                    f.write('ff00::0 ip6-mcastprefix\n')
-                    f.write('ff02::1 ip6-allnodes\n')
-                    f.write('ff02::2 ip6-allrouters\n')
-                    f.write('ff02::3 ip6-allhosts\n')
-                elif file == '/etc/kernel-img.conf':
-                    f.write('do_bootloader = No\n')
-                    f.write('warn_initrd   = No\n')
-                elif file == '/etc/network/interfaces':
-                    f.write('# /etc/network/interfaces - ')
-                    f.write('configuration file for ifup(8), ifdown(8)\n\n')
-                    f.write('# The loopback interface\n')
-                    f.write('auto lo\n')
-                    f.write('iface lo inet loopback\n')
-                elif file == '/usr/sbin/policy-rc.d':
-                    f.write('#!/bin/sh\n')
-                    f.write('echo "$0 denied action: \`$1 $2\'" >&2\n')
-                    f.write('exit 101\n')
-            except IOError:
-                self.log.exception('failed to open file for writing: %s' % file)
-                raise Error
+            f = open(os.path.join(chroot, file.lstrip('/')), 'w')
+            self.log.debug('writing file: %s' % file)
+            if file == '/etc/default/distro':
+                d = self.conf['distro'].keys()
+                d.sort()
+                for k in d:
+                    if k.startswith('FLL_DISTRO_CODENAME'):
+                        continue
+                    elif k == 'FLL_MOUNTPOINT':
+                        f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
+                        test = '$([ -d "$%s" ] && echo live' % k
+                        test += ' || echo installed)'
+                        f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test))
+                    elif k == 'FLL_IMAGE_FILE':
+                        image_file = self._getDistroImageFile(arch)
+                        f.write('%s="%s"\n' % (k, image_file))
+                        f.write('%s="$%s/$%s"\n' % ('FLL_IMAGE_LOCATION',
+                                                    'FLL_IMAGE_DIR', k))
+                    else:
+                        f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
+            elif file == '/etc/fstab':
+                f.write('# /etc/fstab: static file system information\n')
+            elif file == '/etc/hostname':
+                hostname = self.conf['distro']['FLL_DISTRO_NAME']
+                f.write(hostname + '\n')
+            elif file == '/etc/hosts':
+                hostname = self.conf['distro']['FLL_DISTRO_NAME']
+                f.write('127.0.0.1\tlocalhost\n')
+                f.write('127.0.0.1\t' + hostname + '\n\n')
+                f.write('# Below lines are for IPv6 capable hosts\n')
+                f.write('::1     ip6-localhost ip6-loopback\n')
+                f.write('fe00::0 ip6-localnet\n')
+                f.write('ff00::0 ip6-mcastprefix\n')
+                f.write('ff02::1 ip6-allnodes\n')
+                f.write('ff02::2 ip6-allrouters\n')
+                f.write('ff02::3 ip6-allhosts\n')
+            elif file == '/etc/kernel-img.conf':
+                f.write('do_bootloader = No\n')
+                f.write('warn_initrd   = No\n')
+            elif file == '/etc/network/interfaces':
+                f.write('# /etc/network/interfaces - ')
+                f.write('configuration file for ifup(8), ifdown(8)\n\n')
+                f.write('# The loopback interface\n')
+                f.write('auto lo\n')
+                f.write('iface lo inet loopback\n')
+            elif file == '/usr/sbin/policy-rc.d':
+                f.write('#!/bin/sh\n')
+                f.write('echo "$0 denied action: \`$1 $2\'" >&2\n')
+                f.write('exit 101\n')
+        except IOError:
+            self.log.exception('failed to open file for writing: %s' % file)
+            raise Error
         finally:
             if f:
                 f.close()
@@ -1016,13 +1014,12 @@ class FLLBuilder(object):
         self.log.debug('stamping distro version: %s' % distro_version)
         f = None
         try:
-            try:
-                f = open(distro_version, 'w')
-                f.write(self._getDistroStamp())
-            except IOError:
-                self.log.exception('failed to open file for writing: %s' %
-                                   distro_version)
-                raise Error
+            f = open(distro_version, 'w')
+            f.write(self._getDistroStamp())
+        except IOError:
+            self.log.exception('failed to open file for writing: %s' %
+                               distro_version)
+            raise Error
         finally:
             if f:
                 f.close()
@@ -1041,14 +1038,13 @@ class FLLBuilder(object):
         self.log.debug('add grub hooks to /etc/kernel-img.conf')
         f = None
         try:
-            try:
-                f = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'a')
-                f.write('postinst_hook = /usr/sbin/update-grub\n')
-                f.write('postrm_hook   = /usr/sbin/update-grub\n')
-            except IOError:
-                self.log.exception('failed to open file for writing: %s' %
-                                   '/etc/kernel-img.conf')
-                raise Error
+            f = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'a')
+            f.write('postinst_hook = /usr/sbin/update-grub\n')
+            f.write('postrm_hook   = /usr/sbin/update-grub\n')
+        except IOError:
+            self.log.exception('failed to open file for writing: %s' %
+                               '/etc/kernel-img.conf')
+            raise Error
         finally:
             if f:
                 f.close()
@@ -1063,14 +1059,13 @@ class FLLBuilder(object):
             self.log.info('preseeding debconf in %s chroot...' % arch)
             debconf = None
             try:
-                try:
-                    debconf = open(os.path.join(chroot, 'tmp',
-                                                'fll_debconf_selections'), 'w')
-                    debconf.writelines([d + '\n' for d in debconf_list])
-                except IOError:
-                    self.log.exception('failed to open file for writing: %s' %
-                                       '/tmp/fll_debconf_selections')
-                    raise Error
+                debconf = open(os.path.join(chroot, 'tmp',
+                                            'fll_debconf_selections'), 'w')
+                debconf.writelines([d + '\n' for d in debconf_list])
+            except IOError:
+                self.log.exception('failed to open file for writing: %s' %
+                                   '/tmp/fll_debconf_selections')
+                raise Error
             finally:
                 if debconf:
                     debconf.close()
@@ -1308,29 +1303,10 @@ class FLLBuilder(object):
                 self.log.exception('error preparing postinst script: %s' %
                                    sname)
                 raise Error
-            else:
-                cmd = '/tmp/%s postinst' % sname
-                self._execInChroot(arch, cmd.split())
-                os.unlink(os.path.join(chroot, 'tmp', sname))
 
-
-    def _rebuildInitRamfs(self, arch):
-        '''Rebuild the chroot live initramfs after all packages have been
-        installed. Copy the vmlinuz and initramfs to staging area.'''
-        chroot = os.path.join(self.temp, arch)
-        boot_dir = os.path.join(self.temp, 'staging', 'boot')
-
-        kvers = self._detectLinuxVersion(chroot)
-        for k in kvers:
-            self.log.info('creating an initial ramdisk for linux %s...' % k)
-            cmd = 'update-initramfs -d -k ' + k
+            cmd = '/tmp/%s postinst' % sname
             self._execInChroot(arch, cmd.split())
-
-            if self.opts.v:
-                cmd = 'update-initramfs -v -c -k ' + k
-            else:
-                cmd = 'update-initramfs -c -k ' + k
-            self._execInChroot(arch, cmd.split())
+            os.unlink(os.path.join(chroot, 'tmp', sname))
 
 
     def _initBlackList(self, arch):
@@ -1426,13 +1402,12 @@ class FLLBuilder(object):
         self.log.debug('writing file: /etc/default/fll-init')
         fllinit = None
         try:
-            try:
-                fllinit = open(os.path.join(chroot, 'etc/default/fll-init'),
-                               'a')
-                fllinit.writelines(fllinitblacklist)
-            except IOError:
-                self.log.exception('failed to open /etc/default/fll-init')
-                raise Error
+            fllinit = open(os.path.join(chroot, 'etc/default/fll-init'),
+                           'a')
+            fllinit.writelines(fllinitblacklist)
+        except IOError:
+            self.log.exception('failed to open /etc/default/fll-init')
+            raise Error
         finally:
             if fllinit:
                 fllinit.close()
@@ -1685,12 +1660,11 @@ class FLLBuilder(object):
 
             md5sums = None
             try:
-                try:
-                    md5sums = open(os.path.join(base, 'md5sums'), 'a')
-                    md5sums.write("%s *%s\n" % (self.__md5sum(file), filename))
-                except IOError:
-                    self.log.exception('failed to write md5sums file')
-                    raise Error
+                md5sums = open(os.path.join(base, 'md5sums'), 'a')
+                md5sums.write("%s *%s\n" % (self.__md5sum(file), filename))
+            except IOError:
+                self.log.exception('failed to write md5sums file')
+                raise Error
             finally:
                 if md5sums:
                     md5sums.close()
@@ -1724,13 +1698,11 @@ class FLLBuilder(object):
 
             manifest = None
             try:
-                try:
-                    manifest = open(manifest_file, 'w')
-                    manifest.writelines(self.__archManifest(arch))
-                except IOError:
-                    self.log.exception('failed to write file: %s' %
-                                       manifest_file)
-                    raise Error
+                manifest = open(manifest_file, 'w')
+                manifest.writelines(self.__archManifest(arch))
+            except IOError:
+                self.log.exception('failed to write file: %s' % manifest_file)
+                raise Error
             finally:
                 if manifest:
                     manifest.close()
@@ -1750,13 +1722,11 @@ class FLLBuilder(object):
 
         sources = None
         try:
-            try:
-                sources = open(sources_file, 'w')
-                sources.writelines(["%s\n" % s for s in sources_list])
-            except IOError:
-                self.log.exception('failed to write file: %s' %
-                                   sources_file)
-                raise Error
+            sources = open(sources_file, 'w')
+            sources.writelines(["%s\n" % s for s in sources_list])
+        except IOError:
+            self.log.exception('failed to write file: %s' % sources_file)
+            raise Error
         finally:
             if sources:
                 sources.close()
@@ -1776,18 +1746,16 @@ class FLLBuilder(object):
 
         sources = None
         try:
-            try:
-                sources = open(sources_file, 'w')
-                for s in sources_list:
-                    for c in cached.keys():
-                        if s.startswith(c):
-                            s = s.replace(c, cached[c], 1)
-                            break
-                    sources.write('%s\n' % s)
-            except IOError:
-                self.log.exception('failed to write file: %s' %
-                                   sources_file)
-                raise Error
+            sources = open(sources_file, 'w')
+            for s in sources_list:
+                for c in cached.keys():
+                    if s.startswith(c):
+                        s = s.replace(c, cached[c], 1)
+                        break
+                sources.write('%s\n' % s)
+        except IOError:
+            self.log.exception('failed to write file: %s' % sources_file)
+            raise Error
         finally:
             if sources:
                 sources.close()
@@ -1800,14 +1768,13 @@ class FLLBuilder(object):
 
         sort = None
         try:
-            try:
-                sort = open(os.path.join(stage, 'genisoimage.sort'), 'w')
-                sort.write('boot/grub/* 10000\n')
-                sort.write('boot/* 1000\n')
-                sort.write('%s/* 100\n' % self.conf['distro']['FLL_IMAGE_DIR'])
-            except IOError:
-                self.log.exception('failed to write genisoimage.sort file')
-                raise Error
+            sort = open(os.path.join(stage, 'genisoimage.sort'), 'w')
+            sort.write('boot/grub/* 10000\n')
+            sort.write('boot/* 1000\n')
+            sort.write('%s/* 100\n' % self.conf['distro']['FLL_IMAGE_DIR'])
+        except IOError:
+            self.log.exception('failed to write genisoimage.sort file')
+            raise Error
         finally:
             if sort:
                 sort.close()
@@ -1839,13 +1806,12 @@ class FLLBuilder(object):
         self.log.info('calculating md5sum of live media iso image...')
         md5 = None
         try:
-            try:
-                md5 = open(md5_file, 'w')
-                md5.write("%s *%s\n" % (self.__md5sum(iso_file),
-                                        os.path.basename(iso_file)))
-            except IOError:
-                self.log.exception('failed to write md5sums file')
-                raise Error
+            md5 = open(md5_file, 'w')
+            md5.write("%s *%s\n" % (self.__md5sum(iso_file),
+                                    os.path.basename(iso_file)))
+        except IOError:
+            self.log.exception('failed to write md5sums file')
+            raise Error
         finally:
             if md5:
                 md5.close()
@@ -1854,13 +1820,12 @@ class FLLBuilder(object):
         self.log.info('calculating sha256sum of live media iso image...')
         sha256 = None
         try:
-            try:
-                sha256 = open(sha256_file, 'w')
-                sha256.write("%s *%s\n" % (self.__sha256sum(iso_file),
-                                           os.path.basename(iso_file)))
-            except IOError:
-                self.log.exception('failed to write sha256sums file')
-                raise Error
+            sha256 = open(sha256_file, 'w')
+            sha256.write("%s *%s\n" % (self.__sha256sum(iso_file),
+                                       os.path.basename(iso_file)))
+        except IOError:
+            self.log.exception('failed to write sha256sums file')
+            raise Error
         finally:
             if sha256:
                 sha256.close()
@@ -1886,7 +1851,6 @@ class FLLBuilder(object):
             self._installPkgs(arch)
             self._distroDefaultEtc(arch)
             self._postInst(arch)
-            self._rebuildInitRamfs(arch)
             self._collectManifest(arch)
             self._initBlackList(arch)
             self._finalEtc(arch)
