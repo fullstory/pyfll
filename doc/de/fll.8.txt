@@ -15,7 +15,8 @@ SYNOPSIS
 
 BESCHREIBUNG
 ------------
-fll(8) ist ein Python Skript zur Erstellung eines tagesaktuellen ISO Image aus den Repositories von sid/sidux 
+fll(8) ist ein Python Skript zur Erstellung eines tagesaktuellen ISO Image
+aus den Repositories von sid/sidux 
 
 
 OPTIONEN
@@ -30,18 +31,23 @@ Bestimmt das Build Verzeichnis. Hier wird viel freier Platz benötigt.
 Baut nur ein binäres Build. Schaltet Erstellung von URI Listen aus.	
 Grundeinstellung: Aus
 -c <Konfigurationsdatei>, --config=<Konfigurationsdatei>::
-Bestimmt die Konfigurationsdatei(en). Diese Option kann mehrfach verwendet werden um multiple Konfigurationen umzusetzen. Mindestens eine Datei muss angegeben werden.
+Bestimmt die Konfigurationsdatei(en). Diese Option kann mehrfach verwendet
+werden um multiple Konfigurationen umzusetzen. Mindestens eine Datei muss
+angegeben werden.
 -d, --debug::
 Schaltet den debug Modus ein. Ergibt eine erweiterte Ausgabe zur Fehlersuche
 Grundeinstellung: Aus
 -l <Datei>, --log=<Datei>::
-Loggt die debug Ausgabe in eine Datei. Achtung: Wenn die Ausgabe in eine Datei umgeleitet wird, ist die Konsolenausgabe reduziert wie ohne den Parameter -d.
+Loggt die debug Ausgabe in eine Datei. Achtung: Wenn die Ausgabe in eine Datei
+umgeleitet wird, ist die Konsolenausgabe reduziert wie ohne den Parameter -d.
 -o <Verzeichnis>, --output=<Verzeichnis>::
 Ausgabeverzeichnis, wo das Produkt dieses Programms erstellt wird.
 -p <Profil>, --profile=<Profil>::
-Paketprofil, (aus /packages oder selbst erstellt), übergeht die Konfigurationsdatei.
+Paketprofil, (aus /packages oder selbst erstellt), übergeht die
+Konfigurationsdatei.
 -P, --preserve::
-Erhalte das Build Verzeichnis. Schaltet das automatische Aufräumen am Ende des Vorgangs aus.
+Erhalte das Build Verzeichnis. Schaltet das automatische Aufräumen am Ende des
+Vorgangs aus.
 -q, --quiet::
 Schaltet in den stillen Modus. Nur wichtige Meldungen werden angezeigt.
 -v, --verbose::
