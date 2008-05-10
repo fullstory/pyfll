@@ -4,5 +4,8 @@ pyfll (1.0) UNRELEASED; urgency=low
     copyright purposes.
   * Adapt fll.py to python2.5, which has try, except, finally blocks.
   * Word wrap de/fll.8.txt to sane 80 character per line.
+  * Use partition string method of python2.5 to determine pathnames inside of
+    a build chroot.
+  * Update README file to indicate current minimum requirements.
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 10 May 2008 10:51:14 +1000
+ -- Kel Modderman <kel@otaku42.de>  Sat, 10 May 2008 11:19:49 +1000

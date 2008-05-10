@@ -515,7 +515,7 @@ class FLLBuilder(object):
     def _stageMedia(self, point, dir, fnames):
         '''Copy content from a directory to live media staging area.'''
         orig, dest = point
-        dirname = dir.replace(orig, '', 1).lstrip('/')
+        dirname = dir.partition(orig)[2].lstrip('/')
 
         remove = []
         for f in fnames:
@@ -787,7 +787,7 @@ class FLLBuilder(object):
                 s = None
                 try:
                     s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
-                    s.write('#   %-74s#\n' % file.replace(chroot, '', 1))
+                    s.write('#   %-74s#\n' % file.partition(chroot)[2])
                 except IOError:
                     self.log.exception('failed to open /etc/apt/sources.list')
                     raise Error
@@ -1080,7 +1080,7 @@ class FLLBuilder(object):
 
     def _detectLinuxVersion(self, chroot):
         '''Return version string of a singularly installed linux-image.'''
-        kvers = [f.replace('vmlinuz-', '', 1) for f in
+        kvers = [f.partition('vmlinuz-')[2] for f in
                  os.listdir(os.path.join(chroot, 'boot'))
                  if f.startswith('vmlinuz-')]
 
@@ -1337,7 +1337,7 @@ class FLLBuilder(object):
         initd = '/etc/init.d/'
 
         init_glob = os.path.join(chroot, 'etc', 'init.d', '*')
-        initscripts = set([i.replace(chroot, '', 1)
+        initscripts = set([i.partition(chroot)[2]
                            for i in glob.glob(init_glob)
                            if self.__isexecutable(i)])
 
@@ -1349,7 +1349,7 @@ class FLLBuilder(object):
             files = []
             if line.startswith(initd):
                 file_glob = os.path.join(chroot, line.lstrip('/').rstrip())
-                files = [f.replace(chroot, '', 1) for f in glob.glob(file_glob)
+                files = [f.partition(chroot)[2] for f in glob.glob(file_glob)
                          if self.__isexecutable(f)]
                 for file in files:
                     self.log.debug('blacklisting: %s (glob)' % file)
@@ -1383,7 +1383,7 @@ class FLLBuilder(object):
             files = []
             if line.startswith(initd):
                 file_glob = os.path.join(chroot, line.lstrip('/').rstrip())
-                files = [f.replace(chroot, '', 1) for f in glob.glob(file_glob)
+                files = [f.partition(chroot)[2] for f in glob.glob(file_glob)
                          if self.__isexecutable(f)]
                 for file in files:
                     self.log.debug('whitelisting: %s (glob)' % file)
@@ -1435,7 +1435,7 @@ class FLLBuilder(object):
     def _zerologs(self, arch, dir, fnames):
         '''Truncate all log files.'''
         chroot = os.path.join(self.temp, arch)
-        chrootdir = dir.replace(chroot, '', 1)
+        chrootdir = dir.partition(chroot)[2]
 
         for f in fnames:
             if not os.path.isfile(os.path.join(dir, f)):
@@ -1670,7 +1670,7 @@ class FLLBuilder(object):
         '''Function given to os.path.walk of self.writeMd5Sums().'''
         for f in fnames:
             file = os.path.join(dir, f)
-            filename = file.replace(base, '', 1).lstrip('/')
+            filename = file.partition(base)[2].lstrip('/')
 
             if not os.path.isfile(file) or f == 'md5sums':
                 continue

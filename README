@@ -6,8 +6,8 @@ Example Usage:
   2) ./fll -c ../fll.conf -b /tmp/fll/ -o /tmp/fll/
 
 Dependencies:
-  python (>= 2.4)
+  python (>= 2.5)
   python-apt
   python-configobj
-  cdebootstrap
+  cdebootstrap | debootstrap
   genisoimage
