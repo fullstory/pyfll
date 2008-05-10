@@ -3,8 +3,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   * Add minimal ./debian/* infrastructure to source tree for archival and
     copyright purposes.
   * Adapt fll.py to python2.5, which has try, except, finally blocks.
-  * No longer explictly rebuild the live initramfs, dpkg-triggers cause the
-    initramfs to be updated at the end of installation.
   * Word wrap de/fll.8.txt to sane 80 character per line.
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 10 May 2008 10:37:41 +1000
+ -- Kel Modderman <kel@otaku42.de>  Sat, 10 May 2008 10:51:14 +1000
