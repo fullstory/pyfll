@@ -910,7 +910,6 @@ class FLLBuilder(object):
 
             if d == '/usr/sbin/policy-rc.d':
                 self._writeFile(arch, d)
-                cmd = 'chmod +x %s' % d
                 os.chmod(os.path.join(chroot, d.lstrip('/')), 0755)
             else:
                 os.symlink('/bin/true', os.path.join(chroot, d.lstrip('/')))
