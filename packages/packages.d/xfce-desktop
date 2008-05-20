@@ -9,6 +9,7 @@ packages = """
 	brasero
 	desktop-file-utils
 	evince
+	gcalctool
 	gconf2
 	gdm
 	gksu
