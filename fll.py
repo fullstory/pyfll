@@ -285,7 +285,12 @@ class FLLBuilder(object):
             raise Error
 
         for repo in self.conf['repos'].keys():
-            for word in ['label', 'uri', 'suite', 'components']:
+            if self.conf['repos'][repo].get('trivial'):
+                words = ['label', 'uri']
+            else:
+                words = ['label', 'uri', 'suite', 'components']
+
+            for word in words:
                 if word not in self.conf['repos'][repo]:
                     self.log.critical("no '%s' for apt repo '%s'" %
                                      (word, repo))
@@ -803,8 +808,12 @@ class FLLBuilder(object):
             else:
                 line.append(r['uri'])
 
-            line.append(r['suite'])
-            line.append(r['components'])
+            if r.get('trivial'):
+                line.append('./')
+            else:
+                line.append(r['suite'])
+                line.append(r['components'])
+
             line.append("\n")
 
             l = ' '.join(line)
