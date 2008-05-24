@@ -300,8 +300,7 @@ class FLLBuilder(object):
             self.conf['packages']['profile'] = self.opts.p
         elif 'profile' not in self.conf['packages']:
             self.conf['packages']['profile'] = 'kde-lite'
-        self.log.debug('profile: %s' %
-                       self.conf['packages']['profile'])
+        self.log.debug('profile: %s' % self.conf['packages']['profile'])
 
         if 'i18n' not in self.conf['packages'] or \
            not self.__lines2list(self.conf['packages']['i18n']):
