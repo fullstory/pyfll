@@ -18,4 +18,8 @@ pyfll (1.0) UNRELEASED; urgency=low
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
   * xfce needs a desktop calculator, add gcalctool  
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 24 May 2008 10:45:47 +1000
+  [ Stefan Lippers-Hollmann ]
+  * try to save 10 MB in kde-seminarix.
+  * add temporary kde-lite-linuxtag flavour.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 25 May 2008 17:50:53 +0200

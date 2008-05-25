@@ -22,8 +22,6 @@ deps = """
 
 packages = """
 	audacity
-	bibletime
-	bibletime-i18n
 	chemtool
 	childsplay
 	childsplay-alphabet-sounds-de
@@ -33,8 +31,6 @@ packages = """
 	gnuplot
 	gperiodic
 	hanzim
-	hdate-applet
-	hebcal
 	hydrogen
 	iceweasel
 	inkscape
@@ -76,7 +72,6 @@ packages = """
 	kword
 	kwordquiz
 	manpages-de
-	minbar
 	quanta
 	scribus
 	siduxcc
