@@ -21,5 +21,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   [ Stefan Lippers-Hollmann ]
   * try to save 10 MB in kde-seminarix.
   * add temporary kde-lite-linuxtag flavour.
+  * Linuxtag is done, nuke the orphans.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 25 May 2008 17:50:53 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 26 May 2008 00:51:17 +0200
