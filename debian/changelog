@@ -13,6 +13,8 @@ pyfll (1.0) UNRELEASED; urgency=low
     package so that the live initramfs may be preseeded correctly.
   * Support trivial repositories when repo config section contains the
     'trivial' keyword set to any value at all.
+  * Inhibit console-common's keymap.sh initscript from running in live mode,
+    it is in conflict with fll-locales.
 
   [ Bernard Gray ]
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
@@ -23,4 +25,4 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add temporary kde-lite-linuxtag flavour.
   * Linuxtag is done, nuke the orphans.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 26 May 2008 00:51:17 +0200
+ -- Kel Modderman <kel@otaku42.de>  Mon, 26 May 2008 13:00:24 +1000
