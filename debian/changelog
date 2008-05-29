@@ -17,13 +17,11 @@ pyfll (1.0) UNRELEASED; urgency=low
   [ Bernard Gray ]
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
   * xfce needs a desktop calculator, add gcalctool  
+  * set erebos default wallpaper in fll.conf template 
 
   [ Stefan Lippers-Hollmann ]
   * try to save 10 MB in kde-seminarix.
   * add temporary kde-lite-linuxtag flavour.
   * Linuxtag is done, nuke the orphans.
-
-  [ Bernard Gray ]
-  * set erebos default wallpaper in fll.conf template 
 
  -- Bernard Gray <bernard.gray@gmail.com>  Mon, 26 May 2008 17:55:57 +1000
