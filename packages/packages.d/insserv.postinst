@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if [ -w /etc/default/rcS ] && ! grep -q '^CONCURRENCY=' /etc/default/rcS; then
+		say 'Activating startpar initscript concurrency'
+		echo 'CONCURRENCY=startpar' >> /etc/default/rcS
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

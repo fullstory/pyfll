@@ -13,6 +13,8 @@ pyfll (1.0) UNRELEASED; urgency=low
     package so that the live initramfs may be preseeded correctly.
   * Support trivial repositories when repo config section contains the
     'trivial' keyword set to any value at all.
+  * Add insserv.postinst to activate startpar concurrency when insserv is
+    used.
 
   [ Bernard Gray ]
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
@@ -24,4 +26,4 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add temporary kde-lite-linuxtag flavour.
   * Linuxtag is done, nuke the orphans.
 
- -- Bernard Gray <bernard.gray@gmail.com>  Mon, 26 May 2008 17:55:57 +1000
+ -- Kel Modderman <kel@otaku42.de>  Fri, 30 May 2008 20:14:23 +1000
