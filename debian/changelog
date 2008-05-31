@@ -25,5 +25,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   * try to save 10 MB in kde-seminarix.
   * add temporary kde-lite-linuxtag flavour.
   * Linuxtag is done, nuke the orphans.
+  * xserver-xorg-video-radeonhd is now covered by xserver-xorg-video-all.
 
- -- Kel Modderman <kel@otaku42.de>  Fri, 30 May 2008 20:14:23 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 31 May 2008 12:40:51 +0200
