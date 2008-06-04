@@ -33,6 +33,6 @@ packages = """
 	sidux-vdr
 	vdr-gui
 	virtualbox-ose
-	wengophone
+#	wengophone	libavcodec1d, libavformat1d, libavutil1d
 """
 

@@ -254,7 +254,7 @@ packages = """
 	virtualbox-ose
 	vlc
 	vorbis-tools
-	wengophone
+#	wengophone	libavcodec1d, libavformat1d, libavutil1d
 	xdelta
 	xfonts-intl-phonetic
 	xfonts-tipa

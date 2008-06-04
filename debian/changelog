@@ -26,5 +26,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add temporary kde-lite-linuxtag flavour.
   * Linuxtag is done, nuke the orphans.
   * xserver-xorg-video-radeonhd is now covered by xserver-xorg-video-all.
+  * wengophone isn't installable these days.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 31 May 2008 12:40:51 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 04 Jun 2008 17:04:44 +0200
