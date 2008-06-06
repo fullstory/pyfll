@@ -15,6 +15,7 @@ pyfll (1.0) UNRELEASED; urgency=low
     'trivial' keyword set to any value at all.
   * Add insserv.postinst to activate startpar concurrency when insserv is
     used.
+  * Add wacom-tools to xserver package module.
 
   [ Bernard Gray ]
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
@@ -28,4 +29,4 @@ pyfll (1.0) UNRELEASED; urgency=low
   * xserver-xorg-video-radeonhd is now covered by xserver-xorg-video-all.
   * wengophone isn't installable these days.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 04 Jun 2008 17:04:44 +0200
+ -- Kel Modderman <kel@otaku42.de>  Fri, 06 Jun 2008 12:13:31 +1000
