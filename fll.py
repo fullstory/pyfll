@@ -740,7 +740,7 @@ class FLLBuilder(object):
             cmd.append('--debug')
         elif self.opts.v:
             cmd.append('--verbose')
-        
+
         self._execCmd(cmd)
 
         cmd = 'dpkg --purge cdebootstrap-helper-rc.d'
@@ -754,7 +754,7 @@ class FLLBuilder(object):
 
         if self.opts.d or self.opts.v:
             cmd.insert(1, '--verbose')
-        
+
         self._execCmd(cmd)
         shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
         shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
@@ -769,9 +769,9 @@ class FLLBuilder(object):
             mirror = debian['uri']
 
         dir = os.path.join(self.temp, arch)
-        
+
         self.log.info('bootstrapping debian %s...' % arch)
-        
+
         bootstrapper = self.conf['options'].get('bootstrapper')
         if bootstrapper == 'debootstrap':
             self.__debBootStrap(arch, dir, mirror)
