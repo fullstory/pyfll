@@ -1,14 +1,7 @@
 pyfll (1.0+nmu1) UNRELEASED; urgency=low
 
   * Non-maintainer upload.
-  * COPYING data debian doc fll fll.conf fll.py fll_U8lQnG packages
-    README sidux-snapshot-kde-lite-i386-200806080931.i386.manifest
-    sidux-snapshot-kde-lite-i386-200806080931.iso sidux-snapshot-kde-
-    lite-i386-200806080931.iso.md5 sidux-snapshot-kde-lite-i386-
-    200806080931.iso.sha256 sidux-snapshot-kde-lite-i386-
-    200806080931.sources sidux-snapshot-kde-lite-i386-
-    200806080931.sources-cached added kdmtheme to packages.d/kde-desktop
-    for easier editing of themes
+  * added kdmtheme to packages.d/kde-desktop for easier editing of themes
 
  -- Ferdinand Thommes <devil@sidux.com>  Mon, 09 Jun 2008 07:33:40 +0200
 
