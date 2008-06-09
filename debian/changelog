@@ -1,10 +1,3 @@
-pyfll (1.0+nmu1) UNRELEASED; urgency=low
-
-  * Non-maintainer upload.
-  * added kdmtheme to packages.d/kde-desktop for easier editing of themes
-
- -- Ferdinand Thommes <devil@sidux.com>  Mon, 09 Jun 2008 07:33:40 +0200
-
 pyfll (1.0) UNRELEASED; urgency=low
 
   [ Kel Modderman ]
@@ -28,6 +21,9 @@ pyfll (1.0) UNRELEASED; urgency=low
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
   * xfce needs a desktop calculator, add gcalctool  
   * set erebos default wallpaper in fll.conf template 
+
+  [ Ferdinand Thommes ]
+  * added kdmtheme to packages.d/kde-desktop for easier editing of themes
 
   [ Stefan Lippers-Hollmann ]
   * try to save 10 MB in kde-seminarix.
