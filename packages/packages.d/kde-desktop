@@ -32,6 +32,7 @@ packages = """
 	kdetv
 	kdf
 	kdict
+	kdmtheme
 	kdnssd
 	kfax
 	kfaxview
