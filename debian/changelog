@@ -35,5 +35,6 @@ pyfll (1.0) UNRELEASED; urgency=low
 
   [ Bernard Gray ]
   * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists  
+  * revert accidental commit of my temp pkg changes 
 
- -- Bernard Gray <bernard.gray@gmail.com>  Wed, 11 Jun 2008 14:52:21 +1000
+ -- Bernard Gray <bernard.gray@gmail.com>  Wed, 11 Jun 2008 14:56:30 +1000

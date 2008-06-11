@@ -4,10 +4,10 @@ desc = """
 
 packages = """
 	gparted
+	hplip-gui
 	libxine1-xvdr
 	tvtime
 	xsane
 	zenity
 """
 
-#	hplip-gui
