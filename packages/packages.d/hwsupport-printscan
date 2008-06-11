@@ -14,8 +14,6 @@ packages = """
 	foomatic-filters
 	foomatic-filters-ppds
 	ghostscript-x
-	hpijs-ppds
-	hplip
 	openprinting-ppds
 	min12xxw
 	pnm2ppa
@@ -24,3 +22,5 @@ packages = """
 	libsane-extras
 """
 
+#	hpijs-ppds
+#	hplip

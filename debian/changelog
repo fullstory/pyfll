@@ -33,4 +33,7 @@ pyfll (1.0) UNRELEASED; urgency=low
   * wengophone isn't installable these days.
   * bump standards version to 3.8.0, no changes necessary.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 08 Jun 2008 16:30:07 +0200
+  [ Bernard Gray ]
+  * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists  
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Wed, 11 Jun 2008 14:52:21 +1000

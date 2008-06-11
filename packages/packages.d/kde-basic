@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	gtk-qt-engine
 	gwenview
 	k3b
 	kcalc
@@ -11,6 +12,5 @@ packages = """
 	kppp
 	kpdf
 	ksnapshot
-	gtk2-engines-qtcurve
 """
 

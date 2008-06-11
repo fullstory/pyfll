@@ -95,7 +95,7 @@ packages = """
 	glade
 	gnucash
 	gthumb
-	gtk2-engines-qtcurve
+	gtk-qt-engine
 	gtkam
 	gtkam-gimp
 	gtkpod
@@ -139,6 +139,7 @@ packages = """
 	kdepim
 	kdesdk
 	kdesktop
+	kde-style-domino
 	kde-style-klearlook
 	kde-style-lipstik
 	kde-style-qtcurve
