@@ -32,9 +32,11 @@ pyfll (1.0) UNRELEASED; urgency=low
   * xserver-xorg-video-radeonhd is now covered by xserver-xorg-video-all.
   * wengophone isn't installable these days.
   * bump standards version to 3.8.0, no changes necessary.
+  * add xserver-xorg-video-openchrome to xserver task.
+  * fix Uploaders syntax.
 
   [ Bernard Gray ]
   * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists  
   * revert accidental commit of my temp pkg changes 
 
- -- Bernard Gray <bernard.gray@gmail.com>  Wed, 11 Jun 2008 14:56:30 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 13 Jun 2008 03:25:47 +0200

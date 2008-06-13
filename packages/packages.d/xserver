@@ -26,6 +26,7 @@ packages = """
 	xserver-xorg-input-all
 	xserver-xorg-input-vmmouse
 	xserver-xorg-video-all
+	xserver-xorg-video-openchrome
 	xinit
 	xutils
 """
