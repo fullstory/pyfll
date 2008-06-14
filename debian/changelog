@@ -21,6 +21,8 @@ pyfll (1.0) UNRELEASED; urgency=low
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
   * xfce needs a desktop calculator, add gcalctool  
   * set erebos default wallpaper in fll.conf template 
+  * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists  
+  * revert accidental commit of my temp pkg changes 
 
   [ Ferdinand Thommes ]
   * added kdmtheme to packages.d/kde-desktop for easier editing of themes
@@ -34,9 +36,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   * bump standards version to 3.8.0, no changes necessary.
   * add xserver-xorg-video-openchrome to xserver task.
   * fix Uploaders syntax.
+  * don't show unionfs alternatives for now, it conflicts with aufs.
 
-  [ Bernard Gray ]
-  * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists  
-  * revert accidental commit of my temp pkg changes 
-
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 13 Jun 2008 03:25:47 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 14 Jun 2008 16:06:31 +0200
