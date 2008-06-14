@@ -37,5 +37,8 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add xserver-xorg-video-openchrome to xserver task.
   * fix Uploaders syntax.
   * don't show unionfs alternatives for now, it conflicts with aufs.
+  * remove no longer existing packages:
+    - fujiplay (Closes: #476780).
+    - screenkast (Closes: #482978).
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 14 Jun 2008 16:06:31 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 14 Jun 2008 23:21:02 +0200

@@ -229,7 +229,6 @@ packages = """
 	rox-filer
 	ruby-full
 	scite
-	screenkast
 	scribus-ng
 	sidux-vdr
 	smartmontools
