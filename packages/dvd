@@ -88,7 +88,6 @@ packages = """
 	filezilla
 	firestarter
 	flac
-	fujiplay
 	geany
 	gettext
 	gftp
