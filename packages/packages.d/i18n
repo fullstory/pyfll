@@ -18,6 +18,22 @@ gwenview = """
 	gwenview
 """
 
+iceape = """
+	iceape-locale
+"""
+
+icedove = """
+	icedove-locale
+"""
+
+iceowl = """
+	iceowl-l10n
+"""
+
+iceweasel = """
+	iceweasel-l10n
+"""
+
 k3b = """
 	k3b
 """
