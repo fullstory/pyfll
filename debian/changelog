@@ -40,5 +40,7 @@ pyfll (1.0) UNRELEASED; urgency=low
   * remove no longer existing packages:
     - fujiplay (Closes: #476780).
     - screenkast (Closes: #482978).
+  * add skeleton for sanity.postinst to give the installed package lists some
+    sanity checks against misbehaving packages.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 14 Jun 2008 23:21:02 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 15 Jun 2008 14:37:58 +0200
