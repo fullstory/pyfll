@@ -43,4 +43,9 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add skeleton for sanity.postinst to give the installed package lists some
     sanity checks against misbehaving packages.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 15 Jun 2008 14:37:58 +0200
+  [ Bernard Gray ]
+  * remove wmauda (dock remote control for audacious) to keep audacious out of
+    xfce - audacious has a new (hours old) bug where it segfaults on start
+      - aqualung is left as the default music player
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Tue, 17 Jun 2008 14:01:28 +1000

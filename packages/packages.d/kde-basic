@@ -5,7 +5,6 @@ desc = """
 packages = """
 	gtk-qt-engine
 	gwenview
-	k3b
 	kcalc
 	kmix
 	knemo
@@ -13,4 +12,4 @@ packages = """
 	kpdf
 	ksnapshot
 """
-
+#	k3b

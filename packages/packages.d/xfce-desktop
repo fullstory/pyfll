@@ -29,7 +29,6 @@ packages = """
 	thunar-media-tags-plugin
 	thunar-volman
 	trayer
-	wmauda
 	xarchiver
 	xbase-clients
 	xbitmaps
