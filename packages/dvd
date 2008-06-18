@@ -8,14 +8,14 @@ deps = """
 	data-rescue
 	devel-debian
 	distro
-	distro-gnome
+#	distro-gnome
 	distro-kde
 	distro-tools
 	distro-tools-x
 	distro-xfce
-	gnome-essential
-	gnome-basic
-	gnome-desktop
+#	gnome-essential
+#	gnome-basic
+#	gnome-desktop
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
@@ -201,6 +201,7 @@ packages = """
 	nano
 	netcat
 	nvram-wakeup
+	openoffice.org-kde
 	openssh-server
 	p7zip-full
 	parted
@@ -229,6 +230,7 @@ packages = """
 #	ruby-full	irb, rdoc, ri
 	scite
 	scribus-ng
+	siduxcc
 	sidux-vdr
 	smartmontools
 	spamassassin
