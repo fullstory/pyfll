@@ -83,7 +83,7 @@ packages = """
 	fetchmail
 	fetchmailconf
 	ffmpeg
-	ffmpeg2theora
+#	ffmpeg2theora		libavcodec1d, libavformat1d, libavutil1d
 	file-roller
 	filezilla
 	firestarter
@@ -107,13 +107,13 @@ packages = """
 	icedove
 	icemc
 	iceowl
-	iceweasel
+#	iceweasel
 	iceweasel-gnome-support
 	icewm
 	icewm-gnome-support
 	icewm-themes
 	idesk
-	idjc
+#	idjc		libavcodec1d, libavformat1d, libavutil1d
 	idle
 	imagemagick
 	inkscape
@@ -227,7 +227,7 @@ packages = """
 	rdiff-backup
 	rosegarden
 	rox-filer
-	ruby-full
+#	ruby-full	irb, rdoc, ri
 	scite
 	scribus-ng
 	sidux-vdr
@@ -253,7 +253,7 @@ packages = """
 	virtualbox-ose
 	vlc
 	vorbis-tools
-#	wengophone	libavcodec1d, libavformat1d, libavutil1d
+#	wengophone		libavcodec1d, libavformat1d, libavutil1d
 	xdelta
 	xfonts-intl-phonetic
 	xfonts-tipa

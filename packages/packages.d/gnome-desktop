@@ -34,7 +34,7 @@ packages = """
 	nautilus-gksu
 	pidgin-data
 	python-nautilus
-	seahorse
+#	seahorse	libxul0d	
 	totem
 	wireshark
 """
