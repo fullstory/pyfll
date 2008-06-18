@@ -23,9 +23,13 @@ pyfll (1.0) UNRELEASED; urgency=low
   * set erebos default wallpaper in fll.conf template 
   * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists  
   * revert accidental commit of my temp pkg changes 
+  * remove wmauda (dock remote control for audacious) to keep audacious out of
+    xfce - audacious has a new (hours old) bug where it segfaults on start
+      - aqualung is left as the default music player
 
   [ Ferdinand Thommes ]
   * added kdmtheme to packages.d/kde-desktop for easier editing of themes
+  * sorted dvd package list for release
 
   [ Stefan Lippers-Hollmann ]
   * try to save 10 MB in kde-seminarix.
@@ -42,14 +46,7 @@ pyfll (1.0) UNRELEASED; urgency=low
     - screenkast (Closes: #482978).
   * add skeleton for sanity.postinst to give the installed package lists some
     sanity checks against misbehaving packages.
+  * remove openchrome again, doesn't work without further userspace and kernel
+    DRM changes.
 
-  [ Bernard Gray ]
-  * remove wmauda (dock remote control for audacious) to keep audacious out of
-    xfce - audacious has a new (hours old) bug where it segfaults on start
-      - aqualung is left as the default music player
-
-  [ Ferdinand Thommes ]
-  * COPYING data debian doc fll fll.conf fll.py packages README sorted
-    dvd package list for release
-
- -- Ferdinand Thommes <devil@sidux.com>  Wed, 18 Jun 2008 09:06:10 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 18 Jun 2008 13:49:56 +0200
