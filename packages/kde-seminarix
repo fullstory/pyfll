@@ -21,7 +21,7 @@ deps = """
 """
 
 packages = """
-#	audacity
+	audacity
 	chemtool
 	childsplay
 	childsplay-alphabet-sounds-de
