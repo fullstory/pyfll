@@ -52,4 +52,7 @@ pyfll (1.0) UNRELEASED; urgency=low
   [ Bernard Gray ]
   * partial revert 18631 - domino -> qtcurve
 
- -- Bernard Gray <bernard.gray@gmail.com>  Wed, 18 Jun 2008 23:08:24 +1000
+  [ Ferdinand Thommes ]
+  * changes for release in dvd and kde-seminarix
+
+ -- Ferdinand Thommes <devil@sidux.com>  Fri, 20 Jun 2008 10:32:22 +0200
