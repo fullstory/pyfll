@@ -56,5 +56,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   * changes for release in dvd and kde-seminarix
   * edited dvd and kde-seminarix for release
   * hopefuly cleaned up my mess in /packages/dvd
+  * added openoffice.org-kde again
 
- -- Ferdinand Thommes <devil@sidux.com>  Fri, 20 Jun 2008 13:12:03 +0200
+ -- Ferdinand Thommes <devil@sidux.com>  Fri, 20 Jun 2008 13:25:01 +0200
