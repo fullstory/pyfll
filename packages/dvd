@@ -231,6 +231,7 @@ packages = """
 	ruby-full
 	scite
 	scribus-ng
+	siduxcc
 	sidux-vdr
 	smartmontools
 	spamassassin
