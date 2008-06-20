@@ -8,14 +8,14 @@ deps = """
 	data-rescue
 	devel-debian
 	distro
-#	distro-gnome
+	distro-gnome
 	distro-kde
 	distro-tools
 	distro-tools-x
 	distro-xfce
-#	gnome-essential
-#	gnome-basic
-#	gnome-desktop
+	gnome-essential
+	gnome-basic
+	gnome-desktop
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
@@ -94,7 +94,7 @@ packages = """
 	glade
 	gnucash
 	gthumb
-	gtk2-engines-qtcurve
+	gtk-qt-engine
 	gtkam
 	gtkam-gimp
 	gtkpod
@@ -107,7 +107,7 @@ packages = """
 	icedove
 	icemc
 	iceowl
-#	iceweasel
+	iceweasel
 	iceweasel-gnome-support
 	icewm
 	icewm-gnome-support
@@ -138,6 +138,7 @@ packages = """
 	kdepim
 	kdesdk
 	kdesktop
+	kde-style-domino
 	kde-style-klearlook
 	kde-style-lipstik
 	kde-style-qtcurve
@@ -201,7 +202,6 @@ packages = """
 	nano
 	netcat
 	nvram-wakeup
-	openoffice.org-kde
 	openssh-server
 	p7zip-full
 	parted
@@ -230,7 +230,6 @@ packages = """
 #	ruby-full	irb, rdoc, ri
 	scite
 	scribus-ng
-	siduxcc
 	sidux-vdr
 	smartmontools
 	spamassassin
@@ -254,7 +253,7 @@ packages = """
 	virtualbox-ose
 	vlc
 	vorbis-tools
-#	wengophone		libavcodec1d, libavformat1d, libavutil1d
+	wengophone		libavcodec1d, libavformat1d, libavutil1d
 	xdelta
 	xfonts-intl-phonetic
 	xfonts-tipa
