@@ -202,6 +202,7 @@ packages = """
 	nano
 	netcat
 	nvram-wakeup
+	openoffice.org-kde
 	openssh-server
 	p7zip-full
 	parted
