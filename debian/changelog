@@ -58,5 +58,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   * hopefuly cleaned up my mess in /packages/dvd
   * added openoffice.org-kde again
   * added siduxcc again to packages/dvd
+  * trimmed kde-seminarix to /home/devil 690 MB, k3b counted in
 
- -- Ferdinand Thommes <devil@sidux.com>  Fri, 20 Jun 2008 13:29:34 +0200
+ -- Ferdinand Thommes <devil@sidux.com>  Sat, 21 Jun 2008 13:28:19 +0200
