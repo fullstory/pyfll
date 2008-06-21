@@ -31,11 +31,11 @@ packages = """
 	gnuplot
 	gperiodic
 	hanzim
-#	hydrogen
+	hydrogen
 	iceweasel
 	inkscape
 	itools
-#	juk
+	juk
 	kalzium
 	karbon
 	katomic
