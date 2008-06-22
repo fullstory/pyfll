@@ -32,6 +32,7 @@ packages = """
 	xarchiver
 	xbase-clients
 	xbitmaps
+	xchat
 	xchat-systray
 	xfce4
 	xfce4-artwork
