@@ -7,6 +7,6 @@ packages = """
 	gdm-themes-sidux
 	gksu
 	sidux-art-gnome
-	siduxcc-common
+	siduxcc-gtk2
 """
 

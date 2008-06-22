@@ -7,6 +7,5 @@ packages = """
 	epiphany-extensions
 	gdm
 	gnome-core
-	xchat
 	xchat-systray
 """
