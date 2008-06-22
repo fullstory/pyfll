@@ -26,10 +26,17 @@ pyfll (1.0) UNRELEASED; urgency=low
   * remove wmauda (dock remote control for audacious) to keep audacious out of
     xfce - audacious has a new (hours old) bug where it segfaults on start
       - aqualung is left as the default music player
+  * partial revert 18631 - domino -> qtcurve
 
   [ Ferdinand Thommes ]
   * added kdmtheme to packages.d/kde-desktop for easier editing of themes
   * sorted dvd package list for release
+  * changes for release in dvd and kde-seminarix
+  * edited dvd and kde-seminarix for release
+  * hopefuly cleaned up my mess in /packages/dvd
+  * added openoffice.org-kde again
+  * added siduxcc again to packages/dvd
+  * trimmed kde-seminarix to /home/devil 690 MB, k3b counted in
 
   [ Stefan Lippers-Hollmann ]
   * try to save 10 MB in kde-seminarix.
@@ -48,16 +55,6 @@ pyfll (1.0) UNRELEASED; urgency=low
     sanity checks against misbehaving packages.
   * remove openchrome again, doesn't work without further userspace and kernel
     DRM changes.
+  * add ttf-liberation.
 
-  [ Bernard Gray ]
-  * partial revert 18631 - domino -> qtcurve
-
-  [ Ferdinand Thommes ]
-  * changes for release in dvd and kde-seminarix
-  * edited dvd and kde-seminarix for release
-  * hopefuly cleaned up my mess in /packages/dvd
-  * added openoffice.org-kde again
-  * added siduxcc again to packages/dvd
-  * trimmed kde-seminarix to /home/devil 690 MB, k3b counted in
-
- -- Ferdinand Thommes <devil@sidux.com>  Sat, 21 Jun 2008 13:28:19 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 22 Jun 2008 23:34:40 +0200
