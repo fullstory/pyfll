@@ -16,6 +16,8 @@ pyfll (1.0) UNRELEASED; urgency=low
   * Add insserv.postinst to activate startpar concurrency when insserv is
     used.
   * Add wacom-tools to xserver package module.
+  * Drop update-menus from xserver.postinst, dpkg-trigger now takes care of
+    it.
 
   [ Bernard Gray ]
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
@@ -57,4 +59,4 @@ pyfll (1.0) UNRELEASED; urgency=low
     DRM changes.
   * add ttf-liberation.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 22 Jun 2008 23:34:40 +0200
+ -- Kel Modderman <kel@otaku42.de>  Mon, 23 Jun 2008 16:08:28 +1000

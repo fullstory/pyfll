@@ -11,12 +11,6 @@ do_postinst() {
 	# This must be done post fontconfig-config installation
 	echo fontconfig-config fontconfig/enable_bitmaps boolean false | \
 		debconf-set-selections
-
-	say 'Invoking update-menus'
-	# Wait until an exclusive lock can be acquired, then release it
-	# to run one final, manual, update-menus process
-	flock --wait 30 --exclusive /var/run/update-menus.pid true
-	update-menus
 }
 
 case "${1}" in
