@@ -58,5 +58,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   * remove openchrome again, doesn't work without further userspace and kernel
     DRM changes.
   * add ttf-liberation.
+  * don't squash /etc/blkid.tab.
 
- -- Kel Modderman <kel@otaku42.de>  Mon, 23 Jun 2008 16:08:28 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 24 Jun 2008 23:21:40 +0200

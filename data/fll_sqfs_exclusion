@@ -5,6 +5,7 @@ etc/.*lock
 etc/*-
 etc/adjtime
 etc/apt/*~
+etc/blkid.tab
 etc/localtime
 etc/lvm/archive
 etc/lvm/backup
