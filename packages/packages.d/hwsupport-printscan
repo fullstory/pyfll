@@ -3,9 +3,9 @@ desc = """
 """
 
 packages = """
-	cupsys
-	cupsys-client
-	cupsys-bsd
+	cups
+	cups-client
+	cups-bsd
 	cupsys-driver-gutenprint
 	foomatic-db
 	foomatic-db-engine

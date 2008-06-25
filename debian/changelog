@@ -29,6 +29,13 @@ pyfll (1.0) UNRELEASED; urgency=low
     xfce - audacious has a new (hours old) bug where it segfaults on start
       - aqualung is left as the default music player
   * partial revert 18631 - domino -> qtcurve
+  * update hwsupport-printscan for cupsys -> cups transition
+   From 1.3.7-6 changelog:
+   "Rename the package to cups. This is the proper upstream name. Upstream has
+    made it clear that the usual distro patches are not a trademark
+    violation." -- Martin Pitt <mpitt@debian.org>
+  * still waiting on cups(ys)-driver-gutenprint package to get updated
+
 
   [ Ferdinand Thommes ]
   * added kdmtheme to packages.d/kde-desktop for easier editing of themes
@@ -60,4 +67,4 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add ttf-liberation.
   * don't squash /etc/blkid.tab.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 24 Jun 2008 23:21:40 +0200
+ -- Bernard Gray <bernard.gray@gmail.com>  Wed, 25 Jun 2008 14:18:32 +1000
