@@ -68,4 +68,7 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add ttf-liberation.
   * don't squash /etc/blkid.tab.
 
- -- Kel Modderman <kel@otaku42.de>  Wed, 25 Jun 2008 19:04:04 +1000
+  [ Ferdinand Thommes ]
+  * fixed dvd package list for release
+
+ -- Ferdinand Thommes <devil@sidux.com>  Wed, 25 Jun 2008 14:24:39 +0200
