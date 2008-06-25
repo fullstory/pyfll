@@ -80,10 +80,10 @@ packages = """
 	epiphany
 	etherwake
 	fakechroot
-	fetchmail
-	fetchmailconf
+#	fetchmail		not installable
+#	fetchmailconf		depends fetchmail
 	ffmpeg
-	ffmpeg2theora
+#	ffmpeg2theora		depends libav...
 	file-roller
 	filezilla
 	firestarter
@@ -113,7 +113,7 @@ packages = """
 	icewm-gnome-support
 	icewm-themes
 	idesk
-	idjc
+#	idjc		depends libav...
 	idle
 	imagemagick
 	inkscape
@@ -129,7 +129,7 @@ packages = """
 	kdeaddons
 	kdebase-dev
 	kdeedu
-	kdegames
+#	kdegames		depends kfouleggs ksirtet (64bit)
 	kdegraphics
 	kde-icons-crystalclear
 	kde-icons-crystalproject
@@ -228,7 +228,7 @@ packages = """
 	rdiff-backup
 	rosegarden
 	rox-filer
-	ruby-full
+#	ruby-full		depends irb rdoc ri
 	scite
 	scribus-ng
 	siduxcc
