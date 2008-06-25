@@ -47,6 +47,7 @@ pyfll (1.0) UNRELEASED; urgency=low
   * added openoffice.org-kde again
   * added siduxcc again to packages/dvd
   * trimmed kde-seminarix to /home/devil 690 MB, k3b counted in
+  * fixed dvd package list for release
 
   [ Stefan Lippers-Hollmann ]
   * try to save 10 MB in kde-seminarix.
@@ -67,8 +68,7 @@ pyfll (1.0) UNRELEASED; urgency=low
     DRM changes.
   * add ttf-liberation.
   * don't squash /etc/blkid.tab.
+  * add automatic recommends to k3b.
+  * clean up.
 
-  [ Ferdinand Thommes ]
-  * fixed dvd package list for release
-
- -- Ferdinand Thommes <devil@sidux.com>  Wed, 25 Jun 2008 14:24:39 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 Jun 2008 18:35:28 +0200

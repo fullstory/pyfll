@@ -1,11 +1,10 @@
 desc = """
-	A combined stripped kde, gnome and xfce.
+	A combined stripped kde and xfce.
 """
 
 deps = """
 	cli
 	distro
-	distro-gnome
 	distro-kde
 	distro-xfce
 	distro-tools
@@ -23,10 +22,7 @@ packages = """
 	build-essential
 	cdebootstrap
 	desktop-file-utils
-	epiphany-browser
-	epiphany-extensions
 	gdm
-	gnome-core
 	gtk2-engines-xfce
 	hwinfo
 	kaffeine
