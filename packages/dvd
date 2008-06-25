@@ -246,6 +246,7 @@ packages = """
 	unison
 	vcdimager
 	vdr-gui
+	vdr-plugin-pvrinput
 	vim-full
 	vim-latexsuite
 	virtualbox-ose

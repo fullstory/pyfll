@@ -70,5 +70,6 @@ pyfll (1.0) UNRELEASED; urgency=low
   * don't squash /etc/blkid.tab.
   * add automatic recommends to k3b.
   * clean up.
+  * add vdr-plugin-pvrinput.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 Jun 2008 18:35:28 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 Jun 2008 19:47:09 +0200

@@ -32,6 +32,7 @@ packages = """
 	siduxcc
 	sidux-vdr
 	vdr-gui
+	vdr-plugin-pvrinput
 	virtualbox-ose
 	wengophone
 """
