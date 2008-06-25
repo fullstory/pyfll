@@ -18,6 +18,7 @@ pyfll (1.0) UNRELEASED; urgency=low
   * Add wacom-tools to xserver package module.
   * Drop update-menus from xserver.postinst, dpkg-trigger now takes care of
     it.
+  * Update fll_init_whitelist for cupsys -> cups rename.
 
   [ Bernard Gray ]
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
@@ -67,4 +68,4 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add ttf-liberation.
   * don't squash /etc/blkid.tab.
 
- -- Bernard Gray <bernard.gray@gmail.com>  Wed, 25 Jun 2008 14:18:32 +1000
+ -- Kel Modderman <kel@otaku42.de>  Wed, 25 Jun 2008 19:04:04 +1000

@@ -49,5 +49,5 @@ x11-common
 #################################################
 acpid
 bluez-utils
-cupsys
+cups
 virtualbox-ose-guest-utils
