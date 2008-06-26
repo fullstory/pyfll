@@ -48,6 +48,7 @@ pyfll (1.0) UNRELEASED; urgency=low
   * added siduxcc again to packages/dvd
   * trimmed kde-seminarix to /home/devil 690 MB, k3b counted in
   * fixed dvd package list for release
+  * added transmission to xfce-desktop
 
   [ Stefan Lippers-Hollmann ]
   * try to save 10 MB in kde-seminarix.
@@ -71,8 +72,5 @@ pyfll (1.0) UNRELEASED; urgency=low
   * add automatic recommends to k3b.
   * clean up.
   * add vdr-plugin-pvrinput.
-
-  [ Ferdinand Thommes ]
-  * added transmission to xfce-desktop
 
  -- Ferdinand Thommes <devil@sidux.com>  Thu, 26 Jun 2008 13:11:17 +0200
