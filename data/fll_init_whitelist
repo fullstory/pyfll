@@ -41,6 +41,7 @@ pcmciautils
 powersaved
 procps
 resolvconf
+screen
 sysv-rc
 udev
 x11-common
