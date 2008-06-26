@@ -72,4 +72,7 @@ pyfll (1.0) UNRELEASED; urgency=low
   * clean up.
   * add vdr-plugin-pvrinput.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 Jun 2008 19:47:09 +0200
+  [ Ferdinand Thommes ]
+  * added transmission to xfce-desktop
+
+ -- Ferdinand Thommes <devil@sidux.com>  Thu, 26 Jun 2008 13:11:17 +0200
