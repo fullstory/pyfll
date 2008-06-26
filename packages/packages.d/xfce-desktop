@@ -28,6 +28,7 @@ packages = """
 	thunar-data
 	thunar-media-tags-plugin
 	thunar-volman
+	transmission
 	trayer
 	xarchiver
 	xbase-clients
