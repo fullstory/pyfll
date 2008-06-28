@@ -9,6 +9,7 @@ packages = """
 	install-gui
 	k3b
 	kontact
+	kopete
 	siduxcc
 	xfce4-session
 """
