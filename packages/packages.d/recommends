@@ -10,5 +10,6 @@ packages = """
 	k3b
 	kontact
 	siduxcc
+	xfce4-session
 """
 

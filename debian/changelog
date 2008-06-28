@@ -1,11 +1,16 @@
 pyfll (2008.03) UNRELEASED; urgency=low
 
+  [ Kel Modderman ]
   * NOT RELEASED YET
   * Modify past and current changelog entries to use date release code for
     version number.
   * Add screen to initscript whitelist.
 
- -- Kel Modderman <kel@otaku42.de>  Fri, 27 Jun 2008 08:43:23 +1000
+  [ Stefan Lippers-Hollmann ]
+  * add xfce4-session to recommends handling, primarily to pull in dbus-x11
+    for XFCE builds.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 28 Jun 2008 14:28:49 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
