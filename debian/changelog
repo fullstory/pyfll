@@ -10,8 +10,10 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * add xfce4-session to recommends handling, primarily to pull in dbus-x11
     for XFCE builds.
   * add kopete to recommends handling to support SSL connections.
+  * remove xchat-systray from xfce, as both provide systray icons, thanks to
+    towo.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 28 Jun 2008 17:23:14 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  So, 29 Jun 2008 12:01:50 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
