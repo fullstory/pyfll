@@ -12,8 +12,9 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * add kopete to recommends handling to support SSL connections.
   * remove xchat-systray from xfce, as both provide systray icons, thanks to
     towo.
+  * add default user to vboxusers.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  So, 29 Jun 2008 12:01:50 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  So, 29 Jun 2008 15:13:10 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
