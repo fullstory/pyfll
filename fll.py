@@ -715,11 +715,13 @@ class FLLBuilder(object):
         self._umount(chroot)
 
 
-    def _aptGetInstall(self, arch, pkgs):
+    def _aptGetInstall(self, arch, pkgs, download_only = False):
         '''An apt-get install wrapper. Automatic installation of recommended
         packages defaults to disabled.'''
         aptget = ['apt-get', '--yes']
 
+        if download_only:
+            aptget.append('--download-only')
         if self.conf['options']['apt_recommends'] == 'no':
             aptget.extend(['-o', 'APT::Install-Recommends=0'])
         if self.opts.d:
@@ -1293,6 +1295,55 @@ class FLLBuilder(object):
 
         self.log.info('installing packages in %s chroot...' % arch)
         self._aptGetInstall(arch, self.__filterList(pkgs_want))
+
+        '''Calculate packages for each language.'''
+        '''Needs test to check self.conf['packages']['lang'] exists'''
+        if 'lang' not in self.conf['packages']:
+            return
+
+        lang_list = self.__lines2list(self.conf['packages']['lang'])
+        lang_full = pkgs_want
+        i18n = os.path.join(self.temp, 'staging', 'i18n')
+        for lang in lang_list:
+            langlist = [ lang ]
+            lang_pkgs=self._detectLocalePkgs(langlist, pkgs_dict, cache)
+            i18n_arch=os.path.join(i18n, arch)
+            if not os.path.isdir(i18n_arch):
+                if not os.path.isdir(i18n):
+                    os.mkdir(i18n)
+                os.mkdir(i18n_arch)
+            i18n_lang=os.path.join(i18n, arch, lang)
+            i18nlist=open(i18n_lang, "w")
+            for pkg in lang_pkgs:
+                i18nlist.write('%s ' % (pkg))
+            i18nlist.close()
+            lang_full.extend(lang_pkgs)
+
+        '''Fetch all extra lang packages and reprepro them.'''
+        if lang_pkgs:
+            self._execInChroot(arch, ['apt-get', 'clean'])
+            self._aptGetInstall(arch, self.__filterList(lang_full), download_only = True)
+            '''Generate a basic reprepro conf/distributions.'''
+            i18n_conf=os.path.join(i18n, 'conf')
+            if not os.path.isdir(i18n_conf):
+                os.mkdir(i18n_conf)
+                '''add try, except finally handling here'''
+                i18n_dist=os.path.join(i18n, 'conf', 'distributions')
+                rconf=open(i18n_dist, "w")
+                rconf.write('Codename: sid\n')
+                rconf.write('Architectures: ')
+                for a in self.conf['archs'].keys():
+                    rconf.write(''.join([a,' ']))
+                rconf.write('\n')
+                rconf.write('Components: main\n')
+                rconf.write('Description: i18n packages\n')
+                rconf.close()
+
+            '''Find all the debs and includedeb them.'''
+            chroot = os.path.join(self.temp, arch)
+            aptcache = os.path.join(chroot, 'var', 'cache', 'apt', 'archives', '*.deb')
+            for debfile in glob.glob(aptcache):
+                self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', 'sid', debfile])
 
 
     def _postInst(self, arch):
