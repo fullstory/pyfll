@@ -1310,6 +1310,7 @@ class FLLBuilder(object):
             if not os.path.isdir(i18n_arch):
                 os.makedirs(i18n_arch)
             i18n_lang = os.path.join(i18n, arch, lang)
+            i18nlist = None
             try:
                 i18nlist = open(i18n_lang, "w")
                 for pkg in lang_pkgs:
@@ -1331,6 +1332,7 @@ class FLLBuilder(object):
             if not os.path.isdir(i18n_conf):
                 os.mkdir(i18n_conf)
                 i18n_dist = os.path.join(i18n, 'conf', 'distributions')
+                rconf = None
                 try:
                     rconf = open(i18n_dist, "w")
                     rconf.write('Codename: sid\n')
