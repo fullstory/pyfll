@@ -1305,18 +1305,21 @@ class FLLBuilder(object):
         lang_full = pkgs_want
         i18n = os.path.join(self.temp, 'staging', 'i18n')
         for lang in lang_list:
-            langlist = [ lang ]
-            lang_pkgs=self._detectLocalePkgs(langlist, pkgs_dict, cache)
-            i18n_arch=os.path.join(i18n, arch)
+            lang_pkgs = self._detectLocalePkgs([ lang ], pkgs_dict, cache)
+            i18n_arch = os.path.join(i18n, arch)
             if not os.path.isdir(i18n_arch):
-                if not os.path.isdir(i18n):
-                    os.mkdir(i18n)
-                os.mkdir(i18n_arch)
-            i18n_lang=os.path.join(i18n, arch, lang)
-            i18nlist=open(i18n_lang, "w")
-            for pkg in lang_pkgs:
-                i18nlist.write('%s ' % (pkg))
-            i18nlist.close()
+                os.makedirs(i18n_arch)
+            i18n_lang = os.path.join(i18n, arch, lang)
+            try:
+                i18nlist = open(i18n_lang, "w")
+                for pkg in lang_pkgs:
+                    i18nlist.write('%s ' % (pkg))
+            except IOError:
+                    self.log.exception('error writing i18n file for lang: %s' % lang)
+                    raise Error
+            finally:
+                if i18nlist:
+                    i18nlist.close()
             lang_full.extend(lang_pkgs)
 
         '''Fetch all extra lang packages and reprepro them.'''
@@ -1324,20 +1327,25 @@ class FLLBuilder(object):
             self._execInChroot(arch, ['apt-get', 'clean'])
             self._aptGetInstall(arch, self.__filterList(lang_full), download_only = True)
             '''Generate a basic reprepro conf/distributions.'''
-            i18n_conf=os.path.join(i18n, 'conf')
+            i18n_conf = os.path.join(i18n, 'conf')
             if not os.path.isdir(i18n_conf):
                 os.mkdir(i18n_conf)
-                '''add try, except finally handling here'''
-                i18n_dist=os.path.join(i18n, 'conf', 'distributions')
-                rconf=open(i18n_dist, "w")
-                rconf.write('Codename: sid\n')
-                rconf.write('Architectures: ')
-                for a in self.conf['archs'].keys():
-                    rconf.write(''.join([a,' ']))
-                rconf.write('\n')
-                rconf.write('Components: main\n')
-                rconf.write('Description: i18n packages\n')
-                rconf.close()
+                i18n_dist = os.path.join(i18n, 'conf', 'distributions')
+                try:
+                    rconf = open(i18n_dist, "w")
+                    rconf.write('Codename: sid\n')
+                    rconf.write('Architectures: ')
+                    for a in self.conf['archs'].keys():
+                        rconf.write(''.join([a,' ']))
+                    rconf.write('\n')
+                    rconf.write('Components: main\n')
+                    rconf.write('Description: i18n packages\n')
+                except IOError:
+                    self.log.exception('error writing reprepro distributions file')
+                    raise Error
+                finally:
+                    if rconf:
+                        rconf.close()
 
             '''Find all the debs and includedeb them.'''
             chroot = os.path.join(self.temp, arch)
