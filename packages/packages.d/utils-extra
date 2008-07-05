@@ -10,7 +10,7 @@ packages = """
 	debconf-utils
 	debhelper
 	dvd+rw-tools
-	dvb-utils
+	dvb-apps
 	dosfstools
 	ftp
 	fuse-utils
