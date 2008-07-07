@@ -59,7 +59,7 @@ packages = """
 	krita
 	krusader
 	ksvg
-	ktorrent
+	ktorrent2.2
 	kvpnc
 	kwalletmanager
 	kwifimanager
