@@ -1,5 +1,5 @@
 desc = """
-	Basic KDE4 desktop environment.
+	Full KDE4 desktop environment.
 	- this will not work without the following:
 	 * apt-preferences defined in fll.conf
 	 * a preferences file with appropriate kde4-minimal packages pinned
@@ -12,6 +12,7 @@ deps = """
 	distro-tools
 	distro-tools-x
 	hwsupport-essential
+	kde4-desktop
 	kde4-essential
 	utils-essential
 	utils-x

@@ -22,13 +22,15 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * add commented debian-experimental repo section as example for kde4 testing
   * add contrib dir including valid apt preferences file for kde4 testing
   * add kde4-lite and associated package profile for kde4 testing
+  * update apt-pin preferences to handle kde4 full metapackage
+  * add kde4-full and associated package lists
 
   [ Niall Walsh ]
   * use ['packages']['lang'] to generate a list of packages required
     per lang and an on-cd debian package repo with them for liveapt.
   *  dvb-utils replaced by dvb-apps
 
- -- Bernard Gray <bernard.gray@gmail.com>  Tue, 08 Jul 2008 14:25:28 +1000
+ -- Bernard Gray <bernard.gray@gmail.com>  Tue, 08 Jul 2008 16:31:57 +1000
 
 pyfll (2008.02) erebos; urgency=low
 
