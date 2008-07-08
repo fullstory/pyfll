@@ -20,13 +20,15 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * patch to allow for an apt_preferences fll.conf var for custom apt-pinning
    - this is useful for kde4 testing, and is ignored if commented
   * add commented debian-experimental repo section as example for kde4 testing
+  * add contrib dir including valid apt preferences file for kde4 testing
+  * add kde4-lite and associated package profile for kde4 testing
 
   [ Niall Walsh ]
   * use ['packages']['lang'] to generate a list of packages required
     per lang and an on-cd debian package repo with them for liveapt.
   *  dvb-utils replaced by dvb-apps
 
- -- Bernard Gray <bernard.gray@gmail.com>  Tue, 08 Jul 2008 13:54:45 +1000
+ -- Bernard Gray <bernard.gray@gmail.com>  Tue, 08 Jul 2008 14:25:28 +1000
 
 pyfll (2008.02) erebos; urgency=low
 

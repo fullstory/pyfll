@@ -1,0 +1,22 @@
+desc = """
+	Basic KDE4 desktop environment.
+	- this will not work without the following:
+	 * apt-preferences defined in fll.conf
+	 * a preferences file with appropriate kde4-minimal packages pinned
+	 * a repo block for debian experimental defined in fll.conf 
+"""
+
+deps = """
+	cli
+	distro
+	distro-tools
+	distro-tools-x
+	hwsupport-essential
+	kde4-minimal
+	utils-essential
+	utils-x
+	xserver
+"""
+
+packages = """
+"""

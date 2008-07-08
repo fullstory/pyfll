@@ -1,0 +1,64 @@
+Explanation: this file provides apt-pinning
+Explanation: enabling the install of the debian
+Explanation: kde4-minimal meta-package in pyfll.
+Explanation: Add this files path to apt_preferences in fll.conf
+Package: kdm
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-workspace
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: klipper
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ksysguard
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kappfinder
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-bin
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdepasswd
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kfind
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: konqueror-nsplugins
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: konqueror
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: konsole
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-plasma
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-data
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: *
+Pin: release a=unstable
+Pin-Priority: 600
+
