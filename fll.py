@@ -338,6 +338,7 @@ class FLLBuilder(object):
         if self.conf['options'].get('ftp_proxy'):
             self.env['ftp_proxy'] = self.conf['options']['ftp_proxy']
 
+        self.conf['options'].setdefault('apt_preferences', None)
         self.conf['options'].setdefault('apt_recommends', 'no')
         self.conf['options'].setdefault('media_include', None)
 
@@ -853,6 +854,16 @@ class FLLBuilder(object):
         keys and initialize apt_pkg config.'''
         self.log.info('preparing apt in %s chroot...' % arch)
         chroot = os.path.join(self.temp, arch)
+
+        apt_preferences = self.conf['options']['apt_preferences']
+        if apt_preferences:
+	    try:
+                self.log.info('importing apt_preferences')
+                dest = os.path.join(chroot, 'etc/apt/')
+                shutil.copy(apt_preferences, dest)
+            except:
+	    	self.log.error('apt preferences file failed to copy: %s' % apt_preferences)
+		raise Error
 
         self.log.debug('removing sources.list from %s chroot' % arch)
         list = os.path.join(chroot, 'etc/apt/sources.list')
