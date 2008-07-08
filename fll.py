@@ -857,13 +857,13 @@ class FLLBuilder(object):
 
         apt_preferences = self.conf['options']['apt_preferences']
         if apt_preferences:
-	    try:
-                self.log.info('importing apt_preferences')
-                dest = os.path.join(chroot, 'etc/apt/')
-                shutil.copy(apt_preferences, dest)
-            except:
-	    	self.log.error('apt preferences file failed to copy: %s' % apt_preferences)
-		raise Error
+            self.log.info('importing apt preferences file')
+            try:
+                shutil.copy(apt_preferences, os.path.join(chroot, 'etc/apt/'))
+            except IOError:
+	    	    self.log.error('apt preferences file failed to copy: %s' %
+                               apt_preferences)
+		        raise Error
 
         self.log.debug('removing sources.list from %s chroot' % arch)
         list = os.path.join(chroot, 'etc/apt/sources.list')
