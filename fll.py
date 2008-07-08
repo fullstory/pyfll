@@ -1586,22 +1586,29 @@ class FLLBuilder(object):
         if not os.path.isdir(grub_dir):
             os.mkdir(grub_dir, 0755)
 
-        gstage_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
-        gstages = [s for s in os.listdir(gstage_dir)
-                   if s.startswith('stage2') or s.startswith('iso9660')]
-        if len(gstages) >= 3:
-            self.log.debug('copying grub stage files to boot dir')
-            for stage in gstages:
-                if not os.path.isfile(os.path.join(grub_dir, stage)):
-                    try:
-                        shutil.copy(os.path.join(gstage_dir, stage), grub_dir)
-                    except:
-                        self.log.exception('failed to copy grub stage file ' +
-                                           'to staging dir')
-                        raise Error
+        gfile_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
+
+        grub2_modules = glob.glob(os.path.join(gfile_dir, '*.mod'))
+        if len(grub2_modules) > 0:
+            gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                      if f.endswith('.mod') or f.endswith('.img')
+                      or f.endswith('.lst')]
+            gfiles.append(os.path.join(chroot, 'tmp/grub_eltorito'))
         else:
+            gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                      if f.startswith('stage2') or f.startswith('iso9660')]
+        if len(gfiles) < 1:
             self.log.critical('grub stage files not found')
             raise Error
+
+        self.log.debug('copying grub stage files to boot dir')
+        for file in gfiles:
+            try:
+                shutil.copy(file, grub_dir)
+            except IOError:
+                self.log.exception('failed to copy grub file ' +
+                                   'to staging dir')
+                raise Error
 
         memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
         if os.path.isfile(memtest) and \
@@ -1615,17 +1622,10 @@ class FLLBuilder(object):
                 raise Error
 
 
-    def writeMenuLst(self):
-        '''Write final menu.lst for live media.'''
+    def _writeMenuLst(self, stage_dir, boot_dir, grub_dir, kvers,
+                      timeout, cmdline):
+        '''Write grub-legacy menu.lst for live media.'''
         self.log.debug('writing grub menu.lst for live media')
-        stage_dir = os.path.join(self.temp, 'staging')
-        boot_dir = os.path.join(stage_dir, 'boot')
-        grub_dir = os.path.join(boot_dir, 'grub')
-
-        if self.conf['options'].get('boot_timeout'):
-            timeout = self.conf['options']['boot_timeout']
-        else:
-            timeout = '30'
 
         menulst = open(os.path.join(grub_dir, 'menu.lst'), 'w')
         menulst.write('default 0\n')
@@ -1633,18 +1633,9 @@ class FLLBuilder(object):
         menulst.write('color red/black light-red/black\n')
         menulst.write('foreground EE0000\n')
         menulst.write('background 400000\n')
-        menulst.write('gfxmenu /boot/message\n')
 
-        kvers = self._detectLinuxVersion(stage_dir)
-        if len(kvers) < 1:
-            self.log.critical('failed to find linux kernels to include in ' +
-                              'menu.lst')
-            raise Error
-
-        if self.conf['options'].get('boot_cmdline'):
-            boot = self.conf['options']['boot_cmdline']
-        else:
-            boot = 'quiet vga=791'
+        if os.path.isfile(os.path.join(boot_dir, 'message')):
+            menulst.write('gfxmenu /boot/message\n')
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         for k in kvers:
@@ -1659,7 +1650,7 @@ class FLLBuilder(object):
 
             menulst.write('\n')
             menulst.write('title  %s %s\n' % (distro, cpu))
-            menulst.write('kernel /boot/%s boot=fll %s\n' % (vmlinuz, boot))
+            menulst.write('kernel /boot/%s boot=fll %s\n' % (vmlinuz, cmdline))
             menulst.write('initrd /boot/%s\n' % initrd)
             menulst.write('\n')
             menulst.write('title  %s %s Extra Options\n' % (distro, cpu))
@@ -1682,6 +1673,72 @@ class FLLBuilder(object):
             menulst.write('kernel /boot/memtest86+.bin\n')
 
         menulst.close()
+
+
+    def _writeGrubCfg(self, stage_dir, boot_dir, grub_dir, kvers,
+                      timeout, cmdline):
+        '''Write grub.cfg for live media.'''
+        self.log.debug('writing grub.cfg for live media')
+
+        grubcfg = open(os.path.join(grub_dir, 'grub.cfg'), 'w')
+        grubcfg.write('insmod biosdisk\n')
+        grubcfg.write('insmod pc\n')
+        grubcfg.write('insmod gpt\n')
+        grubcfg.write('set timeout %d\n' % int(timeout))
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz-%s' % k
+            initrd = 'initrd.img-%s' % k
+
+            for f in [vmlinuz, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            grubcfg.write('\nmenuentry \"%s %s\" {\n' % (distro, cpu))
+            grubcfg.write('	set root=(hd96)\n')
+            grubcfg.write('	linux /boot/%s boot=fll %s\n' % (vmlinuz, cmdline))
+            grubcfg.write('	initrd /boot/%s\n' % initrd)
+            grubcfg.write('}\n')
+
+        if os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
+            grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
+            grubcfg.write('	set root=(hd96)\n')
+            grubcfg.write('	linux	/memtest86+.bin\n')
+            grubcfg.write('}\n')
+
+        grubcfg.close()
+
+
+    def writeGrubCfg(self):
+        '''Write final GRUB configuration for live media.'''
+        self.log.debug('writing grub config for live media')
+        stage_dir = os.path.join(self.temp, 'staging')
+        boot_dir = os.path.join(stage_dir, 'boot')
+        grub_dir = os.path.join(boot_dir, 'grub')
+
+        kvers = self._detectLinuxVersion(stage_dir)
+        if len(kvers) < 1:
+            self.log.critical('failed to find vmlinuz to include in grub conf')
+            raise Error
+
+        timeout = self.conf['options'].get('boot_timeout')
+        if not timeout:
+            timeout = '30'
+
+        cmdline =  self.conf['options'].get('boot_cmdline')
+        if not cmdline:
+            cmdline = 'quiet vga=791'
+
+        grub2_modules = glob.glob(os.path.join(grub_dir, '*.mod'))
+        if len(grub2_modules) > 0:
+            self._writeGrubCfg(stage_dir, boot_dir, grub_dir, kvers,
+                               timeout, cmdline)
+        else:
+            self._writeMenuLst(stage_dir, boot_dir, grub_dir, kvers,
+                               timeout, cmdline)
 
 
     def __md5sum(self, file):
@@ -1872,7 +1929,15 @@ class FLLBuilder(object):
             cmd += ' -v'
         cmd += ' -pad -l -J -r -hide-rr-moved'
         cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
-        cmd += ' -b boot/grub/iso9660_stage1_5 -c boot/grub/boot.cat'
+
+        if os.path.isfile(os.path.join(stage, 'boot/grub/grub_eltorito')):
+            cmd += ' -b boot/grub/grub_eltorito'
+        elif os.path.isfile(os.path.join(stage, 'boot/grub/iso9660_stage1_5')):
+            cmd += ' -b boot/grub/iso9660_stage1_5 -c boot/grub/boot.cat'
+        else:
+            self.log.critical('failed to find grub El Torito image file')
+            raise Error
+
         cmd += ' -V %s' % distro_name[:32]
         cmd += ' -sort %s' % sort_file
         cmd += ' -x genisoimage.sort'
@@ -1951,7 +2016,7 @@ class FLLBuilder(object):
             sys.exit(0)
 
         self.buildChroots()
-        self.writeMenuLst()
+        self.writeGrubCfg()
         self.writeMd5Sums()
         self.genLiveMedia()
 
