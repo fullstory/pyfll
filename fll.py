@@ -1606,19 +1606,16 @@ class FLLBuilder(object):
             try:
                 shutil.copy(file, grub_dir)
             except IOError:
-                self.log.exception('failed to copy grub file ' +
-                                   'to staging dir')
+                self.log.exception('failed to copy grub file to staging dir')
                 raise Error
 
         memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
-        if os.path.isfile(memtest) and \
-            not os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
+        if os.path.isfile(memtest):
             self.log.debug('copying memtest86+ to boot dir')
             try:
                 shutil.copy(memtest, boot_dir)
-            except:
-                self.log.exception('failed to copy memtest86+.bin to ' +
-                                   'staging dir')
+            except IOError:
+                self.log.exception('failed to copy memtest86+ to staging dir')
                 raise Error
 
 
