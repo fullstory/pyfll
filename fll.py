@@ -861,9 +861,9 @@ class FLLBuilder(object):
             try:
                 shutil.copy(apt_preferences, os.path.join(chroot, 'etc/apt/'))
             except IOError:
-	    	    self.log.error('apt preferences file failed to copy: %s' %
+                self.log.error('apt preferences file failed to copy: %s' %
                                apt_preferences)
-		        raise Error
+                raise Error
 
         self.log.debug('removing sources.list from %s chroot' % arch)
         list = os.path.join(chroot, 'etc/apt/sources.list')
