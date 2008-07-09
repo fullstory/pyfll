@@ -6,7 +6,7 @@ packages = """
 	cups
 	cups-client
 	cups-bsd
-	cupsys-driver-gutenprint
+	cups-driver-gutenprint
 	foomatic-db
 	foomatic-db-engine
 	foomatic-db-gutenprint
