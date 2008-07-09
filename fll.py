@@ -1931,6 +1931,8 @@ class FLLBuilder(object):
             cmd += ' -b boot/grub/grub_eltorito'
         elif os.path.isfile(os.path.join(stage, 'boot/grub/iso9660_stage1_5')):
             cmd += ' -b boot/grub/iso9660_stage1_5 -c boot/grub/boot.cat'
+        elif os.path.isfile(os.path.join(stage, 'boot/grub/stage2_eltorito')):
+            cmd += ' -b boot/grub/stage2_eltorito -c boot/grub/boot.cat'
         else:
             self.log.critical('failed to find grub El Torito image file')
             raise Error
