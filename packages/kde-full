@@ -26,6 +26,7 @@ packages = """
 	iceweasel
 	myspell-en-us
 	nano
+	openjdk-6-jre
 	openoffice.org-kde
 	pdfedit
 	rdiff-backup

@@ -198,6 +198,7 @@ packages = """
 	nano
 	netcat
 	nvram-wakeup
+	openjdk-6-jdk
 	openoffice.org-kde
 	openssh-server
 	p7zip-full

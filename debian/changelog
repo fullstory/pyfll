@@ -16,6 +16,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
     towo.
   * add default user to vboxusers.
   * replace ktorrent by ktorrent2.2 for kde-desktop (kde3).
+  * add openjdk-6.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -32,7 +33,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
     per lang and an on-cd debian package repo with them for liveapt.
   *  dvb-utils replaced by dvb-apps
 
- -- Kel Modderman <kel@otaku42.de>  Wed, 09 Jul 2008 15:46:21 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 13 Jul 2008 02:14:13 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
