@@ -31,7 +31,7 @@ packages = """
 	abiword-plugins
 	albumshaper
 	alsamixergui
-	amule
+#	amule	# Depends: libupnp3 but it is not installable
 	ardour
 	audacious
 	audacious-plugins
@@ -76,10 +76,10 @@ packages = """
 	epiphany
 	etherwake
 	fakechroot
-#	fetchmail		not installable
-#	fetchmailconf		depends fetchmail
+	fetchmail
+	fetchmailconf
 	ffmpeg
-#	ffmpeg2theora		depends libav...
+	ffmpeg2theora
 	file-roller
 	filezilla
 	firestarter
@@ -110,7 +110,6 @@ packages = """
 	icewm-gnome-support
 	icewm-themes
 	idesk
-#	idjc		depends libav...
 	idle
 	imagemagick
 	inkscape
@@ -126,7 +125,7 @@ packages = """
 	kdeaddons
 	kdebase-dev
 	kdeedu
-#	kdegames		depends kfouleggs ksirtet (64bit)
+	kdegames
 	kdegraphics
 	kde-icons-crystalclear
 	kde-icons-crystalproject
@@ -135,7 +134,6 @@ packages = """
 	kdepim
 	kdesdk
 	kdesktop
-#	kde-style-domino
 	kde-style-klearlook
 	kde-style-lipstik
 	kde-style-qtcurve
@@ -226,7 +224,7 @@ packages = """
 	rdiff-backup
 	rosegarden
 	rox-filer
-#	ruby-full		depends irb rdoc ri
+	ruby-full
 	scite
 	scribus-ng
 	siduxcc
