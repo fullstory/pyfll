@@ -101,7 +101,7 @@ packages = """
 	hydrogen
 	hydrogen-drumkits
 	icedove
-	icedtea-gcjwebplugin
+#	icedtea-gcjwebplugin	# still in contrib, could move to main now
 	icemc
 	iceowl
 	iceweasel
