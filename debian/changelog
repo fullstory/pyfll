@@ -1,7 +1,8 @@
 pyfll (2008.03) UNRELEASED; urgency=low
 
-  [ Kel Modderman ]
   * NOT RELEASED YET
+
+  [ Kel Modderman ]
   * Modify past and current changelog entries to use date release code for
     version number.
   * Add screen to initscript whitelist.
@@ -17,6 +18,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * add default user to vboxusers.
   * replace ktorrent by ktorrent2.2 for kde-desktop (kde3).
   * add openjdk-6.
+  * adapt example config to not use "sidux" as distro name.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -33,7 +35,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
     per lang and an on-cd debian package repo with them for liveapt.
   *  dvb-utils replaced by dvb-apps
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 13 Jul 2008 02:14:13 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 17 Jul 2008 13:55:06 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
