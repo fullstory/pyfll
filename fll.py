@@ -1235,9 +1235,10 @@ class FLLBuilder(object):
         depcache = apt_pkg.GetDepCache(cache)
         depcache.Init()
 
-        manifest = dict([(p.Name, p.CurrentVer.VerStr)
+        manifest = self.pkgs[arch]['langpack']
+        manifest.update(dict([(p.Name, p.CurrentVer.VerStr)
                          for p in cache.Packages if p.CurrentVer
-                         and not p.Name.startswith('cdebootstrap-helper')])
+                         and not p.Name.startswith('cdebootstrap-helper')]))
         self.pkgs[arch]['manifest'] = manifest
 
         if self.opts.B:
@@ -1307,8 +1308,8 @@ class FLLBuilder(object):
         self.log.info('installing packages in %s chroot...' % arch)
         self._aptGetInstall(arch, self.__filterList(pkgs_want))
 
-        '''Calculate packages for each language.'''
-        '''Needs test to check self.conf['packages']['lang'] exists'''
+        # Calculate packages for each language.
+        self.pkgs[arch]['langpack'] = dict()
         if 'lang' not in self.conf['packages']:
             return
 
@@ -1334,11 +1335,11 @@ class FLLBuilder(object):
                     i18nlist.close()
             lang_full.extend(lang_pkgs)
 
-        '''Fetch all extra lang packages and reprepro them.'''
+        # Fetch all extra lang packages and reprepro them.
         if lang_pkgs:
             self._execInChroot(arch, ['apt-get', 'clean'])
             self._aptGetInstall(arch, self.__filterList(lang_full), download_only = True)
-            '''Generate a basic reprepro conf/distributions.'''
+            # Generate a basic reprepro conf/distributions.
             i18n_conf = os.path.join(i18n, 'conf')
             if not os.path.isdir(i18n_conf):
                 os.mkdir(i18n_conf)
@@ -1360,11 +1361,14 @@ class FLLBuilder(object):
                     if rconf:
                         rconf.close()
 
-            '''Find all the debs and includedeb them.'''
+            # Find all the debs and includedeb them.
             chroot = os.path.join(self.temp, arch)
             aptcache = os.path.join(chroot, 'var', 'cache', 'apt', 'archives', '*.deb')
             for debfile in glob.glob(aptcache):
                 self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', 'sid', debfile])
+                # create dict with package name = version to extend manifest
+                pkg, vers, extra = debfile.split('/')[-1].split('_')
+                self.pkgs[arch]['langpack'][pkg] = vers.replace('%3a', ':')
 
 
     def _postInst(self, arch):
