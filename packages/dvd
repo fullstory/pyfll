@@ -101,7 +101,7 @@ packages = """
 	hydrogen
 	hydrogen-drumkits
 	icedove
-#	icedtea-gcjwebplugin	# no yet through NEW
+	icedtea-gcjwebplugin
 	icemc
 	iceowl
 	iceweasel
@@ -199,7 +199,7 @@ packages = """
 	nano
 	netcat
 	nvram-wakeup
-#	openjdk-6-jdk		# postinst bugs
+	openjdk-6-jdk
 	openoffice.org-kde
 	openssh-server
 	p7zip-full
