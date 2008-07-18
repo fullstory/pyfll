@@ -33,6 +33,8 @@ class FLLBuilder(object):
 
     diverts = ['/usr/sbin/policy-rc.d']
 
+    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
+
 
     def __init__(self, options):
         '''Accept options dict, setup logging.'''
@@ -221,7 +223,7 @@ class FLLBuilder(object):
 
             stamp += ' %s' % self.conf['packages']['profile']
 
-        stamp += ' - (%s)' % datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
+        stamp += ' - (%s)' % self.timestamp
 
         self.log.debug('stamp: %s' % stamp)
         return stamp
@@ -243,7 +245,7 @@ class FLLBuilder(object):
             name += '-%s' % self.conf['packages']['profile']
 
         name += '-' + '-'.join(self.conf['archs'].keys())
-        name += '-%s' % datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
+        name += '-%s' % self.timestamp
 
         self.log.debug('name: %s' % name)
         return name
