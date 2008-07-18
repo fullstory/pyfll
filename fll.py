@@ -1329,7 +1329,8 @@ class FLLBuilder(object):
                 for pkg in lang_pkgs:
                     i18nlist.write('%s ' % (pkg))
             except IOError:
-                    self.log.exception('error writing i18n file for lang: %s' % lang)
+                    self.log.exception('error writing i18n file for lang: %s' %
+                                       lang)
                     raise Error
             finally:
                 if i18nlist:
@@ -1339,7 +1340,8 @@ class FLLBuilder(object):
         # Fetch all extra lang packages and reprepro them.
         if lang_pkgs:
             self._execInChroot(arch, ['apt-get', 'clean'])
-            self._aptGetInstall(arch, self.__filterList(lang_full), download_only = True)
+            self._aptGetInstall(arch, self.__filterList(lang_full),
+                                download_only = True)
             # Generate a basic reprepro conf/distributions.
             i18n_conf = os.path.join(i18n, 'conf')
             if not os.path.isdir(i18n_conf):
@@ -1356,7 +1358,7 @@ class FLLBuilder(object):
                     rconf.write('Components: main\n')
                     rconf.write('Description: i18n packages\n')
                 except IOError:
-                    self.log.exception('error writing reprepro distributions file')
+                    self.log.exception('error preparing reprepro')
                     raise Error
                 finally:
                     if rconf:
@@ -1364,9 +1366,10 @@ class FLLBuilder(object):
 
             # Find all the debs and includedeb them.
             chroot = os.path.join(self.temp, arch)
-            aptcache = os.path.join(chroot, 'var', 'cache', 'apt', 'archives', '*.deb')
+            aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
             for debfile in glob.glob(aptcache):
-                self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', 'sid', debfile])
+                self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', 'sid',
+                              debfile])
                 # create dict with package name = version to extend manifest
                 pkg, vers, extra = debfile.split('/')[-1].split('_')
                 self.pkgs[arch]['langpack'][pkg] = vers.replace('%3a', ':')
