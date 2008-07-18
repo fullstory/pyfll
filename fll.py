@@ -1235,10 +1235,11 @@ class FLLBuilder(object):
         depcache = apt_pkg.GetDepCache(cache)
         depcache.Init()
 
-        manifest = self.pkgs[arch]['langpack']
-        manifest.update(dict([(p.Name, p.CurrentVer.VerStr)
+        manifest = dict([(p.Name, p.CurrentVer.VerStr)
                          for p in cache.Packages if p.CurrentVer
-                         and not p.Name.startswith('cdebootstrap-helper')]))
+                         and not p.Name.startswith('cdebootstrap-helper')])
+        if 'langpack' in self.pkgs[arch]:
+            manifest.update(self.pkgs[arch]['langpack'])
         self.pkgs[arch]['manifest'] = manifest
 
         if self.opts.B:
