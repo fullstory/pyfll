@@ -38,6 +38,10 @@ k3b = """
 	k3b
 """
 
+kdebase-workspace = """
+	kde-l10n
+"""
+
 kde-core = """
 	kde-i18n
 """

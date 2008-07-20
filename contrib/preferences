@@ -2,167 +2,11 @@ Explanation: this file provides apt-pinning
 Explanation: enabling the install of the debian
 Explanation: kde4-minimal meta-package in pyfll.
 Explanation: Add this files path to apt_preferences in fll.conf
-Package: kdm
+Package: akregator
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kdebase-workspace
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdebase
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: klipper
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: ksysguard
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kappfinder
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdebase-bin
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdepasswd
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kfind
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: konqueror-nsplugins
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: konqueror
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: konsole
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdebase-plasma
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdebase-data
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: *
-Pin: release a=unstable
-Pin-Priority: 600
-
-Package: kde4-minimal
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdeadmin
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdeartwork
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdegraphics
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdeedu
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdegames
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdemultimedia
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdenetwork
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdeutils
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdepim
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kcron
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: knetworkconf
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kpackage
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: ksystemlog
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kuser
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdeartwork-misc
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdeartwork-emoticons
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdeartwork-style
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdeartwork-theme-window
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdewallpapers
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kscreensaver
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: gwenview
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kamera
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kgamma
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kruler
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: ksnapshot
+Package: ark
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -170,7 +14,27 @@ Package: blinken
 Pin: release a=experimental
 Pin-Priority: 995
 
+Package: dolphin
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: gwenview
+Pin: release a=experimental
+Pin-Priority: 995
+
 Package: indi
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: juk
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kaddressbook
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kalarm
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -182,59 +46,19 @@ Package: kalzium
 Pin: release a=experimental
 Pin-Priority: 995
 
+Package: kalzium-data
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kamera
+Pin: release a=experimental
+Pin-Priority: 995
+
 Package: kanagram
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kbruch
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kgeography
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: khangman
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kig
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kiten
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: klettres
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kmplot
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kpercentage
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kstars
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: ktouch
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kturtle
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kwordquiz
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: marble
+Package: kappfinder
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -254,111 +78,7 @@ Package: kbounce
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kgoldrunner
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kjumpingcube
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: klines
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kmahjongg
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kmines
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: knetwalk
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kolf
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: konquest
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kpat
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kreversi
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: ksame
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kshisen
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kspaceduel
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: ksudoku
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: ktuberling
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: lskat
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kdemultimedia-kio-plugins
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: juk
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kmix
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kscd
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kget
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: knewsticker
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kopete
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: kppp
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: krdc
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: krfb
-Pin: release a=experimental
-Pin-Priority: 995
-
-Package: ark
+Package: kbruch
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -370,43 +90,103 @@ Package: kcharselect
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kdessh
+Package: kcron
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kdf
+Package: kde4-minimal
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kfloppy
+Package: kdeadmin
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kgpg
+Package: kdeartwork
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: ktimer
+Package: kdeartwork-emoticons
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kwalletmanager
+Package: kdeartwork-misc
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: superkaramba
+Package: kdeartwork-style
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: akregator
+Package: kdeartwork-theme-window
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kaddressbook
+Package: kdebase
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kalarm
+Package: kdebase-bin
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-data
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-plasma
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-workspace
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-workspace-bin
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-workspace-data
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdebase-workspace-libs4+5
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdeedu
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdegames
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdegames-card-data
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdegraphics
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdemultimedia
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdemultimedia-kio-plugins
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdenetwork
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdepasswd
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdepim
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -418,7 +198,83 @@ Package: kdepim-wizards
 Pin: release a=experimental
 Pin-Priority: 995
 
+Package: kdessh
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdeutils
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdewallpapers
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kde-window-manager
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdf
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kdm
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kfind
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kfloppy
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kgamma
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kgeography
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kgeography-data
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kget
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kgoldrunner
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kgpg
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: khangman
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kig
+Pin: release a=experimental
+Pin-Priority: 995
+
 Package: kitchensync
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kiten
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kjots
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kjumpingcube
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -426,7 +282,51 @@ Package: kleopatra
 Pin: release a=experimental
 Pin-Priority: 995
 
+Package: klettres
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: klettres-data
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: klines
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: klipper
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kmahjongg
+Pin: release a=experimental
+Pin-Priority: 995
+
 Package: kmail
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kmines
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kmix
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kmplot
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: knetwalk
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: knetworkconf
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: knewsticker
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -442,11 +342,35 @@ Package: kode
 Pin: release a=experimental
 Pin-Priority: 995
 
+Package: kolf
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: konqueror
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: konqueror-nsplugins
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: konquest
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: konsole
+Pin: release a=experimental
+Pin-Priority: 995
+
 Package: konsolekalendar
 Pin: release a=experimental
 Pin-Priority: 995
 
 Package: kontact
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kopete
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -458,23 +382,63 @@ Package: korn
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: ktnef
+Package: kpackage
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kjots
+Package: kpat
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kalzium-data
+Package: kpercentage
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kgeography-data
+Package: kppp
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: klettres-data
+Package: krdc
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kreversi
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: krfb
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kruler
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ksame
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kscd
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kscreensaver
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kshisen
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ksnapshot
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kspaceduel
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kstars
 Pin: release a=experimental
 Pin-Priority: 995
 
@@ -482,11 +446,98 @@ Package: kstars-data
 Pin: release a=experimental
 Pin-Priority: 995
 
+Package: ksudoku
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ksysguard
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ksystemlog
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ktimer
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ktnef
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ktouch
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: ktuberling
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kturtle
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kuser
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kwalletmanager
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kwordquiz
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: kwrite
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: libkdecorations4
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: libkonq5
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: libkonq5-templates
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: libkwineffects1
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: libplasma2
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: lskat
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: marble
+Pin: release a=experimental
+Pin-Priority: 995
+
 Package: marble-data
 Pin: release a=experimental
 Pin-Priority: 995
 
-Package: kdegames-card-data
+Package: mysql-common
 Pin: release a=experimental
 Pin-Priority: 995
 
+Package: superkaramba
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: systemsettings
+Pin: release a=experimental
+Pin-Priority: 995
+
+Package: *
+Pin: release a=unstable
+Pin-Priority: 600
