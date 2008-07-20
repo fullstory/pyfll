@@ -3,19 +3,31 @@
 BASE_URL="svn://svn.debian.org/svn/pkg-kde/branches/kde4/packages"
 #SOURCE_PACKAGES="$(svn ls ${BASE_URL})"
 SOURCE_PACKAGES="
+	automoc
+	decibel
+	eigen
+	kde-l10n
+	kdeaccessibility
 	kdeadmin
 	kdeartwork
 	kdebase
 	kdebase-workspace
+	kdebindings
 	kdeedu
 	kdegames
 	kdegraphics
-	kde-l10n
 	kdemultimedia
 	kdenetwork
 	kdepim
+	kdeplasma-addons
+	kdesdk
+	kdetoys
 	kdeutils
+	kdewebdev
+	kgraphviewer
+	koffice
 	meta-kde4
+	rsibreak
 	systemsettings
 "
 unset BINARY_PACKAGES

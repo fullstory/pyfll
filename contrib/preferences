@@ -14,6 +14,254 @@ Package: *
 Pin: release a=experimental
 Pin-Priority: 1
 
+Package: automoc
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libdecibel-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libdecibel0.7.0
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: decibel
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libeigen-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ar
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-be
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-bg
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ca
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-cs
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-csb
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-da
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-de
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-el
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-engb
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-eo
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-es
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-et
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-eu
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-fa
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-fi
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-fr
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-fy
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ga
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-gl
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-hi
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-hu
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-is
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-it
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ja
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-kk
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-km
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ko
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-lv
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-mk
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-nb
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-nds
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ne
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-nl
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-nn
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-pa
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-pl
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-pt
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ptbr
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ro
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ru
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-se
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-sl
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-sv
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ta
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-th
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-tr
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-uk
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-wa
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-zhcn
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-zhtw
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdeaccessibility
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-icons-mono
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kmag
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kmouth
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kttsd
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kmousetool
+Pin: release a=experimental
+Pin-Priority: 500
+
 Package: kdeadmin
 Pin: release a=experimental
 Pin-Priority: 500
@@ -215,6 +463,66 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Package: libplasma-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: python-kde4
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: python-kde4-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: python-kde4-doc
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libsmoke-qt4-2
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libsmoke-kde4-2
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libsmoke2-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kimono
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: qyoto
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libqt-dotnet4.4-cil
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: qyoto-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libkde-dotnet4.1-cil
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: libkhtml2.0-cil
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: qt4-ruby
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde4-ruby
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: qt4-ruby-dev
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -582,210 +890,6 @@ Package: libkipi5
 Pin: release a=experimental
 Pin-Priority: 500
 
-Package: kde-l10n-ar
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-be
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-bg
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ca
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-cs
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-csb
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-da
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-de
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-el
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-engb
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-eo
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-es
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-et
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-eu
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-fa
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-fi
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-fr
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-fy
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ga
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-gl
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-hi
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-hu
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-is
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-it
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ja
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-kk
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-km
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ko
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-lv
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-mk
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-nb
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-nds
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ne
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-nl
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-nn
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-pa
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-pl
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-pt
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ptbr
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ro
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ru
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-se
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-sl
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-sv
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-ta
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-th
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-tr
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-uk
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-wa
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-zhcn
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: kde-l10n-zhtw
-Pin: release a=experimental
-Pin-Priority: 500
-
 Package: kdemultimedia
 Pin: release a=experimental
 Pin-Priority: 500
@@ -990,6 +1094,130 @@ Package: kjots
 Pin: release a=experimental
 Pin-Priority: 500
 
+Package: kdeplasma-addons
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdeplasma-addons-data
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdeplasma-addons-libs4
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdeplasma-addons-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdeplasma-addons-dbg
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdesdk
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: cervisia
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kapptemplate
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kate
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kbugbuster
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kcachegrind
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kcachegrind-converters
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdesdk-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdesdk-kio-plugins
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdesdk-misc
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdesdk-scripts
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdesdk-strigi-plugins
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kmtrace
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kompare
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kuiviewer
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: cvsservice
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: poxml
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: umbrello
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: lokalize
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdesdk-dbg
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdetoys
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: amor
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kteatime
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: ktux
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kweather
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdetoys-dbg
+Pin: release a=experimental
+Pin-Priority: 500
+
 Package: kdeutils
 Pin: release a=experimental
 Pin-Priority: 500
@@ -1050,6 +1278,114 @@ Package: sweeper
 Pin: release a=experimental
 Pin-Priority: 500
 
+Package: kdewebdev
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kfilereplace
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kimagemapeditor
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: klinkstatus
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kxsldbg
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kommander
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kdewebdev-dbg
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kgraphviewer
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: koffice
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: koffice-doc
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: koffice-doc-html
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: karbon
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kchart
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kexi
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kformula
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kivio
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kplato
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kpresenter
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: krita
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: krita-data
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kspread
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kword
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kword-data
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kthesaurus
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: koffice-libs
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: koffice-data
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: koffice-dev
+Pin: release a=experimental
+Pin-Priority: 500
+
 Package: kde4
 Pin: release a=experimental
 Pin-Priority: 500
@@ -1059,6 +1395,10 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Package: kde4-development
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: rsibreak
 Pin: release a=experimental
 Pin-Priority: 500
 
