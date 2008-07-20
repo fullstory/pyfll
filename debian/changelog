@@ -28,6 +28,8 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * tweak pinning whitelist.
   * switch pinning whitelist to blacklist.
   * fix anchor package for kde(4)-l10n.
+  * add fll-live-initscripts to automatic recommends handling, required for
+    liveapt.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -45,7 +47,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 20 Jul 2008 19:31:52 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 20 Jul 2008 21:59:50 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
