@@ -24,6 +24,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * add openjdk-6.
   * adapt example config to not use "sidux" as distro name.
   * generate kde4 pinning automatically from Debian's source package svn.
+  * add kde-l10n to apt-pinning.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -41,7 +42,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 20 Jul 2008 14:00:58 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 20 Jul 2008 14:22:26 +0200
 
 pyfll (2008.02) erebos; urgency=low
 

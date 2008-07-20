@@ -582,6 +582,210 @@ Package: libkipi5
 Pin: release a=experimental
 Pin-Priority: 500
 
+Package: kde-l10n-ar
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-be
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-bg
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ca
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-cs
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-csb
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-da
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-de
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-el
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-engb
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-eo
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-es
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-et
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-eu
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-fa
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-fi
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-fr
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-fy
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ga
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-gl
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-hi
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-hu
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-is
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-it
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ja
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-kk
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-km
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ko
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-lv
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-mk
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-nb
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-nds
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ne
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-nl
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-nn
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-pa
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-pl
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-pt
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ptbr
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ro
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ru
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-se
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-sl
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-sv
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-ta
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-th
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-tr
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-uk
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-wa
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-zhcn
+Pin: release a=experimental
+Pin-Priority: 500
+
+Package: kde-l10n-zhtw
+Pin: release a=experimental
+Pin-Priority: 500
+
 Package: kdemultimedia
 Pin: release a=experimental
 Pin-Priority: 500

@@ -10,6 +10,7 @@ SOURCE_PACKAGES="
 	kdeedu
 	kdegames
 	kdegraphics
+	kde-l10n
 	kdemultimedia
 	kdenetwork
 	kdepim
