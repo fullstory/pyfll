@@ -38,7 +38,7 @@ k3b = """
 	k3b
 """
 
-kdebase-workspace = """
+kde4-minimal = """
 	kde-l10n
 """
 
