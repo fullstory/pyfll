@@ -1,35 +1,7 @@
 #!/bin/sh
 
 BASE_URL="svn://svn.debian.org/svn/pkg-kde/branches/kde4/packages"
-#SOURCE_PACKAGES="$(svn ls ${BASE_URL})"
-SOURCE_PACKAGES="
-	automoc
-	decibel
-	eigen
-	kde-l10n
-	kdeaccessibility
-	kdeadmin
-	kdeartwork
-	kdebase
-	kdebase-workspace
-	kdebindings
-	kdeedu
-	kdegames
-	kdegraphics
-	kdemultimedia
-	kdenetwork
-	kdepim
-	kdeplasma-addons
-	kdesdk
-	kdetoys
-	kdeutils
-	kdewebdev
-	kgraphviewer
-	koffice
-	meta-kde4
-	rsibreak
-	systemsettings
-"
+SOURCE_PACKAGES="$(svn ls ${BASE_URL} | grep -v -e akonadi -e blitz -e kdebase-runtime -e kdelibs -e kdepimlibs -e phonon -e soprano)"
 unset BINARY_PACKAGES
 
 for i in $SOURCE_PACKAGES; do
