@@ -30,6 +30,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * fix anchor package for kde(4)-l10n.
   * add fll-live-initscripts to automatic recommends handling, required for
     liveapt.
+  * give gtk-qt-engine the boot from the dvd profile, it's broken.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -47,7 +48,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 20 Jul 2008 21:59:50 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 21 Jul 2008 13:50:27 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
