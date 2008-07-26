@@ -11,6 +11,7 @@ packages = """
 	k3b
 	kontact
 	kopete
+	netbase
 	siduxcc
 	xfce4-session
 """
