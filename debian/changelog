@@ -50,7 +50,10 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 27 Jul 2008 01:06:13 +0200
+  [ Bernard Gray ]
+  * adjust default fll.conf to use ourea wallpaper
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Fri, 22 Aug 2008 23:13:27 +1000
 
 pyfll (2008.02) erebos; urgency=low
 
