@@ -44,15 +44,13 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * add kde4-lite and associated package profile for kde4 testing
   * update apt-pin preferences to handle kde4 full metapackage
   * add kde4-full and associated package lists
+  * adjust default fll.conf to use ourea wallpaper
 
   [ Niall Walsh ]
   * use ['packages']['lang'] to generate a list of packages required
     per lang and an on-cd debian package repo with them for liveapt.
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
-
-  [ Bernard Gray ]
-  * adjust default fll.conf to use ourea wallpaper
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 Aug 2008 02:11:01 +0200
 
