@@ -52,7 +52,10 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 Aug 2008 02:11:01 +0200
+  [ Bernard Gray ]
+  * replace non-existent sidux-art-gnome with sidux-art-xfce for distr-xfce 
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Sun, 24 Aug 2008 13:42:17 +1000
 
 pyfll (2008.02) erebos; urgency=low
 
