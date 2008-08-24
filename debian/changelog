@@ -33,6 +33,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * give gtk-qt-engine the boot from the dvd profile, it's broken.
   * add netbase to automatic recommends handling, we need to keep ifupdown - 
     hard dependency or not.
+  * icedtea-gcjwebplugin has finally hit main.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -53,7 +54,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   [ Bernard Gray ]
   * adjust default fll.conf to use ourea wallpaper
 
- -- Bernard Gray <bernard.gray@gmail.com>  Fri, 22 Aug 2008 23:13:27 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 Aug 2008 02:11:01 +0200
 
 pyfll (2008.02) erebos; urgency=low
 

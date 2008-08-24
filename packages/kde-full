@@ -23,7 +23,7 @@ deps = """
 
 packages = """
 	dnsutils
-#	icedtea-gcjwebplugin	# still in contrib, could move to main now
+	icedtea-gcjwebplugin
 	iceweasel
 	myspell-en-us
 	nano
