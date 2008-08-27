@@ -13,7 +13,6 @@ packages = """
 	iputils-ping
 	kbd
 	less
-	lilo
 	logrotate
 	netbase
 	resolvconf

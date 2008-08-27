@@ -34,6 +34,8 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * add netbase to automatic recommends handling, we need to keep ifupdown - 
     hard dependency or not.
   * icedtea-gcjwebplugin has finally hit main.
+  * drop lilo, it's implicitly conflicting with grub and about to be dropped 
+    post-lenny.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -45,6 +47,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * update apt-pin preferences to handle kde4 full metapackage
   * add kde4-full and associated package lists
   * adjust default fll.conf to use ourea wallpaper
+  * replace non-existent sidux-art-gnome with sidux-art-xfce for distr-xfce 
 
   [ Niall Walsh ]
   * use ['packages']['lang'] to generate a list of packages required
@@ -52,10 +55,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
 
-  [ Bernard Gray ]
-  * replace non-existent sidux-art-gnome with sidux-art-xfce for distr-xfce 
-
- -- Bernard Gray <bernard.gray@gmail.com>  Sun, 24 Aug 2008 13:42:17 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 27 Aug 2008 16:33:16 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
