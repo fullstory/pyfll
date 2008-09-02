@@ -20,4 +20,5 @@ deps = """
 """
 
 packages = """
+	packagesearch
 """

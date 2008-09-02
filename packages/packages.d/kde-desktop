@@ -65,6 +65,7 @@ packages = """
 	kwifimanager
 	libqt-perl
 	moto4lin
+	packagesearch
 	yakuake
 """
 

@@ -55,8 +55,9 @@ pyfll (2008.03) UNRELEASED; urgency=low
     per lang and an on-cd debian package repo with them for liveapt.
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
+  * add packagesearch to builds with qt4
 
- -- Kel Modderman <kel@otaku42.de>  Mon, 01 Sep 2008 00:06:05 +1000
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Tue, 02 Sep 2008 15:30:29 +0100
 
 pyfll (2008.02) erebos; urgency=low
 
