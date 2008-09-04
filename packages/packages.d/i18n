@@ -6,6 +6,10 @@
 # suffix. List standard locale codes (eg. en_AU, de_DE) in the 'i18n'
 # subsection of the 'packages' section in the build configuration.
 
+aspell = """
+	aspell
+"""
+
 gcompris = """
 	gcompris-sound
 """

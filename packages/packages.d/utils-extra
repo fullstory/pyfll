@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	aspell
 	build-essential
 	cdebootstrap
 	cdrdao
