@@ -10,6 +10,7 @@ do_postinst() {
 		cat > /etc/vim/vimrc.local \
 <<EOF
 syntax on
+set autoindent
 set background=light
 set showmatch
 set pastetoggle=<F10>
