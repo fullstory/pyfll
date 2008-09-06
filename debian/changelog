@@ -15,6 +15,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * Add FLL_DISTRO_URL to distro-defaults section of default build config.
   * Add aspell and i18n entry. It is used by various desktop apps
     (eg. xchat, kmail).
+  * Put en_AU in i18n list.
 
   [ Stefan Lippers-Hollmann ]
   * add xfce4-session to recommends handling, primarily to pull in dbus-x11
@@ -61,7 +62,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * do not try to find i18n packages for the country part of a locale
   * do try and find i18n packages for the non-hyphenated locale (e.g. ptbr)
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Sat, 06 Sep 2008 16:11:05 +0100
+ -- Kel Modderman <kel@otaku42.de>  Sun, 07 Sep 2008 02:01:52 +1000
 
 pyfll (2008.02) erebos; urgency=low
 
