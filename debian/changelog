@@ -58,8 +58,10 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * dvb-utils replaced by dvb-apps
   * add on-cd repo packages to the manifest (binary and source)
   * add packagesearch to builds with qt4
+  * do not try to find i18n packages for the country part of a locale
+  * do try and find i18n packages for the default locale for the lang
 
- -- Kel Modderman <kel@otaku42.de>  Thu, 04 Sep 2008 10:15:45 +1000
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 04 Sep 2008 23:24:25 +0100
 
 pyfll (2008.02) erebos; urgency=low
 
