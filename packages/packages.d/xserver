@@ -11,7 +11,6 @@ packages = """
 	menu
 	mesa-utils
 	sux
-	ttf-bitstream-vera
 	ttf-dejavu
 	ttf-freefont
 	ttf-liberation
