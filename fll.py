@@ -1125,30 +1125,21 @@ class FLLBuilder(object):
         self.log.debug(i18n_module)
 
         i18n_dict = dict()
-        # hardcoded defaults { lang : locale }
-        i18n_default = {'be' :'be-by', 'cs' :'cs-cz', 'da' :'da-dk',
-                        'en' :'en-us', 'el' :'el-gr', 'ga' :'ga-ie',
-                        'he' :'he-il', 'ja' :'ja-jp', 'ko' :'ko-kr',
-                        'nb' :'nb-no', 'nn': 'nn-no', 'pt' :'pt-br',
-                        'sl' :'sl-si', 'zh': 'zh-cn'}
+        for ll_cc in i18n:
+            ll_cc = ll_cc.lower().replace('_', '-')
+            i18n_dict[ll_cc] = True
 
-        for i in i18n:
-            i = i.lower().replace('_', '-')
-            i18n_lang = i
-            # check the supplied locale (e.g. de-at)
-            i18n_dict[i] = True
-            if i.find('-') >= 0:
-                i18n_lang = i[:i.find('-')]
-                # check the lang from the locale (e.g. de)
-                i18n_dict[i18n_lang] = True
-                if not i.startswith('en'):
+            dash = ll_cc.find('-')
+            if dash > 0:
+                ll = ll_cc[:dash]
+                cc = ll_cc[dash + 1:]
+
+                i18n_dict[ll] = True
+                i18n_dict[ll + cc] = True
+
+                if not ll_cc.startswith('en'):
                     i18n_dict['i18n'] = True
-            if i18n_lang in i18n_default:
-                # check the hardcoded locale for the lang
-                i18n_dict[i18n_default[i18n_lang]] = True
-            else:
-                # no hardcoded default so check lang-lang (e.g. de-de)
-                i18n_dict['-'.join([i18n_lang,i18n_lang])] = True
+
         self.log.debug('i18n_dict:')
         self.log.debug(i18n_dict)
 

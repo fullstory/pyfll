@@ -59,9 +59,9 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * add on-cd repo packages to the manifest (binary and source)
   * add packagesearch to builds with qt4
   * do not try to find i18n packages for the country part of a locale
-  * do try and find i18n packages for the default locale for the lang
+  * do try and find i18n packages for the non-hyphenated locale (e.g. ptbr)
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 04 Sep 2008 23:24:25 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Sat, 06 Sep 2008 16:11:05 +0100
 
 pyfll (2008.02) erebos; urgency=low
 
