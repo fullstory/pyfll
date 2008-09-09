@@ -12,7 +12,6 @@ packages = """
 	mesa-utils
 	sux
 	ttf-dejavu
-	ttf-freefont
 	ttf-liberation
 	wacom-tools
 	xauth
