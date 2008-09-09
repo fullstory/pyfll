@@ -6,7 +6,7 @@ say() {
 
 do_postinst() {
 	say 'Disabling bitmap fonts'
-	ln -sf /etc/fonts/conf.avail/70-no-bitmaps.conf \
+	ln -sf ../conf.avail/70-no-bitmaps.conf \
 		/etc/fonts/conf.d/70-no-bitmaps.conf
 	# This must be done post fontconfig-config installation
 	echo fontconfig-config fontconfig/enable_bitmaps boolean false | \
