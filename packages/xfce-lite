@@ -11,6 +11,7 @@ deps = """
 	hwsupport-essential
 	utils-essential
 	utils-extra
+	utils-x
 	xfce-desktop-min
 	xserver
 """
