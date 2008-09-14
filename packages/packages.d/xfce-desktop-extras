@@ -1,0 +1,20 @@
+desc = """
+	XFCE desktop add-ons
+"""
+
+
+packages = """
+	abiword
+	aqualung
+	brasero
+	evince
+	gcalctool
+	gnumeric
+	gstreamer0.10-fluendo-mp3
+	gstreamer0.10-plugins-base
+	orage
+	transmission
+	xfce4-verve-plugin
+	xfce4-weather-plugin
+"""
+

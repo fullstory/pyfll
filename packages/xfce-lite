@@ -1,5 +1,5 @@
 desc = """
-	A complete XFCE desktop environment.
+	A lite XFCE desktop environment.
 """
 
 deps = """
@@ -9,12 +9,9 @@ deps = """
 	distro-tools-x
 	distro-xfce
 	hwsupport-essential
-	hwsupport-extra
 	utils-essential
 	utils-extra
-	utils-x
 	xfce-desktop-min
-	xfce-desktop-extras
 	xserver
 """
 

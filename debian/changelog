@@ -74,7 +74,10 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * do not try to find i18n packages for the country part of a locale
   * do try and find i18n packages for the non-hyphenated locale (e.g. ptbr)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 13 Sep 2008 17:55:06 +0200
+  [ Joaquim Boura ]
+  * splited xfce into xfce and xfce-lite.
+
+ -- Joaquim Boura <x-un-i@sidux.com>  Sun, 14 Sep 2008 16:55:32 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
