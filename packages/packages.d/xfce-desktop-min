@@ -52,4 +52,5 @@ packages = """
 	xfprint4
 	xfwm4
 	xtrlock
+	zenity
 """

@@ -52,6 +52,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * drop lilo, it's implicitly conflicting with grub and about to be dropped 
     post-lenny.
   * remove FileType preconfiguration from vimrc.local, it's erroring out.
+  * add zenity to XFCE.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -77,7 +78,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   [ Joaquim Boura ]
   * splited xfce into xfce and xfce-lite.
 
- -- Joaquim Boura <x-un-i@sidux.com>  Sun, 14 Sep 2008 16:55:32 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 14 Sep 2008 18:48:09 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
