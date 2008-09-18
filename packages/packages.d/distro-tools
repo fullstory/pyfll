@@ -11,6 +11,4 @@ packages = """
 	modemlink
 	ppp-scripts
 	sshstart
-	startsyslog
 """
-

@@ -17,9 +17,9 @@ packages = """
 	netbase
 	resolvconf
 	rsync
+	rsyslog
 	sudo
 	wget
 	wireless-tools
 	wpasupplicant
 """
-

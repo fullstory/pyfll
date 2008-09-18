@@ -58,6 +58,8 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * remove FileType preconfiguration from vimrc.local, it's erroring out.
   * add zenity to XFCE.
   * add utils-x to xfce-lite.
+  * depend pm syslog dæmon (rsyslog) directly, instead of pulling it in 
+    through startsyslog indirectly.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -83,7 +85,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   [ Joaquim Boura ]
   * splited xfce into xfce and xfce-lite.
 
- -- Kel Modderman <kel@otaku42.de>  Tue, 16 Sep 2008 12:29:33 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 18 Sep 2008 22:52:53 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
