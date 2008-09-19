@@ -49,5 +49,6 @@ x11-common
 # extra packages, managed by fll-live-initscripts
 #################################################
 acpid
+bluez-utils
 cups
 virtualbox-ose-guest-utils
