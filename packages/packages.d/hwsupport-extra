@@ -5,6 +5,8 @@ desc = """
 
 packages = """
 	alsa-utils
+	bluez-utils
+	bluez-pcmcia-support
 	dmidecode
 	dmsetup
 	hwinfo
