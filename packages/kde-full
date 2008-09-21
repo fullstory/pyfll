@@ -25,6 +25,7 @@ packages = """
 	dnsutils
 	icedtea-gcjwebplugin
 	iceweasel
+	kvm
 	myspell-en-us
 	nano
 	openoffice.org-kde
