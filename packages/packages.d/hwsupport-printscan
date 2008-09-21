@@ -13,6 +13,7 @@ packages = """
 	foomatic-db-hpijs
 	foomatic-filters
 	foomatic-filters-ppds
+	foo2zjs
 	ghostscript-x
 	hpijs-ppds
 	hplip
