@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BASE_URL="svn://svn.debian.org/svn/pkg-kde/branches/kde4/packages"
-SOURCE_PACKAGES="$(svn ls ${BASE_URL} | grep -v -e akonadi -e blitz -e kdebase-runtime -e kdelibs -e kdepimlibs -e phonon -e soprano)"
+SOURCE_PACKAGES="$(svn ls ${BASE_URL})"
 unset BINARY_PACKAGES
 
 for i in $SOURCE_PACKAGES; do
@@ -18,5 +18,5 @@ printf "Package: *\nPin: release a=testing\nPin-Priority: 200\n\n"
 printf "Package: *\nPin: release a=experimental\nPin-Priority: 1\n"
 
 for i in $BINARY_PACKAGES; do
-	printf "\nPackage: ${i}\nPin: release a=experimental\nPin-Priority: 500\n"
+	printf "\nPackage: ${i}\nPin: release a=experimental\nPin-Priority: 900\n"
 done

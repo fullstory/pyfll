@@ -12,7 +12,7 @@ deps = """
 	distro-tools
 	distro-tools-x
 	hwsupport-essential
-	kde4-desktop
+	kde-desktop
 	kde4-essential
 	utils-essential
 	utils-x
