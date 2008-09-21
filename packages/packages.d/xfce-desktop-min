@@ -16,11 +16,11 @@ packages = """
 	mpg321
 	shared-mime-info
 	thunar
-	thunar-archive-plugin
 	thunar-data
 	thunar-media-tags-plugin
 	thunar-volman
 	trayer
+	xarchiver
 	xbase-clients
 	xbitmaps
 	xchat
