@@ -7,12 +7,7 @@ desc = """
 """
 
 packages = """
-	kdebase
-	kdebase-workspace
-	kdebase-runtime
 	kdm
-	kdelibs5
-	libkonq5
-
+	kde4-minimal
 """
 

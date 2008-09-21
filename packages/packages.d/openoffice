@@ -3,12 +3,12 @@ desc = """
 """
 
 packages = """
-	#openoffice.org-calc
-	#openoffice.org-core
-	#openoffice.org-draw
-	#openoffice.org-impress
-	#openoffice.org-math
-	#openoffice.org-thesaurus-en-us
-	#openoffice.org-writer
+	openoffice.org-calc
+	openoffice.org-core
+	openoffice.org-draw
+	openoffice.org-impress
+	openoffice.org-math
+	openoffice.org-thesaurus-en-us
+	openoffice.org-writer
 """
 

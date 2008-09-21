@@ -18,5 +18,5 @@ printf "Package: *\nPin: release a=testing\nPin-Priority: 200\n\n"
 printf "Package: *\nPin: release a=experimental\nPin-Priority: 1\n"
 
 for i in $BINARY_PACKAGES; do
-	printf "\nPackage: ${i}\nPin: release a=experimental\nPin-Priority: 900\n"
+	printf "\nPackage: ${i}\nPin: release a=experimental\nPin-Priority: 500\n"
 done
