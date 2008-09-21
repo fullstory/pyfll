@@ -64,6 +64,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * depend pm syslog dæmon (rsyslog) directly, instead of pulling it in 
     through startsyslog indirectly.
   * add kvm support and the userspace tools to kde-full.
+  * disable kvm for the time being.
 
   [ Bernard Gray ]
   * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
@@ -91,7 +92,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   * use xarchiver instead of thunar-archive-plugin as this needs ark or 
     file-roller.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 21 Sep 2008 17:42:19 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 21 Sep 2008 18:37:23 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
