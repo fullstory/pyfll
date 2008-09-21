@@ -87,8 +87,10 @@ pyfll (2008.03) UNRELEASED; urgency=low
 
   [ Joaquim Boura ]
   * splited xfce into xfce and xfce-lite.
+  * use xarchiver instead of thunar-archive-plugin as this needs ark or 
+    file-roller.
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 20 Sep 2008 06:08:17 +1000
+ -- Joaquim Boura <x-un-i@sidux.com>  Sun, 21 Sep 2008 16:58:10 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
