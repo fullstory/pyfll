@@ -1,6 +1,4 @@
-pyfll (2008.03) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+pyfll (2008.03) ourea; urgency=low
 
   [ Kel Modderman ]
   * Modify past and current changelog entries to use date release code for
@@ -95,7 +93,7 @@ pyfll (2008.03) UNRELEASED; urgency=low
   [ Ferdinand Thommes ]
   * add foo2zjs for HP Printers
 
- -- Ferdinand Thommes <devil@sidux.com>  Sun, 21 Sep 2008 21:05:16 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 22 Sep 2008 22:37:12 +0200
 
 pyfll (2008.02) erebos; urgency=low
 
