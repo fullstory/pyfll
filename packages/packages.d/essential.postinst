@@ -5,6 +5,11 @@ say() {
 }
 
 do_postinst() {
+	if [ -w /etc/default/rcS ] && ! grep -q '^CONCURRENCY=' /etc/default/rcS; then
+		say 'Activating startpar initscript concurrency'
+		echo 'CONCURRENCY=startpar' >> /etc/default/rcS
+	fi
+
 	if which grub-mkimage >/dev/null; then
 		say 'Creating grub2 El Torito image file'
 		grub-mkimage -d /usr/lib/grub/*-pc/ -o /tmp/grub_eltorito~ biosdisk iso9660
