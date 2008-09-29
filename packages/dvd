@@ -71,7 +71,6 @@ packages = """
 	eclipse
 	eclipse-platform-gcj
 	ekiga
-	xemacs21
 	enigmail
 	epiphany
 	etherwake
@@ -169,6 +168,7 @@ packages = """
 	kstreamripper
 	ksysguard
 	kthesaurus
+	kvm
 	kweather
 	kwiki
 	kwirelessmonitor
@@ -253,6 +253,7 @@ packages = """
 	vorbis-tools
 	wengophone
 	xdelta
+	xemacs21
 	xfonts-intl-phonetic
 	xfonts-tipa
 	xine-ui
