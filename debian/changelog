@@ -7,7 +7,13 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Stefan Lippers-Hollmann ]
   * re- enable kvm for kde-full and dvd.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 29 Sep 2008 22:42:36 +0200
+  [ Bernard Gray ]
+  * temporarily re-add contrib/preferences for kde4 builds
+    - the dynamically generating script is not working because
+      some packages have moved from exp to sid, specifically
+      phonon, libphonon4, libsoprano*
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Fri, 03 Oct 2008 11:40:53 +1000
 
 pyfll (2008.03) ourea; urgency=low
 
