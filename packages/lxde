@@ -4,19 +4,39 @@ desc = """
 """
 
 deps = """
-	# cli
+	cli
 	distro
 	distro-tools
+	distro-tools-x
 	hwsupport-essential
 	hwsupport-extra
 	utils-essential
-	# utils-x
+	utils-x
 	xserver
 	lxde-essential
-	# distro-lxde
+#	distro-lxde
 """
 
 packages = """
-	fll-live-xorgconfig
+	gdm
+	gdm-themes-sidux
+	lxde
+	lxde-core
+	lxde-common
+	lxappearance
+	lxpanel
+	lxpanel-netstat-plugin
+#	lxsession
+	lxde-settings-daemon
+	lxappearance
+	lxnm	
+	lxlauncher
+	openbox
+	lxrandr
+	lxsession-lite
+	lxterminal
+	pcmanfm
+#	lxterminal 
+	mrxvt
 """
 
