@@ -13,12 +13,11 @@ deps = """
 	utils-essential
 	utils-x
 	xserver
-#	distro-lxde
+	distro-lxde
 """
 
 packages = """
 	gdm
-	gdm-themes-sidux
 	lxde
 	lxde-core
 	lxde-common
