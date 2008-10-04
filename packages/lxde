@@ -13,7 +13,6 @@ deps = """
 	utils-essential
 	utils-x
 	xserver
-	lxde-essential
 #	distro-lxde
 """
 
