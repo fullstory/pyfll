@@ -1,0 +1,30 @@
+desc = """
+	Minimal lxde desktop apps.
+"""
+
+packages = """
+	gdm
+	gdm-themes-sidux
+	lxde
+	lxde-core
+	lxde-common
+	lxappearance
+	lxpanel
+	lxpanel-netstat-plugin
+	# lxsession
+	lxde-settings-daemon
+	lxappearance
+	lxnm	
+	lxlauncher
+	openbox
+	lxrandr
+	lxsession-lite
+	lxterminal
+	pcmanfm
+	sidux-irc
+	infobash
+	# lxterminal 
+	mrxvt
+	
+"""
+

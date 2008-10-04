@@ -12,6 +12,6 @@ packages = """
 	rcconf
 	screen
 	unp
-	vim
+	#vim
 """
 
