@@ -4,7 +4,7 @@ desc = """
 
 packages = """
 	dmz-cursor-theme
-	fluxbox
+#	fluxbox
 	fontconfig
 	fontconfig-config
 	libgl1-mesa-dri

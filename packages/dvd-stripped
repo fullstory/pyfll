@@ -9,6 +9,7 @@ deps = """
 	distro-xfce
 	distro-tools
 	distro-tools-x
+	fluxbox
 	hwsupport-essential
 	hwsupport-extra
 	utils-essential

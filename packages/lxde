@@ -25,7 +25,6 @@ packages = """
 	lxappearance
 	lxpanel
 	lxpanel-netstat-plugin
-#	lxsession
 	lxde-settings-daemon
 	lxappearance
 	lxnm	
@@ -35,7 +34,5 @@ packages = """
 	lxsession-lite
 	lxterminal
 	pcmanfm
-#	lxterminal 
-	mrxvt
 """
 
