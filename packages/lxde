@@ -11,7 +11,7 @@ deps = """
 	hwsupport-extra
 	utils-essential
 	# utils-x
-	xserver-lxde
+	xserver
 	lxde-essential
 	# distro-lxde
 """
