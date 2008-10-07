@@ -26,18 +26,6 @@ Package: akonadi-server
 Pin: release a=experimental
 Pin-Priority: 500
 
-Package: automoc
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: libqimageblitz-dbg
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: libqimageblitz-dev
-Pin: release a=experimental
-Pin-Priority: 500
-
 Package: libdecibel-dev
 Pin: release a=experimental
 Pin-Priority: 500
@@ -1547,10 +1535,6 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Package: kde4-development
-Pin: release a=experimental
-Pin-Priority: 500
-
-Package: libphonon-dev
 Pin: release a=experimental
 Pin-Priority: 500
 

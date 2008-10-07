@@ -12,12 +12,14 @@ pyfll (2008.04) 2008-04; urgency=low
     - the dynamically generating script is not working because
       some packages have moved from exp to sid, specifically
       phonon, libphonon4, libsoprano*
+  * remove automoc and libphonon-dev from kde4 preferences
+  * remove libqimageblitz-* from kde4 preferences
 
   [ Joaquim Boura ]
   * added stanza for lxde
   * moved fluxbox and feh to a own set
 
- -- Joaquim Boura <x-un-i@sidux.com>  Sat, 04 Oct 2008 13:35:45 +0200
+ -- Bernard Gray <bernard.gray@gmail.com>  Tue, 07 Oct 2008 14:54:18 +1100
 
 pyfll (2008.03) ourea; urgency=low
 
