@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	feh
 	gparted
 	libxine1-xvdr
 	tvtime

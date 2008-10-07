@@ -18,8 +18,9 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Joaquim Boura ]
   * added stanza for lxde
   * moved fluxbox and feh to a own set
+  * removed feh from utils-x
 
- -- Bernard Gray <bernard.gray@gmail.com>  Tue, 07 Oct 2008 14:54:18 +1100
+ -- Joaquim Boura <x-un-i@sidux.com>  Tue, 07 Oct 2008 18:42:16 +0200
 
 pyfll (2008.03) ourea; urgency=low
 
