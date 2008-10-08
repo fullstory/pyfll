@@ -21,6 +21,11 @@ EOF
 		say 'Setting default pager to /usr/bin/most'
 		update-alternatives --set pager /usr/bin/most >/dev/null
 	fi
+
+	if [ -x /usr/bin/mcedit-debian ]; then
+		say 'Setting default editor to /usr/bin/mcedit-debian'
+		update-alternatives --set editor /usr/bin/mcedit-debian >/dev/null
+	fi
 }
 
 case "${1}" in
