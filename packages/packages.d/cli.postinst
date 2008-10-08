@@ -5,7 +5,8 @@ say() {
 }
 
 do_postinst() {
-	if [ -x /usr/bin/vim ]; then
+	vim=$(which vim)
+	if [ -x "${vim}" ]; then
 		say 'Adding /etc/vim/vimrc.local'
 		cat > /etc/vim/vimrc.local \
 <<EOF
@@ -17,14 +18,16 @@ set pastetoggle=<F10>
 EOF
 	fi
 
-	if [ -x /usr/bin/most ]; then
-		say 'Setting default pager to /usr/bin/most'
-		update-alternatives --set pager /usr/bin/most >/dev/null
+	most=$(which most)
+	if [ -x "${most}" ]; then
+		say "Setting default pager to ${most}"
+		update-alternatives --set pager "${most}" >/dev/null
 	fi
 
-	if [ -x /usr/bin/mcedit-debian ]; then
-		say 'Setting default editor to /usr/bin/mcedit-debian'
-		update-alternatives --set editor /usr/bin/mcedit-debian >/dev/null
+	mcedit=$(which mcedit-debian)
+	if [ -x "${mcedit}" ]; then
+		say "Setting default editor to ${mcedit}"
+		update-alternatives --set editor "${mcedit}" >/dev/null
 	fi
 }
 
