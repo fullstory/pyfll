@@ -23,12 +23,6 @@ EOF
 		say "Setting default pager to ${most}"
 		update-alternatives --set pager "${most}" >/dev/null
 	fi
-
-	mcedit=$(which mcedit-debian)
-	if [ -x "${mcedit}" ]; then
-		say "Setting default editor to ${mcedit}"
-		update-alternatives --set editor "${mcedit}" >/dev/null
-	fi
 }
 
 case "${1}" in
