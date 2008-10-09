@@ -17,6 +17,7 @@ import optparse
 import os
 import sys
 import shutil
+import stat
 import tempfile
 
 
@@ -74,7 +75,12 @@ class FLLBuilder(object):
 
     def __isexecutable(self, file):
         '''Return True is file is executable, False otherwise.'''
-        if os.access(file, os.X_OK) and not os.path.isdir(file):
+        try:
+            mode = os.stat(file)[stat.ST_MODE]
+        except OSError:
+            return False
+
+        if stat.S_ISREG(mode) and mode & os.X_OK:
             return True
         else:
             return False
