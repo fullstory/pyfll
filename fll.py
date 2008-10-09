@@ -80,7 +80,7 @@ class FLLBuilder(object):
         except OSError:
             return False
 
-        if stat.S_ISREG(mode) and mode & os.X_OK:
+        if stat.S_ISREG(mode) and mode & stat.S_IXUSR:
             return True
         else:
             return False
