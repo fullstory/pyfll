@@ -9,6 +9,7 @@ pyfll (2008.04) 2008-04; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * re- enable kvm for kde-full and dvd.
+  * add foo2zjs to printscan.
 
   [ Bernard Gray ]
   * temporarily re-add contrib/preferences for kde4 builds
@@ -27,7 +28,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * Add python-gobject to packages.d/hwsupport-printscan to make the supplies
     work in hplip.
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Fri, 10 Oct 2008 04:06:03 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 10 Oct 2008 21:24:02 +0000
 
 pyfll (2008.03) ourea; urgency=low
 
