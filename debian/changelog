@@ -23,7 +23,11 @@ pyfll (2008.04) 2008-04; urgency=low
   * moved fluxbox and feh to a own set
   * removed feh from utils-x
 
- -- Kel Modderman <kel@otaku42.de>  Fri, 10 Oct 2008 03:40:56 +1000
+  [ Niall Walsh ]
+  * Add python-gobject to packages.d/hwsupport-printscan to make the supplies
+    work in hplip.
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Fri, 10 Oct 2008 04:06:03 +0100
 
 pyfll (2008.03) ourea; urgency=low
 
