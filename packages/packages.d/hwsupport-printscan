@@ -20,7 +20,6 @@ packages = """
 	openprinting-ppds
 	min12xxw
 	pnm2ppa
-	python-gobject
 	sane
 	sane-utils
 	libsane-extras
