@@ -28,7 +28,10 @@ pyfll (2008.04) 2008-04; urgency=low
   * Add python-gobject to packages.d/hwsupport-printscan to make the supplies
     work in hplip.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 10 Oct 2008 21:24:02 +0000
+  [ Joaquim Boura ]
+  * added keyboard layout switcher (thks mzilikazi)
+
+ -- Joaquim Boura <x-un-i@sidux.com>  Mon, 13 Oct 2008 23:45:22 +0200
 
 pyfll (2008.03) ourea; urgency=low
 
