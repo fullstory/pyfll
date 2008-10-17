@@ -1999,9 +1999,10 @@ class FLLBuilder(object):
             if md5:
                 md5.close()
                 os.chown(md5_file, self.opts.u, self.opts.g)
-                self.log.info('signing md5 hash...')
-                self._signFile(md5_file)
-                os.chown(md5_file + '.gpg', self.opts.u, self.opts.g)
+                if self.opts.k:
+                    self.log.info('signing md5 hash...')
+                    self._signFile(md5_file)
+                    os.chown(md5_file + '.gpg', self.opts.u, self.opts.g)
 
         self.log.info('calculating sha256sum of live media iso image...')
         sha256 = None
@@ -2016,9 +2017,10 @@ class FLLBuilder(object):
             if sha256:
                 sha256.close()
                 os.chown(sha256_file, self.opts.u, self.opts.g)
-                self.log.info('signing sha256 hash...')
-                self._signFile(sha256_file)
-                os.chown(sha256_file + '.gpg', self.opts.u, self.opts.g)
+                if self.opts.k:
+                    self.log.info('signing sha256 hash...')
+                    self._signFile(sha256_file)
+                    os.chown(sha256_file + '.gpg', self.opts.u, self.opts.g)
 
         self._writeManifests(os.path.splitext(iso_file)[0])
         if not self.opts.B:

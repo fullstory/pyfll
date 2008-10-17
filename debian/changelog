@@ -35,8 +35,10 @@ pyfll (2008.04) 2008-04; urgency=low
   * fll.py:
     - add -k/--hashkey <key id> option
     - signs MD5 and SHA256 hashes if key is available
+  * fll.py:
+    - do not try to chown a non-existing signature
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Fri, 17 Oct 2008 19:20:51 +0200
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Fri, 17 Oct 2008 20:51:54 +0200
 
 pyfll (2008.03) ourea; urgency=low
 
