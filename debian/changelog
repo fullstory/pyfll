@@ -31,7 +31,12 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Joaquim Boura ]
   * added keyboard layout switcher (thks mzilikazi)
 
- -- Joaquim Boura <x-un-i@sidux.com>  Mon, 13 Oct 2008 23:45:22 +0200
+  [ Michael Deelwater ]
+  * fll.py:
+    - add -k/--hashkey <key id> option
+    - signs MD5 and SHA256 hashes if key is available
+
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Fri, 17 Oct 2008 19:20:51 +0200
 
 pyfll (2008.03) ourea; urgency=low
 

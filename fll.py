@@ -316,6 +316,13 @@ class FLLBuilder(object):
         i18n = self.__lines2list(self.conf['packages']['i18n'])
         self.log.debug('i18n: %s' % ' '.join(i18n))
 
+	if 'hashkey' not in self.conf['options']:
+	    self.log.info('No key for signing ISO hashes!')
+	    self.opts.k = None
+	else:
+	    self.opts.k = self.conf['options'].get('hashkey')
+	    self.log.debug('Using key %s for signing.' % self.opts.k)
+
         if not 'options' in self.conf:
             self.conf['options'] = dict()
 
@@ -1832,6 +1839,16 @@ class FLLBuilder(object):
         stage = os.path.join(self.temp, 'staging')
         os.path.walk(stage, self._md5sums, stage)
 
+    def _signFile(self, file):
+        '''Sign a file with hashkey if available.'''
+        if self.opts.k:
+            self.log.info('Signing file %s...' % file)
+            cmd = ['gpg', '-s', '--default-key']
+            cmd.append(self.opts.k)
+            cmd.append(file)
+            self._execCmd(cmd)
+        else:
+            self.log.info('Not signing file %s: No key given.' % file)
 
     def __archManifest(self, arch):
         '''Write manifest information to file.'''
@@ -1982,6 +1999,9 @@ class FLLBuilder(object):
             if md5:
                 md5.close()
                 os.chown(md5_file, self.opts.u, self.opts.g)
+                self.log.info('signing md5 hash...')
+                self._signFile(md5_file)
+                os.chown(md5_file + '.gpg', self.opts.u, self.opts.g)
 
         self.log.info('calculating sha256sum of live media iso image...')
         sha256 = None
@@ -1996,6 +2016,9 @@ class FLLBuilder(object):
             if sha256:
                 sha256.close()
                 os.chown(sha256_file, self.opts.u, self.opts.g)
+                self.log.info('signing sha256 hash...')
+                self._signFile(sha256_file)
+                os.chown(sha256_file + '.gpg', self.opts.u, self.opts.g)
 
         self._writeManifests(os.path.splitext(iso_file)[0])
         if not self.opts.B:
@@ -2078,6 +2101,10 @@ if __name__ == '__main__':
                  type = 'int', metavar = '<group id>',
                  help = optparse.SUPPRESS_HELP)
 
+    p.add_option('-k', '--hashkey', dest = 'k', action = 'store',
+                 type = 'string', metavar = '<key id>', help = 'Set key ' +
+                 'to sign MD5 and SHA256 hashes of the generated ISOs.')
+
     p.add_option('-l', '--log', dest = 'l', action = 'store',
                  type = 'string', metavar = '<file>',
                  help = 'Log debug output to file. Note that when ' +
@@ -2115,9 +2142,9 @@ if __name__ == '__main__':
                  help = 'Enable verbose mode. All messages will be ' +
                  'generated, such as announcing current operation.')
 
-    p.set_defaults(b = None, B = False, d = False, g = os.getgid(), l = None,
-                   n = False, o = None, p = None, P = False, q = False,
-                   s = None, u = os.getuid(), v = False)
+    p.set_defaults(b = None, B = False, d = False, g = os.getgid(), k = None,
+                   l = None, n = False, o = None, p = None, P = False,
+                   q = False, s = None, u = os.getuid(), v = False)
 
     options = p.parse_args()[0]
 
