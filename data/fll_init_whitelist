@@ -22,8 +22,9 @@ alsa-base
 alsa-utils
 avahi-daemon
 bootchart
-console-tools
 console-common
+console-tools
+console-setup
 cpufrequtils
 dbus
 fuse-utils
