@@ -40,8 +40,11 @@ pyfll (2008.04) 2008-04; urgency=low
     - signs MD5 and SHA256 hashes if key is available
   * fll.py:
     - do not try to chown a non-existing signature
+  * packages/packages.d/essential.postinst:
+    - write locales_to_generate in /etc/locale.gen and call locale-gen;
+      provisional fix
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 18 Oct 2008 21:28:35 +1000
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Sat, 18 Oct 2008 16:41:57 +0200
 
 pyfll (2008.03) ourea; urgency=low
 
