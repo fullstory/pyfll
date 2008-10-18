@@ -12,6 +12,7 @@ debconf = """
 
 packages = """
 	adduser
+	console-setup
 	dash
 	insserv
 	fll-live-initramfs
@@ -21,4 +22,3 @@ packages = """
 	squashfs-tools
 	initramfs-tools
 """
-

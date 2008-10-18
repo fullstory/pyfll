@@ -7,6 +7,8 @@ pyfll (2008.04) 2008-04; urgency=low
     programs.
   * Avoid the use of os.access, use stat and bitwise comparison instead.
   * Whitelist console-setups's initscripts.
+  * Add console-setup to essential, and aim to have it provide system
+    defaults for keyboard settings in future.
 
   [ Stefan Lippers-Hollmann ]
   * re- enable kvm for kde-full and dvd.
@@ -39,7 +41,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * fll.py:
     - do not try to chown a non-existing signature
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 18 Oct 2008 12:13:20 +1000
+ -- Kel Modderman <kel@otaku42.de>  Sat, 18 Oct 2008 21:28:35 +1000
 
 pyfll (2008.03) ourea; urgency=low
 
