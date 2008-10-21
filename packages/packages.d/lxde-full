@@ -1,0 +1,16 @@
+desc = """
+	Full LXDE desktop.
+"""
+
+packages = """
+	audacious
+	audacious-extra-plugins
+	brasero
+	icedove
+	icedtea-gcjwebplugin
+	pidgin
+	scite
+	transmission
+	rxvt-unicode
+"""
+

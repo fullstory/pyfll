@@ -1,10 +1,13 @@
 desc = """
-	Distro specific packages for an LXDE desktop.
+	Distro specific packages for an LXDE desktop. There is no art package,
+	yet, so use ourea's GDM theme.
 """
 
 packages = """
-	#desktop-defaults-lxde
+	desktop-defaults-lxde
+	gdm
 	gksu
+	sidux-art-gdm-ourea
 	#sidux-art-lxde
 	sidux-art-wallpaper
 """

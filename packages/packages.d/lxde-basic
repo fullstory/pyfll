@@ -1,0 +1,15 @@
+desc = """
+	Basic LXDE applications.
+"""
+
+packages = """
+	dbus-x11
+	epdfview
+	gftp
+	iceweasel
+	lxde
+	lxlauncher
+	lxnm
+	xchat
+"""
+

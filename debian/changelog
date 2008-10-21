@@ -42,8 +42,12 @@ pyfll (2008.04) 2008-04; urgency=low
   * packages/packages.d/essential.postinst:
     - write locales_to_generate in /etc/locale.gen and call locale-gen;
       provisional fix
+  * LXDE:
+    - Add lite and full LXDE package lists.
+    - Let distro-lxde use desktop-defaults-lxde and the Ourea GDM theme. There
+      is no sidux-art-lxde, yet.
 
- -- Kel Modderman <kel@otaku42.de>  Sun, 19 Oct 2008 06:52:53 +1000
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Wed, 22 Oct 2008 01:22:40 +0200
 
 pyfll (2008.03) ourea; urgency=low
 

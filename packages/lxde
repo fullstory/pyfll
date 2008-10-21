@@ -1,37 +1,25 @@
 desc = """
-	Minimal system with an X server. Useful for debugging automatic X
-	configuration.
+	A full LXDE desktop.
 """
 
 deps = """
 	cli
 	distro
+	distro-lxde
 	distro-tools
 	distro-tools-x
 	hwsupport-essential
 	hwsupport-extra
+	lxde-basic
+	lxde-full
+	openoffice.org
 	utils-essential
+	utils-extra
 	utils-x
 	xserver
-	distro-lxde
 """
 
 packages = """
-	gdm
-	lxde
-	lxde-core
-	lxde-common
-	lxappearance
-	lxpanel
-	lxpanel-netstat-plugin
-	lxde-settings-daemon
-	lxappearance
-	lxnm	
-	lxlauncher
-	openbox
-	lxrandr
-	lxsession-lite
-	lxterminal
-	pcmanfm
+	openoffice.org-gtk
 """
 
