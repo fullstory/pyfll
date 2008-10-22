@@ -12,7 +12,7 @@ deps = """
 	hwsupport-extra
 	lxde-basic
 	lxde-full
-	openoffice.org
+	openoffice
 	utils-essential
 	utils-extra
 	utils-x
