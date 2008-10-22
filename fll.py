@@ -1572,6 +1572,7 @@ class FLLBuilder(object):
         '''Stage files for an arch for final genisofs.'''
         self.log.info('staging live %s media...' % arch)
         chroot = os.path.join(self.temp, arch)
+        boot_dir = os.path.join(self.temp, 'staging', 'boot')
 
         image_file = os.path.join(chroot, self._getDistroImageFile(arch))
         image_dir = os.path.join(self.temp, 'staging',
@@ -1579,27 +1580,28 @@ class FLLBuilder(object):
         try:
             os.chmod(image_file, 0644)
             shutil.move(image_file, image_dir)
-        except:
-            self.log.exception('failed to set permissions and copy squashfs ' +
-                               'image to staging dir')
+        except IOError:
+            self.log.exception('failed to move squashfs image to staging dir')
             raise Error
-
-        boot_dir = os.path.join(self.temp, 'staging', 'boot')
 
         kvers = self._detectLinuxVersion(chroot)
         for k in kvers:
-            self.log.debug('copying vmlinuz + initrd.img for %s to %s' %
-                           (k, boot_dir))
-            try:
-                initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
+            initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
+            if os.path.isfile(initrd):
+                self.log.debug('copying %s to staging dir' % initrd)
                 shutil.copy(initrd, boot_dir)
-                vmlin = os.path.join(chroot, 'boot', 'vmlinuz-' + k)
-                if not os.path.isfile(vmlin):
-                    vmlin = os.path.join(chroot, 'boot', 'vmlinux-' + k)
-                shutil.copy(vmlin, boot_dir)
-            except:
-                self.log.exception('problem copying vmlinuz and initrd ' +
-                                   'for ' + k + ' to staging area')
+            else:
+                self.log.critical('could not find initramfs image to ' +
+                                  'copy to staging dir.')
+                raise Error
+            
+            images = glob.glob(os.path.join(chroot, 'boot', 'vmlinu*-' + k))
+            if len(images) == 1:
+                self.log.debug('copying %s to staging dir' % images[0])
+                shutil.copy(images[0], boot_dir)
+            else:
+                self.log.critical('could not find linux kernel image to ' +
+                                  'copy to staging dir.')
                 raise Error
 
         message = os.path.join(chroot, 'boot', 'message.live')
@@ -1610,7 +1612,7 @@ class FLLBuilder(object):
                 shutil.copy(message, boot_dir)
                 message = os.path.join(boot_dir, 'message.live')
                 os.rename(message, os.path.splitext(message)[0])
-            except:
+            except IOError:
                 self.log.exception('failed to copy grub message file to ' +
                                    'staging dir')
                 raise Error
@@ -1803,7 +1805,7 @@ class FLLBuilder(object):
         yaboot.close()
 
 
-    def writeGrubCfg(self):
+    def _writeGrubCfg(self):
         '''Write final GRUB configuration for live media.'''
         stage_dir = os.path.join(self.temp, 'staging')
         boot_dir = os.path.join(stage_dir, 'boot')
@@ -1834,8 +1836,8 @@ class FLLBuilder(object):
                                timeout, cmdline)
 
 
-    def writeYabootCfg(self):
-        '''Write final GRUB configuration for live media.'''
+    def _writeYabootCfg(self):
+        '''Write final yaboot configuration for live media.'''
         stage_dir = os.path.join(self.temp, 'staging')
         boot_dir = os.path.join(stage_dir, 'boot')
         ppc_dir = os.path.join(stage_dir, 'ppc')
@@ -1859,6 +1861,18 @@ class FLLBuilder(object):
         self._writeYabootCfg(stage_dir, boot_dir, ppc_dir, kvers,
                                timeout, cmdline)
 
+    def writeBootldr(self):
+        '''Choose which bootloader to configure based on archs, and
+        call the appropriate method to do that.'''
+        archs = self.conf['archs'].keys()
+
+        if 'i386' in archs or 'amd64' in archs:
+            self._writeGrubCfg()
+        elif 'ppc' in archs:
+            self._writeYabootCfg()
+        else:
+            self.log.critical('no bootloader method for arch: %s' % arch)
+            raise Error
 
     def __md5sum(self, file):
         '''Calculate md5sum of a file and return it.'''
@@ -2160,8 +2174,7 @@ class FLLBuilder(object):
             sys.exit(0)
 
         self.buildChroots()
-        self.writeGrubCfg()
-        self.writeYabootCfg()
+        self.writeBootldr()
         self.writeMd5Sums()
         self.genLiveMedia()
 
