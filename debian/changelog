@@ -63,8 +63,9 @@ pyfll (2008.04) 2008-04; urgency=low
     - Add lite and full LXDE package lists.
     - Let distro-lxde use desktop-defaults-lxde and the Ourea GDM theme. There
       is no sidux-art-lxde, yet.
+    - Add lxde-lite package profile.
 
- -- Bernard Gray <bernard.gray@gmail.com>  Thu, 23 Oct 2008 09:05:22 +1100
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Thu, 23 Oct 2008 00:41:50 +0200
 
 pyfll (2008.03) ourea; urgency=low
 
