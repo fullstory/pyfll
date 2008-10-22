@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	acpid
 	alsa-base
 	br2684ctl
 	cpufrequtils
@@ -14,5 +13,13 @@ packages = """
 	pciutils
 	powersaved
 	udev
+"""
+
+i386 = """
+	acpid
+"""
+
+amd64 = """
+	acpid
 """
 

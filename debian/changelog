@@ -29,6 +29,16 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Niall Walsh ]
   * Add python-gobject to packages.d/hwsupport-printscan to make the supplies
     work in hplip.
+  * Only setup update-grub in kernel-img.conf if grub is installed.
+  * Allow vmlinux as kernel image.
+  * Use usr/lib/grub to control the staging of grub files and hence creation
+    of live grub config.
+  * Use usr/lib/yaboot/yaboot to control staging of yaboot and hence creation
+    of live yaboot config.
+  * Only enable genisoimage related boot options if grub is instealled.
+  * xserver-xorg-input-vmmouse, xserver-xorg-video-openchrome, grub-gfxboot,
+    gfxboot-theme-sidux and acpid are i386 and amd64 only.
+  * Add yaboot to powerpc essential packages.
 
   [ Joaquim Boura ]
   * added keyboard layout switcher (thks mzilikazi)
@@ -47,7 +57,7 @@ pyfll (2008.04) 2008-04; urgency=low
     - Let distro-lxde use desktop-defaults-lxde and the Ourea GDM theme. There
       is no sidux-art-lxde, yet.
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Wed, 22 Oct 2008 01:22:40 +0200
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 22 Oct 2008 01:35:59 +0100
 
 pyfll (2008.03) ourea; urgency=low
 

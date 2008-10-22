@@ -1070,19 +1070,20 @@ class FLLBuilder(object):
            not os.path.islink(os.path.join(chroot, 'etc/resolv.conf')):
             self._writeFile(arch, '/etc/resolv.conf')
 
-        self.log.debug('add grub hooks to /etc/kernel-img.conf')
-        f = None
-        try:
-            f = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'a')
-            f.write('postinst_hook = /usr/sbin/update-grub\n')
-            f.write('postrm_hook   = /usr/sbin/update-grub\n')
-        except IOError:
-            self.log.exception('failed to open file for writing: %s' %
-                               '/etc/kernel-img.conf')
-            raise Error
-        finally:
-            if f:
-                f.close()
+        if os.path.isfile(os.path.join(chroot, 'usr/sbin/update-grub')):
+            self.log.debug('add grub hooks to /etc/kernel-img.conf')
+            f = None
+            try:
+                f = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'a')
+                f.write('postinst_hook = /usr/sbin/update-grub\n')
+                f.write('postrm_hook   = /usr/sbin/update-grub\n')
+            except IOError:
+                self.log.exception('failed to open file for writing: %s' %
+                                   '/etc/kernel-img.conf')
+                raise Error
+            finally:
+                if f:
+                    f.close()
 
 
     def _preseedDebconf(self, arch):
@@ -1115,9 +1116,9 @@ class FLLBuilder(object):
 
     def _detectLinuxVersion(self, chroot):
         '''Return version string of a singularly installed linux-image.'''
-        kvers = [f.partition('vmlinuz-')[2] for f in
+        kvers = [f[f.find('-')+1:] for f in
                  os.listdir(os.path.join(chroot, 'boot'))
-                 if f.startswith('vmlinuz-')]
+                 if f.startswith('vmlinuz-') or f.startswith('vmlinux-')]
 
         if len(kvers) > 0:
             kvers.sort()
@@ -1592,8 +1593,10 @@ class FLLBuilder(object):
             try:
                 initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
                 shutil.copy(initrd, boot_dir)
-                vmlinuz = os.path.join(chroot, 'boot', 'vmlinuz-' + k)
-                shutil.copy(vmlinuz, boot_dir)
+                vmlin = os.path.join(chroot, 'boot', 'vmlinuz-' + k)
+                if not os.path.isfile(vmlin):
+                    vmlin = os.path.join(chroot, 'boot', 'vmlinux-' + k)
+                shutil.copy(vmlin, boot_dir)
             except:
                 self.log.exception('problem copying vmlinuz and initrd ' +
                                    'for ' + k + ' to staging area')
@@ -1612,32 +1615,45 @@ class FLLBuilder(object):
                                    'staging dir')
                 raise Error
 
-        grub_dir = os.path.join(boot_dir, 'grub')
-        if not os.path.isdir(grub_dir):
-            os.mkdir(grub_dir, 0755)
+        if os.path.isdir(os.path.join(chroot, 'usr/lib/grub')):
+            gfile_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
 
-        gfile_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
+            grub2_modules = glob.glob(os.path.join(gfile_dir, '*.mod'))
+            if len(grub2_modules) > 0:
+                gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                          if f.endswith('.mod') or f.endswith('.img')
+                          or f.endswith('.lst')]
+                gfiles.append(os.path.join(chroot, 'tmp/grub_eltorito'))
+            else:
+                gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                          if f.startswith('stage2') or f.startswith('iso9660')]
 
-        grub2_modules = glob.glob(os.path.join(gfile_dir, '*.mod'))
-        if len(grub2_modules) > 0:
-            gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
-                      if f.endswith('.mod') or f.endswith('.img')
-                      or f.endswith('.lst')]
-            gfiles.append(os.path.join(chroot, 'tmp/grub_eltorito'))
-        else:
-            gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
-                      if f.startswith('stage2') or f.startswith('iso9660')]
-        if len(gfiles) < 1:
-            self.log.critical('grub stage files not found')
-            raise Error
-
-        self.log.debug('copying grub stage files to boot dir')
-        for file in gfiles:
-            try:
-                shutil.copy(file, grub_dir)
-            except IOError:
-                self.log.exception('failed to copy grub file to staging dir')
+            if len(gfiles) > 0:
+                self.log.debug('copying grub stage files to boot dir')
+                grub_dir = os.path.join(boot_dir, 'grub')
+                if not os.path.isdir(grub_dir):
+                    os.mkdir(grub_dir, 0755)
+            else:
+                self.log.exception('grub stage files not found')
                 raise Error
+
+            for file in gfiles:
+                try:
+                    shutil.copy(file, grub_dir)
+                except IOError:
+                    self.log.exception('failed to copy grub file to staging dir')
+                    raise Error
+
+        yaboot = os.path.join(chroot, 'usr/lib/yaboot/yaboot')
+        if os.path.isfile(yaboot):
+            try:
+                shutil.copy(yaboot, boot_dir)
+                ppc_dir = os.path.join(self.temp, 'staging', 'ppc')
+                if not os.path.isdir(ppc_dir):
+                    os.mkdir(ppc_dir)
+            except IOError:
+                    self.log.exception('failed to copy yaboot file and make ppc dir')
+                    raise Error
 
         memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
         if os.path.isfile(memtest):
@@ -1739,13 +1755,63 @@ class FLLBuilder(object):
         grubcfg.close()
 
 
+    def _writeYabootCfg(self, stage_dir, boot_dir, ppc_dir, kvers,
+                      timeout, cmdline):
+        '''Write yaboot setup for live media.'''
+        if not os.path.isfile(os.path.join(boot_dir, 'yaboot')):
+            return
+
+        self.log.debug('writing yaboot files for live media')
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+
+        # bootinfo.txt untested as I've nothing to test it on! Niall
+        # genisoimage also needs a tweak for this to work!
+        bootinfo = open(os.path.join(ppc_dir, 'bootinfo.txt'), 'w')
+        bootinfo.write('<chrp-boot>\n')
+        bootinfo.write('<description>%s Live Linux on powerpc</description>\n' % distro)
+        bootinfo.write('<os-name>%s</os-name>\n' % distro)
+        bootinfo.write('<boot-script>boot &device;:\\boot\yaboot</boot-script>\n')
+        bootinfo.write('</chrp-boot>\n')
+        bootinfo.close()
+
+        etc_dir = os.path.join(stage_dir,'etc');
+        if not os.path.isdir(etc_dir):
+            os.mkdir(etc_dir)
+
+        yaboot = open(os.path.join(etc_dir, 'yaboot.conf'), 'w')
+        yaboot.write('init-message="Welcome to %s"\n' % distro)
+        yaboot.write('timeout=%d\n' % int(timeout))
+
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinux = 'vmlinux-%s' % k
+            initrd = 'initrd.img-%s' % k
+
+            for f in [vmlinux, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            yaboot.write('\n')
+            yaboot.write('image=/boot/%s\n' % (vmlinux))
+            yaboot.write('\tlabel=%s-%s\n' % (distro, cpu))
+            yaboot.write('\tappend="boot=fll %s"\n' % (cmdline))
+            yaboot.write('\tinitrd=/boot/%s\n' % initrd)
+            yaboot.write('\n')
+
+        yaboot.close()
+
+
     def writeGrubCfg(self):
         '''Write final GRUB configuration for live media.'''
-        self.log.debug('writing grub config for live media')
         stage_dir = os.path.join(self.temp, 'staging')
         boot_dir = os.path.join(stage_dir, 'boot')
         grub_dir = os.path.join(boot_dir, 'grub')
 
+        if not os.path.isdir(grub_dir):
+            return
+        self.log.debug('writing grub config for live media')
         kvers = self._detectLinuxVersion(stage_dir)
         if len(kvers) < 1:
             self.log.critical('failed to find vmlinuz to include in grub conf')
@@ -1765,6 +1831,32 @@ class FLLBuilder(object):
                                timeout, cmdline)
         else:
             self._writeMenuLst(stage_dir, boot_dir, grub_dir, kvers,
+                               timeout, cmdline)
+
+
+    def writeYabootCfg(self):
+        '''Write final GRUB configuration for live media.'''
+        stage_dir = os.path.join(self.temp, 'staging')
+        boot_dir = os.path.join(stage_dir, 'boot')
+        ppc_dir = os.path.join(stage_dir, 'ppc')
+
+        if not os.path.isdir(ppc_dir):
+            return
+        self.log.debug('writing yaboot config for live media')
+        kvers = self._detectLinuxVersion(stage_dir)
+        if len(kvers) < 1:
+            self.log.critical('failed to find vmlinux to include in grub conf')
+            raise Error
+
+        timeout = self.conf['options'].get('boot_timeout')
+        if not timeout:
+            timeout = '30'
+
+        cmdline =  self.conf['options'].get('boot_cmdline')
+        if not cmdline:
+            cmdline = 'quiet vga=791'
+
+        self._writeYabootCfg(stage_dir, boot_dir, ppc_dir, kvers,
                                timeout, cmdline)
 
 
@@ -1965,17 +2057,22 @@ class FLLBuilder(object):
         if self.opts.v:
             cmd += ' -v'
         cmd += ' -pad -l -J -r -hide-rr-moved'
-        cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
 
-        if os.path.isfile(os.path.join(stage, 'boot/grub/grub_eltorito')):
-            cmd += ' -b boot/grub/grub_eltorito'
-        elif os.path.isfile(os.path.join(stage, 'boot/grub/iso9660_stage1_5')):
-            cmd += ' -b boot/grub/iso9660_stage1_5 -c boot/grub/boot.cat'
-        elif os.path.isfile(os.path.join(stage, 'boot/grub/stage2_eltorito')):
-            cmd += ' -b boot/grub/stage2_eltorito -c boot/grub/boot.cat'
-        else:
-            self.log.critical('failed to find grub El Torito image file')
-            raise Error
+        if os.path.isdir(os.path.join(stage, 'boot/grub')):
+            cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
+            if os.path.isfile(os.path.join(stage, 'boot/grub/grub_eltorito')):
+                cmd += ' -b boot/grub/grub_eltorito'
+            elif os.path.isfile(os.path.join(stage, 'boot/grub/iso9660_stage1_5')):
+                cmd += ' -b boot/grub/iso9660_stage1_5 -c boot/grub/boot.cat'
+            elif os.path.isfile(os.path.join(stage, 'boot/grub/stage2_eltorito')):
+                cmd += ' -b boot/grub/stage2_eltorito -c boot/grub/boot.cat'
+            else:
+                self.log.critical('failed to find grub El Torito image file')
+                raise Error
+
+        # yaboot needs a genisoimage tweaks?
+        # http://penguinppc.org/ppc64/power-bootable-iso/
+        # mkisofs -r -U -chrp-boot -o <image.iso> <base_directory>
 
         cmd += ' -V %s' % distro_name[:32]
         cmd += ' -sort %s' % sort_file
@@ -2064,6 +2161,7 @@ class FLLBuilder(object):
 
         self.buildChroots()
         self.writeGrubCfg()
+        self.writeYabootCfg()
         self.writeMd5Sums()
         self.genLiveMedia()
 

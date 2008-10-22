@@ -24,15 +24,20 @@ packages = """
 	xresprobe
 	xserver-xorg
 	xserver-xorg-input-all
-	xserver-xorg-input-vmmouse
 	xserver-xorg-video-all
-	xserver-xorg-video-openchrome
 	xinit
 	xutils
 """
 
 i386 = """
 	virtualbox-ose-guest-utils
+	xserver-xorg-input-vmmouse
 	xserver-xorg-video-geode
+	xserver-xorg-video-openchrome
+"""
+
+amd64 = """
+	xserver-xorg-input-vmmouse
+	xserver-xorg-video-openchrome
 """
 

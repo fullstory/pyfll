@@ -17,8 +17,20 @@ packages = """
 	insserv
 	fll-live-initramfs
 	fll-live-initscripts
-	grub-gfxboot
 	locales
 	squashfs-tools
 	initramfs-tools
 """
+
+i386 = """
+	grub-gfxboot
+"""
+
+amd64 = """
+	grub-gfxboot
+"""
+
+powerpc = """
+	yaboot
+"""
+

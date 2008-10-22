@@ -4,9 +4,16 @@ desc = """
 
 packages = """
 	apt-conf-sidux
-	gfxboot-theme-sidux
 	sidux-keyrings
 	sidux-scripts
 	udev-config-sidux
+"""
+
+i386 = """
+	gfxboot-theme-sidux
+"""
+
+amd64 = """
+	gfxboot-theme-sidux
 """
 
