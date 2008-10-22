@@ -12,7 +12,7 @@ etc/lvm/backup
 etc/lvm/cache
 etc/timezone
 etc/ssh/ssh_host_*key*
-etc/udev/rules.d/z25_persistent-*.rules
+etc/udev/rules.d/70-persistent-*.rules
 etc/X11/xorg.conf
 home/*
 lib/init/rw/*
