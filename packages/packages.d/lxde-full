@@ -4,7 +4,7 @@ desc = """
 
 packages = """
 	audacious
-	audacious-extra-plugins
+	audacious-plugins-extra
 	brasero
 	icedove
 	icedtea-gcjwebplugin

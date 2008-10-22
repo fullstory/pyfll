@@ -26,6 +26,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * remove automoc and libphonon-dev from kde4 preferences
   * remove libqimageblitz-* from kde4 preferences
   * fix non-existant openoffice.org package profile specified in lxde
+  * fix audacious plugins typo in lxde
 
   [ Joaquim Boura ]
   * added stanza for lxde
@@ -63,7 +64,7 @@ pyfll (2008.04) 2008-04; urgency=low
     - Let distro-lxde use desktop-defaults-lxde and the Ourea GDM theme. There
       is no sidux-art-lxde, yet.
 
- -- Bernard Gray <bernard.gray@gmail.com>  Thu, 23 Oct 2008 08:51:48 +1100
+ -- Bernard Gray <bernard.gray@gmail.com>  Thu, 23 Oct 2008 09:05:22 +1100
 
 pyfll (2008.03) ourea; urgency=low
 
