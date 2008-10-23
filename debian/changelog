@@ -46,6 +46,8 @@ pyfll (2008.04) 2008-04; urgency=low
   * xserver-xorg-input-vmmouse, xserver-xorg-video-openchrome, grub-gfxboot,
     gfxboot-theme-sidux and acpid are i386 and amd64 only.
   * Add yaboot to powerpc essential packages.
+  * Allow single or multiple kernels in config.
+  * try to mimic debian-cd setup for powerpc genisoimage options.
 
   [ Joaquim Boura ]
   * added keyboard layout switcher (thks mzilikazi)
@@ -65,7 +67,7 @@ pyfll (2008.04) 2008-04; urgency=low
       is no sidux-art-lxde, yet.
     - Add lxde-lite package profile.
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Thu, 23 Oct 2008 00:41:50 +0200
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 23 Oct 2008 02:59:35 +0100
 
 pyfll (2008.03) ourea; urgency=low
 

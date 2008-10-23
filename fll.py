@@ -280,9 +280,18 @@ class FLLBuilder(object):
                 else:
                     linux = '2.6-' + cpu
 
-                self.conf['archs'][arch].setdefault('linux', linux)
-            self.log.debug("linux (%s): %s" %
-                           (arch, self.conf['archs'][arch]['linux']))
+                self.conf['archs'][arch].setdefault('linux', [ linux ])
+            else:
+                linux = self.conf['archs'][arch]['linux']
+                if type(linux) is str:
+                    self.conf['archs'][arch]['linux'] = [ linux ]
+                elif type(linux) is not list:
+                    self.log.critical('invalid linux for arch %s in config'
+                                      % arch)
+                    raise Error
+            for linux in self.conf['archs'][arch]['linux']:
+                self.log.debug("linux (%s): %s" %
+                               (arch, self.conf['archs'][arch]['linux']))
 
         if len(self.conf['repos'].keys()) < 1:
             self.log.critical('no apt repos were specified in build config')
@@ -384,8 +393,8 @@ class FLLBuilder(object):
         pkgs = {'debconf': [], 'packages': [], 'postinst': []}
 
         linux_meta = ['linux-image', 'linux-headers']
-        kvers = self.conf['archs'][arch]['linux']
-        pkgs['packages'].extend(['-'.join([l, kvers]) for l in linux_meta])
+        for kvers in self.conf['archs'][arch]['linux']:
+            pkgs['packages'].extend(['-'.join([l, kvers]) for l in linux_meta])
 
         pname = os.path.basename(profile)
         self.log.debug('processing package profile for %s: %s' % (arch, pname))
@@ -1223,9 +1232,11 @@ class FLLBuilder(object):
     def _detectLinuxModulePkgs(self, arch, cache):
         '''Provide automated detection for extra linux module packages.'''
         self.log.debug('detecting linux modules packages')
-        kvers = '-modules-' + self.conf['archs'][arch]['linux']
-        kvers_list = [p.Name for p in cache.Packages
-                      if p.Name.endswith(kvers) and p.VersionList]
+        kvers_list = []
+        for kver in self.conf['archs'][arch]['linux']:
+            kvers = '-modules-' + kver
+            kvers_list.extend([p.Name for p in cache.Packages
+                          if p.Name.endswith(kvers) and p.VersionList])
         self.log.debug('kvers_list:')
         self.log.debug(kvers_list)
         return kvers_list
@@ -1653,6 +1664,9 @@ class FLLBuilder(object):
                 ppc_dir = os.path.join(self.temp, 'staging', 'ppc')
                 if not os.path.isdir(ppc_dir):
                     os.mkdir(ppc_dir)
+                chrp_dir = os.path.join(ppc_dir, 'chrp')
+                if not os.path.isdir(chrp_dir):
+                    os.mkdir(chrp_dir)
             except IOError:
                     self.log.exception('failed to copy yaboot file and make ppc dir')
                     raise Error
@@ -1767,8 +1781,6 @@ class FLLBuilder(object):
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
 
-        # bootinfo.txt untested as I've nothing to test it on! Niall
-        # genisoimage also needs a tweak for this to work!
         bootinfo = open(os.path.join(ppc_dir, 'bootinfo.txt'), 'w')
         bootinfo.write('<chrp-boot>\n')
         bootinfo.write('<description>%s Live Linux on powerpc</description>\n' % distro)
@@ -1783,7 +1795,8 @@ class FLLBuilder(object):
 
         yaboot = open(os.path.join(etc_dir, 'yaboot.conf'), 'w')
         yaboot.write('init-message="Welcome to %s"\n' % distro)
-        yaboot.write('timeout=%d\n' % int(timeout))
+        #yaboot.write('message=/boot/yaboot.message')
+        yaboot.write('timeout=%d\n' % int(timeout*10))
 
         for k in kvers:
             cpu = k[k.rfind('-') + 1:]
@@ -1803,9 +1816,14 @@ class FLLBuilder(object):
             yaboot.write('\n')
 
         yaboot.close()
+        # yaboot.conf, hfs.map and ofboot.b in hfs-blessed /boot
+	# ofboot and hfs.map from debian-cd (ofboot has path changed)
+        shutil.copy(os.path.join(etc_dir, 'yaboot.conf'), boot_dir)
+        shutil.copy(os.path.join(self.opts.s, 'data', 'hfs.map'), boot_dir)
+        shutil.copy(os.path.join(self.opts.s, 'data', 'ofboot.b'), boot_dir)
 
 
-    def _writeGrubCfg(self):
+    def _writeGrubWrap(self):
         '''Write final GRUB configuration for live media.'''
         stage_dir = os.path.join(self.temp, 'staging')
         boot_dir = os.path.join(stage_dir, 'boot')
@@ -1836,7 +1854,7 @@ class FLLBuilder(object):
                                timeout, cmdline)
 
 
-    def _writeYabootCfg(self):
+    def _writeYabootWrap(self):
         '''Write final yaboot configuration for live media.'''
         stage_dir = os.path.join(self.temp, 'staging')
         boot_dir = os.path.join(stage_dir, 'boot')
@@ -1866,13 +1884,9 @@ class FLLBuilder(object):
         call the appropriate method to do that.'''
         archs = self.conf['archs'].keys()
 
-        if 'i386' in archs or 'amd64' in archs:
-            self._writeGrubCfg()
-        elif 'ppc' in archs:
-            self._writeYabootCfg()
-        else:
-            self.log.critical('no bootloader method for arch: %s' % arch)
-            raise Error
+        self._writeGrubWrap()
+        if 'powerpc' in archs or 'ppc64' in archs:
+            self._writeYabootWrap()
 
     def __md5sum(self, file):
         '''Calculate md5sum of a file and return it.'''
@@ -2084,9 +2098,15 @@ class FLLBuilder(object):
                 self.log.critical('failed to find grub El Torito image file')
                 raise Error
 
-        # yaboot needs a genisoimage tweaks?
-        # http://penguinppc.org/ppc64/power-bootable-iso/
-        # mkisofs -r -U -chrp-boot -o <image.iso> <base_directory>
+        if os.path.isdir(os.path.join(stage, 'ppc')):
+            cmd += ' -chrp-boot -T -netatalk -hfs -probe'
+            cmd += ' -map %s/boot/hfs.map' % stage
+            cmd += ' -part -no-desktop -hfs-bless %s/boot' % stage
+            cmd += ' -hfs-volid %s --iso-level 2 --chrp-boot' % distro_name[:32]
+            # 4M/1G reserved for hfs recommended
+            # This limits to a full 4.7GB DVD
+            # (4.7*10^9)*(1/1024)
+            cmd += ' -hfs-parms MAX_XTCSIZE=18287938'
 
         cmd += ' -V %s' % distro_name[:32]
         cmd += ' -sort %s' % sort_file
