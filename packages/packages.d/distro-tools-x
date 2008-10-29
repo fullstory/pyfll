@@ -8,7 +8,6 @@ packages = """
 	gprsconnect
 	install-gui
 	install-usb-gui
-	install-meta
 	sidux-browser
 	sidux-irc
 	sidux-manual-en
