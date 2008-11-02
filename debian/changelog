@@ -17,6 +17,7 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Stefan Lippers-Hollmann ]
   * re- enable kvm for kde-full and dvd.
   * add foo2zjs to printscan.
+  * remove rcconf, it simply does more harm than good.
 
   [ Bernard Gray ]
   * temporarily re-add contrib/preferences for kde4 builds
@@ -32,6 +33,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * added stanza for lxde
   * moved fluxbox and feh to a own set
   * removed feh from utils-x
+  * added keyboard layout switcher (thks mzilikazi)
 
   [ Niall Walsh ]
   * Add python-gobject to packages.d/hwsupport-printscan to make the supplies
@@ -48,9 +50,6 @@ pyfll (2008.04) 2008-04; urgency=low
   * Add yaboot to powerpc essential packages.
   * Allow single or multiple kernels in config.
   * try to mimic debian-cd setup for powerpc genisoimage options.
-
-  [ Joaquim Boura ]
-  * added keyboard layout switcher (thks mzilikazi)
 
   [ Michael Deelwater ]
   * fll.py:
@@ -71,7 +70,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * install-meta removed from distro-tools-x.
     it's not the best for a out-dated rolling release distro 
 
- -- Horst Tritremmel <hjt@sidux.com>  Wed, 29 Oct 2008 19:58:36 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 02 Nov 2008 14:42:50 +0100
 
 pyfll (2008.03) ourea; urgency=low
 
