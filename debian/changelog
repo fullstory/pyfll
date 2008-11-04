@@ -18,6 +18,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * re- enable kvm for kde-full and dvd.
   * add foo2zjs to printscan.
   * remove rcconf, it simply does more harm than good.
+  * revert locale preseed hack (r20659), glibc 2.7-16 should be fixed.
 
   [ Bernard Gray ]
   * temporarily re-add contrib/preferences for kde4 builds
@@ -70,7 +71,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * install-meta removed from distro-tools-x.
     it's not the best for a out-dated rolling release distro 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 02 Nov 2008 14:42:50 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 04 Nov 2008 22:54:13 +0100
 
 pyfll (2008.03) ourea; urgency=low
 
