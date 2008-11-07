@@ -16,6 +16,7 @@ packages = """
 	foomatic-filters-ppds
 	foo2zjs
 	ghostscript-x
+	hal-cups-utils
 	hpijs-ppds
 	hplip
 	openprinting-ppds
@@ -25,4 +26,3 @@ packages = """
 	sane-utils
 	libsane-extras
 """
-
