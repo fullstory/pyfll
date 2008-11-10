@@ -68,12 +68,15 @@ pyfll (2008.04) 2008-04; urgency=low
     - Let distro-lxde use desktop-defaults-lxde and the Ourea GDM theme. There
       is no sidux-art-lxde, yet.
     - Add lxde-lite package profile.
+  * package lists:
+    - Add tofrodos (providing dos2unix and unix2dos) to utils-extra.
+    - Change vim-full (=vim-gnome) to vim-gtk in dvd.
 
   [ Horst Tritremmel ]
   * install-meta removed from distro-tools-x.
     it's not the best for a out-dated rolling release distro 
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 08 Nov 2008 06:09:05 +1000
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 10 Nov 2008 23:47:56 +0100
 
 pyfll (2008.03) ourea; urgency=low
 

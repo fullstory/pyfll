@@ -247,7 +247,7 @@ packages = """
 	vcdimager
 	vdr-gui
 	vdr-plugin-pvrinput
-	vim-full
+	vim-gtk
 	vim-latexsuite
 	virtualbox-ose
 	vlc

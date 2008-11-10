@@ -35,6 +35,7 @@ packages = """
 	smbfs
 	strace
 	testdisk
+	tofrodos
 	traceroute
 	xfsprogs
 	unzip
