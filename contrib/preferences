@@ -12,7 +12,7 @@ Pin-Priority: 200
 
 Package: *
 Pin: release a=experimental
-Pin-Priority: 1
+Pin-Priority: 101
 
 Explanation: akonadi
 Package: akonadi-dbg libakonadi-dev akonadi-server
@@ -34,7 +34,7 @@ Package: libeigen2-dev
 Pin: release a=experimental
 Pin-Priority: 500
 
-lde-l10n
+Explanation: kde-l10n
 Package: kde-l10n-bg kde-l10n-ca kde-l10n-cs kde-l10n-csb kde-l10n-da kde-l10n-de kde-l10n-el kde-l10n-engb kde-l10n-eo kde-l10n-es kde-l10n-et kde-l10n-fi kde-l10n-fr kde-l10n-fy kde-l10n-ga kde-l10n-gl kde-l10n-hi kde-l10n-hu kde-l10n-it kde-l10n-ja kde-l10n-kk kde-l10n-km kde-l10n-ko kde-l10n-ku kde-l10n-lv kde-l10n-lt kde-l10n-mk kde-l10n-ml kde-l10n-nb kde-l10n-nds kde-l10n-nl kde-l10n-nn kde-l10n-pa kde-l10n-pl kde-l10n-pt kde-l10n-ptbr kde-l10n-ru kde-l10n-sl kde-l10n-sr kde-l10n-sv kde-l10n-ta kde-l10n-th kde-l10n-tr kde-l10n-uk kde-l10n-wa kde-l10n-zhcn kde-l10n-zhtw
 Pin: release a=experimental
 Pin-Priority: 500
@@ -164,7 +164,7 @@ Package: kde4 kde4-minimal kde4-development
 Pin: release a=experimental
 Pin-Priority: 500
 
-phonon
+Explanation: phonon
 Package: phonon-backend-gstreamer phonon-backend-null phonon-dbg
 Pin: release a=experimental
 Pin-Priority: 500
@@ -174,7 +174,7 @@ Package: rsibreak
 Pin: release a=experimental
 Pin-Priority: 500
 
-Explanation: systemsetting
+Explanation: systemsettings
 Package: systemsettings
 Pin: release a=experimental
 Pin-Priority: 500

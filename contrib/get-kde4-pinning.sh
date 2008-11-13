@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BASE_URL="svn://svn.debian.org/svn/pkg-kde/branches/kde4/packages"
-SOURCE_PACKAGES="$(svn ls ${BASE_URL} | grep -v -e pkg-kde-tools | sed s/\\/$//)"
+SOURCE_PACKAGES="$(svn ls ${BASE_URL} | grep -v -e pkg-kde-tools -e automoc -e blitz -e soprano | sed s/\\/$//)"
 
 printf "Explanation: this file provides apt-pinning\n"
 printf "Explanation: enabling the install of the debian\n"
