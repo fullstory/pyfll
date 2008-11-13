@@ -13,7 +13,7 @@ printf "Package: *\nPin: release a=testing\nPin-Priority: 200\n\n"
 printf "Package: *\nPin: release a=experimental\nPin-Priority: 101\n"
 
 for i in $SOURCE_PACKAGES; do
-	printf "\nExplanation: ${i}\nPackage: $(svn cat "${BASE_URL}/${i}/debian/control" | awk '/^Package\:/{ print $2 }' | xargs)\nPin: release a=experimental\nPin-Priority: 500\n"
+	printf "\nExplanation: ${i}\nPackage: $(svn cat "${BASE_URL}/${i}/debian/control" | awk '/^Package\:/{ print $2 }' | grep -v -e ^libakonadiprivate1$ -e ^phonon$ -e ^libphonon-dev$ -e ^libphonon4$ | xargs)\nPin: release a=experimental\nPin-Priority: 500\n"
 done
 
 printf "\n"

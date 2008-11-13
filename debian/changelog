@@ -22,6 +22,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * remove rcconf, it simply does more harm than good.
   * revert locale preseed hack (r20659), glibc 2.7-16 should be fixed.
   * restructure kde4 preferences.
+  * fix get-kde4-pinning.sh
 
   [ Bernard Gray ]
   * temporarily re-add contrib/preferences for kde4 builds
@@ -77,7 +78,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * install-meta removed from distro-tools-x.
     it's not the best for a out-dated rolling release distro 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 13 Nov 2008 21:08:15 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 13 Nov 2008 21:26:58 +0100
 
 pyfll (2008.03) ourea; urgency=low
 

@@ -15,7 +15,7 @@ Pin: release a=experimental
 Pin-Priority: 101
 
 Explanation: akonadi
-Package: libakonadiprivate1 akonadi-dbg libakonadi-dev akonadi-server
+Package: akonadi-dbg libakonadi-dev akonadi-server
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -70,7 +70,7 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdebindings
-Package: korundum4 libsmokeqt4 libsmokekde4 libqt4-ruby libqt4-ruby1.8 libkde4-ruby libkde4-ruby1.8 libsmokeokular libokular-ruby libokular-ruby1.8 libsmokeplasma libplasma-ruby libplasma-ruby1.8 python-kde4 python-kde4-dev python-kde4-doc libqyoto4.4-cil qyoto-dev libkimono4.1-cil libkhtml2.0-cil libnepomuk2.2-cil libqtscript2.2-cil libqtuitools2.2-cil libqtwebkit2.2-cil libsoprano2.0-cil libqtruby4shared1d libqyotoshared1d
+Package: libsmokeqt4-2 libsmokekde4-2 libsmokeokular2 libsmokeplasma2 korundum4 libqtruby4shared2 libqt4-ruby libqt4-ruby1.8 libkde4-ruby libkde4-ruby1.8 libokular-ruby libokular-ruby1.8 libplasma-ruby libplasma-ruby1.8 python-kde4 python-kde4-dev python-kde4-doc libqyoto4.4-cil qyoto-dev libkimono4.1-cil libkhtml2.0-cil libnepomuk2.2-cil libqtscript2.2-cil libqtuitools2.2-cil libqtwebkit2.2-cil libsoprano2.0-cil libqyotoshared1
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -165,7 +165,7 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: phonon
-Package: phonon libphonon-dev libphonon4 phonon-backend-gstreamer phonon-backend-null phonon-dbg
+Package: phonon-backend-gstreamer phonon-backend-null phonon-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
