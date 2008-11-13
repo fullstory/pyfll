@@ -15,7 +15,7 @@ Pin: release a=experimental
 Pin-Priority: 101
 
 Explanation: akonadi
-Package: akonadi-dbg libakonadi-dev akonadi-server
+Package: libakonadiprivate1 akonadi-dbg libakonadi-dev akonadi-server
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -165,7 +165,7 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: phonon
-Package: phonon-backend-gstreamer phonon-backend-null phonon-dbg
+Package: phonon libphonon-dev libphonon4 phonon-backend-gstreamer phonon-backend-null phonon-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
