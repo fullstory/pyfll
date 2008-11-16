@@ -283,9 +283,9 @@ class FLLBuilder(object):
                 self.conf['archs'][arch].setdefault('linux', [ linux ])
             else:
                 linux = self.conf['archs'][arch]['linux']
-                if type(linux) is str:
+                if isinstance(linux, str):
                     self.conf['archs'][arch]['linux'] = [ linux ]
-                elif type(linux) is not list:
+                elif isinstance(linux, list):
                     self.log.critical('invalid linux for arch %s in config'
                                       % arch)
                     raise Error
