@@ -33,6 +33,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * remove libqimageblitz-* from kde4 preferences
   * fix non-existant openoffice.org package profile specified in lxde
   * fix audacious plugins typo in lxde
+  * migrate art requirements for pontos release
 
   [ Joaquim Boura ]
   * added stanza for lxde
@@ -81,7 +82,7 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Joaquim Boura ]
   * use xfce4 proper plugin instead of external kb switcher
 
- -- Joaquim Boura <x-un-i@sidux.com>  Sun, 16 Nov 2008 12:15:42 +0100
+ -- Bernard Gray <bernard.gray@gmail.com>  Sun, 16 Nov 2008 23:19:46 +1100
 
 pyfll (2008.03) ourea; urgency=low
 
