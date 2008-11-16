@@ -35,6 +35,7 @@ packages = """
 	xfce4-genmon-plugin
 	xfce4-goodies
 	xfce4-icon-theme
+	xfce4-xkb-plugin
 	xfce4-mcs-manager
 	xfce4-mcs-plugins
 	xfce4-mixer

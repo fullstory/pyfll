@@ -78,7 +78,10 @@ pyfll (2008.04) 2008-04; urgency=low
   * install-meta removed from distro-tools-x.
     it's not the best for a out-dated rolling release distro 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 13 Nov 2008 21:26:58 +0100
+  [ Joaquim Boura ]
+  * use xfce4 proper plugin instead of external kb switcher
+
+ -- Joaquim Boura <x-un-i@sidux.com>  Sun, 16 Nov 2008 12:15:42 +0100
 
 pyfll (2008.03) ourea; urgency=low
 
