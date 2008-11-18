@@ -35,6 +35,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * fix non-existant openoffice.org package profile specified in lxde
   * fix audacious plugins typo in lxde
   * migrate art requirements for pontos release
+  * set vimrc.local to use bg=dark (current konsole default, also suits xfce/lxde)
 
   [ Joaquim Boura ]
   * added stanza for lxde
@@ -83,7 +84,7 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Joaquim Boura ]
   * use xfce4 proper plugin instead of external kb switcher
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 18 Nov 2008 14:15:54 +0100
+ -- Bernard Gray <bernard.gray@gmail.com>  Wed, 19 Nov 2008 10:19:46 +1100
 
 pyfll (2008.03) ourea; urgency=low
 

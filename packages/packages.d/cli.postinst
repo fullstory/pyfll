@@ -12,7 +12,7 @@ do_postinst() {
 <<EOF
 syntax on
 set autoindent
-set background=light
+set background=dark
 set showmatch
 set pastetoggle=<F10>
 EOF
