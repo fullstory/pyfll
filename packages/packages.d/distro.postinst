@@ -14,7 +14,7 @@ do_postinst() {
 
 	say 'Locking root account'
 	sed -i 's#^root:[^:]*:#root:\*:#' /etc/shadow
-	chmod 0751 /root
+	chmod 0770 /root
 
 	say 'Reconfiguring distro-defaults'
 	# Reconfigure to ensure out LSB defaults are in place for
@@ -24,7 +24,7 @@ do_postinst() {
 	. /etc/default/distro
 
 	say 'Preseeding /etc/adduser.conf'
-	sed -i 's/^DIR_MODE=.*/DIR_MODE=0751/' /etc/adduser.conf
+	sed -i 's/^DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
 
 	unset GROUPS
 	for g in ${FLL_LIVE_USER_GROUPS}; do
