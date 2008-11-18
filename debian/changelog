@@ -36,6 +36,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * fix audacious plugins typo in lxde
   * migrate art requirements for pontos release
   * set vimrc.local to use bg=dark (current konsole default, also suits xfce/lxde)
+  * revert 21172, konsole default shortcuts use white bg profile
 
   [ Joaquim Boura ]
   * added stanza for lxde
@@ -84,7 +85,7 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Joaquim Boura ]
   * use xfce4 proper plugin instead of external kb switcher
 
- -- Bernard Gray <bernard.gray@gmail.com>  Wed, 19 Nov 2008 10:19:46 +1100
+ -- Bernard Gray <bernard.gray@gmail.com>  Wed, 19 Nov 2008 10:28:50 +1100
 
 pyfll (2008.03) ourea; urgency=low
 
