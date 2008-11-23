@@ -59,6 +59,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * Add yaboot to powerpc essential packages.
   * Allow single or multiple kernels in config.
   * try to mimic debian-cd setup for powerpc genisoimage options.
+  * Set mode (default 0644) for files created by _writeFile
 
   [ Michael Deelwater ]
   * fll.py:
@@ -85,7 +86,7 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Joaquim Boura ]
   * use xfce4 proper plugin instead of external kb switcher
 
- -- Bernard Gray <bernard.gray@gmail.com>  Wed, 19 Nov 2008 10:28:50 +1100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Sun, 23 Nov 2008 15:55:53 +0000
 
 pyfll (2008.03) ourea; urgency=low
 

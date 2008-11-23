@@ -976,8 +976,13 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
 
         f = None
+        fn = None
+        mode = 0644
         try:
-            f = open(os.path.join(chroot, file.lstrip('/')), 'w')
+            fn = os.path.join(chroot, file.lstrip('/'))
+            if os.path.isfile(fn):
+                mode = None
+            f = open(fn, 'w')
             self.log.debug('writing file: %s' % file)
             if file == '/etc/default/distro':
                 d = self.conf['distro'].keys()
@@ -1032,6 +1037,8 @@ class FLLBuilder(object):
         finally:
             if f:
                 f.close()
+                if mode:
+                    os.chmod(fn, mode)
 
 
     def _defaultEtc(self, arch):
