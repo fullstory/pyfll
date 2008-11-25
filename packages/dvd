@@ -24,7 +24,7 @@ deps = """
 	utils-extra
 	utils-x
 	wine
-	xfce-desktop
+	xfce-desktop-extras
 	xserver
 """
 
