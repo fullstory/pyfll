@@ -11,12 +11,12 @@ THIS_DIR=$(dirname $(readlink -f ${0}))
 DEFAULTD="/usr/share/fll"
 
 # Locate the real program
-if [ -f ${THIS_DIR}/fll.py ]; then
-	FLL="${THIS_DIR}/fll.py --share ${THIS_DIR}"
-elif [ -f /usr/share/fll/fll.py ]; then
-	FLL="${DEFAULTD}/fll.py --share ${DEFAULTD}"
+if [ -f ${THIS_DIR}/pyfll.py ]; then
+	FLL="${THIS_DIR}/pyfll.py --share ${THIS_DIR}"
+elif [ -f /usr/share/fll/pyfll.py ]; then
+	FLL="${DEFAULTD}/pyfll.py --share ${DEFAULTD}"
 else
-	echo "Error locating fll.py, aborting." >&2
+	echo "Error locating pyfll.py, aborting." >&2
 	exit 1
 fi
 

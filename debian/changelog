@@ -60,6 +60,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * Allow single or multiple kernels in config.
   * try to mimic debian-cd setup for powerpc genisoimage options.
   * Set mode (default 0644) for files created by _writeFile
+  * Use python-fll to detect locale packages
 
   [ Michael Deelwater ]
   * fll.py:
@@ -86,7 +87,7 @@ pyfll (2008.04) 2008-04; urgency=low
   [ Joaquim Boura ]
   * use xfce4 proper plugin instead of external kb switcher
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Sun, 23 Nov 2008 15:55:53 +0000
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 26 Nov 2008 00:32:24 +0000
 
 pyfll (2008.03) ourea; urgency=low
 

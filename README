@@ -11,3 +11,4 @@ Dependencies:
   python-configobj
   cdebootstrap | debootstrap
   genisoimage
+  python-fll

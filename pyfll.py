@@ -6,6 +6,7 @@ __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
 from subprocess import *
+from fll.locales import FllLocales, FllLocalesError
 
 import apt_pkg
 import atexit
@@ -1149,44 +1150,20 @@ class FLLBuilder(object):
         '''Provide automated detection for extra i18n packages.'''
         self.log.info('detecting i18n packages for %s...' % ' '.join(i18n))
 
-        i18n_module = ConfigObj(os.path.join(self.opts.s, 'packages',
-                                             'packages.d', 'i18n'))
+        i18n_module = ConfigObj('/usr/share/fll/data/locales-pkg-map')
         self.log.debug('i18n_module:')
         self.log.debug(i18n_module)
 
-        i18n_dict = dict()
-        for ll_cc in i18n:
-            ll_cc = ll_cc.lower().replace('_', '-')
-            i18n_dict[ll_cc] = True
+        fll_locales = FllLocales(cache, wanted, i18n_module)
+        i18n_list = []
+        for locale in sorted(i18n):
+            try:
+                loc_pkg_list = fll_locales.detect_locale_packages(locale)
+            except FllLocalesError:
+                print_error('Failed to parse locale string: %s' % locale)
+            else:
+                i18n_list.extend(loc_pkg_list)
 
-            dash = ll_cc.find('-')
-            if dash > 0:
-                ll = ll_cc[:dash]
-                cc = ll_cc[dash + 1:]
-
-                i18n_dict[ll] = True
-                i18n_dict[ll + cc] = True
-
-                if not ll_cc.startswith('en'):
-                    i18n_dict['i18n'] = True
-
-        self.log.debug('i18n_dict:')
-        self.log.debug(i18n_dict)
-
-        i18n_pkgs_list = []
-        for p in i18n_module.keys():
-            if p not in wanted:
-                continue
-            for pkg in self.__lines2list(i18n_module[p]):
-                i18n_pkgs_list.extend([('-'.join([pkg, i]), True)
-                                       for i in i18n_dict.keys()])
-
-        i18n_pkgs_dict = dict(i18n_pkgs_list)
-        self.log.debug('i18n_pkgs_dict:')
-        self.log.debug(i18n_pkgs_dict)
-
-        i18n_list = [p.Name for p in cache.Packages
-                     if p.Name in i18n_pkgs_dict and p.VersionList]
         self.log.debug('i18n_list:')
         self.log.debug(i18n_list)
         return i18n_list
