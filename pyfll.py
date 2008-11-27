@@ -286,7 +286,7 @@ class FLLBuilder(object):
                 linux = self.conf['archs'][arch]['linux']
                 if isinstance(linux, str):
                     self.conf['archs'][arch]['linux'] = [ linux ]
-                elif isinstance(linux, list):
+                elif not isinstance(linux, list):
                     self.log.critical('invalid linux for arch %s in config'
                                       % arch)
                     raise Error
