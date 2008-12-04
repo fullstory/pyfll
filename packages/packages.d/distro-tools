@@ -3,12 +3,11 @@ desc = """
 """
 
 packages = """
-	capi-isdnconf
 	ceni
 	configure-dsl
 	configure-ndiswrapper
 	infobash
-	modemlink
-	ppp-scripts
+	pppconfig
 	sshstart
+	wvdial
 """

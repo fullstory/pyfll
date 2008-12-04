@@ -12,4 +12,5 @@ packages = """
 	kpdf
 	ksnapshot
 	gtk2-engines-qtcurve
+	umtsmon
 """
