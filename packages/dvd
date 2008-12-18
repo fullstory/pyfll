@@ -32,7 +32,7 @@ packages = """
 	abiword-plugins
 	albumshaper
 	alsamixergui
-#	amule	# Depends: libupnp3 but it is not installable
+	amule
 	ardour
 	audacious
 	audacious-plugins
@@ -101,7 +101,6 @@ packages = """
 	hydrogen-drumkits
 	icedove
 	icedtea-gcjwebplugin
-	icemc
 	iceowl
 	iceweasel
 	iceweasel-gnome-support

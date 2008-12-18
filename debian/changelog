@@ -83,12 +83,17 @@ pyfll (2008.04) 2008-04; urgency=low
   * package lists:
     - Add tofrodos (providing dos2unix and unix2dos) to utils-extra.
     - Change vim-full (=vim-gnome) to vim-gtk in dvd.
+  * DVD package profile:
+    - Remove icemc (not in sid).
+    - Uncomment amule, it is installable.
+  * wine package list:
+    - Make libwine-jack i386 only.
 
   [ Horst Tritremmel ]
   * install-meta removed from distro-tools-x.
     it's not the best for a out-dated rolling release distro 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 08 Dec 2008 02:49:20 +0100
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Thu, 18 Dec 2008 03:22:40 +0100
 
 pyfll (2008.03) ourea; urgency=low
 

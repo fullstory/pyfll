@@ -13,10 +13,13 @@ packages = """
 	libwine-esd
 	libwine-gl
 	libwine-gphoto2
-	libwine-jack
 	libwine-ldap
 	libwine-nas
 	libwine-print
 	libwine-sane
+"""
+
+i386 = """
+	libwine-jack
 """
 
