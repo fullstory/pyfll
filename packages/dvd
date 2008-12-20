@@ -46,7 +46,7 @@ packages = """
 	camserv
 	camserv-relay
 	cdparanoia
-	centerim
+	chemtool
 	chkrootkit
 	clamav
 	clamav-freshclam
@@ -84,16 +84,20 @@ packages = """
 	filezilla
 	firestarter
 	flac
+	fll-iso2usb
+	gcompris
 	geany
 	gettext
 	gftp
 	glade
+	ghemical
 	gnucash
+	gperiodic
 	gthumb
 	gtkam
 	gtkam-gimp
 	gtkpod
-	gutenbrowser
+	hanzim
 	highlight
 	html2text
 	httrack
@@ -109,8 +113,10 @@ packages = """
 	icewm-themes
 	idesk
 	idle
+#	idjc
 	imagemagick
 	inkscape
+	install-usb-gui
 	irssi
 	jackd
 	jack-tools
@@ -119,6 +125,10 @@ packages = """
 	kallery
 	karbon
 	katapult
+	katomic
+	kazehakase
+	kazehakase-gecko
+	kazehakase-webkit
 	kbibtex
 	kdeaddons
 	kdebase-dev
@@ -154,6 +164,7 @@ packages = """
 	kitty
 	klamav
 	klash
+	klatin
 	klik
 	klineakconfig
 	kmag
@@ -165,13 +176,17 @@ packages = """
 	kradio
 	krecordmydesktop
 	krename
+	ksimus
 	kstreamripper
 	ksysguard
 	kthesaurus
+	ktuberling
+	kvoctrain
 	kvm
 	kweather
 	kwiki
 	kwirelessmonitor
+	kwordquiz
 	kworldclock
 	libgnome2-perl
 	libgnomevfs2-extra
@@ -182,6 +197,7 @@ packages = """
 	lineak-kdeplugins
 	links2
 	lisa
+	liveusb-creator
 	lmms
 	lynx
 	lyx
@@ -196,8 +212,14 @@ packages = """
 	nano
 	netcat
 	nvram-wakeup
+	okular
+#	openclipart-openoffice.org
 	openjdk-6-jdk
+	openoffice.org-l10n-de
 	openoffice.org-kde
+	openoffice.org-gtk
+	openoffice.org-thesaurus-de
+	openoffice.org-thesaurus-de-ch
 	openssh-server
 	p7zip-full
 	parted
@@ -241,6 +263,8 @@ packages = """
 	transcriber
 	ttf-kochi-gothic
 	ttf-mona
+#	tuxmath
+#	tuxpaint
 	ufraw
 	unison
 	vcdimager
@@ -259,5 +283,6 @@ packages = """
 	xine-ui
 	xpaint
 	zsh
+	
 """
 
