@@ -13,8 +13,8 @@ packages = """
 	karm
 	kate
 	kate-plugins
-	kcharselect
 	kbattleship
+	kcharselect
 	kdeaccessibility
 	kdeaddons-kfile-plugins
 	kdeadmin
@@ -52,8 +52,8 @@ packages = """
 	kooka
 	kopete
 	korganizer
-	kpilot
 	kpat
+	kpilot
 	krdc
 	kreversi
 	krita
@@ -66,6 +66,6 @@ packages = """
 	libqt-perl
 	moto4lin
 	packagesearch
+	wpagui
 	yakuake
 """
-
