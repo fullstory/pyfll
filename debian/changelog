@@ -1,4 +1,4 @@
-pyfll (2008.04) 2008-04; urgency=low
+pyfll (2008.04) Πόντος; urgency=low
 
   [ Kel Modderman ]
   * Merge insserv and its postinst into essential and its postinst, thus
@@ -31,6 +31,8 @@ pyfll (2008.04) 2008-04; urgency=low
   * replace gprsconnect, modemlink and ppp-scripts by pppconfig, wvdial and 
     umtsmon.
   * add wpagui to kde-desktop, sort entries.
+  * fix DVD size.
+  * ditch kvpnc, it's broken.
 
   [ Bernard Gray ]
   * temporarily re-add contrib/preferences for kde4 builds
@@ -99,7 +101,7 @@ pyfll (2008.04) 2008-04; urgency=low
   * install-meta removed from distro-tools-x.
     it's not the best for a out-dated rolling release distro 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 22 Dec 2008 14:19:57 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 23 Dec 2008 03:40:22 +0000
 
 pyfll (2008.03) ourea; urgency=low
 

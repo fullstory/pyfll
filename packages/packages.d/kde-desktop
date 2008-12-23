@@ -60,7 +60,6 @@ packages = """
 	krusader
 	ksvg
 	ktorrent2.2
-	kvpnc
 	kwalletmanager
 	kwifimanager
 	libqt-perl

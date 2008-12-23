@@ -52,7 +52,6 @@ packages = """
 	clamav-freshclam
 	conky
 	cvs
-	d3lphin
 	dcraw
 	debarchiver
 	denemo
@@ -61,13 +60,11 @@ packages = """
 	dict
 	diff
 	diffstat
-	dillo
 	ding
 	djtools
 	dnsmasq
 	dnsutils
 	docbook2x
-	dvdauthor
 	easytag
 	eclipse
 	eclipse-platform-gcj
@@ -75,21 +72,18 @@ packages = """
 	enigmail
 	epiphany
 	etherwake
-	fakechroot
 	fetchmail
 	fetchmailconf
 	ffmpeg
 	ffmpeg2theora
 	file-roller
 	filezilla
-	firestarter
 	flac
 	fll-iso2usb
 	gcompris
 	geany
 	gettext
 	gftp
-	glade
 	ghemical
 	gnucash
 	gperiodic
@@ -97,8 +91,6 @@ packages = """
 	gtkam
 	gtkam-gimp
 	gtkpod
-	hanzim
-	highlight
 	html2text
 	httrack
 	hydrogen
@@ -107,7 +99,6 @@ packages = """
 	icedtea-gcjwebplugin
 	iceowl
 	iceweasel
-	iceweasel-gnome-support
 	icewm
 	icewm-gnome-support
 	icewm-themes
@@ -120,20 +111,13 @@ packages = """
 	irssi
 	jackd
 	jack-tools
-	java2html
 	kalgebra
 	kallery
 	karbon
-	katapult
 	katomic
-	kazehakase
-	kazehakase-gecko
-	kazehakase-webkit
 	kbibtex
 	kdeaddons
-	kdebase-dev
 	kdeedu
-	kdegames
 	kdegraphics
 	kde-icons-crystalclear
 	kde-icons-crystalproject
@@ -165,10 +149,7 @@ packages = """
 	klamav
 	klash
 	klatin
-	klik
 	klineakconfig
-	kmag
-	kmess
 	kmidimon
 	kmobiletools
 	kmousetool
@@ -188,8 +169,6 @@ packages = """
 	kwirelessmonitor
 	kwordquiz
 	kworldclock
-	libgnome2-perl
-	libgnomevfs2-extra
 	libtool
 	licq-plugin-kde
 	licq-plugin-qt
@@ -225,16 +204,12 @@ packages = """
 	parted
 	patchutils
 	pdfedit
-	photon
-	photoprint
 	pidgin-extprefs
 	pidgin-guifications
 	pidgin-hotkeys
 	pidgin-libnotify
 	pidgin-librvp
 	pidgin-plugin-pack
-	pixelize
-	python-nautilus
 	qcad
 	qjackctl
 	qt4-designer
@@ -245,13 +220,11 @@ packages = """
 	rdiff-backup
 	rosegarden
 	rox-filer
-	ruby-full
 	scite
 	scribus-ng
 	siduxcc
 	sidux-vdr
 	smartmontools
-	spamassassin
 	subversion
 	subversion-tools
 	svn-buildpackage
@@ -276,13 +249,10 @@ packages = """
 	vlc
 	vorbis-tools
 	wengophone
-	xdelta
 	xemacs21
 	xfonts-intl-phonetic
 	xfonts-tipa
 	xine-ui
 	xpaint
 	zsh
-	
 """
-
