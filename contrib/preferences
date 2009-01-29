@@ -130,7 +130,7 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdeutils
-Package: kdeutils kdeutils-dbg ark kcalc kcharselect kdessh kdf kfloppy kgpg ktimer kwalletmanager okteta superkaramba sweeper
+Package: kdeutils kdeutils-dbg ark kcalc kcharselect kdessh kdf kfloppy kgpg ktimer kwalletmanager okteta superkaramba sweeper printer-applet
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -159,6 +159,11 @@ Package: koffice koffice-doc koffice-doc-html karbon kchart kplato kpresenter kr
 Pin: release a=experimental
 Pin-Priority: 500
 
+Explanation: koffice-l10n
+Package: koffice-l10n-ar koffice-l10n-bg koffice-l10n-ca koffice-l10n-cy koffice-l10n-da koffice-l10n-de koffice-l10n-el koffice-l10n-engb koffice-l10n-es koffice-l10n-et koffice-l10n-eu koffice-l10n-fa koffice-l10n-fi koffice-l10n-fr koffice-l10n-fy koffice-l10n-ga koffice-l10n-gl koffice-l10n-hi koffice-l10n-hu koffice-l10n-it koffice-l10n-ja koffice-l10n-kk koffice-l10n-ms koffice-l10n-nb koffice-l10n-nds koffice-l10n-ne koffice-l10n-nl koffice-l10n-pl koffice-l10n-pt koffice-l10n-ptbr koffice-l10n-ru koffice-l10n-sk koffice-l10n-sl koffice-l10n-sv koffice-l10n-ta koffice-l10n-tr koffice-l10n-uk koffice-l10n-zhcn koffice-l10n-zhtw
+Pin: release a=experimental
+Pin-Priority: 500
+
 Explanation: meta-kde4
 Package: kde4 kde4-minimal kde4-development
 Pin: release a=experimental
@@ -166,11 +171,6 @@ Pin-Priority: 500
 
 Explanation: phonon
 Package: phonon-backend-gstreamer phonon-backend-null phonon-dbg
-Pin: release a=experimental
-Pin-Priority: 500
-
-Explanation: rsibreak
-Package: rsibreak
 Pin: release a=experimental
 Pin-Priority: 500
 
