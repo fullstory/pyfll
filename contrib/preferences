@@ -15,12 +15,17 @@ Pin: release a=experimental
 Pin-Priority: 101
 
 Explanation: akonadi
-Package: akonadi-dbg libakonadi-dev akonadi-server
+Package: libakonadiprivate1 akonadi-dbg libakonadi-dev akonadi-server
+Pin: release a=experimental
+Pin-Priority: 500
+
+Explanation: automoc
+Package: automoc
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: decibel
-Package: libdecibel-dev libdecibel0.7.0 decibel
+Package: libdecibel-dev libdecibel0.7.1 decibel
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -35,62 +40,62 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kde-l10n
-Package: kde-l10n-bg kde-l10n-ca kde-l10n-cs kde-l10n-csb kde-l10n-da kde-l10n-de kde-l10n-el kde-l10n-engb kde-l10n-eo kde-l10n-es kde-l10n-et kde-l10n-fi kde-l10n-fr kde-l10n-fy kde-l10n-ga kde-l10n-gl kde-l10n-hi kde-l10n-hu kde-l10n-it kde-l10n-ja kde-l10n-kk kde-l10n-km kde-l10n-ko kde-l10n-ku kde-l10n-lv kde-l10n-lt kde-l10n-mk kde-l10n-ml kde-l10n-nb kde-l10n-nds kde-l10n-nl kde-l10n-nn kde-l10n-pa kde-l10n-pl kde-l10n-pt kde-l10n-ptbr kde-l10n-ru kde-l10n-sl kde-l10n-sr kde-l10n-sv kde-l10n-ta kde-l10n-th kde-l10n-tr kde-l10n-uk kde-l10n-wa kde-l10n-zhcn kde-l10n-zhtw
+Package: kde-l10n-ar kde-l10n-bg kde-l10n-bnin kde-l10n-ca kde-l10n-cs kde-l10n-csb kde-l10n-da kde-l10n-de kde-l10n-el kde-l10n-engb kde-l10n-es kde-l10n-et kde-l10n-eu kde-l10n-fi kde-l10n-fr kde-l10n-ga kde-l10n-gl kde-l10n-gu kde-l10n-he kde-l10n-hi kde-l10n-hu kde-l10n-is kde-l10n-it kde-l10n-ja kde-l10n-kk kde-l10n-km kde-l10n-kn kde-l10n-ko kde-l10n-ku kde-l10n-lv kde-l10n-lt kde-l10n-mai kde-l10n-mk kde-l10n-ml kde-l10n-mr kde-l10n-nb kde-l10n-nds kde-l10n-nl kde-l10n-nn kde-l10n-pa kde-l10n-pl kde-l10n-pt kde-l10n-ptbr kde-l10n-ro kde-l10n-ru kde-l10n-sl kde-l10n-sr kde-l10n-sv kde-l10n-tg kde-l10n-th kde-l10n-tr kde-l10n-uk kde-l10n-wa kde-l10n-zhcn kde-l10n-zhtw
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdeaccessibility
-Package: kdeaccessibility kde-icons-mono kmag kmouth kttsd kmousetool
+Package: kdeaccessibility kde-icons-mono kmag kmouth kttsd kmousetool kdeaccessibility-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdeadmin
-Package: kdeadmin kcron knetworkconf kpackage ksystemlog kuser kdeadmin-dbg
+Package: kdeadmin kcron knetworkconf kpackage ksystemlog kuser system-config-printer-kde kdeadmin-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdeartwork
-Package: kdeartwork kdeartwork-misc kdeartwork-emoticons kdewallpapers kdeartwork-theme-icon kdeartwork-theme-window kdeartwork-style kscreensaver kscreensaver-xsavers kscreensaver-xsavers-webcollage
+Package: kdeartwork kdeartwork-emoticons kdewallpapers kdeartwork-theme-icon kdeartwork-theme-window kdeartwork-style kscreensaver kscreensaver-xsavers kscreensaver-xsavers-webcollage plasma-desktopthemes-artwork
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdebase
-Package: kdebase dolphin kappfinder kdebase-bin kdebase-data kdebase-dev kdepasswd kfind kinfocenter konqueror konqueror-nsplugins konsole kwrite libkonq5 libkonq5-templates libkonq5-dev kdebase-plasma kdebase-dbg
+Package: kdebase dolphin kappfinder kdebase-bin kdebase-data kdepasswd kfind kinfocenter konqueror konqueror-nsplugins konsole kwrite libkonq5 libkonq5-templates libkonq5-dev libkonqsidebarplugin4 libkonqsidebarplugin4-dev plasma-applet-folderview kdebase-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdebase-runtime
-Package: kdebase-runtime kdebase-runtime-bin-kde4 kdebase-runtime-data kdebase-runtime-data-common khelpcenter4 kde-icons-oxygen kdebase-runtime-dbg phonon-backend-xine
+Package: kdebase-runtime kdebase-runtime-bin-kde4 kdebase-runtime-data kdebase-runtime-data-common khelpcenter4 kde-icons-oxygen kdebase-runtime-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdebase-workspace
-Package: kdebase-workspace kdebase-workspace-bin kdebase-workspace-libs4+5 kdebase-workspace-data kdebase-workspace-dev kdm klipper ksysguardd ksysguard kde-window-manager libkdecorations4 libkwineffects1 systemsettings kdebase-workspace-dbg libplasma2 libplasma-dev
+Package: kdebase-workspace kdebase-workspace-bin kdebase-workspace-libs4+5 kdebase-workspace-data kdebase-workspace-dev plasma-dataengines-workspace plasma-applets-workspace plasma-scriptengines plasma-scriptengine-javascript plasma-scriptengine-qedje plasma-scriptengine-ruby plasma-scriptengine-python plasma-scriptengine-webkit plasma-scriptengine-googlegadgets kdm klipper ksysguardd ksysguard kde-window-manager libkdecorations4 libkwineffects1 systemsettings kdebase-workspace-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdebindings
-Package: libsmokeqt4-2 libsmokekde4-2 libsmokeokular2 libsmokeplasma2 korundum4 libqtruby4shared2 libqt4-ruby libqt4-ruby1.8 libkde4-ruby libkde4-ruby1.8 libokular-ruby libokular-ruby1.8 libplasma-ruby libplasma-ruby1.8 python-kde4 python-kde4-dev python-kde4-doc libqyoto4.4-cil qyoto-dev libkimono4.1-cil libkhtml2.0-cil libnepomuk2.2-cil libqtscript2.2-cil libqtuitools2.2-cil libqtwebkit2.2-cil libsoprano2.0-cil libqyotoshared1
+Package: kdebindings-dbg libsmokeqt4-2 libsmokekde4-2 libsmokeokular2 libsmokeplasma2 libsmokeakonadi2 korundum4 libqtruby4shared2 libqt4-ruby libqt4-ruby1.8 libkde4-ruby libkde4-ruby1.8 libokular-ruby libokular-ruby1.8 libplasma-ruby libplasma-ruby1.8 libakonadi-ruby libakonadi-ruby1.8 python-kde4 python-kde4-dev python-kde4-doc libqyoto4.4-cil qyoto-dev libkimono4.1-cil plasma-scriptengine-kimono libkhtml2.0-cil libnepomuk2.2-cil libplasma2.0-cil libqtscript2.2-cil libqtuitools2.2-cil libqtwebkit2.2-cil libsoprano2.0-cil libqyotoshared1
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdeedu
-Package: kdeedu kdeedu-dbg blinken kalgebra kalzium kalzium-data kanagram kbruch kgeography kgeography-data khangman kig kiten klettres klettres-data kmplot kpercentage kstars kstars-data ktouch kturtle kwordquiz libkdeedu4 libkdeedu-dev libkiten4 libkiten-dev indi marble marble-data libmarble4 libmarble-dev parley parley-data
+Package: kdeedu kdeedu-dbg blinken kalgebra kalzium kalzium-data kanagram kbruch kgeography kgeography-data khangman kig kiten klettres klettres-data kmplot kstars kstars-data ktouch kturtle kwordquiz libkdeedu4 libkdeedu-dev libkiten4 libkiten-dev indi marble marble-data libmarble4 libmarble-dev parley parley-data step kdeedu-kvtml-data
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdegames
-Package: kdegames libkdegames4 kdegames-dbg libkdegames-dev kdegames-card-data kdegames-mahjongg-data bovo katomic kbattleship kblackbox kbounce kdiamond kgoldrunner kiriki kjumpingcube klines kmahjongg kmines knetwalk kolf kollision konquest kpat kreversi ksame kshisen kspaceduel ksquares ksudoku ktuberling kfourinline kubrick kblocks lskat kbreakout ksirk
+Package: kdegames libkdegames5 kdegames-dbg libkdegames-dev kdegames-card-data kdegames-mahjongg-data bomber bovo kapman katomic kbattleship kblackbox kbounce kdiamond kgoldrunner killbots kiriki kjumpingcube klines kmahjongg kmines knetwalk kolf kollision konquest kpat kreversi ksame kshisen kspaceduel ksquares ksudoku ktuberling kfourinline kubrick kblocks lskat kbreakout ksirk
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdegraphics
-Package: kdegraphics kdegraphics-dbg kdegraphics-strigi-plugins gwenview kamera kcolorchooser kgamma kolourpaint4 kruler libksane0 libksane-dev ksnapshot libokularcore1 okular okular-dev okular-extra-backends libkdcraw5-dev libkdcraw5 libkexiv2-6-dev libkexiv2-6 libkipi5-dev libkipi5
+Package: kdegraphics kdegraphics-dbg kdegraphics-strigi-plugins gwenview kamera kcolorchooser kgamma kolourpaint4 kruler libksane0 libksane-dev ksnapshot libokularcore1 okular okular-dev okular-extra-backends libkdcraw7-dev libkdcraw7 libkexiv2-7-dev libkexiv2-7 libkipi6-dev libkipi6
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdelibs
-Package: kdelibs5 kdelibs5-data kdelibs5-dev kdelibs-bin kdelibs5-dbg
+Package: kdelibs5 kdelibs5-data kdelibs5-dev kdelibs-bin libplasma3 kdelibs5-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -100,12 +105,12 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdenetwork
-Package: kdenetwork kdenetwork-filesharing kdenetwork-dev kget knewsticker kopete kppp krdc krfb kdenetwork-dbg kde-zeroconf
+Package: kdenetwork kdenetwork-filesharing kget libkopete4 kopete libkopete-dev kppp krdc krfb kdenetwork-dbg kde-zeroconf
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdepim
-Package: kdepim kdepim-dbg kdepim-doc akonadi-kde akregator kaddressbook kalarm kdepim-kresources kdepim-wizards kitchensync kleopatra kmail knode knotes kode konsolekalendar kontact korganizer ktimetracker ktnef libkdepim4 libkholidays4 libkleo4 libkpgp4 libksieve4 libmaildir4 libmimelib4 kdepim-strigi-plugins kjots
+Package: kdepim kdepim-dbg kdepim-doc akonadi-kde akregator libkabcommon4 kaddressbook kalarm kdepim-kresources kdepim-groupware kdepim-wizards kleopatra kmail knode knotes kode konsolekalendar libkontactinterfaces4 kontact korganizer kpilot ktimetracker libkdepim4 libkholidays4 libkleo4 libkpgp4 libksieve4 libmaildir4 libmimelib4 kdepim-strigi-plugins kjots
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -115,12 +120,12 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdeplasma-addons
-Package: kdeplasma-addons kdeplasma-addons-data kdeplasma-addons-libs4 kdeplasma-addons-dev kdeplasma-addons-dbg
+Package: kdeplasma-addons plasma-applets-addons plasma-dataengines-addons plasma-runners-addons plasma-applet-lancelot liblancelot0 liblancelot-dev kdeplasma-addons-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdesdk
-Package: kdesdk cervisia kapptemplate kate kbugbuster kcachegrind kcachegrind-converters kdesdk-dev kdesdk-kio-plugins kdesdk-misc kdesdk-scripts kdesdk-strigi-plugins kmtrace kompare kuiviewer cvsservice poxml umbrello lokalize kdesdk-dbg
+Package: kdesdk cervisia kapptemplate kate kbugbuster kcachegrind kcachegrind-converters kdesdk-dev kdesdk-kio-plugins kdesdk-misc kdesdk-scripts kdesdk-strigi-plugins kmtrace kompare kuiviewer cvsservice poxml umbrello lokalize kpartloader kdesdk-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -130,7 +135,7 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdeutils
-Package: kdeutils kdeutils-dbg ark kcalc kcharselect kdessh kdf kfloppy kgpg ktimer kwalletmanager okteta superkaramba sweeper printer-applet
+Package: kdeutils kdeutils-dbg ark kcalc kcharselect kdessh kdf kfloppy kgpg ktimer kwalletmanager okteta plasma-scriptengine-superkaramba sweeper printer-applet
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -140,7 +145,7 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: kdevplatform
-Package: kdevplatform kdevplatform-bin kdevplatform-libs kdevplatform-data kdevplatform-dev kdevplatform-dbg libsublime1 libsublime-dev
+Package: kdevplatform kdevplatform-bin kdevplatform1-libs kdevplatform-data kdevplatform-dev kdevplatform-dbg libsublime1 libsublime-dev
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -149,18 +154,8 @@ Package: kdewebdev kfilereplace kimagemapeditor klinkstatus kxsldbg kommander kd
 Pin: release a=experimental
 Pin-Priority: 500
 
-Explanation: kgraphviewer
-Package: kgraphviewer
-Pin: release a=experimental
-Pin-Priority: 500
-
 Explanation: koffice
 Package: koffice koffice-doc koffice-doc-html karbon kchart kplato kpresenter krita krita-data kspread kword kword-data kthesaurus koffice-libs koffice-data koffice-dev koffice-dbg
-Pin: release a=experimental
-Pin-Priority: 500
-
-Explanation: koffice-l10n
-Package: koffice-l10n-ar koffice-l10n-bg koffice-l10n-ca koffice-l10n-cy koffice-l10n-da koffice-l10n-de koffice-l10n-el koffice-l10n-engb koffice-l10n-es koffice-l10n-et koffice-l10n-eu koffice-l10n-fa koffice-l10n-fi koffice-l10n-fr koffice-l10n-fy koffice-l10n-ga koffice-l10n-gl koffice-l10n-hi koffice-l10n-hu koffice-l10n-it koffice-l10n-ja koffice-l10n-kk koffice-l10n-ms koffice-l10n-nb koffice-l10n-nds koffice-l10n-ne koffice-l10n-nl koffice-l10n-pl koffice-l10n-pt koffice-l10n-ptbr koffice-l10n-ru koffice-l10n-sk koffice-l10n-sl koffice-l10n-sv koffice-l10n-ta koffice-l10n-tr koffice-l10n-uk koffice-l10n-zhcn koffice-l10n-zhtw
 Pin: release a=experimental
 Pin-Priority: 500
 
@@ -170,12 +165,18 @@ Pin: release a=experimental
 Pin-Priority: 500
 
 Explanation: phonon
-Package: phonon-backend-gstreamer phonon-backend-null phonon-dbg
+Package: phonon libphonon-dev libphonon4 phonon-backend-xine phonon-backend-gstreamer phonon-backend-null phonon-dbg
 Pin: release a=experimental
 Pin-Priority: 500
 
-Explanation: systemsettings
-Package: systemsettings
+Explanation: soprano
+Package: libsoprano4 libsoprano-dbg libsoprano-dev libsoprano-doc
 Pin: release a=experimental
 Pin-Priority: 500
+
+Explanation: Additional packages
+Package: libstreamanalyzer0 kpilot superkaramba 
+Pin: release a=experimental
+Pin-Priority: 500
+
 
