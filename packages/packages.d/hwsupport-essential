@@ -9,6 +9,7 @@ packages = """
 	irqbalance
 	laptop-detect
 	lvm2
+	openfwwf
 	pcmciautils
 	pciutils
 	powersaved
