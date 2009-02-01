@@ -38,7 +38,5 @@ packages = """
 	vdr-plugin-pvrinput
 	virtualbox-ose
 	wengophone
-	# firmware-iwlwifi
-	# flashplugin-nonfree
 """
 

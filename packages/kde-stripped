@@ -19,6 +19,5 @@ packages = """
 	build-essential
 	cdebootstrap
 	hwinfo
-	kazehakase
 """
 
