@@ -16,7 +16,10 @@ pyfll (2009.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Add -D option do a dummy/download-only run.
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Sun, 01 Feb 2009 18:49:51 +0000
+  [ Joaquim Boura ]
+  * added mbr to easy restore of mbr (lilo is no longer in the isos)
+
+ -- Joaquim Boura <x-un-i@sidux.com>  Sun, 01 Feb 2009 22:44:51 +0100
 
 pyfll (2008.04) pontos; urgency=low
 

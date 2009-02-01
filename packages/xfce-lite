@@ -18,6 +18,7 @@ deps = """
 """
 
 packages = """
+	# kazehakase
 	iceweasel
 """
 
