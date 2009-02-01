@@ -13,7 +13,10 @@ pyfll (2009.01) UNRELEASED; urgency=low
   [ Stefan Lippers-Hollmann ]
   * add openfwwf to hwsupport-essential.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 31 Jan 2009 15:47:38 +0100
+  [ Niall Walsh ]
+  * Add -D option do a dummy/download-only run.
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Sun, 01 Feb 2009 18:49:51 +0000
 
 pyfll (2008.04) pontos; urgency=low
 

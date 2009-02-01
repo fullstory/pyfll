@@ -1136,6 +1136,11 @@ class FLLBuilder(object):
         kvers = [f[f.find('-')+1:] for f in
                  os.listdir(os.path.join(chroot, 'boot'))
                  if f.startswith('vmlinuz-') or f.startswith('vmlinux-')]
+        if self.opts.D:
+            arch = chroot[chroot.rfind('/')+1:]
+            kvers = [f[len('linux-image-'):] for f in
+                     self.pkgs[arch]['install']
+                     if f.startswith('linux-image-')]
 
         if len(kvers) > 0:
             kvers.sort()
@@ -1256,6 +1261,8 @@ class FLLBuilder(object):
         manifest = dict([(p.Name, p.CurrentVer.VerStr)
                          for p in cache.Packages if p.CurrentVer
                          and not p.Name.startswith('cdebootstrap-helper')])
+        if 'install' in self.pkgs[arch]:
+            manifest.update(self.pkgs[arch]['install'])
         if 'langpack' in self.pkgs[arch]:
             manifest.update(self.pkgs[arch]['langpack'])
         self.pkgs[arch]['manifest'] = manifest
@@ -1325,7 +1332,17 @@ class FLLBuilder(object):
         pkgs_want.extend(self._detectLinuxModulePkgs(arch, cache))
 
         self.log.info('installing packages in %s chroot...' % arch)
-        self._aptGetInstall(arch, self.__filterList(pkgs_want))
+        self._aptGetInstall(arch, self.__filterList(pkgs_want),
+                            download_only = self.opts.D)
+
+        if self.opts.D:
+            chroot = os.path.join(self.temp, arch)
+            aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
+            self.pkgs[arch]['install'] = dict()
+            for debfile in glob.glob(aptcache):
+                # create dict with package name = version to extend manifest
+                pkg, vers, extra = debfile.split('/')[-1].split('_')
+                self.pkgs[arch]['install'][pkg] = vers.replace('%3a', ':')
 
         # Calculate packages for each language.
         self.pkgs[arch]['langpack'] = dict()
@@ -1386,8 +1403,9 @@ class FLLBuilder(object):
             chroot = os.path.join(self.temp, arch)
             aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
             for debfile in glob.glob(aptcache):
-                self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', 'sid',
-                              debfile])
+                if not self.opts.D:
+                    self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', 'sid',
+                                  debfile])
                 # create dict with package name = version to extend manifest
                 pkg, vers, extra = debfile.split('/')[-1].split('_')
                 self.pkgs[arch]['langpack'][pkg] = vers.replace('%3a', ':')
@@ -1395,6 +1413,8 @@ class FLLBuilder(object):
 
     def _postInst(self, arch):
         '''Run package module postinst scripts in a chroot.'''
+        if self.opts.D:
+            return
         chroot = os.path.join(self.temp, arch)
 
         self.log.info('performing post-install tasks in %s chroot...' % arch)
@@ -1548,6 +1568,11 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
 
         image_file = self._getDistroImageFile(arch)
+        if self.opts.D:
+            cmd = ['touch', image_file]
+            self._execInChroot(arch, cmd)
+            return
+
         cmd = ['mksquashfs', '.', image_file, '-noappend']
 
         if self.opts.l or self.opts.q:
@@ -1578,6 +1603,9 @@ class FLLBuilder(object):
         except IOError:
             self.log.exception('failed to move squashfs image to staging dir')
             raise Error
+
+        if self.opts.D:
+            return
 
         kvers = self._detectLinuxVersion(chroot)
         for k in kvers:
@@ -2189,7 +2217,7 @@ class FLLBuilder(object):
 
 if __name__ == '__main__':
     p = optparse.OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
-                              '-o <directory> -l <file>] [-Bdpqv]')
+                              '-o <directory> -l <file>] [-BdDpqv]')
 
     p.add_option('-a', '--arch', dest = 'a', action = 'store',
                  type = 'string', metavar = '<arch>',
@@ -2213,6 +2241,10 @@ if __name__ == '__main__':
     p.add_option('-d', '--debug', dest = 'd', action = 'store_true',
                  help = 'Enable debug mode. Extra output will be ' +
                  'to assist in development. Default: %default')
+
+    p.add_option('-D', '--dummy', dest = 'D', action = 'store_true',
+                 help = 'Enable dummy mode. Download only ' +
+                 'and no squashfs. Default: %default')
 
     p.add_option('-g', '--gid', dest = 'g', action = 'store',
                  type = 'int', metavar = '<group id>',
@@ -2259,9 +2291,9 @@ if __name__ == '__main__':
                  help = 'Enable verbose mode. All messages will be ' +
                  'generated, such as announcing current operation.')
 
-    p.set_defaults(b = None, B = False, d = False, g = os.getgid(), k = None,
-                   l = None, n = False, o = None, p = None, P = False,
-                   q = False, s = None, u = os.getuid(), v = False)
+    p.set_defaults(b = None, B = False, d = False, D = False, g = os.getgid(),
+                   k = None, l = None, n = False, o = None, p = None,
+                   P = False, q = False, s = None, u = os.getuid(), v = False)
 
     options = p.parse_args()[0]
 
