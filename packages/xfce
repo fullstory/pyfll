@@ -11,6 +11,7 @@ deps = """
 	fluxbox
 	hwsupport-essential
 	hwsupport-extra
+	siduxcc-gtk2
 	utils-essential
 	utils-extra
 	utils-x
