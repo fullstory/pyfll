@@ -1,13 +1,13 @@
 desc = """
 	Distro specific packages for an LXDE desktop. There is no art package,
-	yet, so use pontos' GDM theme.
+	yet, so use ouranos' GDM theme.
 """
 
 packages = """
 	desktop-defaults-lxde
 	gdm
 	gksu
-	sidux-art-gdm-pontos
+	sidux-art-gdm-ouranos
 	#sidux-art-lxde
 	sidux-art-wallpaper
 """
