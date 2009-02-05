@@ -20,8 +20,9 @@ pyfll (2009.01) UNRELEASED; urgency=low
   [ Joaquim Boura ]
   * added mbr to easy restore of mbr (lilo is no longer in the isos)
   * added siduxcc-gtk2 to xfce isos
+  * fix misplacement of siduxcc-gtk2
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 04 Feb 2009 23:49:28 +0100
+ -- Joaquim Boura <x-un-i@sidux.com>  Thu, 05 Feb 2009 01:00:57 +0100
 
 pyfll (2008.04) pontos; urgency=low
 
