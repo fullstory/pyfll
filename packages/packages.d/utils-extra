@@ -13,7 +13,7 @@ packages = """
 	dvd+rw-tools
 	dvb-apps
 	dosfstools
-	ftp
+	ftp-ssl
 	fuse-utils
 	genisoimage
 	iproute
