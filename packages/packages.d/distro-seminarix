@@ -1,5 +1,5 @@
 desc = """
-	Packages for the sidux-edu project.
+	Packages for the eduversum project.
 """
 
 packages = """

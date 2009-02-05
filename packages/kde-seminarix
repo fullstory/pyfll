@@ -1,5 +1,5 @@
 desc = """
-	Kde based sidux-edu project.
+	Kde based eduversum project.
 """
 
 deps = """
@@ -76,7 +76,7 @@ packages = """
 	quanta
 	scribus
 	siduxcc
-	sidux-edu
+	eduversum
 	stopmotion
 	sunclock
 	tuxmath

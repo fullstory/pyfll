@@ -13,6 +13,7 @@ pyfll (2009.01) UNRELEASED; urgency=low
   [ Stefan Lippers-Hollmann ]
   * add openfwwf to hwsupport-essential.
   * naming.
+  * s/sidux-edu/eduversum/.
 
   [ Niall Walsh ]
   * Add -D option do a dummy/download-only run.
@@ -22,7 +23,7 @@ pyfll (2009.01) UNRELEASED; urgency=low
   * added siduxcc-gtk2 to xfce isos
   * fix misplacement of siduxcc-gtk2
 
- -- Joaquim Boura <x-un-i@sidux.com>  Thu, 05 Feb 2009 01:00:57 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 05 Feb 2009 21:30:29 +0100
 
 pyfll (2008.04) pontos; urgency=low
 
