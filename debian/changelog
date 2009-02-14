@@ -16,6 +16,7 @@ pyfll (2009.01) UNRELEASED; urgency=low
   * add openfwwf to hwsupport-essential.
   * naming.
   * s/sidux-edu/eduversum/.
+  * fix kde-seminarix package list.
 
   [ Niall Walsh ]
   * Add -D option do a dummy/download-only run.
@@ -25,7 +26,7 @@ pyfll (2009.01) UNRELEASED; urgency=low
   * added siduxcc-gtk2 to xfce isos
   * fix misplacement of siduxcc-gtk2
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 09 Feb 2009 18:04:26 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 14 Feb 2009 18:00:11 +0100
 
 pyfll (2008.04) pontos; urgency=low
 
