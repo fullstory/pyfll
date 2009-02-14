@@ -27,15 +27,11 @@ packages = """
 	childsplay
 	childsplay-alphabet-sounds-de
 	dia
-	digikam
 	gnuplot
 	gperiodic
-	hanzim
 	hydrogen
 	iceweasel
 	inkscape
-	itools
-	juk
 	kalzium
 	karbon
 	katomic
@@ -48,14 +44,12 @@ packages = """
 	kgeography
 	kig
 	kimagemapeditor
-	kino
 	kivio
 	klatin
 	klogic
 	kmplot
 	koffice-i18n-de
 	kolourpaint
-	koshell
 	kpercentage
 	kplato
 	kpresenter
@@ -66,12 +60,10 @@ packages = """
 	kspread
 	kstars
 	ktouch
-	ktuberling
 	kturtle
 	kvoctrain
 	kword
 	kwordquiz
-	manpages-de
 	quanta
 	scribus
 	siduxcc
