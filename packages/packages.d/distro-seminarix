@@ -3,8 +3,8 @@ desc = """
 """
 
 packages = """
-	gfxboot-theme-sidux-2008-02-erebos-de
+	gfxboot-theme-sidux-2009-01-ouranos-de
 	seminarix-handbook
-	sidux-art-wallpaper-erebos-edu
+	sidux-art-wallpaper-ouranos-edu
 """
 
