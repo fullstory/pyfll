@@ -37,6 +37,7 @@ packages = """
 	kdnssd
 	kfax
 	kfaxview
+	kgamma
 	kget
 	kghostview
 	kgpg

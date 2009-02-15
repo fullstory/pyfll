@@ -7,7 +7,7 @@ packages = """
 	abiword
 	aqualung
 	brasero
-	evince
+	evince-gtk
 	gcalctool
 	gnumeric
 	gstreamer0.10-fluendo-mp3

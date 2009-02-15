@@ -21,5 +21,8 @@ deps = """
 
 packages = """
 	openoffice.org-gtk
+	claws-mail
+	claws-mail-i18n
+	claws-mail-feeds-reader
 """
 

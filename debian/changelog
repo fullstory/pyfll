@@ -1,8 +1,30 @@
 pyfll (2009.02) UNRELEASED; urgency=low
 
+  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 15 Feb 2009 00:30:46 +0000
+  [ Michael Deelwater ]
+  * packages/lxde:
+    - Add claws-mail as mail client.
+  * packages/packages.d/xfce-desktop-extras:
+    - Replace evince by non-Gnome-dependent evince-gtk.
+  * packages/packages.d/kde-desktop:
+    - Add cosmetic kgamma.
+  * packages/packages.d/lxde-full:
+    - Remove icedove (claws-mail does the job).
+    - Remove Icedtea.
+    - Remove scite (geany is a better replacement).
+    - Remove transmission (in lxde-basic now).
+    - Remove rxvt-unicode (with current bugs regarding tabbing, xterm does the
+      job as well).
+  * packages/packages.d/lxde-basic:
+    - Replace epdfview by more powerful evince-gtk.
+    - Add scintilla-based editor/IDE by Geany.
+    - Add gxine as video viewer.
+    - Replace LXDE metapackage by its dependencies - lxterminal - leafpad.
+    - Add transmission to basic.
+
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Sun, 15 Feb 2009 01:34:57 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 

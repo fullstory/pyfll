@@ -4,12 +4,19 @@ desc = """
 
 packages = """
 	dbus-x11
-	epdfview
+	evince-gtk
+	geany
+	gxine
 	gftp
+	gpicview
 	iceweasel
-	lxde
+	lxappearance
+	lxde-core
 	lxlauncher
-	lxnm
+	lxrandr
+	obconf
+	transmission
+	xarchiver
 	xchat
 """
 
