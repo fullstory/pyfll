@@ -7,7 +7,7 @@ packages = """
 	amarok
 	basket
 	digikam
-	hplip-gui
+#	hplip-gui	# depends on non-existant udev >= 136-1!
 	kaddressbook
 	kaddressbook-plugins
 	karm
