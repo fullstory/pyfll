@@ -17,8 +17,8 @@ packages = """
 	foo2zjs
 	ghostscript-x
 	hal-cups-utils
-	hpijs-ppds
-#	hplip	# depends on non-existant udev >= 136-1!
+#	hpijs-ppds	# depends on totally broken hplip
+#	hplip		# depends on non-existant udev >= 136-1!
 	openprinting-ppds
 	min12xxw
 	pnm2ppa
