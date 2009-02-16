@@ -37,6 +37,7 @@ i386 = """
 """
 
 amd64 = """
+	virtualbox-ose-guest-utils
 	xserver-xorg-input-vmmouse
 	xserver-xorg-video-openchrome
 """

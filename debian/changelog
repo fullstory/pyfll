@@ -4,6 +4,8 @@ pyfll (2009.02) UNRELEASED; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * disable totally broken hplip.
+  * add virtualbox-ose-guest-utils to amd64 builds, virtualbox-ose 2.x claims 
+    to cope with amd64 guests, in case hardware virtualisation is available.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -26,7 +28,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     - Replace LXDE metapackage by its dependencies - lxterminal - leafpad.
     - Add transmission to basic.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 16 Feb 2009 18:37:57 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 16 Feb 2009 23:32:39 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 
