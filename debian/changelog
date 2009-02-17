@@ -29,8 +29,11 @@ pyfll (2009.02) UNRELEASED; urgency=low
     - Add transmission to basic.
   * packages/packages.d/hwsupport-printscan:
     - Remove foomatic-db-hpijsl. It depends on hpijs.
+  * packages/packages.d/essential.postinst:
+    - Modify /etc/login.defs and /etc/pam.d/common-password for usage of
+      SHA-256 as default.
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Tue, 17 Feb 2009 00:15:08 +0100
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Tue, 17 Feb 2009 22:07:02 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 
