@@ -33,7 +33,11 @@ pyfll (2009.02) UNRELEASED; urgency=low
     - Modify /etc/login.defs and /etc/pam.d/common-password for usage of
       SHA-256 as default.
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Tue, 17 Feb 2009 22:07:02 +0100
+  [ Joaquim Boura ]
+  * removed xbase-client and added hwsupport-printscan for better printer support
+    on xfce
+
+ -- Joaquim Boura <x-un-i@sidux.com>  Fri, 20 Feb 2009 21:27:22 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 

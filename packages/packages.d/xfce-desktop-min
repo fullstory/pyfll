@@ -21,7 +21,6 @@ packages = """
 	thunar-volman
 	trayer
 	xarchiver
-	xbase-clients
 	xbitmaps
 	xchat
 	xfce4
