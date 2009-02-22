@@ -5,8 +5,7 @@ say() {
 }
 
 do_postinst() {
-	vim=$(which vim)
-	if [ -x "${vim}" ]; then
+	if which vim >/dev/null; then
 		say 'Adding /etc/vim/vimrc.local'
 		cat > /etc/vim/vimrc.local \
 <<EOF
@@ -18,8 +17,7 @@ set pastetoggle=<F10>
 EOF
 	fi
 
-	most=$(which most)
-	if [ -x "${most}" ]; then
+	if which most >/dev/null; then
 		say "Setting default pager to ${most}"
 		update-alternatives --set pager "${most}" >/dev/null
 	fi
