@@ -6,6 +6,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * disable totally broken hplip.
   * add virtualbox-ose-guest-utils to amd64 builds, virtualbox-ose 2.x claims 
     to cope with amd64 guests, in case hardware virtualisation is available.
+  * hpilp should be installable again.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -37,10 +38,10 @@ pyfll (2009.02) UNRELEASED; urgency=low
     - Fix undefined $most.
 
   [ Joaquim Boura ]
-  * removed xbase-client and added hwsupport-printscan for better printer support
-    on xfce
+  * removed xbase-client and added hwsupport-printscan for better printer
+    support on xfce
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 23 Feb 2009 18:08:22 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 23 Feb 2009 18:24:06 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 
