@@ -34,12 +34,13 @@ pyfll (2009.02) UNRELEASED; urgency=low
       SHA-256 as default.
   * packages/packages.d/cli.postinst:
     - Fix command check, [ -x "${cmd}" ] fails for empty variables.
+    - Fix undefined $most.
 
   [ Joaquim Boura ]
   * removed xbase-client and added hwsupport-printscan for better printer support
     on xfce
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Sun, 22 Feb 2009 13:49:56 +0100
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 23 Feb 2009 18:08:22 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 

@@ -19,7 +19,7 @@ EOF
 
 	if which most >/dev/null; then
 		say "Setting default pager to ${most}"
-		update-alternatives --set pager "${most}" >/dev/null
+		update-alternatives --set pager $(which most) >/dev/null
 	fi
 }
 
