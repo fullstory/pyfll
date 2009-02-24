@@ -7,6 +7,8 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * add virtualbox-ose-guest-utils to amd64 builds, virtualbox-ose 2.x claims 
     to cope with amd64 guests, in case hardware virtualisation is available.
   * hpilp should be installable again.
+  * remove tvtime and kdetv, there are no analogue senders in germany or the 
+    US anymore.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -41,7 +43,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * removed xbase-client and added hwsupport-printscan for better printer
     support on xfce
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 23 Feb 2009 18:24:06 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 24 Feb 2009 18:00:39 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 
