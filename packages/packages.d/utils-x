@@ -5,6 +5,7 @@ desc = """
 packages = """
 	gparted
 	libxine1-xvdr
+	tvtime
 	xsane
 	zenity
 """
