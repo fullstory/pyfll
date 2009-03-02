@@ -35,6 +35,8 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * packages/packages.d/essential.postinst:
     - Modify /etc/login.defs and /etc/pam.d/common-password for usage of
       SHA-256 as default.
+    - Write locales_to_be_generated in /etc/locale.gen. Temporary fix. To be
+      removed as soon as debconf preseeding works again.
   * packages/packages.d/cli.postinst:
     - Fix command check, [ -x "${cmd}" ] fails for empty variables.
     - Fix undefined $most.
@@ -43,7 +45,9 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * removed xbase-client and added hwsupport-printscan for better printer
     support on xfce
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 24 Feb 2009 18:00:39 +0100
+  [ Michael Deelwater ]
+
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 02 Mar 2009 21:31:33 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 
