@@ -30,6 +30,8 @@ pyfll (2009.02) UNRELEASED; urgency=low
     - Add gxine as video viewer.
     - Replace LXDE metapackage by its dependencies - lxterminal - leafpad.
     - Add transmission to basic.
+    - Add lxde metapackage again. lxterminal seems to pull in necessary
+      packages for LXDE...
   * packages/packages.d/hwsupport-printscan:
     - Remove foomatic-db-hpijsl. It depends on hpijs.
   * packages/packages.d/essential.postinst:
@@ -42,12 +44,16 @@ pyfll (2009.02) UNRELEASED; urgency=low
     - Fix undefined $most.
   * packages/packages.d/utils-x:
     - Add tvtime (there still is analogue cable).
+  * packages/packages.d/firmware:
+    - Remove b43-fw-cutter.
+    - Replace ipw2100 and ipw2200 by firmware-ipw2x00. Update debconf
+      preseeding.
 
   [ Joaquim Boura ]
   * removed xbase-client and added hwsupport-printscan for better printer
     support on xfce
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Mon, 02 Mar 2009 21:35:36 +0100
+ -- Michael Deelwater <michael.deelwater@googlemail.com>  Thu, 05 Mar 2009 00:01:27 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 

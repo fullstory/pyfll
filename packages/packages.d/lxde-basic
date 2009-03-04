@@ -8,13 +8,8 @@ packages = """
 	geany
 	gxine
 	gftp
-	gpicview
 	iceweasel
-	lxappearance
-	lxde-core
-	lxlauncher
-	lxrandr
-	obconf
+	lxde
 	transmission
 	xarchiver
 	xchat

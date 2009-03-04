@@ -6,19 +6,17 @@ desc = """
 """
 
 debconf = """
-	b43-fwcutter b43-fwcutter/cut_firmware boolean true
-	ipw2100-firmware ipw2100-firmware/accepted-intel boolean true
-	ipw2200-firmware ipw2200-firmware/accepted-intel boolean true
+#	b43-fwcutter b43-fwcutter/cut_firmware boolean true
+	firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true
 """
 
 packages = """
 	atmel-firmware
-	b43-fwcutter
+#	b43-fwcutter
 	bluez-firmware
+	firmware-ipw2x00
 	firmware-iwlwifi
 	firmware-ralink
-	ipw2100-firmware
-	ipw2200-firmware
 	libertas-firmware
 	zd1211-firmware
 """
