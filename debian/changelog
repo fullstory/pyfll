@@ -53,7 +53,10 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * removed xbase-client and added hwsupport-printscan for better printer
     support on xfce
 
- -- Michael Deelwater <michael.deelwater@googlemail.com>  Thu, 05 Mar 2009 00:01:27 +0100
+  [ Niall Walsh ]
+  * Strip vmlinuz- from description in menu.lst
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Tue, 10 Mar 2009 01:24:58 +0000
 
 pyfll (2009.01) ouranos; urgency=low
 
