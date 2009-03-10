@@ -1720,9 +1720,8 @@ class FLLBuilder(object):
                     raise Error
 
             menulst.write('\n')
-            menulst.write('title  %s %s\n' % (distro, cpu))
-            menulst.write('kernel /boot/%s boot=fll %s\n' %
-                          (vmlinuz.partition('vmlinuz-')[2], cmdline))
+            menulst.write('title  %s %s (%s)\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
+            menulst.write('kernel /boot/%s boot=fll %s\n' % (vmlinuz, cmdline))
             menulst.write('initrd /boot/%s\n' % initrd)
             menulst.write('\n')
             menulst.write('title  %s %s Extra Options\n' % (distro, cpu))
