@@ -9,6 +9,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * hpilp should be installable again.
   * remove tvtime and kdetv, there are no analogue senders in germany or the 
     US anymore.
+  * #517884 is fixed in Debian, remove the locale generation workaround again.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -56,7 +57,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Strip vmlinuz- from description in menu.lst
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Tue, 10 Mar 2009 01:24:58 +0000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 16 Mar 2009 01:38:02 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 
