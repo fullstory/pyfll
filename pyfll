@@ -604,10 +604,10 @@ class FLLBuilder(object):
             if retv != 0:
                 self.log.critical('failed to mount chroot %s' % v[0])
                 raise Error
-        bindfiles = {'/bin/true': 'sbin/modprobe'}
+        bindfiles = {'/bin/true': '/sbin/modprobe'}
 
         for f in bindfiles.items():
-            cmd = ['mount', '-o bind', f[0], os.path.join(chroot, f[1])]
+            cmd = ['mount', '--bind', f[0], os.path.join(chroot, f[1])]
 
             retv = call(cmd)
             if retv != 0:
