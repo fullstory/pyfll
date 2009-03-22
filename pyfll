@@ -604,7 +604,15 @@ class FLLBuilder(object):
             if retv != 0:
                 self.log.critical('failed to mount chroot %s' % v[0])
                 raise Error
+        bindfiles = {'/bin/true': 'sbin/modprobe'}
 
+        for f in bindfiles.items():
+            cmd = ['mount', '-o bind', f[0], os.path.join(chroot, f[1])]
+
+            retv = call(cmd)
+            if retv != 0:
+                self.log.critical('failed to mount chroot %s -> %s' % (f[0], f[1]))
+                raise Error
 
     def _umount(self, chrootdir):
         '''Umount any mount points in a chroot.'''
@@ -761,7 +769,7 @@ class FLLBuilder(object):
 
     def __cdebBootStrap(self, arch, dir, mirror):
         '''Bootstrap a debian system with cdebootstrap.'''
-        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils',
+        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils,module-init-tools',
                '--flavour=minimal', 'sid', dir, mirror]
 
         if self.opts.d:
@@ -777,7 +785,7 @@ class FLLBuilder(object):
 
     def __debBootStrap(self, arch, dir, mirror):
         '''Bootstrap a debian system with debootstrap.'''
-        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils',
+        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils,module-init-tools',
                '--variant=minbase', 'sid', dir, mirror]
 
         if self.opts.d or self.opts.v:
