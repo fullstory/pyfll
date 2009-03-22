@@ -10,8 +10,6 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * remove tvtime and kdetv, there are no analogue senders in germany or the 
     US anymore.
   * #517884 is fixed in Debian, remove the locale generation workaround again.
-  * deactivate modprobe/ insmod inside the chroot, otherwise maintainerscripts
-    might crash the build host.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -59,7 +57,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Strip vmlinuz- from description in menu.lst
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 22 Mar 2009 18:50:42 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 16 Mar 2009 01:38:02 +0100
 
 pyfll (2009.01) ouranos; urgency=low
 

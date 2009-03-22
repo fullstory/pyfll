@@ -605,19 +605,6 @@ class FLLBuilder(object):
                 self.log.critical('failed to mount chroot %s' % v[0])
                 raise Error
 
-        cmd = ['mount', '--bind', os.path.join(chroot, 'bin/true'),
-                   os.path.join(chroot, 'sbin/modprobe')]
-        retv = call(cmd)
-        if retv != 0:
-            self.log.critical('failed to mount chroot /bin/true -> /sbin/modprobe')
-            raise Error
-
-        cmd = ['mount', '--bind', os.path.join(chroot, 'bin/true'),
-                   os.path.join(chroot, 'sbin/insmod')]
-        retv = call(cmd)
-        if retv != 0:
-            self.log.critical('failed to mount chroot /bin/true -> /sbin/insmod')
-            raise Error
 
     def _umount(self, chrootdir):
         '''Umount any mount points in a chroot.'''
@@ -774,7 +761,7 @@ class FLLBuilder(object):
 
     def __cdebBootStrap(self, arch, dir, mirror):
         '''Bootstrap a debian system with cdebootstrap.'''
-        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils,module-init-tools',
+        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils',
                '--flavour=minimal', 'sid', dir, mirror]
 
         if self.opts.d:
@@ -790,7 +777,7 @@ class FLLBuilder(object):
 
     def __debBootStrap(self, arch, dir, mirror):
         '''Bootstrap a debian system with debootstrap.'''
-        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils,module-init-tools',
+        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils',
                '--variant=minbase', 'sid', dir, mirror]
 
         if self.opts.d or self.opts.v:
@@ -1571,7 +1558,6 @@ class FLLBuilder(object):
         self._execInChroot(arch, cmd.split())
         self._execInChroot(arch, 'apt-get clean'.split())
         self._execInChroot(arch, 'dpkg --clear-avail'.split())
-        self._umount(chroot)
 
         os.path.walk(os.path.join(chroot, 'var/log'), self._zerologs, arch)
 
