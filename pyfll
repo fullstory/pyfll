@@ -604,16 +604,20 @@ class FLLBuilder(object):
             if retv != 0:
                 self.log.critical('failed to mount chroot %s' % v[0])
                 raise Error
-        bindfiles = {'bin/true': 'sbin/modprobe'}
 
-        for f in bindfiles.items():
-            cmd = ['mount', '--bind', os.path.join(chroot, f[0]),
-                   os.path.join(chroot, f[1])]
+        cmd = ['mount', '--bind', os.path.join(chroot, 'bin/true'),
+                   os.path.join(chroot, 'sbin/modprobe')]
+        retv = call(cmd)
+        if retv != 0:
+            self.log.critical('failed to mount chroot /bin/true -> /sbin/modprobe')
+            raise Error
 
-            retv = call(cmd)
-            if retv != 0:
-                self.log.critical('failed to mount chroot %s -> %s' % (f[0], f[1]))
-                raise Error
+        cmd = ['mount', '--bind', os.path.join(chroot, 'bin/true'),
+                   os.path.join(chroot, 'sbin/insmod')]
+        retv = call(cmd)
+        if retv != 0:
+            self.log.critical('failed to mount chroot /bin/true -> /sbin/insmod')
+            raise Error
 
     def _umount(self, chrootdir):
         '''Umount any mount points in a chroot.'''
