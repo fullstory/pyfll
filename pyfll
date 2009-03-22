@@ -1571,6 +1571,7 @@ class FLLBuilder(object):
         self._execInChroot(arch, cmd.split())
         self._execInChroot(arch, 'apt-get clean'.split())
         self._execInChroot(arch, 'dpkg --clear-avail'.split())
+        self._umount(chroot)
 
         os.path.walk(os.path.join(chroot, 'var/log'), self._zerologs, arch)
 
