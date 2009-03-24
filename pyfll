@@ -33,7 +33,10 @@ class FLLBuilder(object):
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
            'DEBCONF_NOWARNINGS': 'yes'}
 
-    diverts = ['/usr/sbin/policy-rc.d']
+    diverts = ['/usr/sbin/policy-rc.d',
+               '/sbin/modprobe',
+               '/sbin/insmod',
+               '/usr/sbin/update-initramfs']
 
     timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
 
@@ -1101,6 +1104,16 @@ class FLLBuilder(object):
             finally:
                 if f:
                     f.close()
+
+
+    def _makeInitramfs(self, arch):
+        '''Generate the initramfs if update-initramfs was diverted'''
+        if '/usr/sbin/update-initramfs' in self.diverts:
+            chroot = os.path.join(self.temp, arch)
+            kvers = self._detectLinuxVersion(chroot)
+            for k in kvers:
+                cmd = 'update-initramfs -c -k %s' % k
+                self._execInChroot(arch, cmd.split())
 
 
     def _preseedDebconf(self, arch):
@@ -2189,6 +2202,7 @@ class FLLBuilder(object):
             self._initBlackList(arch)
             self._finalEtc(arch)
             self._dpkgUnDivert(arch)
+            self._makeInitramfs(arch)
             self._cleanChroot(arch)
             self._chrootSquashfs(arch)
             self._stageArch(arch)

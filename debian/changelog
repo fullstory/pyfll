@@ -56,8 +56,9 @@ pyfll (2009.02) UNRELEASED; urgency=low
 
   [ Niall Walsh ]
   * Strip vmlinuz- from description in menu.lst
+  * run update-initramfs -c for all kernels if update-initramfs was diverted
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 16 Mar 2009 01:38:02 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Tue, 24 Mar 2009 22:56:31 +0000
 
 pyfll (2009.01) ouranos; urgency=low
 
