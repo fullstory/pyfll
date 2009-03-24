@@ -1113,6 +1113,8 @@ class FLLBuilder(object):
             kvers = self._detectLinuxVersion(chroot)
             for k in kvers:
                 cmd = 'update-initramfs -c -k %s' % k
+                if self.opts.v:
+                    cmd += ' -v'
                 self._execInChroot(arch, cmd.split())
 
 
