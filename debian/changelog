@@ -12,6 +12,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * #517884 is fixed in Debian, remove the locale generation workaround again.
   * remove get-kde4-pinning.sh, debian-qt-kde has switched to git and KDE4 is 
     on the doorstep to sid anyways.
+  * dump kde4 preferences for apt, kde4 is in sid now, rendering this obsolete.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -60,7 +61,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Strip vmlinuz- from description in menu.lst
   * run update-initramfs -c for all kernels if update-initramfs was diverted
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 02 Apr 2009 01:05:28 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 06 Apr 2009 16:05:55 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
