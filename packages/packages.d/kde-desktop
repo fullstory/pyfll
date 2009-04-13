@@ -29,7 +29,6 @@ packages = """
 	kdepim-kresources
 	kdepim-wizards
 	kdeprint
-	kdeservicemenus-sidux
 	kdf
 	kdict
 	kdmtheme
