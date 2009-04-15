@@ -1108,7 +1108,7 @@ class FLLBuilder(object):
 
     def _makeInitramfs(self, arch):
         '''Generate the initramfs if update-initramfs was diverted'''
-        if '/usr/sbin/update-initramfs' in self.diverts:
+        if '/usr/sbin/update-initramfs' in self.diverts and not self.opts.D:
             chroot = os.path.join(self.temp, arch)
             kvers = self._detectLinuxVersion(chroot)
             for k in kvers:
