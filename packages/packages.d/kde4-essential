@@ -1,13 +1,11 @@
 desc = """
 	Minimal KDE4 desktop apps profile
-	cleary note -As of writing 080708, this will need apt_preferences 
-	defined in fll.conf with appropriate pinning for kde4
-	and kdm packages from experimental, as well as  debian experimental
-	irepo added in fll.conf
 """
 
 packages = """
+	ark
 	kdm
 	kde4-minimal
+	konversation
 """
 

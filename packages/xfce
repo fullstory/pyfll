@@ -11,6 +11,7 @@ deps = """
 	fluxbox
 	hwsupport-essential
 	hwsupport-extra
+	hwsupport-powermanagement
 	hwsupport-printscan
 	utils-essential
 	utils-extra

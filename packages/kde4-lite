@@ -9,10 +9,13 @@ desc = """
 deps = """
 	cli
 	distro
+#	distro-kde
 	distro-tools
 	distro-tools-x
 	fluxbox
 	hwsupport-essential
+	hwsupport-printscan
+	hwsupport-extra
 	kde4-essential
 	utils-essential
 	utils-x
@@ -20,4 +23,5 @@ deps = """
 """
 
 packages = """
+	siduxcc
 """

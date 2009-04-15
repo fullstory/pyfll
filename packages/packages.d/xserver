@@ -30,15 +30,15 @@ packages = """
 """
 
 i386 = """
-	virtualbox-ose-guest-utils
-	xserver-xorg-input-vmmouse
-	xserver-xorg-video-geode
+#	virtualbox-ose-guest-utils  		#provides xserver-xorg-video-2, conflicts with xserver-xorg-core
+#	xserver-xorg-input-vmmouse 		#provides xserver-xorg-input-4, conflicts with xserver-xorg-core
+#	xserver-xorg-video-geode  		#provides xserver-xorg-video-2, conflicts with xserver-xorg-core
 	xserver-xorg-video-openchrome
 """
 
 amd64 = """
-	virtualbox-ose-guest-utils
-	xserver-xorg-input-vmmouse
+#	virtualbox-ose-guest-utils  		#provides xserver-xorg-video-2, conflicts with xserver-xorg-core
+#	xserver-xorg-input-vmmouse 		#provides xserver-xorg-input-4, conflicts with xserver-xorg-core
 	xserver-xorg-video-openchrome
 """
 

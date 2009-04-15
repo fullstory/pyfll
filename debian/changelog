@@ -62,7 +62,17 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Strip vmlinuz- from description in menu.lst
   * run update-initramfs -c for all kernels if update-initramfs was diverted
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 13 Apr 2009 15:36:11 +0200
+  [ Bernard Gray ]
+  * split powersaved into it's own hwsupport-powermanagement module so as not to conflict
+    with kde4/powerdevil
+  * add hwsupport-powermanagement to xfce* package profiles
+  * xserver: comment all packages providing xserver-xorg-input-4 making xorg uninstallable
+  * xserver: comment all packages providing xserver-xorg-video-4 making xorg uninstallable
+  * kde4-essential: add ark and konversation to bring it inline with old kde-essential module
+    - this should probably be migrated to the kde-essential module at some point
+  * add hwsupport-printscan and hwsupport-extra to kde4-lite to bring it inline with kde-lite
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Wed, 15 Apr 2009 10:16:25 +1000
 
 pyfll (2009.01) ouranos; urgency=low
 
