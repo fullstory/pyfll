@@ -4,6 +4,7 @@ __author__    = 'Kel Modderman'
 __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
 __license__   = 'GPLv2 or any later version'
 
+from apt import OpProgress
 from configobj import ConfigObj
 from subprocess import *
 from fll.locales import FllLocales, FllLocalesError
@@ -1269,7 +1270,7 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
         self.log.info('collecting package manifest for %s...' % arch)
 
-        cache = apt_pkg.GetCache()
+        cache = apt_pkg.GetCache(OpProgress())
         records = apt_pkg.GetPkgRecords(cache)
         depcache = apt_pkg.GetDepCache(cache)
         depcache.Init()
@@ -1336,7 +1337,7 @@ class FLLBuilder(object):
 
     def _installPkgs(self, arch):
         '''Install packages.'''
-        cache = apt_pkg.GetCache()
+        cache = apt_pkg.GetCache(OpProgress())
 
         i18n_list = self.__lines2list(self.conf['packages']['i18n'])
         pkgs_want = self._getPackageList(arch)
@@ -1916,46 +1917,14 @@ class FLLBuilder(object):
         if 'powerpc' in archs or 'ppc64' in archs:
             self._writeYabootWrap()
 
-    def __md5sum(self, file):
+    def __md5sum(self, filename):
         '''Calculate md5sum of a file and return it.'''
-        self.log.debug('md5sum -b %s' % file)
-        md5sum = None
-
-        try:
-            p = Popen(['md5sum', '-b', file], stdout = PIPE)
-            pout = p.communicate()[0]
-        except:
-            self.log.exception('error calculating md5sum of %s' % file)
-            raise Error
-
-        md5sum = pout.split()[0]
-        if md5sum:
-            self.log.debug(md5sum)
-            return md5sum
-        else:
-            self.log.critical('failed to get md5sum of %s' % file)
-            raise Error
+        return apt_pkg.md5sum(file(filename))
 
 
-    def __sha256sum(self, file):
+    def __sha256sum(self, filename):
         '''Calculate sha256sum of a file and return it.'''
-        self.log.debug('sha256sum -b %s' % file)
-        sha256sum = None
-
-        try:
-            p = Popen(['sha256sum', '-b', file], stdout = PIPE)
-            pout = p.communicate()[0]
-        except:
-            self.log.exception('error calculating sha256sum of %s' % file)
-            raise Error
-
-        sha256sum = pout.split()[0]
-        if sha256sum:
-            self.log.debug(sha256sum)
-            return sha256sum
-        else:
-            self.log.critical('failed to get sha256sum of %s' % file)
-            raise Error
+        return apt_pkg.sha256sum(file(filename))
 
 
     def _md5sums(self, base, dir, fnames):
