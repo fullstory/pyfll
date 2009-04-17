@@ -787,8 +787,6 @@ class FLLBuilder(object):
             cmd.insert(1, '--verbose')
 
         self._execCmd(cmd)
-        shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
-        shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
 
 
     def _bootStrap(self, arch):
@@ -808,6 +806,9 @@ class FLLBuilder(object):
             self.__debBootStrap(arch, dir, mirror)
         else:
             self.__cdebBootStrap(arch, dir, mirror)
+
+        shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
+        shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
 
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
