@@ -19,6 +19,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * merge kde4-lite into kde-lite.
   * merge kde4-full into kde-full.
   * make distro-kde a no-op for now.
+  * enable desktop-defaults-kde again.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -83,7 +84,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
     of extra subprocesses.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 18 Apr 2009 15:18:24 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 18 Apr 2009 17:29:21 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
