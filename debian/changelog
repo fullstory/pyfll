@@ -14,6 +14,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     on the doorstep to sid anyways.
   * dump kde4 preferences for apt, kde4 is in sid now, rendering this obsolete.
   * kdeservicemenus are not more, remove them.
+  * merge kde4-essential into kde-essential.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -78,7 +79,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
     of extra subprocesses.
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 18 Apr 2009 00:40:20 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 18 Apr 2009 14:40:41 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 

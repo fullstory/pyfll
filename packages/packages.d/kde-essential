@@ -4,10 +4,9 @@ desc = """
 
 packages = """
 	ark
-	kaffeine
-	kde-core
+	# kaffeine	#kde3
+		dragonplayer
+	kde4-minimal
 	kdm
 	konversation
-	kpowersave
 """
-

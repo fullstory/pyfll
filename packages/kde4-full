@@ -13,7 +13,7 @@ deps = """
 	distro-tools-x
 	fluxbox
 	hwsupport-essential
-	kde4-essential
+	kde-essential
 	utils-essential
 	utils-x
 	xserver
