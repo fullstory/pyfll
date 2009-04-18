@@ -4,65 +4,42 @@ desc = """
 
 packages = """
 	akregator
-	amarok
-	basket
+#	amarok			#kde3
 	digikam
 	hplip-gui
 	kaddressbook
-	kaddressbook-plugins
-	karm
 	kate
-	kate-plugins
 	kbattleship
 	kcharselect
 	kdeaccessibility
-	kdeaddons-kfile-plugins
 	kdeadmin
-	kdebluetooth
-	kdegraphics-kfile-plugins
-	kdelirc
-	kdemultimedia-kfile-plugins
+#	kdebluetooth		#kde3
+#	kdelirc			#kde3
 	kdemultimedia-kio-plugins
-	kdenetwork-kfile-plugins
-	kdepim-kfile-plugins
-	kdepim-kio-plugins
 	kdepim-kresources
 	kdepim-wizards
-	kdeprint
 	kdf
-	kdict
-	kdmtheme
-	kdnssd
-	kfax
-	kfaxview
+#	kdict			#kde3
 	kgamma
 	kget
-	kghostview
 	kgpg
-	kicker-applets
-	kiconedit
-	kio-apt
 	kipi-plugins
 	kmahjongg
 	kmail
-	kmailcvt
 	konq-plugins
 	kontact
-	kooka
+#	kooka			#kde3
 	kopete
 	korganizer
 	kpat
 	kpilot
 	krdc
 	kreversi
-	krita
+#	krita			#kde3
 	krusader
-	ksvg
-	ktorrent2.2
+	ktorrent
 	kwalletmanager
-	kwifimanager
-	libqt-perl
-	moto4lin
+#	moto4lin		#kde3
 	packagesearch
 	wpagui
 	yakuake

@@ -5,7 +5,7 @@ desc = """
 deps = """
 	cli
 	distro
-	distro-kde
+#	distro-kde
 	distro-tools
 	distro-tools-x
 	fluxbox
@@ -29,14 +29,12 @@ packages = """
 	kvm
 	myspell-en-us
 	nano
-	openoffice.org-kde
-	pdfedit
+#	pdfedit			#kde3
 	rdiff-backup
-	siduxcc
+#	siduxcc			#kde3
 	sidux-vdr
 	vdr-gui
 	vdr-plugin-pvrinput
-	virtualbox-ose
-	wengophone
+	virtualbox-ose-qt
+	qutecom
 """
-

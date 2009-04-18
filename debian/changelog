@@ -17,6 +17,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * merge kde4-essential into kde-essential.
   * remove powersaved and switch to acpi-support-base.
   * merge kde4-lite into kde-lite.
+  * merge kde4-full into kde-full.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -81,7 +82,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
     of extra subprocesses.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 18 Apr 2009 14:49:51 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 18 Apr 2009 15:08:54 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
