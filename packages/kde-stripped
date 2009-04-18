@@ -20,4 +20,3 @@ packages = """
 	cdebootstrap
 	hwinfo
 """
-
