@@ -22,6 +22,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * enable desktop-defaults-kde again.
   * remove packages pulling in akonadi . and through this mysql-server.
   * temporarily disable sidux-vdr.
+  * enable stripped down distro-kde for all profiles.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -92,7 +93,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
     of extra subprocesses.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 19 Apr 2009 15:36:58 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 19 Apr 2009 16:27:02 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 

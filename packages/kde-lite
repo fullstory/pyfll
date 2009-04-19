@@ -5,7 +5,7 @@ desc = """
 deps = """
 	cli
 	distro
-#	distro-kde
+	distro-kde
 	distro-tools
 	distro-tools-x
 	fluxbox
