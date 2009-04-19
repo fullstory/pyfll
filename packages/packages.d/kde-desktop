@@ -5,9 +5,8 @@ desc = """
 packages = """
 	akregator
 #	amarok			#kde3
-	digikam
+#	digikam			#no-i18n yet
 	hplip-gui
-	kaddressbook
 	kate
 	kbattleship
 	kcharselect
@@ -27,12 +26,9 @@ packages = """
 	kmahjongg
 	kmail
 	konq-plugins
-	kontact
 #	kooka			#kde3
 	kopete
-	korganizer
 	kpat
-	kpilot
 	krdc
 	kreversi
 #	krita			#kde3
