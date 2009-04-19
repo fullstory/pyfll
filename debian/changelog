@@ -21,6 +21,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * make distro-kde a no-op for now.
   * enable desktop-defaults-kde again.
   * remove packages pulling in akonadi . and through this mysql-server.
+  * temporarily disable sidux-vdr.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -70,14 +71,20 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * run update-initramfs -c for all kernels if update-initramfs was diverted
 
   [ Bernard Gray ]
-  * split powersaved into it's own hwsupport-powermanagement module so as not to conflict
+  * split powersaved into it's own hwsupport-powermanagement module so as not
+    to conflict
     with kde4/powerdevil
   * add hwsupport-powermanagement to xfce* package profiles
-  * xserver: comment all packages providing xserver-xorg-input-4 making xorg uninstallable
-  * xserver: comment all packages providing xserver-xorg-video-4 making xorg uninstallable
-  * kde4-essential: add ark and konversation to bring it inline with old kde-essential module
-    - this should probably be migrated to the kde-essential module at some point
-  * add hwsupport-printscan and hwsupport-extra to kde4-lite to bring it inline with kde-lite
+  * xserver: comment all packages providing xserver-xorg-input-4 making xorg
+    uninstallable
+  * xserver: comment all packages providing xserver-xorg-video-4 making xorg
+    uninstallable
+  * kde4-essential: add ark and konversation to bring it inline with old
+    kde-essential module
+    - this should probably be migrated to the kde-essential module at some
+      point
+  * add hwsupport-printscan and hwsupport-extra to kde4-lite to bring it 
+    inline with kde-lite
 
   [ Kel Modderman ]
   * Use OpProgress() base class from apt module to silence unwanted
@@ -85,7 +92,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
     of extra subprocesses.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 19 Apr 2009 02:22:22 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 19 Apr 2009 15:36:58 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
