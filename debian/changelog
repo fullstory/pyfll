@@ -23,6 +23,8 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * remove packages pulling in akonadi . and through this mysql-server.
   * temporarily disable sidux-vdr.
   * enable stripped down distro-kde for all profiles.
+  * add ttf-liberation, the ugliness should be fixed now.
+  * re-add 3rd party X drivers, they've been updated by now.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -93,7 +95,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
     of extra subprocesses.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 19 Apr 2009 16:27:02 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 21 Apr 2009 09:46:12 +0000
 
 pyfll (2009.01) ouranos; urgency=low
 
