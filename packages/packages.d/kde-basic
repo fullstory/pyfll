@@ -3,7 +3,7 @@ desc = """
 """
 
 packages = """
-	gwenview
+#	gwenview		#no l10n yet
 #	k3b			#kde3
 	kcalc
 	kmix
