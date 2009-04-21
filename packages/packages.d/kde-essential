@@ -9,4 +9,5 @@ packages = """
 	kde4-minimal
 	kdm
 	konversation
+	phonon-backend-xine
 """
