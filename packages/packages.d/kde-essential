@@ -6,7 +6,7 @@ packages = """
 	ark
 	# kaffeine	#kde3
 		dragonplayer
-	kde4-minimal
+	kde-minimal
 	kdm
 	konversation
 	phonon-backend-xine

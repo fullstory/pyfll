@@ -4,5 +4,5 @@ desc = """
 
 packages = """
 	desktop-defaults-kde
-#	sidux-art-kde		#kde3
+	sidux-art-kde
 """

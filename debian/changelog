@@ -27,6 +27,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * re-add 3rd party X drivers, they've been updated by now.
   * always install phonon-backend-xine for kde profiles, gstreamer just 
     doesn't work.
+  * fix meta packages for KDE.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -97,7 +98,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
     of extra subprocesses.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 21 Apr 2009 21:20:20 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 26 Apr 2009 19:36:23 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
