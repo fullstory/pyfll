@@ -28,6 +28,7 @@ tmp/.*
 var/cache/apt/*.bin
 var/cache/apt-show-versions/*
 var/cache/debconf/*-old
+var/lib/alsa/asound.state
 var/lib/apt/extended_states
 var/lib/apt/lists/*_dists_*
 var/lib/dpkg/*-old

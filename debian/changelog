@@ -28,7 +28,11 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * always install phonon-backend-xine for kde profiles, gstreamer just 
     doesn't work.
   * fix meta packages for KDE.
+  * omit /var/lib/alsa/asound.state.
+  * xfce4-mixer-alsa is no more.
   * temporarily disable alsa-utils because of #523091.
+  * sidux-vdr is installable again, re-add it to kde-full.
+  * xfce4-mixer-alsa is gone, remove it.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -99,7 +103,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
     of extra subprocesses.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 01 May 2009 00:31:17 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 06 May 2009 02:01:27 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 

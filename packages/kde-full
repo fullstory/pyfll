@@ -32,9 +32,9 @@ packages = """
 #	pdfedit			#kde3
 	rdiff-backup
 #	siduxcc			#kde3
-#	sidux-vdr
-#	vdr-gui
-#	vdr-plugin-pvrinput
+	sidux-vdr
+	vdr-gui
+	vdr-plugin-pvrinput
 	virtualbox-ose-qt
 	qutecom
 """

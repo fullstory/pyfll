@@ -22,7 +22,7 @@ packages = """
 	kgamma
 	kget
 	kgpg
-	kipi-plugins
+#	kipi-plugins		#exiv2
 	kmahjongg
 	kmail
 	konq-plugins

@@ -38,7 +38,6 @@ packages = """
 	xfce4-mcs-manager
 	xfce4-mcs-plugins
 	xfce4-mixer
-	xfce4-mixer-alsa
 	xfce4-mount-plugin
 	xfce4-panel
 	xfce4-quicklauncher-plugin
