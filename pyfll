@@ -942,6 +942,9 @@ class FLLBuilder(object):
             self._execInChroot(arch, cmd.split())
 
         self._execInChroot(arch, 'apt-get update'.split())
+        # Upgrade any essential packages from sources not available
+        # during bootstrap phase.
+        self._execInChroot(arch, 'apt-get dist-upgrade -y'.split())
 
         apt_pkg.InitConfig()
         apt_pkg.Config.Set('RootDir', chroot)
