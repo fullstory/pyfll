@@ -33,6 +33,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * temporarily disable alsa-utils because of #523091.
   * sidux-vdr is installable again, re-add it to kde-full.
   * xfce4-mixer-alsa is gone, remove it.
+  * temporarily disable konversation, the version in sid is still kde3 based.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -106,7 +107,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Kel Modderman <kel@otaku42.de>  Fri, 08 May 2009 15:35:20 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 10 May 2009 02:12:19 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 

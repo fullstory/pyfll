@@ -8,6 +8,6 @@ packages = """
 		dragonplayer
 	kde-minimal
 	kdm
-	konversation
+	# konversation	#kde3
 	phonon-backend-xine
 """
