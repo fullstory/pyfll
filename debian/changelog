@@ -97,6 +97,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
       point
   * add hwsupport-printscan and hwsupport-extra to kde4-lite to bring it 
     inline with kde-lite
+  * reinstate kipi-pugins - exiv2 dep now available
 
   [ Kel Modderman ]
   * Use OpProgress() base class from apt module to silence unwanted
@@ -107,7 +108,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 10 May 2009 02:12:19 +0200
+ -- Bernard Gray <bernard.gray@gmail.com>  Mon, 11 May 2009 10:28:49 +1000
 
 pyfll (2009.01) ouranos; urgency=low
 
