@@ -5,6 +5,7 @@ desc = """
 
 packages = """
 	desktop-file-utils
+	fam
 	gconf2
 	gdm
 	gksu
