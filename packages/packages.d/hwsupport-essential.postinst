@@ -5,13 +5,14 @@ say() {
 }
 
 do_postinst() {
-	say 'Setting sane(r) defaults for lvm2'
-	DEFAULT_LVM_FILTER='[ "r|/dev/cdrom|", "r|/dev/dvd|" ]'
+	if [ -w /etc/lvm/lvm.conf ]; then
+		say 'Setting sane(r) defaults for lvm2'
+		DEFAULT_LVM_FILTER='[ "r|/dev/cdrom|", "r|/dev/dvd|" ]'
 
-	sed -i -e 's%^\([[:space:]]*# By default\) we accept every block device:$%\1 we exclude optical drives:%' \
-	       -e 's%^\([[:space:]]*filter =\).*%\1 '"${DEFAULT_LVM_FILTER}"'%' \
-	        /etc/lvm/lvm.conf
-	
+		sed -i -e 's%^\([[:space:]]*# By default\) we accept every block device:$%\1 we exclude optical drives:%' \
+		       -e 's%^\([[:space:]]*filter =\).*%\1 '"${DEFAULT_LVM_FILTER}"'%' \
+		        /etc/lvm/lvm.conf
+	fi	
 }
 
 case "${1}" in
