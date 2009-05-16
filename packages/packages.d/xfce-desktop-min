@@ -36,15 +36,15 @@ packages = """
 	xfce4-goodies
 	xfce4-icon-theme
 	xfce4-xkb-plugin
-	xfce4-mcs-manager
-	xfce4-mcs-plugins
+#	xfce4-mcs-manager
+#	xfce4-mcs-plugins
 	xfce4-mixer
 	xfce4-mount-plugin
 	xfce4-panel
 	xfce4-quicklauncher-plugin
 	xfce4-screenshooter-plugin
 	xfce4-sensors-plugin
-	xfce4-session
+	xfce4-session 
 	xfce4-systemload-plugin
 	xfce4-terminal
 	xfce4-utils

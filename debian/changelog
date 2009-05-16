@@ -100,6 +100,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     inline with kde-lite
   * reinstate kipi-pugins - exiv2 dep now available
   * add fam to xfce-desktop-min for desktop refresh-ability (thanks bluewater)
+  * comment out xfce-mcs* causing xfce builds to fail 
 
   [ Kel Modderman ]
   * Use OpProgress() base class from apt module to silence unwanted
@@ -110,7 +111,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 16 May 2009 13:13:16 +0200
+ -- Bernard Gray <bernard.gray@gmail.com>  Sat, 16 May 2009 23:56:24 +1000
 
 pyfll (2009.01) ouranos; urgency=low
 
