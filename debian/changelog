@@ -35,6 +35,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * xfce4-mixer-alsa is gone, remove it.
   * temporarily disable konversation, the version in sid is still kde3 based.
   * don't fail, if lvm2 is not installed.
+  * include konversation again, 1.2~alpha1-1 has reached unstable.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -111,7 +112,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Bernard Gray <bernard.gray@gmail.com>  Sat, 16 May 2009 23:56:24 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 20 May 2009 23:33:00 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
