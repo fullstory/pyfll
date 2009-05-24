@@ -40,6 +40,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     mysql-server...
   * enable digikam again, the kde4 version has reached sid.
   * enable gwenview again.
+  * bump standards version to 3.8.1, we have little to adhere to.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -116,7 +117,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 May 2009 02:57:22 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 May 2009 14:36:19 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
