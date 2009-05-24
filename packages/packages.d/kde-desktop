@@ -12,12 +12,12 @@ packages = """
 	kdeaccessibility
 	kdeadmin
 #	kdebluetooth		#kde3
-#	kdelirc			#kde3
+#	kdelirc			#kde3, missing until kdeutils 4.3.0
 	kdemultimedia-kio-plugins
 	kdepim-kresources
 	kdepim-wizards
 	kdf
-#	kdict			#kde3
+#	kdict			#kde3, missing
 	kgamma
 	kget
 	kgpg
@@ -25,12 +25,12 @@ packages = """
 	kmahjongg
 	kmail
 	konq-plugins
-#	kooka			#kde3
+#	kooka			#kde3, missing
 	kopete
 	kpat
 	krdc
 	kreversi
-#	krita			#kde3
+#	krita			#kde3, koffice2
 	krusader
 	ktorrent
 	kwalletmanager

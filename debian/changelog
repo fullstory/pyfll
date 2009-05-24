@@ -39,6 +39,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * remove amarok completely, amarok2 hasn't reached sid yet, but depends on 
     mysql-server...
   * enable digikam again, the kde4 version has reached sid.
+  * enable gwenview again.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -115,7 +116,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 May 2009 02:27:38 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 May 2009 02:57:22 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 

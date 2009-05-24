@@ -3,14 +3,13 @@ desc = """
 """
 
 packages = """
-#	gwenview		#no l10n yet
+	gwenview
 #	k3b			#kde3
 	kcalc
 	kmix
 	knemo
 	kppp
 	ksnapshot
-#	gtk2-engines-qtcurve	#kde3
 	okular
 #	umtsmon			#kde3
 """
