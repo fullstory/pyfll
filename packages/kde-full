@@ -37,4 +37,11 @@ packages = """
 	vdr-plugin-pvrinput
 	virtualbox-ose-qt
 	qutecom
+	### qt3/ kde3 packages ###
+	k3b
+	kaffeine
+	krita
+	pdfedit
+	siduxcc
+	umtsmon
 """
