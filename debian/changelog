@@ -36,6 +36,9 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * temporarily disable konversation, the version in sid is still kde3 based.
   * don't fail, if lvm2 is not installed.
   * include konversation again, 1.2~alpha1-1 has reached unstable.
+  * remove amarok completely, amarok2 hasn't reached sid yet, but depends on 
+    mysql-server...
+  * enable digikam again, the kde4 version has reached sid.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -112,7 +115,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 20 May 2009 23:33:00 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 May 2009 02:27:38 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 

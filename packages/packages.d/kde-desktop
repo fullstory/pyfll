@@ -4,8 +4,7 @@ desc = """
 
 packages = """
 	akregator
-#	amarok			#kde3
-#	digikam			#no-i18n yet
+	digikam
 	hplip-gui
 	kate
 	kbattleship
