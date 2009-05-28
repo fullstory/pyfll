@@ -48,6 +48,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     - pdfedit
     - siduxcc
     - umtsmon
+  * don't install uninstallable recommends for k3b.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -124,7 +125,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 24 May 2009 16:20:08 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 28 May 2009 15:14:59 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 

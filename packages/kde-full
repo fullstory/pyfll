@@ -39,6 +39,9 @@ packages = """
 	qutecom
 	### qt3/ kde3 packages ###
 	k3b
+		vcdimager
+		dvd+rw-tools
+		libk3b3-extracodecs
 	kaffeine
 	krita
 	pdfedit
