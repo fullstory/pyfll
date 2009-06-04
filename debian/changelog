@@ -115,6 +115,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * reinstate kipi-pugins - exiv2 dep now available
   * add fam to xfce-desktop-min for desktop refresh-ability (thanks bluewater)
   * comment out xfce-mcs* causing xfce builds to fail 
+  * add gpicview to xfce-desktop-extras as decent image viewer per hannes request
 
   [ Kel Modderman ]
   * Use OpProgress() base class from apt module to silence unwanted
@@ -125,7 +126,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 28 May 2009 15:14:59 +0200
+ -- Bernard Gray <bernard.gray@gmail.com>  Thu, 04 Jun 2009 13:26:34 +1000
 
 pyfll (2009.01) ouranos; urgency=low
 
