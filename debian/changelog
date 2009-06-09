@@ -49,6 +49,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     - siduxcc
     - umtsmon
   * don't install uninstallable recommends for k3b.
+  * add crda to hwsupport-essential.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -126,7 +127,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Bernard Gray <bernard.gray@gmail.com>  Thu, 04 Jun 2009 13:26:34 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 10 Jun 2009 01:08:11 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 

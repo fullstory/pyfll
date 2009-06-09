@@ -6,6 +6,7 @@ packages = """
 	alsa-base
 	br2684ctl
 	cpufrequtils
+	crda
 	irqbalance
 	laptop-detect
 	lvm2
