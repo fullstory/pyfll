@@ -31,6 +31,7 @@ packages = """
 
 i386 = """
 	virtualbox-ose-guest-utils
+	virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
 	xserver-xorg-video-geode
 	xserver-xorg-video-openchrome
@@ -38,6 +39,7 @@ i386 = """
 
 amd64 = """
 	virtualbox-ose-guest-utils
+	virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
 	xserver-xorg-video-openchrome
 """
