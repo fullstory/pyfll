@@ -43,7 +43,7 @@ packages = """
 		dvd+rw-tools
 		libk3b3-extracodecs
 	kaffeine
-	krita
+#	krita			#kde3
 	pdfedit
 	siduxcc
 	umtsmon

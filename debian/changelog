@@ -44,13 +44,13 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * re-add qt3/ kde3 packages to kde-full only:
     - k3b
     - kaffeine
-    - krita
     - pdfedit
     - siduxcc
     - umtsmon
   * don't install uninstallable recommends for k3b.
   * add crda to hwsupport-essential.
   * add virtualbox-ose-guest-x11 to X based flavours on i386/ amd64.
+  * disable krita, it has been removed from sid.
 
   [ Michael Deelwater ]
   * packages/lxde:
