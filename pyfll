@@ -1166,8 +1166,7 @@ class FLLBuilder(object):
             kvers.sort()
             return kvers
 
-        self.log.critical('failed to detect linux version installed in ' +
-                          '%s chroot' % arch)
+        self.log.critical('failed to detect linux version installed in chroot')
         raise Error
 
 

@@ -118,6 +118,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * add fam to xfce-desktop-min for desktop refresh-ability (thanks bluewater)
   * comment out xfce-mcs* causing xfce builds to fail 
   * add gpicview to xfce-desktop-extras as decent image viewer per hannes request
+  * remove arch variable from _detectLinuxVersion() since it is undefined when single arch is built
 
   [ Kel Modderman ]
   * Use OpProgress() base class from apt module to silence unwanted
@@ -128,7 +129,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 16 Jun 2009 00:54:41 +0200
+ -- Bernard Gray <bernard.gray@gmail.com>  Mon, 29 Jun 2009 17:36:43 +1000
 
 pyfll (2009.01) ouranos; urgency=low
 
