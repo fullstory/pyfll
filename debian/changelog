@@ -51,6 +51,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * add crda to hwsupport-essential.
   * add virtualbox-ose-guest-x11 to X based flavours on i386/ amd64.
   * disable krita, it has been removed from sid.
+  * pin ia32-apt-get to -1, maintainer-on-crack.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -130,7 +131,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Bernard Gray <bernard.gray@gmail.com>  Mon, 29 Jun 2009 17:38:30 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 29 Jun 2009 15:05:05 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
