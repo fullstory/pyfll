@@ -52,6 +52,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * add virtualbox-ose-guest-x11 to X based flavours on i386/ amd64.
   * disable krita, it has been removed from sid.
   * pin ia32-apt-get to -1, maintainer-on-crack.
+  * bump standards version to 3.8.2, we have little to adhere to.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -131,7 +132,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 29 Jun 2009 15:05:05 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 02 Jul 2009 23:35:06 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
