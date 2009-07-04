@@ -45,15 +45,15 @@ packages = """
 	kig
 	kimagemapeditor
 	kivio
-	klatin
+#	klatin		(not available for kde4 yet)
 	klogic
 	kmplot
-	koffice-i18n-de
+#	koffice-i18n-de		(only in experimental)
 	kolourpaint
-	kpercentage
+#	kpercentage		(obsolete, integrated in kbruch now)
 	kplato
 	kpresenter
-	krita
+#	krita
 	krusader
 	ksimus
 	ksociograma
@@ -64,7 +64,7 @@ packages = """
 	kvoctrain
 	kword
 	kwordquiz
-	quanta
+#	quanta		(no version for kde4)
 	scribus
 	siduxcc
 	eduversum
@@ -73,6 +73,6 @@ packages = """
 	tuxmath
 	tuxpaint
 	vym
-#	wxmaxima
+	wxmaxima
 """
 
