@@ -33,37 +33,37 @@ packages = """
 	iceweasel
 	inkscape
 	kalzium
-	karbon
+#	karbon		(not in sid)
 	katomic
 	kbruch
-	kchart
-	kdict
-	keduca
-	kexi
-	kformula
+#	kchart		(not in sid)		
+#	kdict		(not available for kde4 yet)
+#	keduca		(not available for kde4 yet)	
+#	kexi		(not in sid)
+#	kformula	(not in sid)		
 	kgeography
 	kig
 	kimagemapeditor
-	kivio
+#	kivio		(not in sid)
 #	klatin		(not available for kde4 yet)
 	klogic
 	kmplot
-#	koffice-i18n-de		(only in experimental)
-	kolourpaint
+#	koffice-i18n-de		(not in sid)
+#	kolourpaint		(not in sid)
 #	kpercentage		(obsolete, integrated in kbruch now)
-	kplato
-	kpresenter
-#	krita
+#	kplato			(not in sid)
+#	kpresenter		(not in sid)
+#	krita			(not in sid)
 	krusader
 	ksimus
 	ksociograma
-	kspread
+	kspread			(not in sid)
 	kstars
 	ktouch
 	kturtle
-	kvoctrain
-	kword
+#	kword			(not in sid)
 	kwordquiz
+	parley
 #	quanta		(no version for kde4)
 	scribus
 	siduxcc
