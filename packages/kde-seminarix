@@ -63,11 +63,13 @@ packages = """
 	kturtle
 #	kword			(not in sid)
 	kwordquiz
+	marble
 	parley
 #	quanta		(no version for kde4)
 	scribus
 	siduxcc
 	eduversum
+	step
 	stopmotion
 	sunclock
 	tuxmath
