@@ -53,6 +53,8 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * disable krita, it has been removed from sid.
   * pin ia32-apt-get to -1, maintainer-on-crack.
   * bump standards version to 3.8.2, we have little to adhere to.
+  * disable VDR, vdr 1.6.0-10 breaks the ABI to its plugins and exposes even
+    more breakage.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -96,6 +98,8 @@ pyfll (2009.02) UNRELEASED; urgency=low
   [ Joaquim Boura ]
   * removed xbase-client and added hwsupport-printscan for better printer
     support on xfce
+  * aqualung is f...cked. replace it for now by audacious. xfce-lite include 
+    always gnome-icon-theme
 
   [ Niall Walsh ]
   * Strip vmlinuz- from description in menu.lst
@@ -132,11 +136,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
-  [ Joaquim Boura ]
-  * aqualung is f...cked. replace it for now by audacious. xfce-lite include 
-    always gnome-icon-theme
-
- -- Joaquim Boura <x-un-i@sidux.com>  Sun, 12 Jul 2009 13:44:52 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 12 Jul 2009 20:14:03 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
