@@ -12,7 +12,7 @@ deps = """
 	hwsupport-extra
 	lxde-basic
 	lxde-full
-	openoffice
+	# openoffice
 	utils-essential
 	utils-extra
 	utils-x
@@ -20,9 +20,9 @@ deps = """
 """
 
 packages = """
-	openoffice.org-gtk
-	claws-mail
-	claws-mail-i18n
-	claws-mail-feeds-reader
+	# openoffice.org-gtk
+	# claws-mail
+	# claws-mail-i18n
+	# claws-mail-feeds-reader
 """
 
