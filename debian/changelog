@@ -55,6 +55,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * bump standards version to 3.8.2, we have little to adhere to.
   * disable VDR, vdr 1.6.0-10 breaks the ABI to its plugins and exposes even
     more breakage.
+  * temporarily disable audacious.
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -136,7 +137,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 12 Jul 2009 20:14:03 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 14 Jul 2009 12:21:52 +0000
 
 pyfll (2009.01) ouranos; urgency=low
 

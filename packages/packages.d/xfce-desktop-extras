@@ -6,7 +6,7 @@ desc = """
 packages = """
 	abiword
 	# aqualung
-	audacious-plugins-extra
+	# audacious-plugins-extra
 	brasero
 	evince-gtk
 	gcalctool
