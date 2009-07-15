@@ -1,6 +1,4 @@
-pyfll (2009.02) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+pyfll (2009.02) aether; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * disable totally broken hplip.
@@ -56,6 +54,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
   * disable VDR, vdr 1.6.0-10 breaks the ABI to its plugins and exposes even
     more breakage.
   * temporarily disable audacious.
+  * sync fll.conf
 
   [ Michael Deelwater ]
   * packages/lxde:
@@ -137,7 +136,7 @@ pyfll (2009.02) UNRELEASED; urgency=low
     any packages pulled in during bootstrap phase may be upgraded to
     those existing in other repositories not involved in the bootstrap.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 14 Jul 2009 12:21:52 +0000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 15 Jul 2009 03:11:26 +0200
 
 pyfll (2009.01) ouranos; urgency=low
 
