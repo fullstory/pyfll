@@ -2,7 +2,10 @@ pyfll (2009.03) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 15 Jul 2009 03:40:23 +0200
+  [ Stefan Lippers-Hollmann ]
+  * make lxde buildable again.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 19 Jul 2009 01:27:15 +0200
 
 pyfll (2009.02) aether; urgency=low
 

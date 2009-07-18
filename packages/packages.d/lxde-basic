@@ -9,9 +9,8 @@ packages = """
 	gxine
 	gftp
 	iceweasel
-	lxde
+	lxde-core
 	transmission
 	xarchiver
 	xchat
 """
-
