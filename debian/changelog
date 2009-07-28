@@ -5,7 +5,11 @@ pyfll (2009.03) UNRELEASED; urgency=low
   [ Stefan Lippers-Hollmann ]
   * make lxde buildable again.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 19 Jul 2009 01:27:15 +0200
+  [ Bernard Gray ]
+  * nuke root password via debconf preseeding in distro package profile instead 
+    of sed hack on /etc/passwd
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Wed, 29 Jul 2009 09:49:59 +1000
 
 pyfll (2009.02) aether; urgency=low
 

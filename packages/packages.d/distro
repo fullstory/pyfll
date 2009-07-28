@@ -2,6 +2,10 @@ desc = """
 	Distro specific common packages.
 """
 
+debconf = """
+        passwd passwd/root-password-crypted password *
+"""
+
 packages = """
 	apt-conf-sidux
 	sidux-keyrings
