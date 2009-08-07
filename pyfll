@@ -1788,14 +1788,12 @@ class FLLBuilder(object):
                     raise Error
 
             grubcfg.write('\nmenuentry \"%s %s\" {\n' % (distro, cpu))
-            grubcfg.write('	set root=(hd96)\n')
             grubcfg.write('	linux /boot/%s boot=fll %s\n' % (vmlinuz, cmdline))
             grubcfg.write('	initrd /boot/%s\n' % initrd)
             grubcfg.write('}\n')
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
             grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
-            grubcfg.write('	set root=(hd96)\n')
             grubcfg.write('	linux	/memtest86+.bin\n')
             grubcfg.write('}\n')
 

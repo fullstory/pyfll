@@ -9,12 +9,13 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * remove insserv from the package list, it's virtually essential. Likewise
     here's no need to enable it explicitly anymore. Configure insserv for
     CONCURRENCY=makefile.
+  * fix grub.cfg for grub2 ElTorito no-emulation boot.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 07 Aug 2009 21:05:55 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 07 Aug 2009 22:52:56 +0200
 
 pyfll (2009.02) aether; urgency=low
 
