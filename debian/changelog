@@ -4,12 +4,17 @@ pyfll (2009.03) UNRELEASED; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * make lxde buildable again.
+  * remove dash from the package list, it's virtually essential. Likewise 
+    there's no need to set it explicitly as /bin/sh anymore.
+  * remove insserv from the package list, it's virtually essential. Likewise
+    here's no need to enable it explicitly anymore. Configure insserv for
+    CONCURRENCY=makefile.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
 
- -- Bernard Gray <bernard.gray@gmail.com>  Wed, 29 Jul 2009 09:49:59 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 07 Aug 2009 21:05:55 +0200
 
 pyfll (2009.02) aether; urgency=low
 
