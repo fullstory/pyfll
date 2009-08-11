@@ -1774,7 +1774,7 @@ class FLLBuilder(object):
         grubcfg.write('insmod biosdisk\n')
         grubcfg.write('insmod pc\n')
         grubcfg.write('insmod gpt\n')
-        grubcfg.write('set timeout %d\n' % int(timeout))
+        grubcfg.write('set timeout=%d\n' % int(timeout))
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         for k in kvers:

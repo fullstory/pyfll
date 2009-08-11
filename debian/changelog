@@ -10,12 +10,13 @@ pyfll (2009.03) UNRELEASED; urgency=low
     here's no need to enable it explicitly anymore. Configure insserv for
     CONCURRENCY=makefile.
   * fix grub.cfg for grub2 ElTorito no-emulation boot.
+  * fix timeout defintion for grub2.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 07 Aug 2009 22:52:56 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 11 Aug 2009 13:51:18 +0200
 
 pyfll (2009.02) aether; urgency=low
 
