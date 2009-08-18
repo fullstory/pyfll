@@ -1775,6 +1775,16 @@ class FLLBuilder(object):
         grubcfg.write('insmod pc\n')
         grubcfg.write('insmod gpt\n')
         grubcfg.write('set timeout=%d\n' % int(timeout))
+        grubcfg.write('if loadfont /usr/share/grub/unicode.pf2 ; then\n')
+        grubcfg.write('  set gfxmode=640x480\n')
+        grubcfg.write('  insmod gfxterm\n')
+        grubcfg.write('  insmod vbe\n')
+        grubcfg.write('  if terminal_output.gfxterm ; then true ; else\n')
+        grubcfg.write('    terminal gfxterm\n')
+        grubcfg.write('  fi\n')
+        grubcfg.write('fi\n\n')
+        grubcfg.write('set menu_color_normal=cyan/blue\n')
+        grubcfg.write('set menu_color_highlight=white/blue\n\n')
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         for k in kvers:
