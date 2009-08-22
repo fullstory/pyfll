@@ -37,6 +37,7 @@ class FLLBuilder(object):
     diverts = ['/usr/sbin/policy-rc.d',
                '/sbin/modprobe',
                '/sbin/insmod',
+               '/usr/sbin/update-grub',
                '/usr/sbin/update-initramfs']
 
     timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M')

@@ -11,8 +11,9 @@ packages = """
 	kcharselect
 	kdeaccessibility
 	kdeadmin
-#	kdebluetooth		#kde3
-#	kdelirc			#kde3, missing until kdeutils 4.3.0
+#	kdebluetooth
+	kdebluetooth
+	kdelirc
 	kdemultimedia-kio-plugins
 	kdepim-kresources
 	kdepim-wizards

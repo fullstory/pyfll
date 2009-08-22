@@ -4,8 +4,8 @@ desc = """
 
 packages = """
 	ark
-	# kaffeine	#kde3
-		dragonplayer
+#	kaffeine	#experimental
+	kaffeine
 	kde-minimal
 	kdm
 	konversation

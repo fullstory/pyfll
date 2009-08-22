@@ -4,7 +4,8 @@ desc = """
 
 packages = """
 	gwenview
-#	k3b			#kde3
+#	k3b			#experimental
+	k3b
 	kcalc
 	kmix
 	knemo

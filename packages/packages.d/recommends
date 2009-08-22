@@ -8,7 +8,8 @@ packages = """
 	fll-live-initscripts
 	hal
 	install-gui
-#	k3b	# still recommends uninstallable kde3 packages
+#	k3b	#experimental
+	k3b
 	kontact
 	kopete
 	netbase
