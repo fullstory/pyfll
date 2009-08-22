@@ -15,12 +15,13 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * color grub2 menu.
   * bump standards version to 3.8.3, no changes necessary.
   * remove KDE3 applications again, which had been enabled for aether.
+  * divert update-grub for the build.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 23 Aug 2009 00:39:33 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 23 Aug 2009 00:40:33 +0200
 
 pyfll (2009.02) aether; urgency=low
 
