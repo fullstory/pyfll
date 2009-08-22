@@ -12,6 +12,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * fix grub.cfg for grub2 ElTorito no-emulation boot.
   * fix timeout defintion for grub2.
   * temporarily switch to grub2.
+  * temporarily disable memtest86+.
   * color grub2 menu.
   * bump standards version to 3.8.3, no changes necessary.
 
@@ -19,7 +20,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 22 Aug 2009 16:35:56 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 22 Aug 2009 21:22:58 +0200
 
 pyfll (2009.02) aether; urgency=low
 

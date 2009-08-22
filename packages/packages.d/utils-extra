@@ -20,7 +20,7 @@ packages = """
 	jfsutils
 	man-db
 	manpages
-	memtest86+
+#	memtest86+
 	mlocate
 	module-assistant
 	ntpdate
