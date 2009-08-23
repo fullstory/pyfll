@@ -1805,7 +1805,7 @@ class FLLBuilder(object):
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
             grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
-            grubcfg.write('	linux	/memtest86+.bin\n')
+            grubcfg.write('	linux16	/boot/memtest86+.bin\n')
             grubcfg.write('}\n')
 
         grubcfg.close()
