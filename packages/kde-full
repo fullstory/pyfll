@@ -29,6 +29,7 @@ packages = """
 	kvm
 	myspell-en-us
 	nano
+	openoffice.org-kde
 #	pdfedit			#kde3
 	rdiff-backup
 #	siduxcc			#kde3

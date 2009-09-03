@@ -196,6 +196,7 @@ packages = """
 	openjdk-6-jdk
 	openoffice.org-l10n-de
 	openoffice.org-gtk
+	openoffice.org-kde
 	openoffice.org-thesaurus-de
 	openoffice.org-thesaurus-de-ch
 	openssh-server
