@@ -18,15 +18,12 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * divert update-grub for the build.
   * fix grub.cfg entry for memtest86+.
   * celebrate the new openoffice.org-kde.
-  * temporarily add install-info to xdebootstrap profile, as neither
-    debootstrap nor cdebootstrap handle versioned alternative dependencies
-    correctly. This circumvents #544072.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 05 Sep 2009 01:09:38 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 06 Sep 2009 14:23:25 +0200
 
 pyfll (2009.02) aether; urgency=low
 
