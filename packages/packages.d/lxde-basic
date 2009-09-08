@@ -4,7 +4,6 @@ desc = """
 
 packages = """
 	dbus-x11
-	evince-gtk
 	geany
 	gxine
 	gftp
