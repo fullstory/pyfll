@@ -3,7 +3,7 @@ desc = """
 """
 
 packages = """
-#	gfxboot-theme-sidux-2009-02-aether-de
+	gfxboot-theme-sidux-2009-02-aether-de
 	seminarix-handbook
 	sidux-art-wallpaper-aether
 """

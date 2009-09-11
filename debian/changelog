@@ -20,12 +20,13 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * celebrate the new openoffice.org-kde.
   * use slim for lxde profiles.
   * remove evince-gtk2 from lxde, it pulls in gnome-icon-theme.
+  * revert to grub-gfxboot for the time being.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 08 Sep 2009 13:40:18 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 11 Sep 2009 04:46:49 +0200
 
 pyfll (2009.02) aether; urgency=low
 
