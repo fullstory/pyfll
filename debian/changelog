@@ -26,7 +26,10 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 11 Sep 2009 04:46:49 +0200
+  [ Niall Walsh ]
+  * add kexec-tools (load_kexec false /usr/share/doc/kexec-tools/README.Debian)
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 17 Sep 2009 18:06:17 +0100
 
 pyfll (2009.02) aether; urgency=low
 

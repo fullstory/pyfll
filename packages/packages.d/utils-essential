@@ -12,6 +12,7 @@ packages = """
 	iptables
 	iputils-ping
 	kbd
+	kexec-tools
 	less
 	logrotate
 	mbr
@@ -24,3 +25,8 @@ packages = """
 	wireless-tools
 	wpasupplicant
 """
+
+debconf = """
+	kexec-tools kexec-tools/load_kexec boolean false
+"""
+
