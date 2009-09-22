@@ -25,11 +25,12 @@ pyfll (2009.03) UNRELEASED; urgency=low
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
     of sed hack on /etc/passwd
+  * update fll.conf for momos release
 
   [ Niall Walsh ]
   * add kexec-tools (load_kexec false /usr/share/doc/kexec-tools/README.Debian)
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 17 Sep 2009 18:06:17 +0100
+ -- Bernard Gray <bernie@ed>  Tue, 22 Sep 2009 22:34:28 +1000
 
 pyfll (2009.02) aether; urgency=low
 
