@@ -21,6 +21,8 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * use slim for lxde profiles.
   * remove evince-gtk2 from lxde, it pulls in gnome-icon-theme.
   * revert to grub-gfxboot for the time being.
+  * add "splix" to hwsupport-printscan, it's needed for SPL/ SPL-2 (Samsung)
+    printers.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
@@ -30,7 +32,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * add kexec-tools (load_kexec false /usr/share/doc/kexec-tools/README.Debian)
 
- -- Bernard Gray <bernie@ed>  Tue, 22 Sep 2009 22:34:28 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 23 Sep 2009 14:35:42 +0200
 
 pyfll (2009.02) aether; urgency=low
 

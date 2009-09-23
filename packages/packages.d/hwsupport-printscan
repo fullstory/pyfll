@@ -25,4 +25,5 @@ packages = """
 	sane
 	sane-utils
 	libsane-extras
+	splix
 """
