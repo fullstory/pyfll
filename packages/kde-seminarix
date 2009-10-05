@@ -28,6 +28,7 @@ packages = """
 	childsplay
 	childsplay-alphabet-sounds-de
 	dia
+	eclipse
 	gnuplot
 	gperiodic
 	hydrogen
@@ -67,6 +68,7 @@ packages = """
 	kwordquiz
 	lives
 	marble
+	monkeystudio
 	openoffice.org-kde
 	openoffice.org-thesaurus-de
 	openoffice.org-pdfimport
@@ -83,6 +85,7 @@ packages = """
 	sunclock
 	tuxmath
 	tuxpaint
+	umtsmon
 	vym
 	wxmaxima
 """
