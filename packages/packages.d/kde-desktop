@@ -11,8 +11,7 @@ packages = """
 	kcharselect
 	kdeaccessibility
 	kdeadmin
-#	kdebluetooth
-	kdebluetooth
+#	kdebluetooth		#experimental
 	kdelirc
 	kdemultimedia-kio-plugins
 	kdepim-kresources

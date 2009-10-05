@@ -23,6 +23,8 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * revert to grub-gfxboot for the time being.
   * add "splix" to hwsupport-printscan, it's needed for SPL/ SPL-2 (Samsung)
     printers.
+  * disable k3b and kdebluetooth again, their kde4 versions are not in a 
+    releaseable state yet.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
@@ -32,7 +34,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * add kexec-tools (load_kexec false /usr/share/doc/kexec-tools/README.Debian)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 23 Sep 2009 14:35:42 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 06 Oct 2009 01:32:36 +0200
 
 pyfll (2009.02) aether; urgency=low
 
