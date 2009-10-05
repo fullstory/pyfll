@@ -15,6 +15,7 @@ deps = """
 	hwsupport-printscan
 	kde-essential
 	kde-basic
+	openoffice
 	utils-essential
 	utils-extra
 	utils-x
@@ -36,7 +37,8 @@ packages = """
 #	karbon		(not in sid)
 	katomic
 	kbruch
-#	kchart		(not in sid)		
+#	kchart		(not in sid)
+	kdenlive
 #	kdict		(not available for kde4 yet)
 #	keduca		(not available for kde4 yet)	
 #	kexi		(not in sid)
@@ -57,17 +59,24 @@ packages = """
 	krusader
 	ksimus
 	ksociograma
-	kspread			(not in sid)
+#	kspread			(not in sid)
 	kstars
 	ktouch
 	kturtle
 #	kword			(not in sid)
 	kwordquiz
+	lives
 	marble
+	openoffice.org-kde
+	openoffice.org-thesaurus-de
+	openoffice.org-pdfimport
+	openoffice.org-l10n-de
+	openoffice.org-help-de
+	palapeli
 	parley
 #	quanta		(no version for kde4)
 	scribus
-	siduxcc
+	siduxcc-kde4
 	eduversum
 	step
 	stopmotion

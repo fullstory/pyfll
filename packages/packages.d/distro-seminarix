@@ -3,8 +3,9 @@ desc = """
 """
 
 packages = """
-	gfxboot-theme-sidux-2009-02-aether-de
+	gfxboot-theme-sidux-2009-02-momos-de
 	seminarix-handbook
-	sidux-art-wallpaper-aether
+	sidux-art-wallpaper-momos
+	khelpcenter4
 """
 
