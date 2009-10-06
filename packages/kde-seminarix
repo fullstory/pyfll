@@ -28,7 +28,9 @@ packages = """
 	childsplay
 	childsplay-alphabet-sounds-de
 	dia
+	eduversum
 	eclipse
+	gnugo
 	gnuplot
 	gperiodic
 	hydrogen
@@ -52,6 +54,8 @@ packages = """
 #	klatin		(not available for kde4 yet)
 	klogic
 	kmplot
+	knights
+	knights-themepack
 #	koffice-i18n-de		(not in sid)
 #	kolourpaint		(not in sid)
 #	kpercentage		(obsolete, integrated in kbruch now)
@@ -67,6 +71,7 @@ packages = """
 	kturtle
 #	kword			(not in sid)
 	kwordquiz
+	labplot
 	lives
 	libqt4-dev
 	marble
@@ -85,10 +90,11 @@ packages = """
 	qt4-designer
 	qt4-dev-tools
 	qt4-qmake
-#	quanta		(no version for kde4)
+#	quanta	(no version for kde4)
+	qgo
 	scribus
 	siduxcc-kde4
-	eduversum
+	stellarium
 	step
 	stopmotion
 	sunclock
