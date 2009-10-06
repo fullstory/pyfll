@@ -32,6 +32,7 @@ packages = """
 	gnuplot
 	gperiodic
 	hydrogen
+	icedtea6-plugin
 	iceweasel
 	inkscape
 	kalzium
@@ -69,6 +70,7 @@ packages = """
 	lives
 	marble
 	monkeystudio
+	openjdk-6-jre
 	openoffice.org-kde
 	openoffice.org-thesaurus-de
 	openoffice.org-pdfimport
