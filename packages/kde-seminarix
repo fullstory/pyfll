@@ -68,9 +68,11 @@ packages = """
 #	kword			(not in sid)
 	kwordquiz
 	lives
+	libqt4-dev
 	marble
 	monkeystudio
 	openjdk-6-jre
+	openjdk-6-jdk
 	openoffice.org-kde
 	openoffice.org-thesaurus-de
 	openoffice.org-pdfimport
@@ -78,6 +80,11 @@ packages = """
 	openoffice.org-help-de
 	palapeli
 	parley
+	pyqt4-dev-tools
+	python-qt4-dev
+	qt4-designer
+	qt4-dev-tools
+	qt4-qmake
 #	quanta		(no version for kde4)
 	scribus
 	siduxcc-kde4
