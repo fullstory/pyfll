@@ -24,6 +24,7 @@ deps = """
 
 packages = """
 	audacity
+	blender
 	chemtool
 	childsplay
 	childsplay-alphabet-sounds-de
@@ -88,6 +89,7 @@ packages = """
 	parley
 	pyqt4-dev-tools
 	python-qt4-dev
+	qalculate
 	qt4-designer
 	qt4-dev-tools
 	qt4-qmake
@@ -99,6 +101,7 @@ packages = """
 	step
 	stopmotion
 	sunclock
+	swi-prolog
 	tuxmath
 	tuxpaint
 	vym
