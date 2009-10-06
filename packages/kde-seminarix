@@ -72,6 +72,7 @@ packages = """
 #	kword			(not in sid)
 	kwordquiz
 	labplot
+	lazarus
 	lives
 	libqt4-dev
 	marble
@@ -100,7 +101,6 @@ packages = """
 	sunclock
 	tuxmath
 	tuxpaint
-	umtsmon
 	vym
 	wxmaxima
 """
