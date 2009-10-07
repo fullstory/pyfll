@@ -6,6 +6,7 @@ packages = """
 	gwenview
 #	k3b			#experimental
 	kcalc
+	khelpcenter4
 	kmix
 	knemo
 	kppp
