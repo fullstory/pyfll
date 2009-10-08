@@ -24,6 +24,7 @@ deps = """
 
 packages = """
 	audacity
+	amarok
 	blender
 	chemtool
 	childsplay
@@ -51,6 +52,7 @@ packages = """
 	kgeography
 	kig
 	kimagemapeditor
+	kino
 #	kivio		(not in sid)
 #	klatin		(not available for kde4 yet)
 	klogic
@@ -62,6 +64,7 @@ packages = """
 #	kpercentage		(obsolete, integrated in kbruch now)
 #	kplato			(not in sid)
 #	kpresenter		(not in sid)
+	krecordmydesktop
 #	krita			(not in sid)
 	krusader
 	ksimus
@@ -102,6 +105,7 @@ packages = """
 	stopmotion
 	sunclock
 	swi-prolog
+	swi-prolog-xpce
 	tuxmath
 	tuxpaint
 	vym
