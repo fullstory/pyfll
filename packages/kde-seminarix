@@ -64,7 +64,6 @@ packages = """
 #	kpercentage		(obsolete, integrated in kbruch now)
 #	kplato			(not in sid)
 #	kpresenter		(not in sid)
-	krecordmydesktop
 #	krita			(not in sid)
 	krusader
 	ksimus
@@ -98,6 +97,7 @@ packages = """
 	qt4-qmake
 #	quanta	(no version for kde4)
 	qgo
+	recordmydesktop
 	scribus
 	siduxcc-kde4
 	stellarium
