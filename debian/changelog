@@ -25,6 +25,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
     printers.
   * disable k3b and kdebluetooth again, their kde4 versions are not in a 
     releaseable state yet.
+  * s/icedtea-gcjwebplugin/icedtea6-plugin/
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
@@ -38,7 +39,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * review lxde lite and full lists
   * deactivate lxtask, lxnm as they are not installable atm.
 
- -- Chris Hildebrandt <slam@sidux.com>  Sat, 10 Oct 2009 11:54:41 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 10 Oct 2009 19:57:41 +0200
 
 pyfll (2009.02) aether; urgency=low
 

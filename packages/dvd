@@ -96,7 +96,7 @@ packages = """
 	hydrogen
 	hydrogen-drumkits
 	icedove
-	icedtea-gcjwebplugin
+	icedtea6-plugin
 	iceowl
 	iceweasel
 	icewm

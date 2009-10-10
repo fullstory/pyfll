@@ -24,7 +24,7 @@ deps = """
 
 packages = """
 	dnsutils
-	icedtea-gcjwebplugin
+	icedtea6-plugin
 	iceweasel
 	kvm
 	myspell-en-us
