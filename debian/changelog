@@ -34,7 +34,10 @@ pyfll (2009.03) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * add kexec-tools (load_kexec false /usr/share/doc/kexec-tools/README.Debian)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 06 Oct 2009 01:32:36 +0200
+  [ Chris Hildebrandt ]
+  * review lxde lite and full lists
+
+ -- Chris Hildebrandt <slam@sidux.com>  Sat, 10 Oct 2009 11:18:59 +0200
 
 pyfll (2009.02) aether; urgency=low
 

@@ -6,6 +6,18 @@ packages = """
 	audacious
 	audacious-plugins-extra
 	brasero
+	gpicview
 	pidgin
+	leafpad
+	lxappearance
+	lxinput
+	lxlauncher
+	lxmusic
+#	lxnm
+	lxrandr
+	lxsession-edit
+	lxshortcut
+	lxtask
+	obconf
 """
 

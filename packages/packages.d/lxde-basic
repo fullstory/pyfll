@@ -7,8 +7,9 @@ packages = """
 	geany
 	gxine
 	gftp
-	iceweasel
 	lxde-core
+	lxterminal
+	midori
 	transmission
 	xarchiver
 	xchat
