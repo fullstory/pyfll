@@ -17,7 +17,7 @@ packages = """
 	lxrandr
 	lxsession-edit
 	lxshortcut
-	lxtask
+#	lxtask
 	obconf
 """
 

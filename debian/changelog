@@ -36,8 +36,9 @@ pyfll (2009.03) UNRELEASED; urgency=low
 
   [ Chris Hildebrandt ]
   * review lxde lite and full lists
+  * deactivate lxtask, lxnm as they are not installable atm.
 
- -- Chris Hildebrandt <slam@sidux.com>  Sat, 10 Oct 2009 11:18:59 +0200
+ -- Chris Hildebrandt <slam@sidux.com>  Sat, 10 Oct 2009 11:54:41 +0200
 
 pyfll (2009.02) aether; urgency=low
 
