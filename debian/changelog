@@ -6,9 +6,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * make lxde buildable again.
   * remove dash from the package list, it's virtually essential. Likewise 
     there's no need to set it explicitly as /bin/sh anymore.
-  * remove insserv from the package list, it's virtually essential. Likewise
-    here's no need to enable it explicitly anymore. Configure insserv for
-    CONCURRENCY=makefile.
+  * remove insserv from the package list, it's virtually essential.
   * fix grub.cfg for grub2 ElTorito no-emulation boot.
   * fix timeout definition for grub2.
   * temporarily switch to grub2.
@@ -39,7 +37,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * review lxde lite and full lists
   * deactivate lxtask, lxnm as they are not installable atm.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 10 Oct 2009 19:57:41 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 14 Oct 2009 22:11:29 +0200
 
 pyfll (2009.02) aether; urgency=low
 
