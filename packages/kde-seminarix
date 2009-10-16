@@ -92,9 +92,11 @@ packages = """
 	openoffice.org-help-de
 	palapeli
 	parley
+	pingus
 	pyqt4-dev-tools
 	python-qt4-dev
 	qalculate
+	qalculate-gtk
 	qt4-designer
 	qt4-dev-tools
 	qt4-qmake
