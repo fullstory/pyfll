@@ -10,6 +10,7 @@ deps = """
 	distro-tools
 	distro-tools-x
 	fluxbox
+	gimp
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
@@ -39,6 +40,7 @@ packages = """
 	icedtea6-plugin
 	iceweasel
 	inkscape
+	juk
 	kalzium
 #	karbon		(not in sid)
 	katomic
@@ -60,6 +62,7 @@ packages = """
 	knights
 	knights-themepack
 #	koffice-i18n-de		(not in sid)
+	kompozer
 #	kolourpaint		(not in sid)
 #	kpercentage		(obsolete, integrated in kbruch now)
 #	kplato			(not in sid)
