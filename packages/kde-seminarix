@@ -16,6 +16,7 @@ deps = """
 	hwsupport-printscan
 	kde-essential
 	kde-basic
+	latex-seminarix
 	openoffice
 	utils-essential
 	utils-extra
