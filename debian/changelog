@@ -25,6 +25,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
     releaseable state yet.
   * s/icedtea-gcjwebplugin/icedtea6-plugin/
   * remove geany from lxde builds, a full blown IDE isn't necessary.
+  * remove xfce4-icon-theme, it doesn't exist anymore.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
@@ -38,7 +39,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * review lxde lite and full lists
   * deactivate lxtask, lxnm as they are not installable atm.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 16 Oct 2009 21:34:34 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 21 Oct 2009 19:07:14 +0200
 
 pyfll (2009.02) aether; urgency=low
 
