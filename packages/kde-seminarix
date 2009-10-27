@@ -13,7 +13,7 @@ deps = """
 	gimp
 	hwsupport-essential
 	hwsupport-extra
-	hwsupport-printscan
+	#hwsupport-printscan
 	kde-essential
 	kde-basic
 	latex-seminarix
@@ -32,16 +32,21 @@ packages = """
 	childsplay
 	childsplay-alphabet-sounds-de
 	dia
+	ding
 	eduversum
 	eclipse
 	filezilla
+	gcompris
 	gnugo
 	gnuplot
 	gperiodic
+	hanzim
+	hunspell
 	hydrogen
 	icedtea6-plugin
 	iceweasel
 	inkscape
+	italc-master
 	juk
 	kalzium
 #	karbon		(not in sid)
@@ -61,8 +66,8 @@ packages = """
 #	klatin		(not available for kde4 yet)
 	klogic
 	kmplot
-	knights
-	knights-themepack
+#	knights
+#	knights-themepack
 #	koffice-i18n-de		(not in sid)
 	kompozer
 #	kolourpaint		(not in sid)
@@ -87,6 +92,7 @@ packages = """
 	monkeystudio
 	openjdk-6-jre
 	openjdk-6-jdk
+	openoffice.org-base
 	openoffice.org-kde
 	openoffice.org-thesaurus-de
 	openoffice.org-pdfimport
@@ -117,5 +123,6 @@ packages = """
 	tuxpaint
 	vym
 	wxmaxima
+	zim
 """
 
