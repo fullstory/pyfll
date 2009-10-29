@@ -34,12 +34,13 @@ pyfll (2009.03) UNRELEASED; urgency=low
 
   [ Niall Walsh ]
   * add kexec-tools (load_kexec false /usr/share/doc/kexec-tools/README.Debian)
+  * add syslinux/isolinux support
 
   [ Chris Hildebrandt ]
   * review lxde lite and full lists
   * deactivate lxtask, lxnm as they are not installable atm.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 21 Oct 2009 19:07:14 +0200
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 29 Oct 2009 00:39:26 +0000
 
 pyfll (2009.02) aether; urgency=low
 

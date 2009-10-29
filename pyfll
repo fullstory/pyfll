@@ -1,4 +1,5 @@
 #!/usr/bin/python -tt
+# -*- coding: utf-8 -*-
 
 __author__    = 'Kel Modderman'
 __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
@@ -1689,6 +1690,46 @@ class FLLBuilder(object):
                     self.log.exception('failed to copy grub file to staging dir')
                     raise Error
 
+        isolinux = os.path.join(chroot, 'usr/lib/syslinux/isolinux.bin')
+        if os.path.isfile(isolinux):
+            try:
+               stage_dir = os.path.join(self.temp, 'staging')
+               shutil.copy(isolinux, stage_dir)
+               # not working yet so commented
+               # gfxboot = os.path.join(chroot, 'usr/lib/syslinux/gfxboot.com')
+               # shutil.copy(gfxboot, stage_dir)
+               # if os.path.isfile(os.path.splitext(message)[0]):
+               #    os.rename(os.path.splitext(message)[0], os.path.join(stage_dir, 'message'))
+               isl_pxe = os.path.join(chroot, 'usr/lib/syslinux/pxelinux.0');
+               shutil.copy(isl_pxe, stage_dir);
+               # both vesamenu.c32 and linux.c32 seem to be required
+               isl_menu = os.path.join(chroot, 'usr/lib/syslinux/vesamenu.c32');
+               shutil.copy(isl_menu, stage_dir);
+               isl_linux = os.path.join(chroot, 'usr/lib/syslinux/linux.c32');
+               shutil.copy(isl_linux, stage_dir);
+               # other modules probably useful to have available in syslinux
+               # not used in current config though
+               isl_module = os.path.join(chroot, 'usr/lib/syslinux/chain.c32');
+               shutil.copy(isl_module, stage_dir);
+               isl_module = os.path.join(chroot, 'usr/lib/syslinux/cmd.c32');
+               shutil.copy(isl_module, stage_dir);
+               isl_module = os.path.join(chroot, 'usr/lib/syslinux/elf.c32');
+               shutil.copy(isl_module, stage_dir);
+               isl_module = os.path.join(chroot, 'usr/lib/syslinux/ifcpu64.c32');
+               shutil.copy(isl_module, stage_dir);
+               isl_module = os.path.join(chroot, 'usr/lib/syslinux/kbdmap.c32');
+               shutil.copy(isl_module, stage_dir);
+               isl_module = os.path.join(chroot, 'usr/lib/syslinux/reboot.c32');
+               # bg is not going to get until this file is in chroot
+               # cpio -i back.jpg < /boot/message > 800.jpg
+               # convert 800.jpg -resize 640x480 640.jpg
+               isl_bg=os.path.join(boot_dir,'640.jpg')
+               if os.path.isfile(isl_bg):
+                   shutil.copy(isl_bg, boot_dir);
+            except IOError:
+                    self.log.exception('failed to copy isolinux files')
+                    raise Error
+
         yaboot = os.path.join(chroot, 'usr/lib/yaboot/yaboot')
         if os.path.isfile(yaboot):
             try:
@@ -1836,7 +1877,7 @@ class FLLBuilder(object):
         yaboot = open(os.path.join(etc_dir, 'yaboot.conf'), 'w')
         yaboot.write('init-message="Welcome to %s"\n' % distro)
         #yaboot.write('message=/boot/yaboot.message')
-        yaboot.write('timeout=%d\n' % int(timeout*10))
+        yaboot.write('timeout=%d\n' % int(int(timeout)*10))
 
         for k in kvers:
             cpu = k[k.rfind('-') + 1:]
@@ -1862,6 +1903,87 @@ class FLLBuilder(object):
         shutil.copy(os.path.join(self.opts.s, 'data', 'hfs.map'), boot_dir)
         shutil.copy(os.path.join(self.opts.s, 'data', 'ofboot.b'), boot_dir)
 
+    def _writeIsolinuxWrap(self):
+        stage_dir = os.path.join(self.temp, 'staging')
+        boot_dir = os.path.join(stage_dir, 'boot')
+        isolinux = os.path.join(stage_dir, 'isolinux.bin');
+        if not os.path.isfile(isolinux):
+            return
+
+        self.log.debug('writing isolinux config for live media')
+
+        kvers = self._configBootKvers(stage_dir)
+        timeout = self._configBootTimeout()
+        cmdline =  self._configBootCmdline()
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+
+        isolinuxcfg = open(os.path.join(stage_dir, 'isolinux.cfg'), 'w')
+	# ~ says read this file, it fails without it
+	isolinuxcfg.write('DEFAULT vesamenu.c32 ~\n')
+	# prompt 0 is nice but cryptic if vesamenu breaks
+	isolinuxcfg.write('PROMPT 1\n')
+        isolinuxcfg.write('TIMEOUT %d\n' % int(timeout*10))
+        isolinuxcfg.write('MENU TITLE %s \n' % distro)
+        isolinuxcfg.write('MENU AUTOBOOT Starting %s in # seconds\n' % distro)
+	# These values "match" momos gfxboot background at 640x480
+        isolinuxcfg.write('MENU WIDTH 73\n')
+        isolinuxcfg.write('MENU MARGIN 10\n')
+        isolinuxcfg.write('MENU ROWS 11\n')
+        isolinuxcfg.write('MENU VSHIFT 8\n')
+        isolinuxcfg.write('MENU HSHIFT 14\n')
+        isolinuxcfg.write('MENU TABMSGROW 18\n')
+        isolinuxcfg.write('MENU CMDLINEROW 12\n')
+        isolinuxcfg.write('MENU ENDROW 24\n')
+        isolinuxcfg.write('MENU TIMEOUTROW 20\n')
+	isolinuxcfg.write('MENU BACKGROUND boot/640.jpg\n')
+        # gfxboot.com complains the bootlogo is too large
+        # isolinuxcfg.write('#UI gfxboot.com message')
+        isolinux_default = 0
+
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz.%s' % cpu[0:3]
+            os.rename(os.path.join(boot_dir, 'vmlinuz-%s' % k), os.path.join(boot_dir, vmlinuz))
+            initrd = 'initrd.%s' % cpu[0:3]
+            os.rename(os.path.join(boot_dir, 'initrd.img-%s' % k), os.path.join(boot_dir, initrd))
+
+            for f in [vmlinuz, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            isolinuxcfg.write('\n')
+            ## make the first kernel the default boot
+            #if isolinux_default == 0:
+                #isolinuxcfg.write('DEFAULT /boot/%s initrd=/boot/%s boot=fll %s\n' % (vmlinuz, initrd, cmdline))
+                #isolinux_default = 1
+            isolinuxcfg.write('LABEL %s-%s\n' % (distro, cpu))
+            isolinuxcfg.write('\tMENU LABEL %s-%s\n' % (distro, cpu))
+            isolinuxcfg.write('\tKERNEL linux.c32 /boot/%s\n' % (vmlinuz))
+            isolinuxcfg.write('\tAPPEND boot=fll %s\n' % (cmdline))
+            isolinuxcfg.write('\tINITRD /boot/%s\n' % initrd)
+            isolinuxcfg.write('\n')
+            isolinuxcfg.close()
+
+    def _configBootKvers(self,stage_dir):
+        kvers = self._detectLinuxVersion(stage_dir)
+        if len(kvers) < 1:
+            self.log.critical('failed to find linux kernel image to include in boot conf')
+            raise Error
+        return kvers
+
+    def _configBootTimeout(self):
+        timeout = self.conf['options'].get('boot_timeout')
+        if not timeout:
+            timeout = '30'
+        return timeout
+
+    def _configBootCmdline(self):
+        cmdline =  self.conf['options'].get('boot_cmdline')
+        if not cmdline:
+            cmdline = 'quiet vga=791'
+        return cmdline
 
     def _writeGrubWrap(self):
         '''Write final GRUB configuration for live media.'''
@@ -1872,18 +1994,10 @@ class FLLBuilder(object):
         if not os.path.isdir(grub_dir):
             return
         self.log.debug('writing grub config for live media')
-        kvers = self._detectLinuxVersion(stage_dir)
-        if len(kvers) < 1:
-            self.log.critical('failed to find vmlinuz to include in grub conf')
-            raise Error
 
-        timeout = self.conf['options'].get('boot_timeout')
-        if not timeout:
-            timeout = '30'
-
-        cmdline =  self.conf['options'].get('boot_cmdline')
-        if not cmdline:
-            cmdline = 'quiet vga=791'
+        kvers = self._configBootKvers(stage_dir)
+        timeout = self._configBootTimeout()
+        cmdline =  self._configBootCmdline()
 
         grub2_modules = glob.glob(os.path.join(grub_dir, '*.mod'))
         if len(grub2_modules) > 0:
@@ -1925,6 +2039,7 @@ class FLLBuilder(object):
         archs = self.conf['archs'].keys()
 
         self._writeGrubWrap()
+        self._writeIsolinuxWrap()
         if 'powerpc' in archs or 'ppc64' in archs:
             self._writeYabootWrap()
 
@@ -2106,7 +2221,11 @@ class FLLBuilder(object):
                 self.log.critical('failed to find grub El Torito image file')
                 raise Error
 
-        if os.path.isdir(os.path.join(stage, 'ppc')):
+        elif os.path.isfile(os.path.join(stage, 'isolinux.bin')):
+            cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
+            cmd += ' -b isolinux.bin -c isolinux.cat'
+
+        elif os.path.isdir(os.path.join(stage, 'ppc')):
             cmd += ' -chrp-boot -T -netatalk -hfs -probe'
             cmd += ' -map %s/boot/hfs.map' % stage
             cmd += ' -part -no-desktop -hfs-bless %s/boot' % stage
