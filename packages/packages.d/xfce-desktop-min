@@ -16,6 +16,7 @@ packages = """
 	libnotify-bin
 	mousepad
 	mpg321
+	pm-utils
 	shared-mime-info
 	thunar
 	thunar-data

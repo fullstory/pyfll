@@ -42,7 +42,10 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * review lxde lite and full lists
   * deactivate lxtask, lxnm as they are not installable atm.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 30 Oct 2009 02:08:45 +0100
+  [ Bernard Gray ]
+  * add pm-utils to xfce-desktop-min to fix hibernate error from logout dialog
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Sat, 31 Oct 2009 01:09:26 +1100
 
 pyfll (2009.02) aether; urgency=low
 
