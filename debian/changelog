@@ -44,8 +44,11 @@ pyfll (2009.03) UNRELEASED; urgency=low
 
   [ Bernard Gray ]
   * add pm-utils to xfce-desktop-min to fix hibernate error from logout dialog
+  * add myspell-en-us to xfce-desktop-min to fix spellcheck artifacting
+    - added the en-us package since that is what was included in the other profiles,
+      not sure if it needs more, or is handled via python-fll lang/pkg detection
 
- -- Bernard Gray <bernard.gray@gmail.com>  Sat, 31 Oct 2009 01:09:26 +1100
+ -- Bernard Gray <bernard.gray@gmail.com>  Sat, 31 Oct 2009 02:44:23 +1100
 
 pyfll (2009.02) aether; urgency=low
 
