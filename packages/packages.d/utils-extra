@@ -24,13 +24,13 @@ packages = """
 	mlocate
 	module-assistant
 	ntpdate
-	ntfs-3g
-	ntfsprogs
+#	ntfs-3g		# BROKEN: fuse-utils
+#	ntfsprogs	# BROKEN: fuse-utils
 	nmap
 	openssh-client
 	pwgen
 	reiserfsprogs
-	sshfs
+#	sshfs		# BROKEN: fuse-utils
 	smbclient
 	smbfs
 	strace
