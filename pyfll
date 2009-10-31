@@ -1964,7 +1964,7 @@ class FLLBuilder(object):
             isolinuxcfg.write('\tAPPEND boot=fll %s\n' % (cmdline))
             isolinuxcfg.write('\tINITRD /boot/%s\n' % initrd)
             isolinuxcfg.write('\n')
-            isolinuxcfg.close()
+        isolinuxcfg.close()
 
     def _configBootKvers(self,stage_dir):
         kvers = self._detectLinuxVersion(stage_dir)
