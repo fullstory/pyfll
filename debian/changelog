@@ -28,6 +28,8 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * remove xfce4-icon-theme, it doesn't exist anymore.
   * remove fuse-utils depending packages, fuse-utils' triggers fail to succeed
     in chroot.
+  * drop special handling for virtualbox-ose, there are no redistributable 
+    virtualbox-ose kernel modules anymore.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
@@ -48,7 +50,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
     - added the en-us package since that is what was included in the other profiles,
       not sure if it needs more, or is handled via python-fll lang/pkg detection
 
- -- Bernard Gray <bernard.gray@gmail.com>  Sat, 31 Oct 2009 02:44:23 +1100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 01 Nov 2009 16:53:31 +0100
 
 pyfll (2009.02) aether; urgency=low
 

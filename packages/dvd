@@ -245,7 +245,6 @@ packages = """
 	vdr-plugin-pvrinput
 	vim-gtk
 	vim-latexsuite
-	virtualbox-ose
 	vlc
 	vorbis-tools
 	wengophone

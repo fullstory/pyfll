@@ -1303,10 +1303,7 @@ class FLLBuilder(object):
         for p in packages:
             for k in self._detectLinuxVersion(chroot):
                 if p.endswith('-modules-' + k):
-                    if p.startswith('virtualbox-ose-guest'):
-                        p = 'virtualbox-ose'
-                    else:
-                        p = p[:p.find('-modules-' + k)]
+                    p = p[:p.find('-modules-' + k)]
                     p += '-source'
 
             if p.startswith('cdebootstrap-helper'):

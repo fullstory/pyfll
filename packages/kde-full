@@ -36,6 +36,5 @@ packages = """
 #	sidux-vdr		#vdr-broken
 #	vdr-gui			#vdr-broken
 #	vdr-plugin-pvrinput	#vdr-broken
-	virtualbox-ose-qt
 	qutecom
 """
