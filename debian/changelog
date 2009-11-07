@@ -31,6 +31,8 @@ pyfll (2009.03) UNRELEASED; urgency=low
   * drop special handling for virtualbox-ose, there are no redistributable 
     virtualbox-ose kernel modules anymore.
   * add skanlite to larger kde flavours.
+  * temporarily add libgnome2-0 to abiword instances to workaround a bug in
+    apt's recursive dependency resolver.
 
   [ Bernard Gray ]
   * nuke root password via debconf preseeding in distro package profile instead 
@@ -51,7 +53,7 @@ pyfll (2009.03) UNRELEASED; urgency=low
     - added the en-us package since that is what was included in the other profiles,
       not sure if it needs more, or is handled via python-fll lang/pkg detection
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 04 Nov 2009 22:27:43 +0000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 07 Nov 2009 20:19:35 +0100
 
 pyfll (2009.02) aether; urgency=low
 
