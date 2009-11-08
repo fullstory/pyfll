@@ -81,6 +81,7 @@ packages = """
 	ksociograma
 #	kspread			(not in sid)
 	kstars
+	krosspython
 	ktouch
 	kturtle
 #	kword			(not in sid)

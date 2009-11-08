@@ -53,7 +53,10 @@ pyfll (2009.03) UNRELEASED; urgency=low
     - added the en-us package since that is what was included in the other profiles,
       not sure if it needs more, or is handled via python-fll lang/pkg detection
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 07 Nov 2009 20:19:35 +0100
+  [ devil ]
+  * added krosspython, parley needs it for its plugins
+
+ -- devil <devil@devilsbox>  Sun, 08 Nov 2009 09:33:56 +0100
 
 pyfll (2009.02) aether; urgency=low
 
