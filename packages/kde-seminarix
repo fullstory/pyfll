@@ -88,7 +88,6 @@ packages = """
 	kwordquiz
 	labplot
 	lazarus
-	lives
 	libqt4-dev
 	marble
 	monkeystudio
