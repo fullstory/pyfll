@@ -1,6 +1,10 @@
-pyfll (2009.03) UNRELEASED; urgency=low
+pyfll (2009.04) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 11 Nov 2009 05:06:29 +0100
+
+pyfll (2009.03) momos; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * make lxde buildable again.
