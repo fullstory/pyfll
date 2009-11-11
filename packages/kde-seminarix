@@ -13,7 +13,7 @@ deps = """
 	gimp
 	hwsupport-essential
 	hwsupport-extra
-	#hwsupport-printscan
+	hwsupport-printscan
 	kde-essential
 	kde-basic
 	latex-seminarix
@@ -126,4 +126,3 @@ packages = """
 	wxmaxima
 	zim
 """
-
