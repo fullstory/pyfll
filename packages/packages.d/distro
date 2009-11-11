@@ -14,10 +14,8 @@ packages = """
 """
 
 i386 = """
-	gfxboot-theme-sidux
 """
 
 amd64 = """
-	gfxboot-theme-sidux
 """
 

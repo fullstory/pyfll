@@ -19,11 +19,11 @@ packages = """
 """
 
 i386 = """
-	grub-gfxboot
+	grub2
 """
 
 amd64 = """
-	grub-gfxboot
+	grub2
 """
 
 powerpc = """

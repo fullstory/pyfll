@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	gfxboot-theme-sidux-2009-03-momos-de
 	seminarix-handbook
 	sidux-art-wallpaper-momos-edu
 	khelpcenter4
