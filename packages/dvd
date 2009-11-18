@@ -163,7 +163,7 @@ packages = """
 	kthesaurus
 	ktuberling
 	kvoctrain
-	kvm
+	qemu-kvm
 	kweather
 	kwiki
 	kwirelessmonitor

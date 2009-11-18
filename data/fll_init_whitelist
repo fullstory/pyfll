@@ -33,7 +33,7 @@ ifupdown
 initscripts
 irqbalance
 kbd
-kvm
+qemu-kvm
 libc6
 lvm2
 module-init-tools
