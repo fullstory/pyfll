@@ -1836,7 +1836,7 @@ class FLLBuilder(object):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
                     raise Error
 
-            grubcfg.write('\nmenuentry \"%s %s\" {\n' % (distro, cpu))
+            grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
             grubcfg.write('	linux /boot/%s boot=fll %s\n' % (vmlinuz, cmdline))
             grubcfg.write('	initrd /boot/%s\n' % initrd)
             grubcfg.write('}\n')
