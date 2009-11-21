@@ -4,8 +4,9 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * switch to grub2.
   * qemu-kvm replaces kvm.
   * list kernel versions for grub2 as well.
+  * follow the fate of Μόρος.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 19 Nov 2009 23:29:39 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 21 Nov 2009 15:48:59 +0100
 
 pyfll (2009.03) momos; urgency=low
 
