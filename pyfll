@@ -1890,7 +1890,7 @@ class FLLBuilder(object):
 
             yaboot.write('\n')
             yaboot.write('image=/boot/%s\n' % (vmlinux))
-            yaboot.write('\tlabel=%s-%s\n' % (distro, cpu))
+            yaboot.write('\tlabel=%s-%s-%s\n' % (distro, cpu, k))
             yaboot.write('\tappend="boot=fll %s"\n' % (cmdline))
             yaboot.write('\tinitrd=/boot/%s\n' % initrd)
             yaboot.write('\n')
@@ -1934,7 +1934,7 @@ class FLLBuilder(object):
                     raise Error
 
             isolinuxcfg.write('\n')
-            isolinuxcfg.write('LABEL %s-%s\n' % (distro, cpu))
+            isolinuxcfg.write('LABEL %s-%s-%s\n' % (distro, cpu, k))
             isolinuxcfg.write('\tKERNEL /boot/%s\n' % (vmlinuz))
             isolinuxcfg.write('\tAPPEND boot=fll %s\n' % (cmdline))
             isolinuxcfg.write('\tINITRD /boot/%s\n' % initrd)
