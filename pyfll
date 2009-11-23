@@ -1935,7 +1935,7 @@ class FLLBuilder(object):
                     raise Error
 
             isolinuxcfg.write('\n')
-            isolinuxcfg.write('LABEL %s-%s-%s\n' % (distro, cpu, k))
+            isolinuxcfg.write('LABEL %s_%s_(%s)\n' % (distro, cpu, k))
             isolinuxcfg.write('\tKERNEL /boot/%s\n' % (vmlinuz))
             isolinuxcfg.write('\tAPPEND boot=fll %s\n' % (cmdline))
             isolinuxcfg.write('\tINITRD /boot/%s\n' % initrd)
