@@ -7,6 +7,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * list kernel versions for grub2 as well.
   * follow the fate of Μόρος.
   * cosmetic fixes for syslinux menu.
+  * add syslinux-common to recommended dependencies.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -18,7 +19,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   [ Bernard Gray ]
   * copy over all required bootlogo files for syslinux.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 23 Nov 2009 18:33:54 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 23 Nov 2009 18:48:34 +0100
 
 pyfll (2009.03) momos; urgency=low
 

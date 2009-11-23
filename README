@@ -12,3 +12,4 @@ Dependencies:
   cdebootstrap | debootstrap
   genisoimage
   python-fll
+  syslinux-common
