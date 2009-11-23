@@ -1165,7 +1165,7 @@ class FLLBuilder(object):
                      if f.startswith('linux-image-')]
 
         if len(kvers) > 0:
-            kvers.sort()
+            kvers.sort(reverse=True)
             return kvers
 
         self.log.critical('failed to detect linux version installed in chroot')
@@ -1921,11 +1921,12 @@ class FLLBuilder(object):
         isolinuxcfg = open(os.path.join(syslinux_dir, 'isolinux.cfg'), 'w')
         isolinuxcfg.write('UI gfxboot bootlogo\n')
 
+        kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
         for k in kvers:
             cpu = k[k.rfind('-') + 1:]
-            vmlinuz = 'vmlinuz.%s' % cpu[0:3]
+            vmlinuz = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
             os.rename(os.path.join(boot_dir, 'vmlinuz-%s' % k), os.path.join(boot_dir, vmlinuz))
-            initrd = 'initrd.%s' % cpu[0:3]
+            initrd = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
             os.rename(os.path.join(boot_dir, 'initrd.img-%s' % k), os.path.join(boot_dir, initrd))
 
             for f in [vmlinuz, initrd]:
@@ -1939,6 +1940,7 @@ class FLLBuilder(object):
             isolinuxcfg.write('\tAPPEND boot=fll %s\n' % (cmdline))
             isolinuxcfg.write('\tINITRD /boot/%s\n' % initrd)
             isolinuxcfg.write('\n')
+            kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
         isolinuxcfg.close()
 
     def _configBootKvers(self,stage_dir):
@@ -2183,11 +2185,12 @@ class FLLBuilder(object):
         if self.opts.v:
             cmd += ' -v'
         cmd += ' -pad -l -J -r -hide-rr-moved'
-
+        cmd2 = ''
 
         if os.path.isfile(os.path.join(stage, 'boot/isolinux/isolinux.bin')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
             cmd += ' -b boot/isolinux/isolinux.bin -c boot/isolinux/isolinux.cat'
+            cmd2 = 'isohybrid %s' % iso_file
 
         elif os.path.isdir(os.path.join(stage, 'boot/grub')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
@@ -2217,6 +2220,10 @@ class FLLBuilder(object):
 
         self.log.info('generating iso image of live media...')
         self._execCmd(cmd.split())
+        if len(cmd2):
+            self.log.info('converting to hybrid iso...')
+            self._execCmd(cmd2.split())
+
         os.chown(iso_file, self.opts.u, self.opts.g)
 
         self.log.info('calculating md5sum of live media iso image...')
