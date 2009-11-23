@@ -1697,8 +1697,14 @@ class FLLBuilder(object):
                shutil.copy(isolinux, syslinux_dir)
                gfxboot = os.path.join(chroot, 'usr/lib/syslinux/gfxboot.com')
                shutil.copy(gfxboot, syslinux_dir)
-               bootlogo = os.path.join(chroot, 'boot/bootlogo')
-               shutil.copy(bootlogo, syslinux_dir)
+               bootlogo_dir = os.path.join(chroot, 'etc/bootsplash/default/cdrom')
+               bootlogo = glob.glob(os.path.join(bootlogo_dir, '*'))
+               for file in bootlogo:
+                   try:
+                       shutil.copy(file, syslinux_dir)
+                   except IOError:
+                       self.log.exception('failed to copy bootlogo files to staging dir')
+                       raise Error
                #isl_pxe = os.path.join(chroot, 'usr/lib/syslinux/pxelinux.0');
                #shutil.copy(isl_pxe, stage_dir);
                # both vesamenu.c32 and linux.c32 seem to be required
