@@ -1165,7 +1165,7 @@ class FLLBuilder(object):
                      if f.startswith('linux-image-')]
 
         if len(kvers) > 0:
-            kvers.sort(reverse=True)
+            kvers.sort()
             return kvers
 
         self.log.critical('failed to detect linux version installed in chroot')

@@ -14,7 +14,6 @@ pyfll (2009.04) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
   * use isolinux ahead of grub for genisoimage (include both in essential)
-  * reverse order of kvers
   * use isohybrid on isolinux iso to make dd'able image
   * embed count of kernel (by arch) in 8.3 isolinux safe name
 
