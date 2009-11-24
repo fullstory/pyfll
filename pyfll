@@ -1645,14 +1645,12 @@ class FLLBuilder(object):
                                   'copy to staging dir.')
                 raise Error
 
-        message = os.path.join(chroot, 'boot', 'message.live')
-        if os.path.isfile(message) and \
-            not os.path.isfile(os.path.join(boot_dir, 'message')):
+        message = os.path.join(chroot, 'etc/bootsplash/default/bootloader', 'message')
+        if os.path.isfile(message):
             self.log.debug('copying grub-gfxboot message file to boot dir')
             try:
                 shutil.copy(message, boot_dir)
-                message = os.path.join(boot_dir, 'message.live')
-                os.rename(message, os.path.splitext(message)[0])
+                message = os.path.join(boot_dir, 'message')
             except IOError:
                 self.log.exception('failed to copy grub message file to ' +
                                    'staging dir')

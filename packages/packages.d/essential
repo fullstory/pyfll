@@ -31,4 +31,3 @@ amd64 = """
 powerpc = """
 	yaboot
 """
-
