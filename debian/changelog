@@ -19,8 +19,9 @@ pyfll (2009.04) UNRELEASED; urgency=low
 
   [ Bernard Gray ]
   * copy over all required bootlogo files for syslinux.
+  * make FLL_BOOTSPLASH configurable.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 24 Nov 2009 19:37:54 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 Nov 2009 13:46:15 +0100
 
 pyfll (2009.03) momos; urgency=low
 
