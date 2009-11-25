@@ -10,6 +10,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * cosmetic fixes for syslinux menu.
   * add syslinux-common to recommended dependencies.
   * adapt for gfxboot-themes-sidux.
+  * s/FLL_BOOTSPLASH/FLL_GFXBOOT_THEME/g.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -21,7 +22,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * copy over all required bootlogo files for syslinux.
   * make FLL_BOOTSPLASH configurable.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 Nov 2009 13:46:15 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 Nov 2009 13:57:55 +0100
 
 pyfll (2009.03) momos; urgency=low
 
