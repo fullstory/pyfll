@@ -5,24 +5,30 @@ say() {
 }
 
 do_postinst() {
+	# enable concurrency
 	if [ -w /etc/default/rcS ] && ! grep -q '^CONCURRENCY=' /etc/default/rcS; then
 		say 'Activating startpar initscript concurrency'
 		echo 'CONCURRENCY=shell' >> /etc/default/rcS
 	fi
 
+	# create grub2 ElTorito support
 	if which grub-mkimage >/dev/null; then
 		say 'Creating grub2 El Torito image file'
 		grub-mkimage -d /usr/lib/grub/*-pc/ -o /tmp/grub_eltorito~ biosdisk iso9660
 		cat /usr/lib/grub/*-pc/cdboot.img /tmp/grub_eltorito~ > /tmp/grub_eltorito
 	fi
-	
+
+	# disable recovery modes for grub2
+	if [ -w /etc/default/grub ]; then
+		sed -i "s/^\(GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"false\"/" /etc/default/grub
+	fi
+
 	# Change MD5 to SHA-256 for password hashes.
 	say 'Modifying /etc/login.defs for SHA-256'
 	sed -i -r 's/^#?[[:space:]]*ENCRYPT_METHOD.*/ENCRYPT_METHOD SHA256/' \
 		/etc/login.defs
 	say 'Modifying /etc/pam.d/common-password for SHA-256'	
 	sed -i -r 's/(^password.*)md5/\1sha256/' /etc/pam.d/common-password
-	
 }
 
 case "${1}" in
