@@ -14,7 +14,7 @@ packages = """
 	dvb-apps
 	dosfstools
 	ftp-ssl
-#	fuse-utils	# BROKEN: fuse-utils
+#	fuse-utils	# BROKEN: fuse-utils, #550334
 	genisoimage
 	iproute
 	jfsutils
@@ -24,8 +24,8 @@ packages = """
 	mlocate
 	module-assistant
 	ntpdate
-#	ntfs-3g		# BROKEN: fuse-utils
-#	ntfsprogs	# BROKEN: fuse-utils
+#	ntfs-3g		# BROKEN: fuse-utils, #550334
+#	ntfsprogs	# BROKEN: fuse-utils, #550334
 	nmap
 	openssh-client
 	pwgen
