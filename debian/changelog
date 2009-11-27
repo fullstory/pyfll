@@ -13,6 +13,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * s/FLL_BOOTSPLASH/FLL_GFXBOOT_THEME/g.
   * disable recovery modes for grub2.
   * clear default cmdline, it can't be edited from within syslinux+gfxboot.
+  * fix gfxboot theme path in response to #558138.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -24,7 +25,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * copy over all required bootlogo files for syslinux.
   * make FLL_BOOTSPLASH configurable.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 26 Nov 2009 16:09:41 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 27 Nov 2009 17:03:08 +0100
 
 pyfll (2009.03) momos; urgency=low
 
