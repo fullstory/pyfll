@@ -1956,8 +1956,8 @@ class FLLBuilder(object):
 
     def _configBootCmdline(self):
         cmdline =  self.conf['options'].get('boot_cmdline')
-        #if not cmdline:
-        #    cmdline = 'quiet vga=791'
+        if not cmdline:
+            cmdline = ''
         return cmdline
 
     def _writeGrubWrap(self):
