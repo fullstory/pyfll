@@ -17,5 +17,16 @@ deps = """
 """
 
 packages = """
+	blueman
+	brasero
+	epdfview
+	gamix
+	guake
+	gxine
+	midori
+	osmo
+	parcellite
+	xchat
+	xpad
+	wicd
 """
-

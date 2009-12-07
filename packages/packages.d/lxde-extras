@@ -1,0 +1,10 @@
+desc = """
+	Full LXDE desktop.
+"""
+
+packages = """
+	lxlauncher
+	lxpanel-netstat-plugin
+#	lxnm
+	xpad
+"""

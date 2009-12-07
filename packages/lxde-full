@@ -11,8 +11,8 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	lxde-basic
-	lxde-full
-	# openoffice
+	lxde-extras
+#	openoffice
 	utils-essential
 	utils-extra
 	utils-x
@@ -20,9 +20,21 @@ deps = """
 """
 
 packages = """
-	# openoffice.org-gtk
-	# claws-mail
-	# claws-mail-i18n
-	# claws-mail-feeds-reader
+	audacious
+	audacious-plugins-extra
+	blueman
+	brasero
+#	claws-mail
+#	claws-mail-i18n
+#	claws-mail-feeds-reader
+	gftp
+	guake
+	gxine
+	midori
+#	openoffice.org-gtk
+	transmission
+	xpad
+	xchat
+	wicd
 """
 

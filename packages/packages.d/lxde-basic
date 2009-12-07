@@ -4,12 +4,5 @@ desc = """
 
 packages = """
 	dbus-x11
-	gxine
-	gftp
-	lxde-core
-	lxterminal
-	midori
-	transmission
-	xarchiver
-	xchat
+	lxde
 """
