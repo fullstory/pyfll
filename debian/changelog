@@ -15,6 +15,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * clear default cmdline, it can't be edited from within syslinux+gfxboot.
   * fix gfxboot theme path in response to #558138.
   * remove configure-ndiswrapper from distro-tools, it's gone.
+  * re- enable fuse depending packages, fuse-utils has been fixed in 2.8.1-1.1.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
