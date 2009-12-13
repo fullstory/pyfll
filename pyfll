@@ -1593,6 +1593,11 @@ class FLLBuilder(object):
 
         cmd = ['mksquashfs', '.', image_file, '-noappend']
 
+        # set compression algorithm for squashfs-tools >= 4.1
+        squashfs_comp = self.conf['options'].get('squashfs_comp')
+        if squashfs_comp == 'gzip' or squashfs_comp == 'lzma':
+            cmd.append('-comp %s' % squashfs_comp)
+
         if self.opts.l or self.opts.q:
             cmd.append('-no-progress')
 

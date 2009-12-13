@@ -16,6 +16,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * fix gfxboot theme path in response to #558138.
   * remove configure-ndiswrapper from distro-tools, it's gone.
   * re- enable fuse depending packages, fuse-utils has been fixed in 2.8.1-1.1.
+  * allow to set compression algorithm for squashfs-tools >= 4.1.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -27,7 +28,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * copy over all required bootlogo files for syslinux.
   * make FLL_BOOTSPLASH configurable.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 06 Dec 2009 14:24:27 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 13 Dec 2009 02:18:40 +0100
 
 pyfll (2009.03) momos; urgency=low
 
