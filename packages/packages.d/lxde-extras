@@ -6,5 +6,4 @@ packages = """
 	lxlauncher
 	lxpanel-netstat-plugin
 #	lxnm
-	xpad
 """

@@ -12,7 +12,6 @@ deps = """
 	hwsupport-extra
 	lxde-basic
 	lxde-extras
-#	openoffice
 	utils-essential
 	utils-extra
 	utils-x
@@ -20,21 +19,27 @@ deps = """
 """
 
 packages = """
+	abiword
+	asounder
 	audacious
 	audacious-plugins-extra
 	blueman
 	brasero
-#	claws-mail
-#	claws-mail-i18n
-#	claws-mail-feeds-reader
+	epdfview
+	gamix
 	gftp
+	gcalculator
+	gnomebaker
+	gnumeric
 	guake
 	gxine
 	midori
-#	openoffice.org-gtk
+	mtpaint
+	osmo
+	parcellite
+	sylpheed
 	transmission
-	xpad
 	xchat
+	xpad
 	wicd
 """
-

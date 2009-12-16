@@ -1,3 +1,10 @@
+pyfll (2009.04+nmu1) UNRELEASED; urgency=low
+
+  * Non-maintainer upload.
+  * remove ooo from lxde-full, add abiword, gnumeric, sylpheed, and more for testing
+
+ -- Chris Hildebrandt <slam@sidux.com>  Wed, 16 Dec 2009 13:03:48 +0100
+
 pyfll (2009.04) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
