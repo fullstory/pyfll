@@ -1747,10 +1747,11 @@ class FLLBuilder(object):
                     raise Error
 
         memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
+        memtest_out = os.path.join(boot_dir, 'memtest.bin')
         if os.path.isfile(memtest):
             self.log.debug('copying memtest86+ to boot dir')
             try:
-                shutil.copy(memtest, boot_dir)
+                shutil.copy(memtest, memtest_out)
             except IOError:
                 self.log.exception('failed to copy memtest86+ to staging dir')
                 raise Error
@@ -1801,10 +1802,10 @@ class FLLBuilder(object):
                     menucpu.write('%s\n' % line)
             menucpu.close()
 
-        if os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
+        if os.path.isfile(os.path.join(boot_dir, 'memtest.bin')):
             menulst.write('\n')
-            menulst.write('title  memtest86+\n')
-            menulst.write('kernel /boot/memtest86+.bin\n')
+            menulst.write('title Memory test (memtest86+)\n')
+            menulst.write('kernel /boot/memtest.bin\n')
 
         menulst.close()
 
@@ -1846,9 +1847,9 @@ class FLLBuilder(object):
             grubcfg.write('	initrd /boot/%s\n' % initrd)
             grubcfg.write('}\n')
 
-        if os.path.isfile(os.path.join(boot_dir, 'memtest86+.bin')):
+        if os.path.isfile(os.path.join(boot_dir, 'memtest.bin')):
             grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
-            grubcfg.write('	linux16	/boot/memtest86+.bin\n')
+            grubcfg.write('	linux16	/boot/memtest.bin\n')
             grubcfg.write('}\n')
 
         grubcfg.close()
@@ -1944,6 +1945,14 @@ class FLLBuilder(object):
             isolinuxcfg.write('\tINITRD /boot/%s\n' % initrd)
             isolinuxcfg.write('\n')
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
+
+        isolinuxcfg.write('\nLABEL Boot_from_Hard_Disk\n')
+        isolinuxcfg.write('\tlocalboot 0x80\n')
+
+        if os.path.isfile(os.path.join(boot_dir, 'memtest.bin')):
+            isolinuxcfg.write('\nLABEL Memory_test_(memtest86+)\n')
+            isolinuxcfg.write('\tKERNEL /boot/memtest.bin\n')
+
         isolinuxcfg.close()
 
     def _configBootKvers(self,stage_dir):
