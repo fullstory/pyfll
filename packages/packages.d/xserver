@@ -4,14 +4,12 @@ desc = """
 
 packages = """
 	dmz-cursor-theme
-#	fluxbox
 	fontconfig
 	fontconfig-config
 	libgl1-mesa-dri
 	menu
 	mesa-utils
 	sux
-#	ttf-bitstream-vera		# ttf-dejavu provides the same font set
 	ttf-dejavu
 	ttf-liberation
 	wacom-tools
@@ -30,12 +28,14 @@ packages = """
 """
 
 i386 = """
+	virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
 	xserver-xorg-video-geode
 	xserver-xorg-video-openchrome
 """
 
 amd64 = """
+	virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
 	xserver-xorg-video-openchrome
 """

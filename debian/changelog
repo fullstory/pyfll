@@ -17,6 +17,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * remove configure-ndiswrapper from distro-tools, it's gone.
   * re- enable fuse depending packages, fuse-utils has been fixed in 2.8.1-1.1.
   * allow to set compression algorithm for squashfs-tools >= 4.1.
+  * add virtualbox-ose-guest-x11 to the xserver packages on amd64 and i386.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -32,7 +33,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   [ Chris Hildebrandt ]
   * remove ooo from lxde-full, add abiword, gnumeric, sylpheed, and more for testing
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Fri, 18 Dec 2009 03:56:25 +0000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 18 Dec 2009 15:36:07 +0100
 
 pyfll (2009.03) momos; urgency=low
 
