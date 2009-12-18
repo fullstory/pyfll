@@ -1747,7 +1747,7 @@ class FLLBuilder(object):
                     raise Error
 
         memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
-        memtest_out = os.path.join(boot_dir, 'memtest.bin')
+        memtest_out = os.path.join(boot_dir, 'memtest')
         if os.path.isfile(memtest):
             self.log.debug('copying memtest86+ to boot dir')
             try:
@@ -1802,10 +1802,10 @@ class FLLBuilder(object):
                     menucpu.write('%s\n' % line)
             menucpu.close()
 
-        if os.path.isfile(os.path.join(boot_dir, 'memtest.bin')):
+        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             menulst.write('\n')
             menulst.write('title Memory test (memtest86+)\n')
-            menulst.write('kernel /boot/memtest.bin\n')
+            menulst.write('kernel /boot/memtest\n')
 
         menulst.close()
 
@@ -1847,9 +1847,9 @@ class FLLBuilder(object):
             grubcfg.write('	initrd /boot/%s\n' % initrd)
             grubcfg.write('}\n')
 
-        if os.path.isfile(os.path.join(boot_dir, 'memtest.bin')):
+        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
-            grubcfg.write('	linux16	/boot/memtest.bin\n')
+            grubcfg.write('	linux16	/boot/memtest\n')
             grubcfg.write('}\n')
 
         grubcfg.close()
@@ -1946,12 +1946,14 @@ class FLLBuilder(object):
             isolinuxcfg.write('\n')
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
 
-        isolinuxcfg.write('\nLABEL Boot_from_Hard_Disk\n')
+        isolinuxcfg.write('LABEL Boot_from_Hard_Disk\n')
         isolinuxcfg.write('\tlocalboot 0x80\n')
+        isolinuxcfg.write('\n')
 
-        if os.path.isfile(os.path.join(boot_dir, 'memtest.bin')):
-            isolinuxcfg.write('\nLABEL Memory_test_(memtest86+)\n')
-            isolinuxcfg.write('\tKERNEL /boot/memtest.bin\n')
+        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
+            isolinuxcfg.write('LABEL Memory_test_(memtest86+)\n')
+            isolinuxcfg.write('\tKERNEL /boot/memtest\n')
+            isolinuxcfg.write('\n')
 
         isolinuxcfg.close()
 
