@@ -32,7 +32,7 @@ hal
 ifupdown
 initscripts
 irqbalance
-kbd
+keyboard-configuration
 qemu-kvm
 libc6
 lvm2

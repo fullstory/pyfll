@@ -23,6 +23,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * use isolinux ahead of grub for genisoimage (include both in essential)
   * use isohybrid on isolinux iso to make dd'able image
   * embed count of kernel (by arch) in 8.3 isolinux safe name
+  * init whitelist keyboard-configuration instead of kbd
 
   [ Bernard Gray ]
   * copy over all required bootlogo files for syslinux.
@@ -31,7 +32,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   [ Chris Hildebrandt ]
   * remove ooo from lxde-full, add abiword, gnumeric, sylpheed, and more for testing
 
- -- Chris Hildebrandt <slam@sidux.com>  Wed, 16 Dec 2009 13:03:48 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Fri, 18 Dec 2009 03:56:25 +0000
 
 pyfll (2009.03) momos; urgency=low
 
