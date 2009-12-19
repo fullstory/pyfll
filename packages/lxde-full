@@ -20,7 +20,7 @@ deps = """
 
 packages = """
 	abiword
-	asounder
+	asunder
 	audacious
 	audacious-plugins-extra
 	blueman
