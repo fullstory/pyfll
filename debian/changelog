@@ -22,6 +22,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * enhance isolinux boot menu:
     - boot from Hard Disk
     - start memtest86+
+  * remove wicd from lxde flavours.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -37,7 +38,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   [ Chris Hildebrandt ]
   * remove ooo from lxde-full, add abiword, gnumeric, sylpheed, and more for testing
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 18 Dec 2009 22:02:58 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 19 Dec 2009 00:03:02 +0000
 
 pyfll (2009.03) momos; urgency=low
 

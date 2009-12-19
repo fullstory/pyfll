@@ -28,5 +28,4 @@ packages = """
 	parcellite
 	xchat
 	xpad
-	wicd
 """

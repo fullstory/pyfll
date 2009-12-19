@@ -5,6 +5,7 @@ desc = """
 
 packages = """
 	abiword
+	libgnome2-0
 	# aqualung
 	# audacious-plugins-extra
 	brasero

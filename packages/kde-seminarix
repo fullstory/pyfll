@@ -25,6 +25,9 @@ deps = """
 """
 
 packages = """
+	libarts1c2a
+	libgnome2-0
+	libesd0
 	audacity
 	amarok
 	blender
