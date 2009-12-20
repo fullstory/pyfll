@@ -40,8 +40,9 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * fixed typo: asunder != asounder
   * remove gcalculator - not in sid
   * lxnm officially depreciated upstream
+  * lxmusic became optional upstream, gcalculator not in sid
 
- -- Chris Hildebrandt <slam@sidux.com>  Sun, 20 Dec 2009 13:14:59 +0100
+ -- Chris Hildebrandt <slam@sidux.com>  Sun, 20 Dec 2009 15:50:48 +0100
 
 pyfll (2009.03) momos; urgency=low
 

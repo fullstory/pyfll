@@ -28,7 +28,6 @@ packages = """
 	epdfview
 	gamix
 	gftp
-	gcalculator
 	gnomebaker
 	gnumeric
 	guake
