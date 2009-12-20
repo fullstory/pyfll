@@ -39,8 +39,9 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * remove ooo from lxde-full, add abiword, gnumeric, sylpheed, and more for testing
   * fixed typo: asunder != asounder
   * remove gcalculator - not in sid
+  * lxnm officially depreciated upstream
 
- -- Chris Hildebrandt <slam@sidux.com>  Sat, 19 Dec 2009 21:49:02 +0100
+ -- Chris Hildebrandt <slam@sidux.com>  Sun, 20 Dec 2009 13:14:59 +0100
 
 pyfll (2009.03) momos; urgency=low
 
