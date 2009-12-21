@@ -25,7 +25,6 @@ packages = """
 	desktop-file-utils
 	gdm
 	gtk2-engines-xfce
-	hwinfo
 	kaffeine
 	kde-core
 	kdm

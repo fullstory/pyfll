@@ -8,7 +8,6 @@ deps = """
 	distro-kde
 	distro-tools
 	distro-tools-x
-	fluxbox
 	hwsupport-essential
 	kde-essential
 	utils-essential
@@ -18,5 +17,4 @@ deps = """
 packages = """
 	build-essential
 	cdebootstrap
-	hwinfo
 """
