@@ -32,6 +32,7 @@ hal
 ifupdown
 initscripts
 irqbalance
+kbd
 keyboard-configuration
 qemu-kvm
 libc6
@@ -45,6 +46,7 @@ resolvconf
 screen
 sysv-rc
 udev
+util-linux
 x11-common
 #################################################
 # extra packages, managed by fll-live-initscripts

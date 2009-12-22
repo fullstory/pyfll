@@ -25,6 +25,8 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * remove wicd from lxde flavours.
   * remove hwinfo all profiles, it's no longer needed for h/w detection.
   * remove fluxbox from kde-stripped.
+  * whitelist kbd and util-linux (hwclock*.sh, which are effectively no-ops on
+    udev based systems) init scripts.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -44,7 +46,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * lxnm officially depreciated upstream
   * lxmusic became optional upstream, gcalculator not in sid
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 21 Dec 2009 19:02:48 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 22 Dec 2009 03:27:10 +0100
 
 pyfll (2009.03) momos; urgency=low
 
