@@ -34,6 +34,7 @@ packages = """
 	rdiff-backup
 #	siduxcc			#kde3
 #	sidux-vdr		#vdr-broken
+	tvtime
 #	vdr-gui			#vdr-broken
 #	vdr-plugin-pvrinput	#vdr-broken
 	qutecom

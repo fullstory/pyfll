@@ -27,6 +27,8 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * remove fluxbox from kde-stripped.
   * whitelist kbd and util-linux (hwclock*.sh, which are effectively no-ops on
     udev based systems) init scripts.
+  * move tvtime from utils-x to kde-full, there is no terrestrial analogue TV
+    in germany anymore.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -46,7 +48,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * lxnm officially depreciated upstream
   * lxmusic became optional upstream, gcalculator not in sid
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 22 Dec 2009 03:27:10 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 23 Dec 2009 01:22:52 +0100
 
 pyfll (2009.03) momos; urgency=low
 
