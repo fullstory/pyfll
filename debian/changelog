@@ -36,6 +36,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * use isohybrid on isolinux iso to make dd'able image
   * embed count of kernel (by arch) in 8.3 isolinux safe name
   * init whitelist keyboard-configuration instead of kbd
+  * add /etc/console-setup/cached.kmap.gz to sqfs excludes
 
   [ Bernard Gray ]
   * copy over all required bootlogo files for syslinux.
@@ -48,7 +49,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * lxnm officially depreciated upstream
   * lxmusic became optional upstream, gcalculator not in sid
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 23 Dec 2009 01:22:52 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 23 Dec 2009 23:54:44 +0000
 
 pyfll (2009.03) momos; urgency=low
 
