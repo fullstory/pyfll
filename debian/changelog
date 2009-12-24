@@ -32,6 +32,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * exclude cached files from /etc/console-setup/cached.kmap.gz from the
     squashfs.
   * remove build-essential from kde-stripped.
+  * remove isolinux.bin from md5sum list, it's modified during genisoimage.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -52,7 +53,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * lxnm officially depreciated upstream
   * lxmusic became optional upstream, gcalculator not in sid
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 24 Dec 2009 01:08:12 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 24 Dec 2009 02:14:23 +0100
 
 pyfll (2009.03) momos; urgency=low
 

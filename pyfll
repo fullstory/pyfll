@@ -2054,6 +2054,8 @@ class FLLBuilder(object):
                 continue
             if dir.endswith('grub') and f.find('stage') >= 0:
                 continue
+            if dir.endswith('isolinux') and f.find('isolinux.bin') >= 0:
+                continue
 
             md5sums = None
             try:
