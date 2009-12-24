@@ -29,6 +29,9 @@ pyfll (2009.04) UNRELEASED; urgency=low
     udev based systems) init scripts.
   * move tvtime from utils-x to kde-full, there is no terrestrial analogue TV
     in germany anymore.
+  * exclude cached files from /etc/console-setup/cached.kmap.gz from the
+    squashfs.
+  * remove build-essential from kde-stripped.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -49,7 +52,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * lxnm officially depreciated upstream
   * lxmusic became optional upstream, gcalculator not in sid
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 23 Dec 2009 23:54:44 +0000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 24 Dec 2009 01:08:12 +0100
 
 pyfll (2009.03) momos; urgency=low
 

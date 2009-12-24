@@ -15,6 +15,5 @@ deps = """
 """
 
 packages = """
-	build-essential
 	cdebootstrap
 """

@@ -24,6 +24,7 @@ avahi-daemon
 bootchart
 console-common
 console-setup
+console-tools
 cpufrequtils
 dbus
 fuse-utils

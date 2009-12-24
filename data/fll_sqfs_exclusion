@@ -6,7 +6,7 @@ etc/*-
 etc/adjtime
 etc/apt/*~
 etc/blkid.tab
-etc/console-setup/cached.kmap.gz
+etc/console-setup/*.gz
 etc/localtime
 etc/lvm/archive
 etc/lvm/backup
