@@ -52,8 +52,9 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * remove gcalculator - not in sid
   * lxnm officially depreciated upstream
   * lxmusic became optional upstream, gcalculator not in sid
+  * sync lxde changes with noc
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 24 Dec 2009 02:14:23 +0100
+ -- Chris Hildebrandt <slam@sidux.com>  Fri, 25 Dec 2009 11:34:45 +0100
 
 pyfll (2009.03) momos; urgency=low
 
