@@ -58,7 +58,10 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * sync lxde changes with noc 
   * sync with noc. put packages in alphabetical order
 
- -- Nikolas Poniros <edhunter@sidux.com>  Tue, 29 Dec 2009 03:33:33 +0100
+  [ Joaquim Boura ]
+  * Added sidux-kernelhacking to distro-tools to include always the kernel-remover
+
+ -- Joaquim Boura <x-un-i@sidux.com>  Tue, 29 Dec 2009 23:36:44 +0100
 
 pyfll (2009.03) momos; urgency=low
 
