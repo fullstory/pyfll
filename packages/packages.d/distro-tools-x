@@ -9,6 +9,7 @@ packages = """
 	install-usb-gui
 	sidux-browser
 	sidux-irc
+	sidux-kernelhacking	
 	sidux-manual-en
 	sidux-searchplugins
 	setpassword

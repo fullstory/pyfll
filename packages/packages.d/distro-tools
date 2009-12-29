@@ -7,7 +7,6 @@ packages = """
 	configure-dsl
 	infobash
 	pppconfig
-	sidux-kernelhacking	
 	sshstart
 	wvdial
 """

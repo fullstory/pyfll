@@ -60,8 +60,9 @@ pyfll (2009.04) UNRELEASED; urgency=low
 
   [ Joaquim Boura ]
   * Added sidux-kernelhacking to distro-tools to include always the kernel-remover
+  * moved sidux-kernelhacking to distro-tools-x
 
- -- Joaquim Boura <x-un-i@sidux.com>  Tue, 29 Dec 2009 23:36:44 +0100
+ -- Joaquim Boura <x-un-i@sidux.com>  Tue, 29 Dec 2009 23:39:28 +0100
 
 pyfll (2009.03) momos; urgency=low
 
