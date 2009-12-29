@@ -56,8 +56,9 @@ pyfll (2009.04) UNRELEASED; urgency=low
 
   [ Nikolas Poniros ]
   * sync lxde changes with noc 
+  * sync with noc. put packages in alphabetical order
 
- -- Nikolas Poniros <edhunter@sidux.com>  Sun, 27 Dec 2009 22:49:21 +0100
+ -- Nikolas Poniros <edhunter@sidux.com>  Tue, 29 Dec 2009 03:33:33 +0100
 
 pyfll (2009.03) momos; urgency=low
 
