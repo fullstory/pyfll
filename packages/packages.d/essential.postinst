@@ -7,8 +7,8 @@ say() {
 do_postinst() {
 	# enable concurrency
 	if [ -w /etc/default/rcS ] && ! grep -q '^CONCURRENCY=' /etc/default/rcS; then
-		say 'Activating startpar initscript concurrency'
-		echo 'CONCURRENCY=shell' >> /etc/default/rcS
+		say 'Activating makefile initscript concurrency'
+		echo 'CONCURRENCY=makefile' >> /etc/default/rcS
 	fi
 
 	# create grub2 ElTorito support

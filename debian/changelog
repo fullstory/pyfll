@@ -1,3 +1,12 @@
+pyfll (2010.01) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+  
+  [ Stefan Lippers-Hollmann ]
+  * switch to CONCURRENCY=makefile
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 31 Dec 2009 06:07:30 +0100
+
 pyfll (2009.04) moros; urgency=low
 
   [ Stefan Lippers-Hollmann ]
