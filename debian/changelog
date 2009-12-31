@@ -1,6 +1,4 @@
-pyfll (2009.04) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+pyfll (2009.04) moros; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * switch to grub2.
@@ -33,6 +31,8 @@ pyfll (2009.04) UNRELEASED; urgency=low
     squashfs.
   * remove build-essential from kde-stripped.
   * remove isolinux.bin from md5sum list, it's modified during genisoimage.
+  * add k3b to the kde based package lists again.
+  * add alsa-utils again.
 
   [ Niall Walsh ]
   * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
@@ -62,7 +62,7 @@ pyfll (2009.04) UNRELEASED; urgency=low
   * Added sidux-kernelhacking to distro-tools to include always the kernel-remover
   * moved sidux-kernelhacking to distro-tools-x
 
- -- Joaquim Boura <x-un-i@sidux.com>  Tue, 29 Dec 2009 23:39:28 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 31 Dec 2009 04:47:09 +0100
 
 pyfll (2009.03) momos; urgency=low
 

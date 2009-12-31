@@ -25,7 +25,6 @@ packages = """
 	kmahjongg
 	kmail
 	konq-plugins
-#	kooka			#kde3, missing
 	kopete
 	kpat
 	krdc

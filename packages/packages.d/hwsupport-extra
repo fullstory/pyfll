@@ -4,7 +4,7 @@ desc = """
 """
 
 packages = """
-#	alsa-utils	#523091
+	alsa-utils
 	bluez-utils
 	bluez-pcmcia-support
 	dmidecode

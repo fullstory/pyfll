@@ -4,7 +4,6 @@ desc = """
 
 packages = """
 	ark
-#	kaffeine	#experimental
 	kaffeine
 	kde-minimal
 	kdm

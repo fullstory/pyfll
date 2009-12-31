@@ -4,7 +4,7 @@ desc = """
 
 packages = """
 	gwenview
-#	k3b			#experimental
+	k3b
 	kcalc
 	khelpcenter4
 	kmix
@@ -12,5 +12,4 @@ packages = """
 	kppp
 	ksnapshot
 	okular
-#	umtsmon			#kde3
 """
