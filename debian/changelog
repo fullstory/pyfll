@@ -6,8 +6,9 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * switch to CONCURRENCY=makefile
   * add rfkill to hwsupport-extra, it is important to enable wlan/ bluetooth
     in case a driver's rfkill defaults are broken.
+  * s/Μόρος/Ύπνος/g
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 04 Jan 2010 01:59:14 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 09 Jan 2010 19:40:26 +0100
 
 pyfll (2009.04) moros; urgency=low
 
