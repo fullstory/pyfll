@@ -7,8 +7,9 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * add rfkill to hwsupport-extra, it is important to enable wlan/ bluetooth
     in case a driver's rfkill defaults are broken.
   * s/Μόρος/Ύπνος/g
+  * drop wacom-tools, it's dead and obsoleted by xserver-xorg-input-wacom.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 09 Jan 2010 19:40:26 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 12 Jan 2010 14:28:38 +0100
 
 pyfll (2009.04) moros; urgency=low
 

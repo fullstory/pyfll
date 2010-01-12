@@ -12,7 +12,6 @@ packages = """
 	sux
 	ttf-dejavu
 	ttf-liberation
-	wacom-tools
 	xauth
 	xfonts-base
 	xfonts-75dpi
