@@ -9,7 +9,11 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * s/Μόρος/Ύπνος/g
   * drop wacom-tools, it's dead and obsoleted by xserver-xorg-input-wacom.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 12 Jan 2010 14:28:38 +0100
+  [ Bernard Gray ]
+  * add powermgmt and pm-utils to power management profile -
+    acpi-support-base no longer pulls them in, they're required for suspend modes
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Mon, 18 Jan 2010 15:44:11 +1100
 
 pyfll (2009.04) moros; urgency=low
 
