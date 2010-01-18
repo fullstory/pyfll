@@ -13,7 +13,10 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * add powermgmt and pm-utils to power management profile -
     acpi-support-base no longer pulls them in, they're required for suspend modes
 
- -- Bernard Gray <bernard.gray@gmail.com>  Mon, 18 Jan 2010 15:44:11 +1100
+  [ Chris Hildebrandt ]
+  * add LXDM as an alternative to slim, add LXDE config tools
+
+ -- Chris Hildebrandt <slam@sidux.com>  Mon, 18 Jan 2010 08:59:29 +0100
 
 pyfll (2009.04) moros; urgency=low
 
