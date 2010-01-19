@@ -10,6 +10,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * drop wacom-tools, it's dead and obsoleted by xserver-xorg-input-wacom.
   * temporarily drop siduxcc from all flavours, it's currently not in a state
     to be released.
+  * drop xserver-xorg-video-geode, it's gone.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -18,7 +19,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Chris Hildebrandt ]
   * add LXDM as an alternative to slim, add LXDE config tools
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 19 Jan 2010 13:44:28 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 19 Jan 2010 16:07:09 +0100
 
 pyfll (2009.04) moros; urgency=low
 

@@ -29,7 +29,6 @@ packages = """
 i386 = """
 	virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
-	xserver-xorg-video-geode
 	xserver-xorg-video-openchrome
 """
 
