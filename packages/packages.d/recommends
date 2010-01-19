@@ -13,6 +13,5 @@ packages = """
 	kopete
 	netbase
 	python-dbus
-	siduxcc
 	xfce4-session
 """

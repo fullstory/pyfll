@@ -222,7 +222,6 @@ packages = """
 	rox-filer
 	scite
 	scribus-ng
-	siduxcc
 	sidux-vdr
 	smartmontools
 	subversion

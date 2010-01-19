@@ -8,6 +8,8 @@ pyfll (2010.01) UNRELEASED; urgency=low
     in case a driver's rfkill defaults are broken.
   * s/Μόρος/Ύπνος/g
   * drop wacom-tools, it's dead and obsoleted by xserver-xorg-input-wacom.
+  * temporarily drop siduxcc from all flavours, it's currently not in a state
+    to be released.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -16,7 +18,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Chris Hildebrandt ]
   * add LXDM as an alternative to slim, add LXDE config tools
 
- -- Chris Hildebrandt <slam@sidux.com>  Mon, 18 Jan 2010 08:59:29 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 19 Jan 2010 13:44:28 +0100
 
 pyfll (2009.04) moros; urgency=low
 

@@ -32,7 +32,6 @@ packages = """
 	openoffice.org-kde
 #	pdfedit			#kde3
 	rdiff-backup
-#	siduxcc			#kde3
 #	sidux-vdr		#vdr-broken
 	tvtime
 #	vdr-gui			#vdr-broken
