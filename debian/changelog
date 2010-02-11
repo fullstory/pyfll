@@ -19,7 +19,10 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Chris Hildebrandt ]
   * add LXDM as an alternative to slim, add LXDE config tools
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 19 Jan 2010 16:07:09 +0100
+  [ Kel Modderman ]
+  * Initial update for new python-apt API.
+
+ -- Kel Modderman <kel@otaku42.de>  Thu, 11 Feb 2010 21:11:13 +1000
 
 pyfll (2009.04) moros; urgency=low
 

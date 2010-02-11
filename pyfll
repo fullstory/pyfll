@@ -5,12 +5,12 @@ __author__    = 'Kel Modderman'
 __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
 __license__   = 'GPLv2 or any later version'
 
-from apt import OpProgress
 from configobj import ConfigObj
 from subprocess import *
 from fll.locales import FllLocales, FllLocalesError
 
 import apt_pkg
+import apt
 import atexit
 import datetime
 import fileinput
@@ -1213,24 +1213,24 @@ class FLLBuilder(object):
             if not p in rec_dict:
                 continue
             package = cache[p]
-            current = package.CurrentVer
+            current = package.current_ver
             if not current:
-                versions = package.VersionList
+                versions = package.version_list
                 if not versions:
                     continue
                 version = versions[0]
                 for other_version in versions:
-                    if apt_pkg.VersionCompare(version.VerStr,
-                                              other_version.VerStr) < 0:
+                    if apt_pkg.version_compare(version.ver_str,
+                                              other_version.ver_str) < 0:
                         version = other_version
                 current = version
 
-            depends = current.DependsList
+            depends = current.depends_list
             list = depends.get('Recommends', [])
             for dependency in list:
-                name = dependency[0].TargetPkg.Name
+                name = dependency[0].target_pkg.name
                 dep = cache[name]
-                if dep.CurrentVer:
+                if dep.current_ver:
                     continue
                 rec_list.append(dep.Name)
 
@@ -1245,8 +1245,8 @@ class FLLBuilder(object):
         kvers_list = []
         for kver in self.conf['archs'][arch]['linux']:
             kvers = '-modules-' + kver
-            kvers_list.extend([p.Name for p in cache.Packages
-                          if p.Name.endswith(kvers) and p.VersionList])
+            kvers_list.extend([p.name for p in cache.packages
+                          if p.name.endswith(kvers) and p.version_list])
         self.log.debug('kvers_list:')
         self.log.debug(kvers_list)
         return kvers_list
@@ -1254,17 +1254,17 @@ class FLLBuilder(object):
 
     def __getSourcePkg(self, pkg, depcache, records):
         '''Get the source package name of a given package.'''
-        version = depcache.GetCandidateVer(pkg)
+        version = depcache.get_candidate_ver(pkg)
 
         if not version:
             return None
-        file, index = version.FileList.pop(0)
-        records.Lookup((file, index))
+        file, index = version.file_list.pop(0)
+        records.lookup((file, index))
 
-        if records.SourcePkg != "":
-            srcpkg = records.SourcePkg
+        if records.source_pkg != "":
+            srcpkg = records.source_pkg
         else:
-            srcpkg = pkg.Name
+            srcpkg = pkg.name
         return srcpkg
 
 
@@ -1274,14 +1274,13 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
         self.log.info('collecting package manifest for %s...' % arch)
 
-        cache = apt_pkg.GetCache(OpProgress())
-        records = apt_pkg.GetPkgRecords(cache)
-        depcache = apt_pkg.GetDepCache(cache)
-        depcache.Init()
+        cache = apt_pkg.Cache(apt.progress.base.OpProgress())
+        records = apt_pkg.PackageRecords(cache)
+        depcache = apt_pkg.DepCache(cache)
 
-        manifest = dict([(p.Name, p.CurrentVer.VerStr)
-                         for p in cache.Packages if p.CurrentVer
-                         and not p.Name.startswith('cdebootstrap-helper')])
+        manifest = dict([(p.name, p.current_ver.ver_str)
+                         for p in cache.packages if p.current_ver
+                         and not p.name.startswith('cdebootstrap-helper')])
         if 'install' in self.pkgs[arch]:
             manifest.update(self.pkgs[arch]['install'])
         if 'langpack' in self.pkgs[arch]:
@@ -1293,8 +1292,8 @@ class FLLBuilder(object):
 
         self.log.info('querying source package URIs for %s...' % arch)
 
-        sources = apt_pkg.GetPkgSrcRecords()
-        sources.Restart()
+        sources = apt_pkg.SourceRecords()
+        sources.restart()
 
         packages = manifest.keys()
         packages.sort()
@@ -1322,9 +1321,9 @@ class FLLBuilder(object):
                 srcpkg_seen[srcpkg] = True
 
             u = []
-            while sources.Lookup(srcpkg):
-                u.extend([sources.Index.ArchiveURI(sources.Files[f][2])
-                          for f in range(len(sources.Files))])
+            while sources.lookup(srcpkg):
+                u.extend([sources.index.archive_uri(sources.files[f][2])
+                          for f in range(len(sources.files))])
             if len(u) > 0:
                 self.log.debug(u)
                 uris.extend(u)
@@ -1338,11 +1337,11 @@ class FLLBuilder(object):
 
     def _installPkgs(self, arch):
         '''Install packages.'''
-        cache = apt_pkg.GetCache(OpProgress())
+        cache = apt_pkg.Cache(apt.progress.base.OpProgress())
 
         i18n_list = self.__lines2list(self.conf['packages']['i18n'])
         pkgs_want = self._getPackageList(arch)
-        pkgs_base = [p.Name for p in cache.Packages if p.CurrentVer]
+        pkgs_base = [p.Name for p in cache.packages if p.current_ver]
         pkgs_dict = dict([(p, True) for p in pkgs_base + pkgs_want])
 
         pkgs_want.extend(self._detectLocalePkgs(i18n_list, pkgs_dict, cache))
