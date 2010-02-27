@@ -15,6 +15,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
     acpi-support-base no longer pulls them in, they're required for suspend modes
+  * add ksysguardd to kde-essential, required for sys monitor applets
 
   [ Chris Hildebrandt ]
   * add LXDM as an alternative to slim, add LXDE config tools
@@ -22,7 +23,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Kel Modderman ]
   * Initial update for new python-apt API.
 
- -- Kel Modderman <kel@otaku42.de>  Thu, 11 Feb 2010 21:11:13 +1000
+ -- Bernard Gray <bernard.gray@gmail.com>  Sun, 28 Feb 2010 10:40:16 +1100
 
 pyfll (2009.04) moros; urgency=low
 

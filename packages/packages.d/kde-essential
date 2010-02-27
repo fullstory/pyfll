@@ -8,5 +8,6 @@ packages = """
 	kde-minimal
 	kdm
 	konversation
+	ksysguardd
 	phonon-backend-xine
 """
