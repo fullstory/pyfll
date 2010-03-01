@@ -11,6 +11,11 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * temporarily drop siduxcc from all flavours, it's currently not in a state
     to be released.
   * drop xserver-xorg-video-geode, it's gone.
+  * update for new python-apt API:
+    - Attribute 'Set' of the 'apt_pkg.Configuration' object is deprecated, use
+      'set' instead.
+    - Attribute 'Name' of the 'apt_pkg.Package' object is deprecated, use
+      'name' instead.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -23,7 +28,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Kel Modderman ]
   * Initial update for new python-apt API.
 
- -- Bernard Gray <bernard.gray@gmail.com>  Sun, 28 Feb 2010 10:40:16 +1100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 01 Mar 2010 15:16:39 +0100
 
 pyfll (2009.04) moros; urgency=low
 

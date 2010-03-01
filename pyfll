@@ -949,8 +949,8 @@ class FLLBuilder(object):
         self._execInChroot(arch, 'apt-get dist-upgrade -y'.split())
 
         apt_pkg.InitConfig()
-        apt_pkg.Config.Set('RootDir', chroot)
-        apt_pkg.Config.Set('APT::Architecture', arch)
+        apt_pkg.Config.set('RootDir', chroot)
+        apt_pkg.Config.set('APT::Architecture', arch)
         apt_pkg.InitSystem()
 
 
@@ -1232,7 +1232,7 @@ class FLLBuilder(object):
                 dep = cache[name]
                 if dep.current_ver:
                     continue
-                rec_list.append(dep.Name)
+                rec_list.append(dep.name)
 
         self.log.debug('rec_list:')
         self.log.debug(rec_list)
@@ -1341,7 +1341,7 @@ class FLLBuilder(object):
 
         i18n_list = self.__lines2list(self.conf['packages']['i18n'])
         pkgs_want = self._getPackageList(arch)
-        pkgs_base = [p.Name for p in cache.packages if p.current_ver]
+        pkgs_base = [p.name for p in cache.packages if p.current_ver]
         pkgs_dict = dict([(p, True) for p in pkgs_base + pkgs_want])
 
         pkgs_want.extend(self._detectLocalePkgs(i18n_list, pkgs_dict, cache))
