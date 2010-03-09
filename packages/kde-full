@@ -36,5 +36,4 @@ packages = """
 	tvtime
 #	vdr-gui			#vdr-broken
 #	vdr-plugin-pvrinput	#vdr-broken
-	qutecom
 """

@@ -16,6 +16,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
       'set' instead.
     - Attribute 'Name' of the 'apt_pkg.Package' object is deprecated, use
       'name' instead.
+  * remove qutecom, it's dead.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -28,7 +29,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Kel Modderman ]
   * Initial update for new python-apt API.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 01 Mar 2010 15:16:39 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 09 Mar 2010 13:36:43 +0100
 
 pyfll (2009.04) moros; urgency=low
 
