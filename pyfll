@@ -304,8 +304,19 @@ class FLLBuilder(object):
             self.log.critical('no apt repos were specified in build config')
             raise Error
 
-        if 'debian' not in self.conf['repos']:
-            self.log.critical('debian repo not configured in build config')
+        if 'name' not in self.conf['sourcedistro']:
+            self.opts.N = 'debian'
+            self.opts.C = 'sid'
+	else:
+            self.opts.N = self.conf['sourcedistro']['name']
+            if 'codename' not in self.conf['sourcedistro']:
+                self.log.critical('codename undefined in distro section of build config')
+                raise Error
+            else:
+                self.opts.C = self.conf['sourcedistro']['codename']
+                
+        if self.opts.N not in self.conf['repos']:
+            self.log.critical('%s repo not configured in build config' % self.opts.N)
             raise Error
 
         for repo in self.conf['repos'].keys():
@@ -765,10 +776,10 @@ class FLLBuilder(object):
         self._execInChroot(arch, aptget)
 
 
-    def __cdebBootStrap(self, arch, dir, mirror):
+    def __cdebBootStrap(self, arch, dir, mirror, codename):
         '''Bootstrap a debian system with cdebootstrap.'''
-        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils',
-               '--flavour=minimal', 'sid', dir, mirror]
+        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils,gnupg',
+               '--flavour=minimal', codename, dir, mirror]
 
         if self.opts.d:
             cmd.append('--debug')
@@ -781,10 +792,10 @@ class FLLBuilder(object):
         self._execInChroot(arch, cmd.split())
 
 
-    def __debBootStrap(self, arch, dir, mirror):
+    def __debBootStrap(self, arch, dir, mirror, codename):
         '''Bootstrap a debian system with debootstrap.'''
-        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils',
-               '--variant=minbase', 'sid', dir, mirror]
+        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils,gnupg',
+               '--variant=minbase', codename, dir, mirror]
 
         if self.opts.d or self.opts.v:
             cmd.insert(1, '--verbose')
@@ -794,7 +805,9 @@ class FLLBuilder(object):
 
     def _bootStrap(self, arch):
         '''Bootstrap a debian system with cdebootstrap.'''
-        debian = self.conf['repos']['debian']
+        distro = self.opts.N
+        debian = self.conf['repos'][distro]
+        codename = self.opts.C
         if debian.get('cached'):
             mirror = debian['cached']
         else:
@@ -802,13 +815,13 @@ class FLLBuilder(object):
 
         dir = os.path.join(self.temp, arch)
 
-        self.log.info('bootstrapping debian %s...' % arch)
+        self.log.info('bootstrapping %s %s %s...' % (distro,codename,arch))
 
         bootstrapper = self.conf['options'].get('bootstrapper')
         if bootstrapper == 'debootstrap':
-            self.__debBootStrap(arch, dir, mirror)
+            self.__debBootStrap(arch, dir, mirror, codename)
         else:
-            self.__cdebBootStrap(arch, dir, mirror)
+            self.__cdebBootStrap(arch, dir, mirror, codename)
 
         shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
         shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
@@ -1335,7 +1348,7 @@ class FLLBuilder(object):
         self.pkgs[arch]['source'] = uris
 
 
-    def _installPkgs(self, arch):
+    def _installPkgs(self, arch, codename):
         '''Install packages.'''
         cache = apt_pkg.Cache(apt.progress.base.OpProgress())
 
@@ -1402,7 +1415,7 @@ class FLLBuilder(object):
                 rconf = None
                 try:
                     rconf = open(i18n_dist, "w")
-                    rconf.write('Codename: sid\n')
+                    rconf.write('Codename: %s\n' % codename)
                     rconf.write('Architectures: ')
                     for a in self.conf['archs'].keys():
                         rconf.write(''.join([a,' ']))
@@ -1421,7 +1434,7 @@ class FLLBuilder(object):
             aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
             for debfile in glob.glob(aptcache):
                 if not self.opts.D:
-                    self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', 'sid',
+                    self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', codename,
                                   debfile])
                 # create dict with package name = version to extend manifest
                 pkg, vers, extra = debfile.split('/')[-1].split('_')
@@ -2288,6 +2301,7 @@ class FLLBuilder(object):
     def buildChroots(self):
         '''Main loop to call all chroot building functions.'''
         archs = self.conf['archs'].keys()
+	codename = self.opts.C
         for arch in archs:
             self._bootStrap(arch)
             self._dpkgAddDivert(arch)
@@ -2295,7 +2309,7 @@ class FLLBuilder(object):
             self._distroDefaultEtc(arch)
             self._preseedDebconf(arch)
             self._primeApt(arch)
-            self._installPkgs(arch)
+            self._installPkgs(arch, codename)
             self._postInst(arch)
             self._collectManifest(arch)
             self._initBlackList(arch)
