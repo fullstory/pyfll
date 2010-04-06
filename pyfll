@@ -304,10 +304,11 @@ class FLLBuilder(object):
             self.log.critical('no apt repos were specified in build config')
             raise Error
 
-        if 'name' not in self.conf['sourcedistro']:
+        if 'sourcedistro' not in self.conf or \
+           'name' not in self.conf['sourcedistro']:
             self.opts.N = 'debian'
             self.opts.C = 'sid'
-	else:
+	    else:
             self.opts.N = self.conf['sourcedistro']['name']
             if 'codename' not in self.conf['sourcedistro']:
                 self.log.critical('codename undefined in distro section of build config')
