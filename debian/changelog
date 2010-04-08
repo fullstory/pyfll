@@ -32,7 +32,10 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Kel Modderman ]
   * Initial update for new python-apt API.
 
- -- Bernard Gray <bgray@bilgtit1-quad>  Wed, 31 Mar 2010 09:18:23 +1100
+  [ Nikolas Poniros ]
+  * Add cliinstaller to package list of kde-lite/xfce/xfce-lite 
+
+ -- Nikolas Poniros <edhunter@sidux.com>  Thu, 08 Apr 2010 22:20:59 +0200
 
 pyfll (2009.04) moros; urgency=low
 

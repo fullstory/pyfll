@@ -20,5 +20,6 @@ deps = """
 
 packages = """
 	iceweasel
+	cliinstaller
 """
 
