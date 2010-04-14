@@ -5,6 +5,34 @@ say() {
 }
 
 do_postinst() {
+	say 'Reconfiguring distro-defaults'
+	# Reconfigure to ensure out LSB defaults are in place for
+	# starting desktop managers in runlevel 5 only
+	dpkg-reconfigure distro-defaults
+
+	for dm in gdm kdm slim
+	do
+		[ -x /etc/init.d/${dm} ] || continue
+		update-rc.d -f ${dm} remove
+		update-rc.d ${dm} defaults
+	done
+
+	say 'Disabling selected initscripts which should not start in live mode'
+	update-rc.d anacron disable
+	update-rc.d cron disable
+	update-rc.d rsync disable
+	update-rc.d ssh disable
+
+	# Quite hacky, the disable API doesn't handle kill scripts
+	# (but this stops it from starting again after package upgrade)
+	update-rc.d nbd-client disable
+	/etc/rc[06].d/*nbd-client
+
+	# These + halt/reboot need to be specially handled for now by
+	# fll-live-initscripts. Cleaning this up would be awesome.
+	update-rc.d -f umountfs remove
+	update-rc.d -f umountroot remove
+
 	say 'Hacking /etc/inittab for passwdless login'
 	# We also set default runlevel to 5
 	sed -e 's#^id:[0-6]:initdefault:#id:5:initdefault:#' \
@@ -12,16 +40,10 @@ do_postinst() {
 	    -e 's#^\([0-6]\):23:#\1:2345:#' \
 		/usr/share/sysvinit/inittab > /etc/inittab
 
-	say 'Reconfiguring distro-defaults'
-	# Reconfigure to ensure out LSB defaults are in place for
-	# starting desktop managers in runlevel 5 only
-	dpkg-reconfigure distro-defaults
-
-	. /etc/default/distro
-
 	say 'Preseeding /etc/adduser.conf'
 	sed -i 's/^DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
 
+	. /etc/default/distro
 	unset GROUPS
 	for g in ${FLL_LIVE_USER_GROUPS}; do
 		if getent group ${g} >/dev/null; then

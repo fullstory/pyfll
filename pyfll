@@ -1465,110 +1465,6 @@ class FLLBuilder(object):
             os.unlink(os.path.join(chroot, 'tmp', sname))
 
 
-    def _initBlackList(self, arch):
-        '''Blacklist a group of initscripts present in chroot that should not
-        be executed during live boot per default.'''
-        self.log.info('calculating initscript blacklist for %s chroot...' %
-                      arch)
-        chroot = os.path.join(self.temp, arch)
-        initd = '/etc/init.d/'
-
-        init_glob = os.path.join(chroot, 'etc', 'init.d', '*')
-        initscripts = set([i.partition(chroot)[2]
-                           for i in glob.glob(init_glob)
-                           if self.__isexecutable(i)])
-
-        blacklist = set()
-        for line in open(os.path.join(self.opts.s, 'data',
-                                      'fll_init_blacklist')):
-            if line.startswith('#'):
-                continue
-            files = []
-            if line.startswith(initd):
-                file_glob = os.path.join(chroot, line.lstrip('/').rstrip())
-                files = [f.partition(chroot)[2] for f in glob.glob(file_glob)
-                         if self.__isexecutable(f)]
-                for file in files:
-                    self.log.debug('blacklisting: %s (glob)' % file)
-                    blacklist.add(file)
-            else:
-                try:
-                    cmd = 'chroot %s dpkg-query --listfiles ' % chroot
-                    cmd += line
-                    self._mount(chroot)
-                    p = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                              stderr = open(os.devnull, 'w'), close_fds = True)
-                    pout = p.communicate()[0]
-                    self._umount(chroot)
-                except:
-                    self.log.exception('failed to query files list for %s' %
-                                       line)
-                    raise Error
-                else:
-                    for file in pout.splitlines():
-                        file = file.strip().split()[0]
-                        if file.startswith(initd):
-                            self.log.debug('blacklisting: %s (%s)' %
-                                           (file, line.rstrip()))
-                            blacklist.add(file)
-
-        whitelist = set()
-        for line in open(os.path.join(self.opts.s, 'data',
-                                      'fll_init_whitelist')):
-            if line.startswith('#'):
-                continue
-            files = []
-            if line.startswith(initd):
-                file_glob = os.path.join(chroot, line.lstrip('/').rstrip())
-                files = [f.partition(chroot)[2] for f in glob.glob(file_glob)
-                         if self.__isexecutable(f)]
-                for file in files:
-                    self.log.debug('whitelisting: %s (glob)' % file)
-                    whitelist.add(file)
-            else:
-                try:
-                    cmd = 'chroot %s dpkg-query --listfiles ' % chroot
-                    cmd += line
-                    self._mount(chroot)
-                    p = Popen(cmd.split(), env = self.env, stdout = PIPE,
-                              stderr = open(os.devnull, 'w'))
-                    pout = p.communicate()[0]
-                    self._umount(chroot)
-                except:
-                    self.log.exception('failed to query files list for %s' %
-                                       line)
-                    raise Error
-                else:
-                    for file in pout.splitlines():
-                        file = file.strip().split()[0]
-                        if file.startswith(initd) and file not in blacklist:
-                            self.log.debug('whitelisting: %s (%s)' %
-                                           (file, line.rstrip()))
-                            whitelist.add(file)
-
-        fllinitblacklist = [os.path.basename(i) + '\n'
-                            for i in initscripts.difference(whitelist)]
-        fllinitblacklist.sort()
-
-        self.log.debug('fllinitblacklist:')
-        for f in fllinitblacklist:
-            self.log.debug('  %s' % f.rstrip())
-        self.log.debug('---')
-
-        self.log.debug('writing file: /etc/default/fll-init')
-        fllinit = None
-        try:
-            fllinit = open(os.path.join(chroot, 'etc/default/fll-init'),
-                           'a')
-            fllinit.writelines(fllinitblacklist)
-        except IOError:
-            self.log.exception('failed to open /etc/default/fll-init')
-            raise Error
-        finally:
-            if fllinit:
-                fllinit.close()
-
-
     def _zerologs(self, arch, dir, fnames):
         '''Truncate all log files.'''
         chroot = os.path.join(self.temp, arch)
@@ -2313,7 +2209,6 @@ class FLLBuilder(object):
             self._installPkgs(arch, codename)
             self._postInst(arch)
             self._collectManifest(arch)
-            self._initBlackList(arch)
             self._finalEtc(arch)
             self._dpkgUnDivert(arch)
             self._makeInitramfs(arch)
