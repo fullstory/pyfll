@@ -17,6 +17,8 @@ pyfll (2010.01) UNRELEASED; urgency=low
     - Attribute 'Name' of the 'apt_pkg.Package' object is deprecated, use
       'name' instead.
   * remove qutecom, it's dead.
+  * switch to dpkg-source 3.0 (native) format.
+  * update standards version to 3.8.4, no changes necessary.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -37,7 +39,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite 
 
- -- Kel Modderman <kel@otaku42.de>  Wed, 14 Apr 2010 21:19:03 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 14 Apr 2010 13:43:11 +0200
 
 pyfll (2009.04) moros; urgency=low
 
