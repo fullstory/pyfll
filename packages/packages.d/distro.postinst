@@ -26,12 +26,7 @@ do_postinst() {
 	# Quite hacky, the disable API doesn't handle kill scripts
 	# (but this stops it from starting again after package upgrade)
 	update-rc.d nbd-client disable
-	/etc/rc[06].d/*nbd-client
-
-	# These + halt/reboot need to be specially handled for now by
-	# fll-live-initscripts. Cleaning this up would be awesome.
-	update-rc.d -f umountfs remove
-	update-rc.d -f umountroot remove
+	rm -f /etc/rc[06].d/*nbd-client
 
 	say 'Hacking /etc/inittab for passwdless login'
 	# We also set default runlevel to 5
