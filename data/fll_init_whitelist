@@ -18,22 +18,27 @@
 #################################################
 # core packages, same list as in fll-installer
 #################################################
+acpid
 alsa-base
 alsa-utils
 avahi-daemon
+bluez
 bootchart
 console-common
 console-setup
 console-tools
 cpufrequtils
+cups
 dbus
 fuse-utils
+gdm
 gpm
 hal
 ifupdown
 initscripts
 irqbalance
 kbd
+kdm
 keyboard-configuration
 qemu-kvm
 libc6
@@ -45,13 +50,8 @@ powersaved
 procps
 resolvconf
 screen
+slim
 sysv-rc
 udev
 util-linux
 x11-common
-#################################################
-# extra packages, managed by fll-live-initscripts
-#################################################
-acpid
-bluez-utils
-cups

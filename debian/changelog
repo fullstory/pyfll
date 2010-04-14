@@ -31,11 +31,13 @@ pyfll (2010.01) UNRELEASED; urgency=low
 
   [ Kel Modderman ]
   * Initial update for new python-apt API.
+  * Whitelist desktop manager initscripts.
+  * Refresh initscript whitelist.
 
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite 
 
- -- Nikolas Poniros <edhunter@sidux.com>  Thu, 08 Apr 2010 22:20:59 +0200
+ -- Kel Modderman <kel@otaku42.de>  Wed, 14 Apr 2010 21:19:03 +1000
 
 pyfll (2009.04) moros; urgency=low
 
