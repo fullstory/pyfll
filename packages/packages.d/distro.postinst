@@ -30,8 +30,8 @@ do_postinst() {
 
 	# Quite hacky, the disable API doesn't handle kill scripts
 	# (but this stops it from starting again after package upgrade)
-	update-rc.d nbd-client disable
 	rm -f /etc/rc[016].d/*nbd-client
+	update-rc.d nbd-client disable
 
 	say 'Hacking /etc/inittab for passwdless login'
 	# We also set default runlevel to 5
