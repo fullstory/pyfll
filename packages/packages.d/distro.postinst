@@ -23,15 +23,15 @@ do_postinst() {
 	done
 
 	say 'Disabling selected initscripts which should not start in live mode'
-	update-rc.d anacron disable
-	update-rc.d cron disable
-	update-rc.d rsync disable
-	update-rc.d ssh disable
+	for service in anacron cron rsync ssh
+	do
+		[ -x /etc/init.d/${service} ] || continue
+		update-rc.d ${service} disable
+	done
 
-	# Quite hacky, the disable API doesn't handle kill scripts
-	# (but this stops it from starting again after package upgrade)
-	rm -f /etc/rc[016].d/*nbd-client
-	update-rc.d nbd-client disable
+	# Quite hacky, but /etc/nbd-client default conf
+	# leaves a broken partial /dev/nbd0 config
+	sed -i 's#/dev/nbd0##' /etc/nbd-client
 
 	say 'Hacking /etc/inittab for passwdless login'
 	# We also set default runlevel to 5
