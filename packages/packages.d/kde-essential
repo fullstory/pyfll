@@ -8,6 +8,6 @@ packages = """
 	kde-plasma-desktop
 	kdm
 	konversation
-	ksysguardd
+	partitionmanager
 	phonon-backend-xine
 """

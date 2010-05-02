@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	gparted
 	libxine1-xvdr
 	xsane
 	zenity

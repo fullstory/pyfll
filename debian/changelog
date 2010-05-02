@@ -20,11 +20,13 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * switch to dpkg-source 3.0 (native) format.
   * update standards version to 3.8.4, no changes necessary.
   * s/kde-minimal/kde-plasma-desktop/
+  * drop gparted from utils-x, it's implicitly pulled in by install-gui.
+  * add partitionmanager to kde-essential, thereby overriding gparted in kde
+    builds.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
     acpi-support-base no longer pulls them in, they're required for suspend modes
-  * add ksysguardd to kde-essential, required for sys monitor applets
   * add [sourcedistro] section to fll.conf
     - allows multiple source distro/codename options for debootstrapping
     - still only tested on debian sid at this stage though
@@ -42,7 +44,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 02 May 2010 12:51:21 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 02 May 2010 13:58:29 +0200
 
 pyfll (2009.04) moros; urgency=low
 
