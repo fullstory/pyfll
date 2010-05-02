@@ -5,7 +5,7 @@ desc = """
 packages = """
 	ark
 	kaffeine
-	kde-minimal
+	kde-plasma-desktop
 	kdm
 	konversation
 	ksysguardd

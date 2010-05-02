@@ -19,6 +19,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * remove qutecom, it's dead.
   * switch to dpkg-source 3.0 (native) format.
   * update standards version to 3.8.4, no changes necessary.
+  * s/kde-minimal/kde-plasma-desktop/
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -41,7 +42,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite 
 
- -- Kel Modderman <kel@otaku42.de>  Wed, 14 Apr 2010 23:39:52 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 02 May 2010 12:51:21 +0200
 
 pyfll (2009.04) moros; urgency=low
 
