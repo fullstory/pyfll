@@ -1,3 +1,9 @@
+pyfll (2010.02) UNRELEASED; urgency=low
+
+  * remove unused lxde-full and lxde-extras package lists, we use lxde-lite only
+
+ -- Chris Hildebrandt <slam@sidux.com>  Wed, 05 May 2010 10:21:58 +0200
+
 pyfll (2010.01) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
