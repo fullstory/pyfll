@@ -1,9 +1,3 @@
-pyfll (2010.02) UNRELEASED; urgency=low
-
-  * remove unused lxde-full and lxde-extras package lists, we use lxde-lite only
-
- -- Chris Hildebrandt <slam@sidux.com>  Wed, 05 May 2010 10:21:58 +0200
-
 pyfll (2010.01) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
@@ -39,6 +33,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
 
   [ Chris Hildebrandt ]
   * add LXDM as an alternative to slim, add LXDE config tools
+  * remove unused lxde-full and lxde-extras package lists, we use lxde-lite only
 
   [ Kel Modderman ]
   * Initial update for new python-apt API.
@@ -50,7 +45,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 02 May 2010 13:58:29 +0200
+ -- Chris Hildebrandt <slam@sidux.com>  Wed, 05 May 2010 10:21:58 +0200
 
 pyfll (2009.04) moros; urgency=low
 
