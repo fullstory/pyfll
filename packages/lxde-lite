@@ -18,16 +18,13 @@ deps = """
 
 packages = """
 	blueman
-	brasero
 	cryptsetup
 	dosfstools
 	epdfview
 	ftp-ssl
 	fuse-utils
 	gamix
-	guake
-	gxine
-	jfsutils	
+	jfsutils
 	man-db
 	manpages
 	memtest86+
@@ -36,8 +33,6 @@ packages = """
 	ntfs-3g
 	ntfsprogs
 	openssh-client
-	osmo
-	parcellite
 	reiserfsprogs
 	sshfs
 	smbclient
