@@ -1,15 +1,3 @@
-pyfll (2010.03) UNRELEASED; urgency=low
-
-  * replace slim with lxdm
-
- -- Chris Hildebrandt <slam@sidux.com>  Sat, 08 May 2010 19:10:43 +0200
-
-pyfll (2010.02) UNRELEASED; urgency=low
-
-  * shorten list of distributed apps, as agreed in lxde team
-
- -- Chris Hildebrandt <slam@sidux.com>  Sat, 08 May 2010 19:09:02 +0200
-
 pyfll (2010.01) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
@@ -46,6 +34,8 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Chris Hildebrandt ]
   * add LXDM as an alternative to slim, add LXDE config tools
   * remove unused lxde-full and lxde-extras package lists, we use lxde-lite only
+  * shorten list of distributed apps, as agreed in lxde team
+  * replace slim with lxdm
 
   [ Kel Modderman ]
   * Initial update for new python-apt API.
