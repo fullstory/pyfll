@@ -6,10 +6,9 @@ desc = """
 packages = """
 	desktop-defaults-lxde
 	gksu
-#	lxdm
-#	lxdm-conf
+	lxdm
+	lxdm-conf
 #	sidux-art-lxde
 	sidux-art-wallpaper
 	sidux-lxde-common
-	slim
 """
