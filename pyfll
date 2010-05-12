@@ -1253,19 +1253,6 @@ class FLLBuilder(object):
         return rec_list
 
 
-    def _detectLinuxModulePkgs(self, arch, cache):
-        '''Provide automated detection for extra linux module packages.'''
-        self.log.debug('detecting linux modules packages')
-        kvers_list = []
-        for kver in self.conf['archs'][arch]['linux']:
-            kvers = '-modules-' + kver
-            kvers_list.extend([p.name for p in cache.packages
-                          if p.name.endswith(kvers) and p.version_list])
-        self.log.debug('kvers_list:')
-        self.log.debug(kvers_list)
-        return kvers_list
-
-
     def __getSourcePkg(self, pkg, depcache, records):
         '''Get the source package name of a given package.'''
         version = depcache.get_candidate_ver(pkg)
@@ -1360,7 +1347,6 @@ class FLLBuilder(object):
 
         pkgs_want.extend(self._detectLocalePkgs(i18n_list, pkgs_dict, cache))
         pkgs_want.extend(self._detectRecommendedPkgs(pkgs_dict, cache))
-        pkgs_want.extend(self._detectLinuxModulePkgs(arch, cache))
 
         self.log.info('installing packages in %s chroot...' % arch)
         self._aptGetInstall(arch, self.__filterList(pkgs_want),

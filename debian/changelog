@@ -27,6 +27,8 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * drop kdeaccessibility, speed-dispatcher is horribly broken.
   * disable bootlogd init scripts, they're looping and not needed on the live 
     media.
+  * remove heuristic to search for additional kernel modules, support for
+    linux-modules-extra-2.6 doesn't exist anymore.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -50,7 +52,8 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite
 
-  [ Chris Hildebrandt ]
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 12 May 2010 15:17:40 +0200
+
 pyfll (2009.04) moros; urgency=low
 
   [ Stefan Lippers-Hollmann ]
