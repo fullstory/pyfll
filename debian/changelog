@@ -50,8 +50,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 12 May 2010 02:20:47 +0200
-
+  [ Chris Hildebrandt ]
 pyfll (2009.04) moros; urgency=low
 
   [ Stefan Lippers-Hollmann ]
@@ -107,6 +106,7 @@ pyfll (2009.04) moros; urgency=low
   * lxnm officially depreciated upstream
   * lxmusic became optional upstream, gcalculator not in sid
   * sync lxde changes with noc
+  * disable sidux-lxde-common, not in debian/sidux repos yet
 
   [ Nikolas Poniros ]
   * sync lxde changes with noc 

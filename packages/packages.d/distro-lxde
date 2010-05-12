@@ -10,6 +10,6 @@ packages = """
 #	lxdm-conf
 #	sidux-art-lxde
 	sidux-art-wallpaper
-	sidux-lxde-common
+#	sidux-lxde-common
 	slim
 """
