@@ -23,6 +23,10 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * drop gparted from utils-x, it's implicitly pulled in by install-gui.
   * add partitionmanager to kde-essential, thereby overriding gparted in kde
     builds.
+  * re-enable kdebluetooth for kde-desktop, a kde4 variant is in unstable now.
+  * drop kdeaccessibility, speed-dispatcher is horribly broken.
+  * disable bootlogd init scripts, they're looping and not needed on the live 
+    media.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -35,8 +39,6 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * add LXDM as an alternative to slim, add LXDE config tools
   * remove unused lxde-full and lxde-extras package lists, we use lxde-lite only
   * shorten list of distributed apps, as agreed in lxde team
-  * replace slim with lxdm
-  * revert to slim as default until lxdm has hit Debian
 
   [ Kel Modderman ]
   * Initial update for new python-apt API.
@@ -46,7 +48,9 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * Add some update-rc.d calls to distro.postinst to setup live boot system.
 
   [ Nikolas Poniros ]
-  * Add cliinstaller to package list of kde-lite/xfce/xfce-lite 
+  * Add cliinstaller to package list of kde-lite/xfce/xfce-lite
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 12 May 2010 02:20:47 +0200
 
 pyfll (2009.04) moros; urgency=low
 

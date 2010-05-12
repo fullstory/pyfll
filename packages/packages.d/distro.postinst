@@ -23,7 +23,7 @@ do_postinst() {
 	done
 
 	say 'Disabling selected initscripts which should not start in live mode'
-	for service in anacron cron rsync ssh
+	for service in anacron cron rsync ssh bootlogd bootlogs stop-bootlogd stop-bootlogd-single
 	do
 		[ -x /etc/init.d/${service} ] || continue
 		update-rc.d ${service} disable

@@ -9,15 +9,13 @@ packages = """
 	kate
 	kbattleship
 	kcharselect
-	kdeaccessibility
 	kdeadmin
-#	kdebluetooth		#experimental
+	kdebluetooth
 	kdelirc
 	kdemultimedia-kio-plugins
 	kdepim-kresources
 	kdepim-wizards
 	kdf
-#	kdict			#kde3, missing
 	kgamma
 	kget
 	kgpg
@@ -29,11 +27,9 @@ packages = """
 	kpat
 	krdc
 	kreversi
-#	krita			#kde3, koffice2
 	krusader
 	ktorrent
 	kwalletmanager
-#	moto4lin		#kde3
 	packagesearch
 	wpagui
 	yakuake
