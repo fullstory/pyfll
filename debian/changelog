@@ -53,7 +53,10 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 12 May 2010 15:23:48 +0200
+  [ Niall Walsh ]
+  * Stop -a clobbering archs from config
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 12 May 2010 20:46:03 +0100
 
 pyfll (2009.04) moros; urgency=low
 

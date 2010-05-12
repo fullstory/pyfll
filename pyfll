@@ -266,14 +266,21 @@ class FLLBuilder(object):
 
     def _processConf(self):
         '''Process configuration options.'''
+        arch = ''
         if self.opts.a:
-            self.conf['archs'] = {self.opts.a: dict()}
-            self.log.debug('arch: %s' % self.opts.a)
+            arch = self.opts.a
         elif not self.conf.get('archs'):
-            host_arch = Popen(['dpkg', '--print-architecture'],
+            arch = Popen(['dpkg', '--print-architecture'],
                               stdout=PIPE).communicate()[0].rstrip()
-            self.conf['archs'] = {host_arch: dict()}
-            self.log.debug('arch: %s' % host_arch)
+
+        if len(arch):
+            self.log.debug('arch: %s' % arch)
+            if arch not in self.conf['archs'].keys():
+                self.conf['archs'] = {arch: dict()}
+            else:
+                for arch2 in self.conf['archs'].keys():
+                    if arch != arch2:
+                        del self.conf['archs'][arch2]
 
         for arch in self.conf['archs'].keys():
             if 'linux' not in self.conf['archs'][arch]:
