@@ -24,7 +24,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * add partitionmanager to kde-essential, thereby overriding gparted in kde
     builds.
   * re-enable kdebluetooth for kde-desktop, a kde4 variant is in unstable now.
-  * drop kdeaccessibility, speed-dispatcher is horribly broken.
+  * drop kdeaccessibility, speech-dispatcher is horribly broken.
   * disable bootlogd init scripts, they're looping and not needed on the live 
     media.
   * remove heuristic to search for additional kernel modules, support for
