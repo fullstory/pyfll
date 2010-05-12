@@ -282,10 +282,7 @@ class FLLBuilder(object):
                 else:
                     cpu = arch
 
-                if os.path.isfile('/etc/sidux-version'):
-                    linux = '2.6-sidux-' + cpu
-                else:
-                    linux = '2.6-' + cpu
+                linux = '2.6-' + cpu
 
                 self.conf['archs'][arch].setdefault('linux', [ linux ])
             else:
