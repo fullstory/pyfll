@@ -9,7 +9,6 @@ packages = """
 	bluez-pcmcia-support
 	dmidecode
 	dmsetup
-	lirc
 	rfkill
 	vbetool
 """

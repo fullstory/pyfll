@@ -30,6 +30,11 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * remove heuristic to search for additional kernel modules, support for
     linux-modules-extra-2.6 doesn't exist anymore.
   * drop /etc/sidux-version kernel heuristic.
+  * disable init scripts:
+    - lirc
+    - mysql
+    - postfix
+  * drop lirc from hwsupport-extra, it needs special configuration to function.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -56,7 +61,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Stop -a clobbering archs from config
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 12 May 2010 20:46:03 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 14 May 2010 01:21:38 +0200
 
 pyfll (2009.04) moros; urgency=low
 
