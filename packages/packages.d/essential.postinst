@@ -5,12 +5,6 @@ say() {
 }
 
 do_postinst() {
-	# enable concurrency
-	if [ -w /etc/default/rcS ] && ! grep -q '^CONCURRENCY=' /etc/default/rcS; then
-		say 'Activating makefile initscript concurrency'
-		echo 'CONCURRENCY=makefile' >> /etc/default/rcS
-	fi
-
 	# create grub2 ElTorito support
 	if which grub-mkimage >/dev/null; then
 		say 'Creating grub2 El Torito image file'
