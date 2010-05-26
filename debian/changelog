@@ -37,6 +37,8 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * drop lirc from hwsupport-extra, it needs special configuration to function.
   * no need to set CONCURRENCY=makefile explicitly anymore,
     sysvinit >= 2.88dsf-4 uses it by default.
+  * handle gdm3 and lxdm as well.
+  * use a common service blacklisting in pyfll and fll-installer.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -63,7 +65,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Stop -a clobbering archs from config
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 15 May 2010 00:13:38 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 26 May 2010 14:37:13 +0200
 
 pyfll (2009.04) moros; urgency=low
 

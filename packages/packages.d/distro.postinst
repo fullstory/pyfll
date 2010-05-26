@@ -8,25 +8,35 @@ do_postinst() {
 	say 'Reconfiguring distro-defaults'
 	# Reconfigure to ensure out LSB defaults are in place for
 	# starting desktop managers in runlevel 5 only
-	for dm in gdm kdm slim
-	do
+	for dm in gdm gdm3 kdm lxdm slim wdm xdm; do
 		[ -x /etc/init.d/${dm} ] || continue
 		update-rc.d -f ${dm} remove
 	done
 
 	dpkg-reconfigure distro-defaults
 
-	for dm in gdm kdm slim
-	do
+	for dm in gdm gdm3 kdm lxdm slim wdm xdm; do
 		[ -x /etc/init.d/${dm} ] || continue
 		update-rc.d ${dm} defaults
 	done
 
 	say 'Disabling selected initscripts which should not start in live mode'
-	for service in anacron cron rsync ssh bootlogd bootlogs lirc mysql postfix stop-bootlogd stop-bootlogd-single
-	do
-		[ -x /etc/init.d/${service} ] || continue
-		update-rc.d ${service} disable
+
+	# remember keep service blacklists in sync with fll-installer!
+	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single"
+	REMOVED_SERVICES=""
+	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
+
+	# disable services not wanted on the live CD
+	for service in ${DISABLED_SERVICES} ${SERVICE_BLACKLIST}; do
+		[ -x "/etc/init.d/${service}" ] || continue
+		update-rc.d "${service}" disable
+	done
+
+	# remove particularly nasty services, don't use!
+	for service in ${REMOVED_SERVICES}; do
+		[ -x "/etc/init.d/${service}" ] || continue
+		update-rc.d -f "${service}" remove
 	done
 
 	# Quite hacky, but /etc/nbd-client default conf
