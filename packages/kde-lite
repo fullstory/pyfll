@@ -10,6 +10,7 @@ deps = """
 	distro-tools-x
 	fluxbox
 	hwsupport-essential
+	hwsupport-powermanagement
 	hwsupport-extra
 	hwsupport-printscan
 	kde-essential

@@ -46,6 +46,8 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * add [sourcedistro] section to fll.conf
     - allows multiple source distro/codename options for debootstrapping
     - still only tested on debian sid at this stage though
+  * add hwsupport-powermanagement to kde-* (not stripped), seminarix and dvd* profiles
+    - adds suspend-to* support
 
   [ Chris Hildebrandt ]
   * add LXDM as an alternative to slim, add LXDE config tools
@@ -65,7 +67,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Stop -a clobbering archs from config
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 26 May 2010 14:37:13 +0200
+ -- Bernard Gray <bernard.gray@gmail.com>  Tue, 01 Jun 2010 09:00:14 +1000
 
 pyfll (2009.04) moros; urgency=low
 
