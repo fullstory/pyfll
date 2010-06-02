@@ -6,4 +6,5 @@ packages = """
 	desktop-defaults-kde
 	sidux-art-kde
 	skanlite
+	partitionmanager
 """

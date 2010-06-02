@@ -12,4 +12,5 @@ packages = """
 	sidux-art-wallpaper
 #	sidux-lxde-common
 	slim
+	gparted
 """

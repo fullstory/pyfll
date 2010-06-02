@@ -6,5 +6,6 @@ packages = """
 	desktop-defaults-xfce
 	gksu
 	sidux-art-xfce
+	gparted
 """
 

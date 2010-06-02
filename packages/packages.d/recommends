@@ -7,7 +7,6 @@ packages = """
 	bash
 	fll-live-initscripts
 	hal
-	install-gui
 	k3b
 	kontact
 	kopete
