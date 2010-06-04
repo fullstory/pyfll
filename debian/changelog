@@ -39,6 +39,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
     sysvinit >= 2.88dsf-4 uses it by default.
   * handle gdm3 and lxdm as well.
   * use a common service blacklisting in pyfll and fll-installer.
+  * adapt to new parameter interface of grub-mkimage >= 1.98+20100527.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -67,7 +68,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Stop -a clobbering archs from config
 
- -- Bernard Gray <bernard.gray@gmail.com>  Tue, 01 Jun 2010 09:00:14 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 04 Jun 2010 14:05:30 +0200
 
 pyfll (2009.04) moros; urgency=low
 
