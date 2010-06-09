@@ -17,7 +17,7 @@ packages = """
 	firmware-ipw2x00
 	firmware-iwlwifi
 	firmware-ralink
+	firmware-realtek
 	libertas-firmware
 	zd1211-firmware
 """
-

@@ -22,4 +22,3 @@ packages = """
 i386 = """
 	libwine-jack
 """
-

@@ -7,7 +7,5 @@ packages = """
 	ddrescue
 	hexedit
 	magicrescue
-#	mindi
-#	mondo
 """
 

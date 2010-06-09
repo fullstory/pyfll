@@ -24,34 +24,25 @@ deps = """
 	utils-essential
 	utils-extra
 	utils-x
-	wine
 	xfce-desktop-extras
 	xserver
 """
 
 packages = """
-	abiword-plugins
-	albumshaper
+	abiword-plugin-grammar
+	abiword-plugin-mathview
 	alsamixergui
-	amule
-	ardour
 	audacious
 	audacious-plugins
-	audacious-plugins-extra
 	audacity
 	autoconf
 	automake
-	blender
-	camediaplay
 	camorama
-	camserv
-	camserv-relay
 	cdparanoia
 	chemtool
 	chkrootkit
 	clamav
 	clamav-freshclam
-	conky
 	cvs
 	dcraw
 	debarchiver
@@ -68,7 +59,6 @@ packages = """
 	docbook2x
 	easytag
 	eclipse
-	eclipse-platform-gcj
 	ekiga
 	enigmail
 	epiphany
@@ -83,7 +73,6 @@ packages = """
 	fll-iso2usb
 	gcompris
 	geany
-	gettext
 	gftp
 	ghemical
 	gnucash
@@ -93,91 +82,51 @@ packages = """
 	gtkam-gimp
 	gtkpod
 	html2text
-	httrack
 	hydrogen
 	hydrogen-drumkits
 	icedove
 	icedtea6-plugin
 	iceowl
 	iceweasel
-	icewm
-	icewm-gnome-support
-	icewm-themes
 	idesk
 	idle
-#	idjc
 	imagemagick
 	inkscape
 	install-usb-gui
 	irssi
-	jackd
-	jack-tools
 	kalgebra
-	kallery
-	karbon
 	katomic
-	kbibtex
-	kdeaddons
 	kdeedu
 	kdegraphics
-	kde-icons-crystalclear
-	kde-icons-crystalproject
 	kdemultimedia
 	kdenetwork
 	kdepim
 	kdesdk
-	kdesktop
-	kde-style-klearlook
-	kde-style-lipstik
-	kde-style-qtcurve
 	kdesvn
 	kdesvn-kio-plugins
 	kdeutils
 	kdevelop
-	kdewallpapers
 	kdewebdev
 	kfind
-	kflickr
-	kformula
 	kgeography
-	kguitar
 	kid3-qt
 	kig
 	kile
 	kino
-	kiosktool
-	kitty
-	klamav
 	klash
-	klatin
-	klineakconfig
 	kmidimon
-	kmobiletools
 	kmousetool
 	kmouth
-	kradio
-	krecordmydesktop
 	krename
-	ksimus
-	kstreamripper
 	ksysguard
-	kthesaurus
 	ktuberling
-	kvoctrain
 	qemu-kvm
 	kweather
 	kwiki
-	kwirelessmonitor
 	kwordquiz
-	kworldclock
 	libtool
-	licq-plugin-kde
-	licq-plugin-qt
 	lilypond
-	lineak-kdeplugins
 	links2
-	lisa
-	liveusb-creator
 	lmms
 	lynx
 	lyx
@@ -193,7 +142,6 @@ packages = """
 	netcat
 	nvram-wakeup
 	okular
-#	openclipart-openoffice.org
 	openjdk-6-jdk
 	openoffice.org-l10n-de
 	openoffice.org-gtk
@@ -204,19 +152,15 @@ packages = """
 	p7zip-full
 	parted
 	patchutils
-	pdfedit
 	pidgin-extprefs
 	pidgin-guifications
 	pidgin-hotkeys
 	pidgin-libnotify
 	pidgin-librvp
 	pidgin-plugin-pack
-	qcad
-	qjackctl
 	qt4-designer
 	qt4-dev-tools
 	qt4-qtconfig
-	qtnx
 	quodlibet
 	rdiff-backup
 	rosegarden
@@ -236,8 +180,6 @@ packages = """
 	transcriber
 	ttf-kochi-gothic
 	ttf-mona
-#	tuxmath
-#	tuxpaint
 	ufraw
 	unison
 	vcdimager
@@ -247,7 +189,6 @@ packages = """
 	vim-latexsuite
 	vlc
 	vorbis-tools
-	wengophone
 	xemacs21
 	xfonts-intl-phonetic
 	xfonts-tipa

@@ -31,10 +31,6 @@ packages = """
 	myspell-en-us
 	nano
 	openoffice.org-kde
-#	pdfedit			#kde3
 	rdiff-backup
-#	sidux-vdr		#vdr-broken
 	tvtime
-#	vdr-gui			#vdr-broken
-#	vdr-plugin-pvrinput	#vdr-broken
 """

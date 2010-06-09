@@ -51,41 +51,23 @@ packages = """
 	italc-master
 	juk
 	kalzium
-#	karbon		(not in sid)
 	katomic
 	kbruch
-#	kchart		(not in sid)
 	kdenlive
-#	kdict		(not available for kde4 yet)
-#	keduca		(not available for kde4 yet)	
-#	kexi		(not in sid)
-#	kformula	(not in sid)		
 	kgeography
 	kig
 	kimagemapeditor
 	kino
-#	kivio		(not in sid)
-#	klatin		(not available for kde4 yet)
 	klogic
 	kmplot
-#	knights
-#	knights-themepack
-#	koffice-i18n-de		(not in sid)
 	kompozer
-#	kolourpaint		(not in sid)
-#	kpercentage		(obsolete, integrated in kbruch now)
-#	kplato			(not in sid)
-#	kpresenter		(not in sid)
-#	krita			(not in sid)
 	krusader
 	ksimus
 	ksociograma
-#	kspread			(not in sid)
 	kstars
 	krosspython
 	ktouch
 	kturtle
-#	kword			(not in sid)
 	kwordquiz
 	labplot
 	lazarus
@@ -110,7 +92,6 @@ packages = """
 	qt4-designer
 	qt4-dev-tools
 	qt4-qmake
-#	quanta	(no version for kde4)
 	qgo
 	recordmydesktop
 	scribus
