@@ -41,7 +41,6 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * use a common service blacklisting in pyfll and fll-installer.
   * adapt to new parameter interface of grub-mkimage >= 1.98+20100527.
   * break out xserver-xorg-video-all, to disable individually broken modules:
-    - xserver-xorg-video-cirrus, colour problems with qt4
     - xserver-xorg-video-nouveau, no stable kernel ./. userspace ABI yet.
   * fix package list for the DVD.
 
@@ -70,7 +69,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Stop -a clobbering archs from config
 
- -- Kel Modderman <kel@otaku42.de>  Sat, 12 Jun 2010 23:20:10 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 13 Jun 2010 01:48:32 +0200
 
 pyfll (2009.04) moros; urgency=low
 
