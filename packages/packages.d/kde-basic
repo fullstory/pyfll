@@ -6,6 +6,8 @@ packages = """
 	gwenview
 	k3b
 	kcalc
+	kde-config-tablet
+	kde-config-touchpad
 	khelpcenter4
 	kmix
 	knemo

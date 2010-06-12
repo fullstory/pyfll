@@ -61,10 +61,10 @@ pyfll (2010.01) UNRELEASED; urgency=low
 
   [ Kel Modderman ]
   * Initial update for new python-apt API.
-  * Whitelist desktop manager initscripts.
-  * Refresh initscript whitelist.
   * Remove initscript whitelist/blacklist voodoo.
   * Add some update-rc.d calls to distro.postinst to setup live boot system.
+  * Add kde-config-tablet and kde-config-touchpad to packages.d/kde-
+    basic.
 
   [ Nikolas Poniros ]
   * Add cliinstaller to package list of kde-lite/xfce/xfce-lite
@@ -72,7 +72,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Stop -a clobbering archs from config
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 09 Jun 2010 22:17:51 +0200
+ -- Kel Modderman <kel@otaku42.de>  Sat, 12 Jun 2010 21:16:16 +1000
 
 pyfll (2009.04) moros; urgency=low
 
