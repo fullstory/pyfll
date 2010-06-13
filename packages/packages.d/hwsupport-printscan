@@ -15,6 +15,7 @@ packages = """
 	foomatic-filters
 	foomatic-filters-ppds
 	foo2zjs
+	ghostscript-cups
 	ghostscript-x
 	hal-cups-utils
 	hpijs-ppds
