@@ -29,8 +29,6 @@ deps = """
 """
 
 packages = """
-	kdm
-	sidux-art-kdm-hypnos
 	abiword-plugin-grammar
 	abiword-plugin-mathview
 	alsamixergui

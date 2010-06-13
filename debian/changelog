@@ -1,7 +1,12 @@
-pyfll (2010.01) UNRELEASED; urgency=low
+pyfll (2010.02) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
-  
+  * revert "list gdm explicitly in xfce profiles".
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 14 Jun 2010 01:51:24 +0200
+
+pyfll (2010.01) hypnos; urgency=low
+
   [ Stefan Lippers-Hollmann ]
   * switch to CONCURRENCY=makefile
   * add rfkill to hwsupport-extra, it is important to enable wlan/ bluetooth
