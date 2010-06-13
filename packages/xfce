@@ -22,6 +22,8 @@ deps = """
 """
 
 packages = """
+	gdm
+	sidux-art-gdm-hypnos
 	iceweasel
 	cliinstaller
 """

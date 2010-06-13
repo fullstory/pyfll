@@ -7,7 +7,6 @@ packages = """
 	desktop-file-utils
 	fam
 	gconf2
-	gdm
 	gksu
 	gtk2-engines-xfce
 	gnome-icon-theme

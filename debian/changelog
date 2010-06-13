@@ -45,6 +45,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   * fix package list for the DVD.
   * add ghostscript-cups to hwsupport-printscan, it's needed for non-postscript
     printers.
+  * list gdm explicitly in xfce profiles.
 
   [ Bernard Gray ]
   * add powermgmt and pm-utils to power management profile -
@@ -71,7 +72,7 @@ pyfll (2010.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Stop -a clobbering archs from config
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 13 Jun 2010 15:21:19 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 13 Jun 2010 16:04:15 +0200
 
 pyfll (2009.04) moros; urgency=low
 
