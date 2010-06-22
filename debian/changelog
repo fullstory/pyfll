@@ -2,8 +2,10 @@ pyfll (2010.02) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
   * revert "list gdm explicitly in xfce profiles".
+  * s/gfxboot.com/gfxboot.c32/
+  * isohybrid has moved to syslinux, adapt README.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 14 Jun 2010 01:51:24 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 22 Jun 2010 14:07:25 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

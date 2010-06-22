@@ -1597,7 +1597,7 @@ class FLLBuilder(object):
                if not os.path.isdir(syslinux_dir):
                    os.mkdir(syslinux_dir, 0755)
                shutil.copy(isolinux, syslinux_dir)
-               gfxboot = os.path.join(chroot, 'usr/lib/syslinux/gfxboot.com')
+               gfxboot = os.path.join(chroot, 'usr/lib/syslinux/gfxboot.c32')
                shutil.copy(gfxboot, syslinux_dir)
                bootlogo_dir = os.path.join(chroot, 'etc', 'bootsplash', 'themes', self.conf['distro']['FLL_GFXBOOT_THEME'], 'cdrom')
                bootlogo = glob.glob(os.path.join(bootlogo_dir, '*'))
