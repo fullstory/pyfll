@@ -8,8 +8,8 @@ packages = """
 	gksu
 #	lxdm
 #	lxdm-conf
-#	sidux-art-lxde
-	sidux-art-wallpaper
+#	aptosid-art-lxde
+	aptosid-art-wallpaper
 #	sidux-lxde-common
 	slim
 	gparted

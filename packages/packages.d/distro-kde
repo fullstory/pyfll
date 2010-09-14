@@ -4,7 +4,7 @@ desc = """
 
 packages = """
 	desktop-defaults-kde
-	sidux-art-kde
+	aptosid-art-kde
 	skanlite
 	partitionmanager
 """
