@@ -37,7 +37,7 @@ pyfll (2010.01) hypnos; urgency=low
     builds.
   * re-enable kdebluetooth for kde-desktop, a kde4 variant is in unstable now.
   * drop kdeaccessibility, speech-dispatcher is horribly broken.
-  * disable bootlogd init scripts, they're looping and not needed on the live 
+  * disable bootlogd init scripts, they're looping and not needed on the live
     media.
   * remove heuristic to search for additional kernel modules, support for
     linux-modules-extra-2.6 doesn't exist anymore.
@@ -144,7 +144,7 @@ pyfll (2009.04) moros; urgency=low
   * disable sidux-lxde-common, not in debian/sidux repos yet
 
   [ Nikolas Poniros ]
-  * sync lxde changes with noc 
+  * sync lxde changes with noc
   * sync with noc. put packages in alphabetical order
 
   [ Joaquim Boura ]
@@ -157,7 +157,7 @@ pyfll (2009.03) momos; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * make lxde buildable again.
-  * remove dash from the package list, it's virtually essential. Likewise 
+  * remove dash from the package list, it's virtually essential. Likewise
     there's no need to set it explicitly as /bin/sh anymore.
   * remove insserv from the package list, it's virtually essential.
   * fix grub.cfg for grub2 ElTorito no-emulation boot.
@@ -174,14 +174,14 @@ pyfll (2009.03) momos; urgency=low
   * revert to grub-gfxboot for the time being.
   * add "splix" to hwsupport-printscan, it's needed for SPL/ SPL-2 (Samsung)
     printers.
-  * disable k3b and kdebluetooth again, their kde4 versions are not in a 
+  * disable k3b and kdebluetooth again, their kde4 versions are not in a
     releaseable state yet.
   * s/icedtea-gcjwebplugin/icedtea6-plugin/
   * remove geany from lxde builds, a full blown IDE isn't necessary.
   * remove xfce4-icon-theme, it doesn't exist anymore.
   * remove fuse-utils depending packages, fuse-utils' triggers fail to succeed
     in chroot.
-  * drop special handling for virtualbox-ose, there are no redistributable 
+  * drop special handling for virtualbox-ose, there are no redistributable
     virtualbox-ose kernel modules anymore.
   * add skanlite to larger kde flavours.
   * temporarily add libgnome2-0 to abiword instances to workaround a bug in
@@ -189,7 +189,7 @@ pyfll (2009.03) momos; urgency=low
   * fix package lists for seminarix.
 
   [ Bernard Gray ]
-  * nuke root password via debconf preseeding in distro package profile instead 
+  * nuke root password via debconf preseeding in distro package profile instead
     of sed hack on /etc/passwd
   * update fll.conf for momos release
 
@@ -216,13 +216,13 @@ pyfll (2009.02) aether; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * disable totally broken hplip.
-  * add virtualbox-ose-guest-utils to amd64 builds, virtualbox-ose 2.x claims 
+  * add virtualbox-ose-guest-utils to amd64 builds, virtualbox-ose 2.x claims
     to cope with amd64 guests, in case hardware virtualisation is available.
   * hpilp should be installable again.
-  * remove tvtime and kdetv, there are no analogue senders in germany or the 
+  * remove tvtime and kdetv, there are no analogue senders in germany or the
     US anymore.
   * #517884 is fixed in Debian, remove the locale generation workaround again.
-  * remove get-kde4-pinning.sh, debian-qt-kde has switched to git and KDE4 is 
+  * remove get-kde4-pinning.sh, debian-qt-kde has switched to git and KDE4 is
     on the doorstep to sid anyways.
   * dump kde4 preferences for apt, kde4 is in sid now, rendering this obsolete.
   * kdeservicemenus are not more, remove them.
@@ -237,7 +237,7 @@ pyfll (2009.02) aether; urgency=low
   * enable stripped down distro-kde for all profiles.
   * add ttf-liberation, the ugliness should be fixed now.
   * re-add 3rd party X drivers, they've been updated by now.
-  * always install phonon-backend-xine for kde profiles, gstreamer just 
+  * always install phonon-backend-xine for kde profiles, gstreamer just
     doesn't work.
   * fix meta packages for KDE.
   * omit /var/lib/alsa/asound.state.
@@ -248,7 +248,7 @@ pyfll (2009.02) aether; urgency=low
   * temporarily disable konversation, the version in sid is still kde3 based.
   * don't fail, if lvm2 is not installed.
   * include konversation again, 1.2~alpha1-1 has reached unstable.
-  * remove amarok completely, amarok2 hasn't reached sid yet, but depends on 
+  * remove amarok completely, amarok2 hasn't reached sid yet, but depends on
     mysql-server...
   * enable digikam again, the kde4 version has reached sid.
   * enable gwenview again.
@@ -312,7 +312,7 @@ pyfll (2009.02) aether; urgency=low
   [ Joaquim Boura ]
   * removed xbase-client and added hwsupport-printscan for better printer
     support on xfce
-  * aqualung is f...cked. replace it for now by audacious. xfce-lite include 
+  * aqualung is f...cked. replace it for now by audacious. xfce-lite include
     always gnome-icon-theme
 
   [ Niall Walsh ]
@@ -332,13 +332,13 @@ pyfll (2009.02) aether; urgency=low
     kde-essential module
     - this should probably be migrated to the kde-essential module at some
       point
-  * add hwsupport-printscan and hwsupport-extra to kde4-lite to bring it 
+  * add hwsupport-printscan and hwsupport-extra to kde4-lite to bring it
     inline with kde-lite
   * reinstate kipi-pugins - exiv2 dep now available
   * add fam to xfce-desktop-min for desktop refresh-ability (thanks bluewater)
-  * comment out xfce-mcs* causing xfce builds to fail 
+  * comment out xfce-mcs* causing xfce builds to fail
   * add gpicview to xfce-desktop-extras as decent image viewer per hannes request
-  * remove arch variable from _detectLinuxVersion() exception since it is 
+  * remove arch variable from _detectLinuxVersion() exception since it is
     undefined when single arch is built
 
   [ Kel Modderman ]
@@ -412,7 +412,7 @@ pyfll (2008.04) pontos; urgency=low
   * fix get-kde4-pinning.sh
   * force $HOME to be 0700.
   * drop capi-isdnconf.
-  * replace gprsconnect, modemlink and ppp-scripts by pppconfig, wvdial and 
+  * replace gprsconnect, modemlink and ppp-scripts by pppconfig, wvdial and
     umtsmon.
   * add wpagui to kde-desktop, sort entries.
   * fix DVD size.
@@ -483,7 +483,7 @@ pyfll (2008.04) pontos; urgency=low
 
   [ Horst Tritremmel ]
   * install-meta removed from distro-tools-x.
-    it's not the best for a out-dated rolling release distro 
+    it's not the best for a out-dated rolling release distro
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 23 Dec 2008 03:40:22 +0000
 
@@ -540,15 +540,15 @@ pyfll (2008.03) ourea; urgency=low
   * add fll-live-initscripts to automatic recommends handling, required for
     liveapt.
   * give gtk-qt-engine the boot from the dvd profile, it's broken.
-  * add netbase to automatic recommends handling, we need to keep ifupdown - 
+  * add netbase to automatic recommends handling, we need to keep ifupdown -
     hard dependency or not.
   * icedtea-gcjwebplugin has finally hit main.
-  * drop lilo, it's implicitly conflicting with grub and about to be dropped 
+  * drop lilo, it's implicitly conflicting with grub and about to be dropped
     post-lenny.
   * remove FileType preconfiguration from vimrc.local, it's erroring out.
   * add zenity to XFCE.
   * add utils-x to xfce-lite.
-  * depend pm syslog dæmon (rsyslog) directly, instead of pulling it in 
+  * depend pm syslog dæmon (rsyslog) directly, instead of pulling it in
     through startsyslog indirectly.
   * add kvm support and the userspace tools to kde-full.
   * disable kvm for the time being.
@@ -563,7 +563,7 @@ pyfll (2008.03) ourea; urgency=low
   * update apt-pin preferences to handle kde4 full metapackage
   * add kde4-full and associated package lists
   * adjust default fll.conf to use ourea wallpaper
-  * replace non-existent sidux-art-gnome with sidux-art-xfce for distr-xfce 
+  * replace non-existent sidux-art-gnome with sidux-art-xfce for distr-xfce
 
   [ Niall Walsh ]
   * use ['packages']['lang'] to generate a list of packages required
@@ -576,7 +576,7 @@ pyfll (2008.03) ourea; urgency=low
 
   [ Joaquim Boura ]
   * splited xfce into xfce and xfce-lite.
-  * use xarchiver instead of thunar-archive-plugin as this needs ark or 
+  * use xarchiver instead of thunar-archive-plugin as this needs ark or
     file-roller.
 
   [ Ferdinand Thommes ]
@@ -608,10 +608,10 @@ pyfll (2008.02) erebos; urgency=low
 
   [ Bernard Gray ]
   * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
-  * xfce needs a desktop calculator, add gcalctool  
-  * set erebos default wallpaper in fll.conf template 
-  * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists  
-  * revert accidental commit of my temp pkg changes 
+  * xfce needs a desktop calculator, add gcalctool
+  * set erebos default wallpaper in fll.conf template
+  * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists
+  * revert accidental commit of my temp pkg changes
   * remove wmauda (dock remote control for audacious) to keep audacious out of
     xfce - audacious has a new (hours old) bug where it segfaults on start
       - aqualung is left as the default music player
