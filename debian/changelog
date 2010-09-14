@@ -19,8 +19,9 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * replace kdebluetooth with bluedevil for bluetooth support under KDE.
   * s/sidux-browser/xdg-browser-launcher/
   * s/sidux-kernelhacking/kernel-remover/
+  * sidux-vdr/ vdr-gui have been orphaned, remove them from all profiles.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 26 Aug 2010 00:53:44 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 26 Aug 2010 01:41:25 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

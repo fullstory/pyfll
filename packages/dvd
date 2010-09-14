@@ -167,7 +167,6 @@ packages = """
 	rox-filer
 	scite
 	scribus-ng
-	sidux-vdr
 	smartmontools
 	subversion
 	subversion-tools
@@ -183,8 +182,6 @@ packages = """
 	ufraw
 	unison
 	vcdimager
-	vdr-gui
-	vdr-plugin-pvrinput
 	vim-gtk
 	vim-latexsuite
 	vlc
