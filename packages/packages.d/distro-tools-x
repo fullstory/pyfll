@@ -7,11 +7,10 @@ packages = """
 	fll-live-xorgconfig
 	install-gui
 	install-usb-gui
-	sidux-browser
+	kernel-remover
 	sidux-irc
-	sidux-kernelhacking	
 	sidux-manual-en
 	sidux-searchplugins
 	setpassword
+	xdg-browser-launcher
 """
-
