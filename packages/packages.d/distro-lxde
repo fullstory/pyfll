@@ -10,7 +10,7 @@ packages = """
 #	lxdm-conf
 #	aptosid-art-lxde
 	aptosid-art-wallpaper
-#	sidux-lxde-common
+#	aptosid-lxde-common
 	slim
 	gparted
 """

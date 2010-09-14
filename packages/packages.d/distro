@@ -9,8 +9,8 @@ debconf = """
 packages = """
 	apt-conf-aptosid
 	sidux-keyrings
-	sidux-scripts
-	udev-config-sidux
+	aptosid-scripts
+	udev-config-aptosid
 """
 
 i386 = """
