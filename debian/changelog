@@ -21,8 +21,11 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * s/sidux-kernelhacking/kernel-remover/
   * sidux-vdr/ vdr-gui have been orphaned, remove them from all profiles.
   * s/sidux-irc/aptosid-irc/
+  * s/configure-dsl/pppoeconf/
+  * drop sidux-searchplugins from package lists.
+  * refer to aptosid kernels in example config.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 26 Aug 2010 01:56:39 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 28 Aug 2010 00:42:38 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

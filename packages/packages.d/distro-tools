@@ -4,9 +4,9 @@ desc = """
 
 packages = """
 	ceni
-	configure-dsl
 	infobash
 	pppconfig
+	pppoeconf
 	sshstart
 	wvdial
 """
