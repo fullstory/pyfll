@@ -8,9 +8,9 @@ packages = """
 	console-data
 	console-common
 	cron
-	dhcp3-client
 	iptables
 	iputils-ping
+	isc-dhcp-client
 	kbd
 	kexec-tools
 	less

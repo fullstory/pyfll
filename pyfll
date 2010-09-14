@@ -1822,7 +1822,7 @@ class FLLBuilder(object):
         distro = self.conf['distro']['FLL_DISTRO_NAME']
 
         isolinuxcfg = open(os.path.join(syslinux_dir, 'isolinux.cfg'), 'w')
-        isolinuxcfg.write('UI gfxboot bootlogo\n')
+        isolinuxcfg.write('ui gfxboot bootlogo\n')
 
         kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
         for k in kvers:
@@ -1838,20 +1838,19 @@ class FLLBuilder(object):
                     raise Error
 
             isolinuxcfg.write('\n')
-            isolinuxcfg.write('LABEL %s_%s_(%s)\n' % (distro, cpu, k))
-            isolinuxcfg.write('\tKERNEL /boot/%s\n' % (vmlinuz))
-            isolinuxcfg.write('\tAPPEND boot=fll %s\n' % (cmdline))
-            isolinuxcfg.write('\tINITRD /boot/%s\n' % initrd)
+            isolinuxcfg.write('label %s_%s_(%s)\n' % (distro, cpu, k))
+            isolinuxcfg.write('\tkernel /boot/%s\n' % (vmlinuz))
+            isolinuxcfg.write('\tappend initrd=/boot/%s boot=fll %s\n' % (initrd, cmdline))
             isolinuxcfg.write('\n')
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
 
-        isolinuxcfg.write('LABEL Boot_from_Hard_Disk\n')
+        isolinuxcfg.write('label Boot_from_Hard_Disk\n')
         isolinuxcfg.write('\tlocalboot 0x80\n')
         isolinuxcfg.write('\n')
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest')):
-            isolinuxcfg.write('LABEL Memory_test_(memtest86+)\n')
-            isolinuxcfg.write('\tKERNEL /boot/memtest\n')
+            isolinuxcfg.write('label Memory_test_(memtest86+)\n')
+            isolinuxcfg.write('\tlabel /boot/memtest\n')
             isolinuxcfg.write('\n')
 
         isolinuxcfg.close()
