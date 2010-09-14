@@ -31,8 +31,9 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * s/sidux-scripts/aptosid-scripts/
   * s/udev-config-sidux/udev-config-aptosid/
   * temporarily disable hal-cups-utils and sidux-manual.
+  * add aptosid-manual.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 30 Aug 2010 01:00:39 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 30 Aug 2010 04:00:38 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

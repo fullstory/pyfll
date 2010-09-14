@@ -9,7 +9,7 @@ packages = """
 	install-gui
 	install-usb-gui
 	kernel-remover
-#	sidux-manual-en
+	sidux-manual-en
 	setpassword
 	xdg-browser-launcher
 """
