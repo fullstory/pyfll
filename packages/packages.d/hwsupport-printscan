@@ -15,7 +15,7 @@ packages = """
 	foo2zjs
 	ghostscript-cups
 	ghostscript-x
-	hal-cups-utils
+#	hal-cups-utils
 	hpijs-ppds
 	hplip
 	openprinting-ppds
