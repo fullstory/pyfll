@@ -8,8 +8,9 @@ pyfll (2010.02) UNRELEASED; urgency=low
     upstream.
   * adapt isolinux.cfg templates for syslinux 4.0x.
   * bump standards version to 3.9.1, well we're not packaging anything.
+  * switch to 2010-02 Κῆρες.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 03 Aug 2010 23:22:18 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 05 Aug 2010 04:42:40 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 
