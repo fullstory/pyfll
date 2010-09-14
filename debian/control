@@ -6,7 +6,7 @@ Uploaders: Stefan Lippers-Hollmann <s.l-h@gmx.de>,
  Ferdinand Thommes <devil@sidux.com>,
  Joaquim Boura <x-un-i@sidux.com>,
  Chris Hildebrandt <slam@sidux.com>
-Build-Depends: debhelper (>= 7)
+Build-Depends: debhelper (>= 7.9.3)
 Standards-Version: 3.9.1
 Vcs-Svn: svn://svn.berlios.de/fullstory/pyfll/trunk
 Vcs-Browser: http://svn.berlios.de/wsvn/fullstory/pyfll/trunk/
