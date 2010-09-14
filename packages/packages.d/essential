@@ -19,12 +19,12 @@ packages = """
 """
 
 i386 = """
-	grub2
+	grub-pc
 	syslinux
 """
 
 amd64 = """
-	grub2
+	grub-pc
 	syslinux
 """
 

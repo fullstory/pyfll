@@ -128,7 +128,7 @@ packages = """
 	lilypond
 	links2
 	lmms
-	lynx
+	lynx-cur
 	lyx
 	metacam
 	meterbridge

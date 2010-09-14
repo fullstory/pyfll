@@ -36,8 +36,10 @@ pyfll (2010.02) UNRELEASED; urgency=low
     ISOs only), thanks to bfree.
   * switch to new gpg keyring.
   * switch from hal based printer configuration to udev.
+  * s/grub2/grub-pc/
+  * s/lynx/lynx-cur/
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 31 Aug 2010 22:17:21 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 02 Sep 2010 13:29:20 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 
