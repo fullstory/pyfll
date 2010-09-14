@@ -3,12 +3,12 @@ desc = """
 """
 
 packages = """
+	aptosid-irc
 	configure-cups
 	fll-live-xorgconfig
 	install-gui
 	install-usb-gui
 	kernel-remover
-	sidux-irc
 	sidux-manual-en
 	sidux-searchplugins
 	setpassword

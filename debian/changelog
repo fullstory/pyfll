@@ -20,8 +20,9 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * s/sidux-browser/xdg-browser-launcher/
   * s/sidux-kernelhacking/kernel-remover/
   * sidux-vdr/ vdr-gui have been orphaned, remove them from all profiles.
+  * s/sidux-irc/aptosid-irc/
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 26 Aug 2010 01:41:25 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 26 Aug 2010 01:56:39 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 
