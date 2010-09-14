@@ -34,8 +34,9 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * add aptosid-manual.
   * add workaround for python-apt regression "bad key on cache[p]" (dual-arch
     ISOs only), thanks to bfree.
+  * switch to new gpg keyring.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 30 Aug 2010 04:02:33 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 30 Aug 2010 23:32:46 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

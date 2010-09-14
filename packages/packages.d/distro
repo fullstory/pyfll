@@ -8,7 +8,7 @@ debconf = """
 
 packages = """
 	apt-conf-aptosid
-	sidux-keyrings
+	aptosid-archive-keyring
 	aptosid-scripts
 	udev-config-aptosid
 """
