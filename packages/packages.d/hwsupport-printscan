@@ -15,7 +15,6 @@ packages = """
 	foo2zjs
 	ghostscript-cups
 	ghostscript-x
-#	hal-cups-utils
 	hpijs-ppds
 	hplip
 	openprinting-ppds
@@ -25,4 +24,5 @@ packages = """
 	sane-utils
 	libsane-extras
 	splix
+	system-config-printer-udev
 """
