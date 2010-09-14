@@ -26,8 +26,10 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * refer to aptosid kernels in example config.
   * s/gfxboot-theme-sidux/gfxboot-theme-aptosid/
   * s/sidux-art-/aptosid-art-/
+  * s/apt-conf-sidux/apt-conf-aptosid/
+  * adapt documention to aptosid.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 29 Aug 2010 03:28:31 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 29 Aug 2010 04:04:55 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

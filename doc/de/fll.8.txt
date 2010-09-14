@@ -16,7 +16,7 @@ SYNOPSIS
 BESCHREIBUNG
 ------------
 fll(8) ist ein Python Skript zur Erstellung eines tagesaktuellen ISO Image
-aus den Repositories von sid/sidux 
+aus den Repositories von sid/aptosid 
 
 
 OPTIONEN

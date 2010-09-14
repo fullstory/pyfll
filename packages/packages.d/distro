@@ -7,7 +7,7 @@ debconf = """
 """
 
 packages = """
-	apt-conf-sidux
+	apt-conf-aptosid
 	sidux-keyrings
 	sidux-scripts
 	udev-config-sidux
@@ -20,4 +20,3 @@ i386 = """
 amd64 = """
 	gfxboot-theme-aptosid
 """
-

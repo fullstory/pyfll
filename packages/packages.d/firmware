@@ -1,6 +1,6 @@
 desc = """
 	Collection of non-free firmware and/or drivers. The non-free section
-	of the debian and sidux repositories is required for installation of
+	of the debian and aptosid repositories is required for installation of
 	these packages. If a live medium is built and includes these packages,
 	it may not be freely redistributed.
 """

@@ -5,7 +5,7 @@ Kel Modderman <kel@otaku42.de>
 
 NAME
 ----
-fll - FULLSTORY build script for sid/sidux
+fll - FULLSTORY build script for sid/aptosid
 
 
 SYNOPSIS
@@ -15,7 +15,7 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-fll(8) is a python script that provides a framework to build an ISO Image from the current repositories of sid/sidux.
+fll(8) is a python script that provides a framework to build an ISO Image from the current repositories of sid/aptosid.
 
 
 OPTIONS
