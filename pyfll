@@ -1343,6 +1343,10 @@ class FLLBuilder(object):
     def _installPkgs(self, arch, codename):
         '''Install packages.'''
         cache = apt_pkg.Cache(apt.progress.base.OpProgress())
+        if cache.ver_file_count < 200:
+            self.log.info('installPkgs cache had %s' % cache.ver_file_count)
+            cache = apt_pkg.Cache(apt.progress.base.OpProgress())
+            self.log.info('installPkgs cache has %s' % cache.ver_file_count)
 
         i18n_list = self.__lines2list(self.conf['packages']['i18n'])
         pkgs_want = self._getPackageList(arch)

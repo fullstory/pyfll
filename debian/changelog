@@ -32,8 +32,10 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * s/udev-config-sidux/udev-config-aptosid/
   * temporarily disable hal-cups-utils and sidux-manual.
   * add aptosid-manual.
+  * add workaround for python-apt regression "bad key on cache[p]" (dual-arch
+    ISOs only), thanks to bfree.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 30 Aug 2010 04:00:38 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 30 Aug 2010 04:02:33 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 
