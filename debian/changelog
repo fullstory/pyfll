@@ -38,8 +38,10 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * switch from hal based printer configuration to udev.
   * s/grub2/grub-pc/
   * s/lynx/lynx-cur/
+  * temporarily disable system-config-printer-kde, until new python-kde4
+    arrives.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 02 Sep 2010 13:29:20 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 02 Sep 2010 16:40:42 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

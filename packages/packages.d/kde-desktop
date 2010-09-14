@@ -31,7 +31,7 @@ packages = """
 	ktorrent
 	kwalletmanager
 	packagesearch
-	system-config-printer-kde
+#	system-config-printer-kde
 	wpagui
 	yakuake
 """
