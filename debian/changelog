@@ -16,8 +16,9 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * drop syslinux-common dependency (it's implied by syslinux) and add reprepro
     as recommended package (required for liveapt functionality), thanks to
     bfree for noticing.
+  * replace kdebluetooth with bluedevil for bluetooth support under KDE.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 17 Aug 2010 03:14:51 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 20 Aug 2010 21:13:43 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

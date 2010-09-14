@@ -4,13 +4,13 @@ desc = """
 
 packages = """
 	akregator
+	bluedevil
 	digikam
 	hplip-gui
 	kate
 	kbattleship
 	kcharselect
 	kdeadmin
-	kdebluetooth
 	kdelirc
 	kdemultimedia-kio-plugins
 	kdepim-kresources
