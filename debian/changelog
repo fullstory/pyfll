@@ -11,8 +11,10 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * switch to 2010-02 Κῆρες.
   * bump debhelper dependency to 7.9.3, in order to allow for hypothetical
     compat 8 compliance. 
+  * recommend Debian GeoMirror (http://cdn.debian.net/debian/) as generic
+    debian mirror.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 08 Aug 2010 04:51:03 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 13 Aug 2010 18:39:41 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 
