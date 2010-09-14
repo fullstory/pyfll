@@ -5,7 +5,7 @@ desc = """
 
 packages = """
 	alsa-utils
-	bluez-utils
+	bluetooth
 	bluez-pcmcia-support
 	dmidecode
 	dmsetup
