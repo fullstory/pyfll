@@ -1,6 +1,5 @@
-pyfll (2010.02) UNRELEASED; urgency=low
+pyfll (2010.02) keres; urgency=low
 
-  * NOT RELEASED YET
   * revert "list gdm explicitly in xfce profiles".
   * s/gfxboot.com/gfxboot.c32/
   * isohybrid has moved to syslinux, adapt README.
@@ -41,8 +40,9 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * temporarily disable system-config-printer-kde, until new python-kde4
     arrives.
   * s/bluez-utils/bluetooth/
+  * vga=791 is deprecated.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 02 Sep 2010 19:01:37 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 14 Sep 2010 02:49:56 +0000
 
 pyfll (2010.01) hypnos; urgency=low
 

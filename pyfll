@@ -1921,7 +1921,7 @@ class FLLBuilder(object):
 
         cmdline =  self.conf['options'].get('boot_cmdline')
         if not cmdline:
-            cmdline = 'quiet vga=791'
+            cmdline = 'quiet'
 
         self._writeYabootCfg(stage_dir, boot_dir, ppc_dir, kvers,
                                timeout, cmdline)

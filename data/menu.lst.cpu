@@ -6,23 +6,23 @@ background 400000
 gfxmenu /boot/message
 
 title  Check md5sums
-kernel /boot/@vmlinuz@ boot=fll quiet vga=791 md5sum
+kernel /boot/@vmlinuz@ boot=fll quiet md5sum
 initrd /boot/@initrd@
 
 title  Text Mode
-kernel /boot/@vmlinuz@ boot=fll quiet vga=791 3 
+kernel /boot/@vmlinuz@ boot=fll quiet 3 
 initrd /boot/@initrd@
 
 title  Serial console
-kernel /boot/@vmlinuz@ boot=fll quiet vga=791 console=ttyS0,115200 console=tty 
+kernel /boot/@vmlinuz@ boot=fll quiet console=ttyS0,115200 console=tty 
 initrd /boot/@initrd@
 
 #title  Defaults with unionfs
-#kernel /boot/@vmlinuz@ boot=fll quiet vga=791 unionfs 
+#kernel /boot/@vmlinuz@ boot=fll quiet unionfs 
 #initrd /boot/@initrd@
 
 #title  Serial console with unionfs
-#kernel /boot/@vmlinuz@ boot=fll quiet vga=791 unionfs console=ttyS0,115200 console=tty 
+#kernel /boot/@vmlinuz@ boot=fll quiet unionfs console=ttyS0,115200 console=tty 
 #initrd /boot/@initrd@
 
 title Main Menu
