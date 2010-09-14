@@ -13,8 +13,11 @@ pyfll (2010.02) UNRELEASED; urgency=low
     compat 8 compliance.
   * recommend Debian GeoMirror (http://cdn.debian.net/debian/) as generic
     debian mirror.
+  * drop syslinux-common dependency (it's implied by syslinux) and add reprepro
+    as recommended package (required for liveapt functionality), thanks to
+    bfree for noticing.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 13 Aug 2010 18:39:41 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 17 Aug 2010 03:14:51 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 

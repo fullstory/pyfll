@@ -13,4 +13,6 @@ Dependencies:
   genisoimage
   python-fll
   syslinux
-  syslinux-common
+
+Recommends:
+  reprepro (for liveapt functionality)
