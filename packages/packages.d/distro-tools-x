@@ -4,12 +4,12 @@ desc = """
 
 packages = """
 	aptosid-irc
+	aptosid-manual-en
 	configure-cups
 	fll-live-xorgconfig
 	install-gui
 	install-usb-gui
 	kernel-remover
-	sidux-manual-en
 	setpassword
 	xdg-browser-launcher
 """
