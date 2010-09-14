@@ -24,8 +24,9 @@ pyfll (2010.02) UNRELEASED; urgency=low
   * s/configure-dsl/pppoeconf/
   * drop sidux-searchplugins from package lists.
   * refer to aptosid kernels in example config.
+  * s/gfxboot-theme-sidux/gfxboot-theme-aptosid/
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 28 Aug 2010 00:42:38 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 29 Aug 2010 02:42:17 +0200
 
 pyfll (2010.01) hypnos; urgency=low
 
