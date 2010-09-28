@@ -1854,7 +1854,7 @@ class FLLBuilder(object):
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             isolinuxcfg.write('label Memory_test_(memtest86+)\n')
-            isolinuxcfg.write('\tlabel /boot/memtest\n')
+            isolinuxcfg.write('\tkernel /boot/memtest\n')
             isolinuxcfg.write('\n')
 
         isolinuxcfg.close()
