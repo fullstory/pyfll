@@ -2,8 +2,9 @@ pyfll (2010.03) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
   * fix memtest86+ isolinux entry.
+  * add squashfs-tools to dependencies.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 28 Sep 2010 22:28:16 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 30 Sep 2010 01:20:30 +0200
 
 pyfll (2010.02) keres; urgency=low
 

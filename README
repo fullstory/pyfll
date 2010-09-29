@@ -12,6 +12,7 @@ Dependencies:
   cdebootstrap | debootstrap
   genisoimage
   python-fll
+  squashfs-tools
   syslinux
 
 Recommends:
