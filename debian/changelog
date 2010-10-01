@@ -7,8 +7,9 @@ pyfll (2010.03) UNRELEASED; urgency=low
 
   [ Joaquim Boura ]
   * added japanese font to the xfce and kde full
+  * removed duplicated line
 
- -- Joaquim Boura <x-un-i@sidux.com>  Fri, 01 Oct 2010 21:03:50 +0200
+ -- Joaquim Boura <x-un-i@sidux.com>  Fri, 01 Oct 2010 23:39:59 +0200
 
 pyfll (2010.02) keres; urgency=low
 
