@@ -4,12 +4,13 @@ pyfll (2010.03) UNRELEASED; urgency=low
   * NOT RELEASED YET
   * fix memtest86+ isolinux entry.
   * add squashfs-tools to dependencies.
+  * fix x-un-i's mail address.
 
   [ Joaquim Boura ]
   * added japanese font to the xfce and kde full
   * removed duplicated line
 
- -- Joaquim Boura <x-un-i@sidux.com>  Fri, 01 Oct 2010 23:39:59 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 06 Oct 2010 15:05:21 +0200
 
 pyfll (2010.02) keres; urgency=low
 
