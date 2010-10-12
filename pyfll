@@ -1496,19 +1496,18 @@ class FLLBuilder(object):
 
         cmd = ['mksquashfs', '.', image_file, '-noappend']
 
-        # set compression algorithm for squashfs-tools >= 4.1
-        squashfs_comp = self.conf['options'].get('squashfs_comp')
-        if squashfs_comp == 'gzip' or squashfs_comp == 'lzma':
-            cmd.append('-comp %s' % squashfs_comp)
-
         if self.opts.l or self.opts.q:
             cmd.append('-no-progress')
 
-        # sortfile, compression
-
+        # sortfile
         exclude_file = os.path.join(self.opts.s, 'data', 'fll_sqfs_exclusion')
         shutil.copy(exclude_file, os.path.join(self.temp, arch, 'tmp'))
         cmd.extend(['-wildcards', '-ef', '/tmp/fll_sqfs_exclusion'])
+
+        # set compression algorithm for squashfs-tools >= 4.1
+        squashfs_comp = self.conf['options'].get('squashfs_comp')
+        if squashfs_comp == 'gzip' or squashfs_comp == 'lzma' or squashfs_comp == 'lzo':
+            cmd.extend(['-comp', '%s' % squashfs_comp])
 
         cmd.extend(['-e', image_file])
         self._execInChroot(arch, cmd)
