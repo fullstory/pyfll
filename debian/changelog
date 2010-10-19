@@ -14,7 +14,11 @@ pyfll (2010.03) UNRELEASED; urgency=low
   * added japanese font to the xfce and kde full
   * removed duplicated line
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 12 Oct 2010 03:03:22 +0200
+  [ Niall Walsh ]
+  * allow creation of loop fs image inside squashfs for dmsetup unions. use
+    FLL_UNION_MODULE for aufs or unionfs on squash instead
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Tue, 19 Oct 2010 19:16:38 +0100
 
 pyfll (2010.02) keres; urgency=low
 
