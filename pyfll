@@ -1546,7 +1546,6 @@ class FLLBuilder(object):
         cmd.append(fsloop)
         self._execCmd(cmd)
         # we don't want fsck running on the live image
-        # TODO what about other filesystems?
         if image_fs[:3] == 'ext' :
             cmd = ['tune2fs', '-c', '0', fsloop]
             self._execCmd(cmd)
