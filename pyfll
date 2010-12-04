@@ -20,9 +20,14 @@ import optparse
 import os
 import sys
 import shutil
+import signal
 import stat
 import tempfile
 
+def restore_sigpipe():
+    """Convenience function so that subprocess may be executed with
+    SIGPIPE restored to default (http://bugs.python.org/issue1652)."""
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 class Error(Exception):
     '''A generic error handler that does nothing.'''
@@ -270,7 +275,7 @@ class FLLBuilder(object):
         if self.opts.a:
             arch = self.opts.a
         elif not self.conf.get('archs'):
-            arch = Popen(['dpkg', '--print-architecture'],
+            arch = Popen(['dpkg', '--print-architecture'], preexec_fn=restore_sigpipe,
                               stdout=PIPE).communicate()[0].rstrip()
 
         if len(arch):
@@ -622,7 +627,7 @@ class FLLBuilder(object):
             cmd = ['mount', '-t', v[0], 'fll-' + v[0],
                    os.path.join(chroot, v[1])]
 
-            retv = call(cmd)
+            retv = call(cmd, preexec_fn=restore_sigpipe)
             if retv != 0:
                 self.log.critical('failed to mount chroot %s' % v[0])
                 raise Error
@@ -644,7 +649,7 @@ class FLLBuilder(object):
         umount_list.reverse()
 
         for mpoint in umount_list:
-            retv = call(['umount', mpoint])
+            retv = call(['umount', mpoint], preexec_fn=restore_sigpipe)
             if retv != 0:
                 self.log.critical('umount failed for: %s' % mpoint)
                 raise Error
@@ -696,7 +701,7 @@ class FLLBuilder(object):
 
         try:
             c = Popen(cmd, stdout = PIPE, stderr = STDOUT, env = self.env,
-                      close_fds = True)
+                      close_fds = True, preexec_fn=restore_sigpipe)
             cout = c.communicate()[0]
             retv = c.returncode
         except KeyboardInterrupt:
@@ -725,9 +730,10 @@ class FLLBuilder(object):
             if self.opts.q:
                 retv = call(cmd, stdout = open(os.devnull, 'w'),
                             stderr = STDOUT, env = self.env,
-                            close_fds = True)
+                            close_fds = True, preexec_fn=restore_sigpipe)
             else:
-                retv = call(cmd, env = self.env, close_fds = True)
+                retv = call(cmd, env = self.env, close_fds = True,
+                            preexec_fn=restore_sigpipe)
         except KeyboardInterrupt:
             raise Error
         except:
@@ -1525,7 +1531,9 @@ class FLLBuilder(object):
 
         # Get free loop device
         try:
-            retv = Popen(['losetup', '-f'],bufsize=1024, stdout=PIPE, stderr=STDOUT, close_fds = True)
+            retv = Popen(['losetup', '-f'],bufsize=1024, stdout=PIPE,
+                         stderr=STDOUT, preexec_fn=restore_sigpipe,
+                         close_fds = True)
             rest = retv.communicate()
             if rest[1] != None or rest[0] == None :
                 self.log.critical('failed to find a loop device: %s' % rest[1])
@@ -1551,9 +1559,6 @@ class FLLBuilder(object):
             self._execCmd(cmd)
 
         # drop the manual loop device
-        # TODO it's nasty to force a sync just hoping the following command to drop loop will work
-        cmd = ['sync']
-        self._execCmd(cmd)
         cmd = ['losetup', '-d', fsloop]
         self._execCmd(cmd)
        

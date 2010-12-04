@@ -17,8 +17,9 @@ pyfll (2010.03) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * allow creation of loop fs image inside squashfs for dmsetup unions. use
     FLL_UNION_MODULE for aufs or unionfs on squash instead
+  * Add restore_sigpipe for use with preexec_fn
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Tue, 19 Oct 2010 19:16:38 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Sat, 04 Dec 2010 14:21:59 +0000
 
 pyfll (2010.02) keres; urgency=low
 
