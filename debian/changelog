@@ -1,7 +1,8 @@
 pyfll (2010.03) UNRELEASED; urgency=low
 
-  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
+
+  [ Stefan Lippers-Hollmann ]
   * fix memtest86+ isolinux entry.
   * add squashfs-tools to dependencies.
   * squashfs-tools 4.1 adds lzo as compression method, kernel 2.6.36 and
@@ -9,6 +10,7 @@ pyfll (2010.03) UNRELEASED; urgency=low
     "lzma" (not supported by mainline kernels yet) and "lzo" (>=2.6.36) now,
     if squashfs-tools >= 4.1 are available in chroot.
   * fix x-un-i's mail address.
+  * use --force-unsafe-io while it lasts.
 
   [ Joaquim Boura ]
   * added japanese font to the xfce and kde full
@@ -19,7 +21,7 @@ pyfll (2010.03) UNRELEASED; urgency=low
     FLL_UNION_MODULE for aufs or unionfs on squash instead
   * Add restore_sigpipe for use with preexec_fn
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Sat, 04 Dec 2010 14:21:59 +0000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 Dec 2010 19:03:37 +0100
 
 pyfll (2010.02) keres; urgency=low
 
