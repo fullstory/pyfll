@@ -1,0 +1,23 @@
+desc= """ Gnome Desktop stripped
+"""
+
+packages= """
+eog
+gconf-editor
+gedit
+gdm3
+gnome-applets
+gnome-control-center
+gnome-icon-theme
+gnome-menus
+gnome-panel
+gnome-power-manager
+gnome-session
+gnome-settings-daemon
+gnome-terminal
+gvfs
+metacity
+mutter
+nautilus
+yelp
+"""

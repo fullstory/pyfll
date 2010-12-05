@@ -21,7 +21,12 @@ pyfll (2010.03) UNRELEASED; urgency=low
     FLL_UNION_MODULE for aufs or unionfs on squash instead
   * Add restore_sigpipe for use with preexec_fn
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 Dec 2010 19:03:37 +0100
+  [ Joaquim Boura ]
+  * Patch for an aptosid-gnome from Angelescu Ovidiu <mrhsaacdoh@gmail.com> aka convbsd
+    and William J. Henderson <tornado@tjtag.com> aka tjtag
+
+
+ -- Joaquim Boura <x-un-i@berlios.de>  Sun, 05 Dec 2010 23:55:04 +0100
 
 pyfll (2010.02) keres; urgency=low
 

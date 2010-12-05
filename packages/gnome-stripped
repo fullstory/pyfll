@@ -1,0 +1,27 @@
+desc = """
+	A lite Gnome desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-tools
+	distro-tools-x
+	distro-gnome
+	essential
+	fluxbox
+	hwsupport-essential
+	hwsupport-powermanagement
+	utils-essential
+	utils-extra
+	utils-x
+	gnome-desktop-stripped
+	xserver
+"""
+
+packages = """
+	cliinstaller
+	rhythmbox
+	xchat
+"""
+
