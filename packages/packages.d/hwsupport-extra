@@ -10,6 +10,7 @@ packages = """
 	dmidecode
 	dmsetup
 	rfkill
+	usb-modeswitch
 	vbetool
 """
 
