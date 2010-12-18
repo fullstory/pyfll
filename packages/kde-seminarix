@@ -35,14 +35,14 @@ packages = """
 	dia
 	digikam
 	ding
-	eduversum
+#	eduversum # disable it until new version appears
 	eclipse
 	filezilla
 	gcompris
 	gnugo
 	gnuplot
 	gperiodic
-	hanzim
+#	hanzim
 	hunspell
 	hydrogen
 	icedtea6-plugin
@@ -62,7 +62,7 @@ packages = """
 	kmplot
 	kompozer
 	krusader
-	ksimus
+#	ksimus
 	ksociograma
 	kstars
 	krosspython
@@ -100,7 +100,7 @@ packages = """
 	stopmotion
 	sunclock
 	swi-prolog
-	swi-prolog-xpce
+#	swi-prolog-xpce
 	tuxmath
 	tuxpaint
 	vym

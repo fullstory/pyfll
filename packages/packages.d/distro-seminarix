@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	seminarix-handbook
-	aptosid-art-wallpaper-momos-edu
-	khelpcenter4
+#	seminarix-handbook # temp disable
+#	khelpcenter4 # eliminate duplicate
 """

@@ -26,7 +26,11 @@ pyfll (2010.03) UNRELEASED; urgency=low
   * Patch for an aptosid-gnome from Angelescu Ovidiu <mrhsaacdoh@gmail.com> aka convbsd
     and William J. Henderson <tornado@tjtag.com> aka tjtag
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 17 Dec 2010 18:24:31 +0100
+  [ Dinko Sabo ]
+  * temp disable packages
+  * eliminate duplicates
+
+ -- Dinko Sabo <cobrasbyte@gmx.de>  Sat, 18 Dec 2010 11:18:23 +0100
 
 pyfll (2010.02) keres; urgency=low
 
