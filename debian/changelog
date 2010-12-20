@@ -12,6 +12,7 @@ pyfll (2010.03) UNRELEASED; urgency=low
   * fix x-un-i's mail address.
   * use --force-unsafe-io while it lasts.
   * add usb-modeswitch to hwsupport-extra.
+  * starting with dpkg 1.15.8.7, --force-unsafe-io is no longer necessary.
 
   [ Joaquim Boura ]
   * added japanese font to the xfce and kde full
@@ -30,7 +31,7 @@ pyfll (2010.03) UNRELEASED; urgency=low
   * temp disable packages
   * eliminate duplicates
 
- -- Dinko Sabo <cobrasbyte@gmx.de>  Sat, 18 Dec 2010 11:18:23 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 20 Dec 2010 14:08:31 +0100
 
 pyfll (2010.02) keres; urgency=low
 

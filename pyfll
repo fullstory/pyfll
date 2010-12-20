@@ -781,8 +781,6 @@ class FLLBuilder(object):
         if self.opts.d:
             aptget.extend(['-o', 'APT::Get::Show-Versions=1'])
 
-        aptget.extend(['-o', 'DPkg::Options::=--force-unsafe-io'])
-
         aptget.append('install')
         aptget.extend(pkgs)
 
