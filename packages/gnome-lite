@@ -25,7 +25,6 @@ packages = """
 	iceweasel
 	#epiphany-browser
 	#epiphany-extensions
-	cliinstaller
 	#midori
 	pidgin
 	xchat

@@ -26,7 +26,6 @@ deps = """
 
 packages = """
 	chromium-browser
-	cliinstaller
 	iceweasel
 	inkscape
 	pidgin
