@@ -31,7 +31,10 @@ pyfll (2010.03) UNRELEASED; urgency=low
   * temp disable packages
   * eliminate duplicates
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 20 Dec 2010 14:08:31 +0100
+  [ Joaquim Boura ]
+  * remove duplicate in hwsupport-printscan
+
+ -- Joaquim Boura <x-un-i@berlios.de>  Sun, 26 Dec 2010 12:02:33 +0100
 
 pyfll (2010.02) keres; urgency=low
 
