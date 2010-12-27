@@ -1,6 +1,4 @@
-pyfll (2010.03) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+pyfll (2010.03) apate; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * fix memtest86+ isolinux entry.
@@ -34,7 +32,7 @@ pyfll (2010.03) UNRELEASED; urgency=low
   [ Joaquim Boura ]
   * remove duplicate in hwsupport-printscan
 
- -- Joaquim Boura <x-un-i@berlios.de>  Sun, 26 Dec 2010 12:02:33 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 27 Dec 2010 02:58:54 +0100
 
 pyfll (2010.02) keres; urgency=low
 
