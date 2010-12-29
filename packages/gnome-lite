@@ -1,32 +1,23 @@
 desc = """
-	A lite Gnome desktop environment.
+	Basic GNOME desktop environment.
 """
 
 deps = """
 	cli
 	distro
+	distro-gnome
 	distro-tools
 	distro-tools-x
-	distro-gnome
-	essential
-	fluxbox
+	gnome-essential
+	gnome-basic
 	hwsupport-essential
-	hwsupport-powermanagement
+	hwsupport-extra
+	hwsupport-printscan
 	utils-essential
 	utils-extra
 	utils-x
-	gnome-desktop-min
 	xserver
 """
 
 packages = """
-	alsa-utils
-	#chromium-browser
-	iceweasel
-	#epiphany-browser
-	#epiphany-extensions
-	#midori
-	pidgin
-	xchat
 """
-

@@ -1,8 +1,12 @@
 pyfll (2011.01) UNRELEASED; urgency=low
 
+  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 27 Dec 2010 02:59:24 +0100
+  [ Joaquim Boura ]
+  * cleanup for the gnome packages
+
+ -- Joaquim Boura <x-un-i@berlios.de>  Wed, 29 Dec 2010 23:13:50 +0100
 
 pyfll (2010.03) apate; urgency=low
 

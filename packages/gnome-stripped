@@ -1,26 +1,21 @@
 desc = """
-	A lite Gnome desktop environment.
+	Minimal GNOME desktop environment.
 """
 
 deps = """
 	cli
 	distro
+	distro-gnome
 	distro-tools
 	distro-tools-x
-	distro-gnome
-	essential
-	fluxbox
+	gnome-essential
 	hwsupport-essential
-	hwsupport-powermanagement
 	utils-essential
-	utils-extra
-	utils-x
-	gnome-desktop-stripped
 	xserver
 """
 
 packages = """
-	rhythmbox
-	xchat
+	build-essential
+	cdebootstrap
+	hwinfo
 """
-

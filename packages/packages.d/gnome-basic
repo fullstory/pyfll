@@ -1,0 +1,21 @@
+desc = """
+	Lite GNOME desktop applications
+"""
+
+packages = """
+	epiphany-extensions
+	evince                                                                                                             
+	evolution
+	evolution-data-server 
+	file-roller
+	gnome-about
+	gnome-screensaver
+	gnome-themes
+	gnome-user-guide
+	gstreamer0.10-plugins-good
+	gvfs-backends
+	mpg321
+	nautilus-open-terminal
+	pidgin
+	pidgin-encryption
+"""

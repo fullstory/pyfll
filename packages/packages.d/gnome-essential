@@ -1,0 +1,12 @@
+desc = """
+	Minimal GNOME desktop environment.
+"""
+
+packages = """
+	epiphany-browser
+	epiphany-extensions
+	gdm3
+	gnome-core
+	xchat
+	xchat-systray
+"""
