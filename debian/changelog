@@ -5,8 +5,9 @@ pyfll (2011.01) UNRELEASED; urgency=low
 
   [ Joaquim Boura ]
   * cleanup for the gnome packages
+  * fixed package desription
 
- -- Joaquim Boura <x-un-i@berlios.de>  Wed, 29 Dec 2010 23:13:50 +0100
+ -- Joaquim Boura <x-un-i@berlios.de>  Sun, 02 Jan 2011 15:47:49 +0100
 
 pyfll (2010.03) apate; urgency=low
 

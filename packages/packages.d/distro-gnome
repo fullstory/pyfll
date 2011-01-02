@@ -1,5 +1,5 @@
 desc = """
-	Distro specific packages for an XFCE desktop.
+	Distro specific packages for an GNOME desktop.
 """
 
 packages = """
