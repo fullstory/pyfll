@@ -11,6 +11,7 @@ packages = """
 	kontact
 	kopete
 	netbase
+	ntpdate
 	python-dbus
 	xfce4-session
 """

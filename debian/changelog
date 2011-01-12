@@ -1,13 +1,15 @@
 pyfll (2011.01) UNRELEASED; urgency=low
 
-  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
 
   [ Joaquim Boura ]
   * cleanup for the gnome packages
   * fixed package desription
 
- -- Joaquim Boura <x-un-i@berlios.de>  Sun, 02 Jan 2011 15:47:49 +0100
+  [ Stefan Lippers-Hollmann ]
+  * add ntpdate to automatic recommends handling.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 12 Jan 2011 11:48:07 +0100
 
 pyfll (2010.03) apate; urgency=low
 
