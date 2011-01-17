@@ -1591,18 +1591,23 @@ class FLLBuilder(object):
         if os.path.isfile(os.path.join(chroot, 'squash', '%s' % image_file)):
             cmd = ['mksquashfs', 'squash', image_file, '-noappend']
         else:
-            cmd = ['mksquashfs', '.', image_file, '-noappend', '-wildcards', '-ef', '/tmp/fll_sqfs_exclusion', '-e', image_file]
-
-        if self.opts.l or self.opts.q:
-            cmd.append('-no-progress')
+            cmd = ['mksquashfs', '.', image_file, '-noappend']
 
         # set compression algorithm for squashfs-tools >= 4.1
         squashfs_comp = self.conf['options'].get('squashfs_comp')
-        if squashfs_comp == 'gzip' or squashfs_comp == 'lzma' or squashfs_comp == 'lzo' or squashfs_comp == 'xz':
+        if squashfs_comp in ['lzma', 'lzo', 'xz', 'gzip']:
             cmd.extend(['-comp', '%s' % squashfs_comp])
             if squashfs_comp == 'xz':
                 if arch == 'amd64' or arch == 'i386':
                     cmd.extend(['-Xbcj', 'x86'])
+                elif arch == 'powerpc' or arch == 'ppc64':
+                    cmd.extend(['-Xbcj', 'powerpc'])
+        
+        if not os.path.isfile(os.path.join(chroot, 'squash', '%s' % image_file)):
+            cmd.extend(['-wildcards', '-ef', '/tmp/fll_sqfs_exclusion', '-e', image_file])
+
+        if self.opts.l or self.opts.q:
+            cmd.append('-no-progress')
 
         self._execInChroot(arch, cmd)
 

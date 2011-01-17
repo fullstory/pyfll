@@ -9,8 +9,10 @@ pyfll (2011.01) UNRELEASED; urgency=low
   [ Stefan Lippers-Hollmann ]
   * add ntpdate to automatic recommends handling.
   * add initial squashfs-xz support.
+  * reorder mksquashfs parameters, to allow setting compression algorithms, 
+    also set according filters for powerpc and ppc64.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 17 Jan 2011 02:56:49 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 17 Jan 2011 04:11:13 +0100
 
 pyfll (2010.03) apate; urgency=low
 
