@@ -29,7 +29,6 @@ packages = """
 	iceweasel
 	qemu-kvm
 	myspell-en-us
-	nano
 	openoffice.org-kde
 	rdiff-backup
 	tvtime
