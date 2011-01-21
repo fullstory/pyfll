@@ -17,7 +17,7 @@ do_postinst() {
 		if grep -q ^GRUB_DISABLE_LINUX_RECOVERY\= /etc/default/grub; then
 			sed -i "s/^\(GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
 		else
-			sed -i "s/^\(\#GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
+			sed -i "s/^\#\(GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
 		fi
 	fi
 
