@@ -14,7 +14,11 @@ do_postinst() {
 
 	# disable recovery modes for grub2
 	if [ -w /etc/default/grub ]; then
-		sed -i "s/^\(GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"false\"/" /etc/default/grub
+		if grep -q ^GRUB_DISABLE_LINUX_RECOVERY\=; then
+			sed -i "s/^\(GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
+		else
+			sed -i "s/^\(\#GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
+		fi
 	fi
 
 	# Change MD5 to SHA-256 for password hashes.
