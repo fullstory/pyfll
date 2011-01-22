@@ -1559,8 +1559,20 @@ class FLLBuilder(object):
             self._execCmd(cmd)
 
         # drop the manual loop device
+        # XXX: work around "losetup -d" breakage
         cmd = ['losetup', '-d', fsloop]
-        self._execCmd(cmd)
+        for i in range(0, 59):
+            try:
+                self._execCmd(cmd)
+            except:
+                self.log.info('Loop device still busy (%i seconds)!' % (i + 1))
+                time.sleep(1)
+                continue
+            finally:
+                self.log.info('successfully detached loop device: %s' % fsloop)
+                break
+            self.log.critical('failed to drop loop device: %s' % fsloop)
+            raise Error
        
         # create a dir, loop mount squash/image_file on it and rsync in chroot
         fs_image_mnt='%s.mnt' % image_file
@@ -1572,6 +1584,7 @@ class FLLBuilder(object):
         # copy in to the loop with rsync using the "squashfs" exclusion list
         # also exclude the squash dir itself
         # TODO rename away from sqfs
+        self.log.info('rsync: move chroot into loop image.')
         cmd = ['rsync', '-a', '--exclude=squash', '--exclude=%s' % fs_image_mnt, '--exclude-from=/tmp/fll_sqfs_exclusion', '.', fs_image_mnt]
         self._execInChroot(arch, cmd)
         # get rid of the mount point
