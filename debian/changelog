@@ -14,8 +14,9 @@ pyfll (2011.01) UNRELEASED; urgency=low
   * the default users doesn't need to be group member of sudo.
   * really disable grub recovery mode for grub-pc.
   * first aid to work around losetup -d breakage.
+  * drop xresprobe, it's no longer necessary; thanks to bfree for noticing.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 22 Jan 2011 02:59:13 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 31 Jan 2011 19:35:53 +0100
 
 pyfll (2010.03) apate; urgency=low
 

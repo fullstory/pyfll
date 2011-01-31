@@ -18,7 +18,6 @@ packages = """
 	xfonts-75dpi-transcoded
 	xfonts-100dpi
 	xfonts-100dpi-transcoded
-	xresprobe
 	xserver-xorg
 	xserver-xorg-input-all
 	#xserver-xorg-video-all
