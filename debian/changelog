@@ -1,6 +1,4 @@
-pyfll (2011.01) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+pyfll (2011.01) geras; urgency=low
 
   [ Joaquim Boura ]
   * cleanup for the gnome packages
@@ -15,8 +13,9 @@ pyfll (2011.01) UNRELEASED; urgency=low
   * really disable grub recovery mode for grub-pc.
   * first aid to work around losetup -d breakage.
   * drop xresprobe, it's no longer necessary; thanks to bfree for noticing.
+  * update config.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 31 Jan 2011 19:35:53 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 06 Feb 2011 03:05:33 +0100
 
 pyfll (2010.03) apate; urgency=low
 
