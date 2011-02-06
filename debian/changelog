@@ -2,8 +2,9 @@ pyfll (2011.02) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
   * add debsums to utils-essential.
+  * drop lzma as valid compression methods.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 06 Feb 2011 03:07:19 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 06 Feb 2011 14:52:48 +0100
 
 pyfll (2011.01) geras; urgency=low
 
