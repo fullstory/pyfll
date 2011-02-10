@@ -1,0 +1,13 @@
+desc = """
+	Essential libreoffice packages.
+"""
+
+packages = """
+	libreoffice-calc
+	libreoffice-core
+	libreoffice-draw
+	libreoffice-impress
+	libreoffice-math
+	libreoffice-writer
+	mythes-en-us
+"""

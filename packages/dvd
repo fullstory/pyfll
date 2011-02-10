@@ -20,7 +20,7 @@ deps = """
 	kde-essential
 	kde-basic
 	kde-desktop
-	openoffice
+	libreoffice-suite
 	utils-essential
 	utils-extra
 	utils-x
@@ -143,11 +143,10 @@ packages = """
 	nvram-wakeup
 	okular
 	openjdk-6-jdk
-	openoffice.org-l10n-de
-	openoffice.org-gtk
-	openoffice.org-kde
-	openoffice.org-thesaurus-de
-	openoffice.org-thesaurus-de-ch
+	libreoffice-l10n-de
+	libreoffice-gtk
+	libreoffice-kde
+	mythes-de
 	openssh-server
 	p7zip-full
 	parted

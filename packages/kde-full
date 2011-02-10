@@ -16,7 +16,7 @@ deps = """
 	kde-essential
 	kde-basic
 	kde-desktop
-	openoffice
+	libreoffice-suite
 	utils-essential
 	utils-extra
 	utils-x
@@ -29,7 +29,7 @@ packages = """
 	iceweasel
 	qemu-kvm
 	myspell-en-us
-	openoffice.org-kde
+	libreoffice-kde
 	rdiff-backup
 	tvtime
 """
