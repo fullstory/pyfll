@@ -20,19 +20,17 @@ packages = """
 	xfonts-100dpi-transcoded
 	xserver-xorg
 	xserver-xorg-input-all
-	#xserver-xorg-video-all
+	xserver-xorg-video-all
 	xinit
 	xutils
 """
 
 i386 = """
-	virtualbox-ose-guest-x11
+	#virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
-	xserver-xorg-video-all
 """
 
 amd64 = """
-	virtualbox-ose-guest-x11
+	#virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
-	xserver-xorg-video-all
 """
