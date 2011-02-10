@@ -30,6 +30,4 @@ packages = """
 	qemu-kvm
 	myspell-en-us
 	libreoffice-kde
-	rdiff-backup
-	tvtime
 """
