@@ -14,10 +14,10 @@ do_postinst() {
 
 	# disable recovery modes for grub2
 	if [ -w /etc/default/grub ]; then
-		if grep -q ^GRUB_DISABLE_LINUX_RECOVERY\= /etc/default/grub; then
-			sed -i "s/^\(GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
+		if grep -q ^GRUB_DISABLE_RECOVERY\= /etc/default/grub; then
+			sed -i "s/^\(GRUB_DISABLE_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
 		else
-			sed -i "s/^\#\(GRUB_DISABLE_LINUX_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
+			sed -i "s/^\#\(GRUB_DISABLE_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
 		fi
 	fi
 

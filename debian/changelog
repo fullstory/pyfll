@@ -8,8 +8,9 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * switch to libreoffice.
   * drop tvtime from kde-full, there is no analogue tv in Europe anymore.
   * temporarily drop virtualbox-ose-guest-x11.
+  * s/GRUB_DISABLE_LINUX_RECOVERY/GRUB_DISABLE_RECOVERY/
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 10 Feb 2011 15:28:43 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 12 Feb 2011 21:09:18 +0100
 
 pyfll (2011.01) geras; urgency=low
 
