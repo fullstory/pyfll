@@ -26,11 +26,11 @@ packages = """
 """
 
 i386 = """
-	#virtualbox-ose-guest-x11
+	virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
 """
 
 amd64 = """
-	#virtualbox-ose-guest-x11
+	virtualbox-ose-guest-x11
 	xserver-xorg-input-vmmouse
 """
