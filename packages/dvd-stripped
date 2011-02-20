@@ -24,7 +24,7 @@ packages = """
 	build-essential
 	cdebootstrap
 	desktop-file-utils
-	gdm
+	gdm3
 	gtk2-engines-xfce
 	kaffeine
 	kde-core
