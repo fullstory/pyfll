@@ -28,7 +28,7 @@ packages = """
 	man-db
 	manpages
 	memtest86+
-	midori
+	chromium-browser
 	module-assistant
 	ntfs-3g
 	ntfsprogs
