@@ -10,6 +10,7 @@ packages = """
 	irqbalance
 	laptop-detect
 	lvm2
+	mdadm
 	nbd-client
 	openfwwf
 	pcmciautils
