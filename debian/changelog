@@ -10,8 +10,9 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * s/GRUB_DISABLE_LINUX_RECOVERY/GRUB_DISABLE_RECOVERY/
   * gdm is no more, replace it with gdm3.
   * add mdadm.
+  * welcome back da_DK.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 26 Feb 2011 22:53:00 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 07 Mar 2011 14:56:09 +0100
 
 pyfll (2011.01) geras; urgency=low
 
