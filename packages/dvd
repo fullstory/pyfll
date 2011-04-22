@@ -85,7 +85,7 @@ packages = """
 	hydrogen
 	hydrogen-drumkits
 	icedove
-	icedtea6-plugin
+	icedtea-plugin
 	iceowl
 	iceweasel
 	idesk

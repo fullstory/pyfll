@@ -25,7 +25,7 @@ deps = """
 
 packages = """
 	dnsutils
-	icedtea6-plugin
+	icedtea-plugin
 	iceweasel
 	qemu-kvm
 	myspell-en-us
