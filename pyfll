@@ -1609,6 +1609,7 @@ class FLLBuilder(object):
         # set compression algorithm for squashfs-tools >= 4.1
         squashfs_comp = self.conf['options'].get('squashfs_comp')
         if squashfs_comp in ['gzip', 'lzo', 'xz']:
+            self.log.info('using squashfs(%s)...' % squashfs_comp)
             cmd.extend(['-comp', '%s' % squashfs_comp])
             if squashfs_comp == 'xz':
                 if arch == 'amd64' or arch == 'i386':

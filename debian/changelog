@@ -11,8 +11,9 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * gdm is no more, replace it with gdm3.
   * add mdadm.
   * welcome back da_DK.
+  * print out compression algorithm for mksquashfs early.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 07 Mar 2011 14:56:09 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 22 Apr 2011 19:17:36 +0200
 
 pyfll (2011.01) geras; urgency=low
 
