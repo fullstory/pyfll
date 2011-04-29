@@ -3,11 +3,10 @@ Section: misc
 Priority: optional
 Maintainer: Kel Modderman <kel@otaku42.de>
 Uploaders: Stefan Lippers-Hollmann <s.l-h@gmx.de>,
- Ferdinand Thommes <devil@sidux.com>,
  Joaquim Boura <x-un-i@berlios.de>,
- Chris Hildebrandt <slam@sidux.com>
+ Chris Hildebrandt <slam@aptosid.com>
 Build-Depends: debhelper (>= 7.9.3)
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 Vcs-Svn: svn://svn.berlios.de/fullstory/pyfll/trunk
 Vcs-Browser: http://svn.berlios.de/wsvn/fullstory/pyfll/trunk/
 

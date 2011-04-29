@@ -13,8 +13,9 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * welcome back da_DK.
   * print out compression algorithm for mksquashfs early.
   * s/icedtea6-plugin/icedtea-plugin/
+  * bump standards version to 3.9.2, no changes necessary.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 22 Apr 2011 19:20:45 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 28 Apr 2011 15:52:04 +0200
 
 pyfll (2011.01) geras; urgency=low
 
