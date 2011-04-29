@@ -87,7 +87,7 @@ packages = """
 	icedove
 	icedtea-plugin
 	iceowl
-	iceweasel
+#	iceweasel
 	idesk
 	idle
 	imagemagick

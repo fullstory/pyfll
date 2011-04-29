@@ -19,6 +19,6 @@ deps = """
 """
 
 packages = """
-	iceweasel
+#	iceweasel
 """
 

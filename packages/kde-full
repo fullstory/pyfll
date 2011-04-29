@@ -26,7 +26,7 @@ deps = """
 packages = """
 	dnsutils
 	icedtea-plugin
-	iceweasel
+#	iceweasel
 	qemu-kvm
 	myspell-en-us
 	libreoffice-kde
