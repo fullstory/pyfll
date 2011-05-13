@@ -1138,15 +1138,16 @@ class FLLBuilder(object):
 
     def _makeInitramfs(self, arch):
         '''(Re-)Generate the initramfs'''
-        chroot = os.path.join(self.temp, arch)
-        kvers = self._detectLinuxVersion(chroot)
-        for k in kvers:
-            cmd = 'update-initramfs -d -k %s' % k
-            self._execInChroot(arch, cmd.split())
-            cmd = 'update-initramfs -c -k %s' % k
-            if self.opts.v:
-                cmd += ' -v'
-            self._execInChroot(arch, cmd.split())
+        if not self.opts.D:
+            chroot = os.path.join(self.temp, arch)
+            kvers = self._detectLinuxVersion(chroot)
+            for k in kvers:
+                cmd = 'update-initramfs -d -k %s' % k
+                self._execInChroot(arch, cmd.split())
+                cmd = 'update-initramfs -c -k %s' % k
+                if self.opts.v:
+                    cmd += ' -v'
+                self._execInChroot(arch, cmd.split())
 
 
     def _preseedDebconf(self, arch):
