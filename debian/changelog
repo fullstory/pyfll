@@ -15,8 +15,11 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * s/icedtea6-plugin/icedtea-plugin/
   * bump standards version to 3.9.2, no changes necessary.
   * temporarily drop iceweasel, iceweasel-l10n maintainers broke the game.
+  * temporarily drop virtualbox-ose-guest-x11, no one seems to care.
+  * no longer divert update-initramfs, doing so would break upcoming kernel
+    packaging.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 29 Apr 2011 14:16:38 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 14 May 2011 00:24:10 +0200
 
 pyfll (2011.01) geras; urgency=low
 
