@@ -24,7 +24,7 @@ packages = """
 	mlocate
 	module-assistant
 	ntpdate
-	ntfs-3g
+#	ntfs-3g
 	ntfsprogs
 	nmap
 	openssh-client
