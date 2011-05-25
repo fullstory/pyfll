@@ -17,8 +17,9 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * temporarily drop iceweasel, iceweasel-l10n maintainers broke the game.
   * ntfs-3g conflicts with ntfsprogs, but we don't want fuse unconditionally in
     the initramfs or present at all.
+  * add gdisk to utils-essential, needed for managing GPT disks.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 May 2011 14:19:05 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 May 2011 14:21:57 +0200
 
 pyfll (2011.01) geras; urgency=low
 

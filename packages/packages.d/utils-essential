@@ -9,6 +9,7 @@ packages = """
 	console-common
 	cron
 	debsums
+	gdisk
 	iptables
 	iputils-ping
 	isc-dhcp-client
