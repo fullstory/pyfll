@@ -18,8 +18,10 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * ntfs-3g conflicts with ntfsprogs, but we don't want fuse unconditionally in
     the initramfs or present at all.
   * add gdisk to utils-essential, needed for managing GPT disks.
+  * add akonadi-backend-sqlite to kde-essential, in order to avoid pulling in
+    mysql.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 May 2011 14:21:57 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 28 May 2011 03:20:59 +0200
 
 pyfll (2011.01) geras; urgency=low
 

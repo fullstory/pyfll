@@ -4,6 +4,7 @@ desc = """
 
 packages = """
 	ark
+	akonadi-backend-sqlite
 	kaffeine
 	kde-plasma-desktop
 	kdm
