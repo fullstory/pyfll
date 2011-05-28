@@ -1,5 +1,6 @@
 pyfll (2011.02) UNRELEASED; urgency=low
 
+  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
   * add debsums to utils-essential.
   * drop lzma as valid compression methods.
@@ -21,7 +22,11 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * add akonadi-backend-sqlite to kde-essential, in order to avoid pulling in
     mysql.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 28 May 2011 03:20:59 +0200
+  [ Joaquim Boura ]
+  * Initial update to python APT API v0.8.0 (module initialization functions
+    were renamed)
+
+ -- Joaquim Boura <x-un-i@berlios.de>  Sat, 28 May 2011 12:02:42 +0200
 
 pyfll (2011.01) geras; urgency=low
 
