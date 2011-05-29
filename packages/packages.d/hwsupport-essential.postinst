@@ -12,7 +12,12 @@ do_postinst() {
 		sed -i -e 's%^\([[:space:]]*# By default\) we accept every block device:$%\1 we exclude optical drives:%' \
 		       -e 's%^\([[:space:]]*filter =\).*%\1 '"${DEFAULT_LVM_FILTER}"'%' \
 		        /etc/lvm/lvm.conf
-	fi	
+	fi
+
+	if [ -w /etc/mdadm/mdadm.conf ]; then
+		say 'Prune leaked build host mdadm setups from the ISO.'
+		sed -i "/^ARRAY.*/d" /etc/mdadm/mdadm.conf
+	fi
 }
 
 case "${1}" in
