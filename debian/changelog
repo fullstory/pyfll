@@ -21,12 +21,13 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * add akonadi-backend-sqlite to kde-essential, in order to avoid pulling in
     mysql.
   * prune leaked build host mdadm setups from the ISO.
+  * default to phonon-backend-gstreamer, phonon-backend-xine is dead upstream.
 
   [ Joaquim Boura ]
   * Initial update to python APT API v0.8.0 (module initialization functions
     were renamed)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 29 May 2011 04:27:21 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 12 Jun 2011 03:12:54 +0200
 
 pyfll (2011.01) geras; urgency=low
 

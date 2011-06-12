@@ -10,5 +10,5 @@ packages = """
 	kdm
 	konversation
 	partitionmanager
-	phonon-backend-xine
+	phonon-backend-gstreamer
 """
