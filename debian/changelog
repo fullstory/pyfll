@@ -15,8 +15,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * print out compression algorithm for mksquashfs early.
   * s/icedtea6-plugin/icedtea-plugin/
   * bump standards version to 3.9.2, no changes necessary.
-  * ntfs-3g conflicts with ntfsprogs, but we don't want fuse unconditionally in
-    the initramfs or present at all.
+  * ntfs-3g replaces ntfsprogs for the time being, blow the fuse.
   * add gdisk to utils-essential, needed for managing GPT disks.
   * add akonadi-backend-sqlite to kde-essential, in order to avoid pulling in
     mysql.
@@ -28,7 +27,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * Initial update to python APT API v0.8.0 (module initialization functions
     were renamed)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 17 Jun 2011 22:51:58 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 17 Jun 2011 23:19:42 +0200
 
 pyfll (2011.01) geras; urgency=low
 

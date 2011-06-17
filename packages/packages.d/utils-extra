@@ -23,8 +23,7 @@ packages = """
 	mlocate
 	module-assistant
 	ntpdate
-#	ntfs-3g
-	ntfsprogs
+	ntfs-3g
 	nmap
 	openssh-client
 	pwgen

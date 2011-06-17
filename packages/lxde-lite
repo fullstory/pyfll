@@ -29,7 +29,6 @@ packages = """
 	memtest86+
 	chromium-browser
 	module-assistant
-	ntfsprogs
 	openssh-client
 	reiserfsprogs
 	sshfs
