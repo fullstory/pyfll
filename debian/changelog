@@ -22,12 +22,13 @@ pyfll (2011.02) UNRELEASED; urgency=low
     mysql.
   * prune leaked build host mdadm setups from the ISO.
   * default to phonon-backend-gstreamer, phonon-backend-xine is dead upstream.
+  * remove fuse-utils, all fuse using packages hard-depend on it anyways.
 
   [ Joaquim Boura ]
   * Initial update to python APT API v0.8.0 (module initialization functions
     were renamed)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 12 Jun 2011 03:12:54 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 17 Jun 2011 22:51:58 +0200
 
 pyfll (2011.01) geras; urgency=low
 

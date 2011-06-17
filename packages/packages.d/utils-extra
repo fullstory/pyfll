@@ -14,7 +14,6 @@ packages = """
 	dvb-apps
 	dosfstools
 	ftp-ssl
-	fuse-utils
 	genisoimage
 	iproute
 	jfsutils

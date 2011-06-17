@@ -22,7 +22,6 @@ packages = """
 	dosfstools
 	epdfview
 	ftp-ssl
-	fuse-utils
 	gamix
 	jfsutils
 	man-db
