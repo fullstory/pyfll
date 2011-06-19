@@ -6,5 +6,5 @@ packages = """
 	desktop-defaults-kde
 	aptosid-art-kde
 	skanlite
-	partitionmanager
+	gparted
 """

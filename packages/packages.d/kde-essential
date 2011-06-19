@@ -9,6 +9,6 @@ packages = """
 	kde-plasma-desktop
 	kdm
 	konversation
-	partitionmanager
+	gparted
 	phonon-backend-gstreamer
 """
