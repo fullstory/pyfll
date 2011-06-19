@@ -21,6 +21,7 @@ packages = """
 	shared-mime-info
 	thunar
 	thunar-data
+	thunar-archive-plugin
 	thunar-media-tags-plugin
 	thunar-volman
 	trayer
@@ -29,23 +30,10 @@ packages = """
 	xchat
 	xfce4
 	xfce4-artwork
-	xfce4-battery-plugin
-	xfce4-clipman-plugin
-	xfce4-cpufreq-plugin
-	xfce4-cpugraph-plugin
 	xfce4-dev-tools
-	xfce4-fsguard-plugin
-	xfce4-genmon-plugin
-	xfce4-goodies
-	xfce4-xkb-plugin
 	xfce4-mixer
-	xfce4-mount-plugin
 	xfce4-panel
-	xfce4-quicklauncher-plugin
-	xfce4-screenshooter-plugin
-	xfce4-sensors-plugin
 	xfce4-session 
-	xfce4-systemload-plugin
 	xfce4-terminal
 	xfce4-utils
 	xfdesktop4

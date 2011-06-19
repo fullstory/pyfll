@@ -15,7 +15,5 @@ packages = """
 	orage
 	transmission
 	ttf-kochi-gothic
-	xfce4-verve-plugin
-	xfce4-weather-plugin
 """
 
