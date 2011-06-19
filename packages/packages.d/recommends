@@ -6,7 +6,6 @@ desc = """
 packages = """
 	bash
 	fll-live-initscripts
-	hal
 	k3b
 	kontact
 	kopete
