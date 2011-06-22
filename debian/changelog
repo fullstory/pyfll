@@ -24,6 +24,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * remove fuse-utils, all fuse using packages hard-depend on it anyways.
   * drop recommends handling for hal.
   * s/partitionmanager/gparted/, to gain basic GPT support.
+  * tweak mkfs options for reiserfs loop image creation (devmapper).
 
   [ Joaquim Boura ]
   * Initial update to python APT API v0.8.0 (module initialization functions
@@ -31,7 +32,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * split xfce-destop-min to create xfce-desktop-goodies to get rid of deprecated plugins still
     depending on libhal1
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 19 Jun 2011 17:15:55 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 23 Jun 2011 00:14:34 +0200
 
 pyfll (2011.01) geras; urgency=low
 

@@ -1551,6 +1551,8 @@ class FLLBuilder(object):
         if image_fs == 'ext3' or image_fs == 'ext4' :
             cmd.append('-O')
             cmd.append('^has_journal')
+        elif image_fs == 'reiserfs' :
+            cmd.append('-f')
         cmd.append(fsloop)
         self._execCmd(cmd)
         # we don't want fsck running on the live image
