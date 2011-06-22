@@ -1551,6 +1551,8 @@ class FLLBuilder(object):
         if image_fs == 'ext3' or image_fs == 'ext4' :
             cmd.append('-O')
             cmd.append('^has_journal')
+        elif image_fs == 'jfs' :
+            cmd.append('-f')
         elif image_fs == 'reiserfs' :
             cmd.append('-f')
         cmd.append(fsloop)
