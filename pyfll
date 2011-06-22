@@ -1497,6 +1497,8 @@ class FLLBuilder(object):
         # TODO rename away from sqfs
         exclude_file = os.path.join(self.opts.s, 'data', 'fll_sqfs_exclusion')
         shutil.copy(exclude_file, os.path.join(chroot, 'tmp'))
+        cmd = ['sed', '-i', '-e', 's|^|/|', os.path.join('tmp','fll_sqfs_exclusion')]
+        self._execInChroot(arch, cmd)
 
         # no imagefs for aufs/unionfs
         if 'FLL_UNION_MODULE' in self.conf['distro'] and len(self.conf['distro']['FLL_UNION_MODULE']) and self.conf['distro']['FLL_UNION_MODULE'] != "dmsetup":

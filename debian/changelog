@@ -33,7 +33,11 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * split xfce-destop-min to create xfce-desktop-goodies to get rid of deprecated plugins still
     depending on libhal1
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 23 Jun 2011 00:38:48 +0200
+  [ Niall Walsh ]
+  * dynamically prefix exclusion file with / for absolute paths for rsync for
+    devmapper (sorry about the sed, not sure how to do sanely in python)
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 23 Jun 2011 00:45:11 +0100
 
 pyfll (2011.01) geras; urgency=low
 
