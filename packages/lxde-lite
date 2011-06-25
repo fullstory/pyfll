@@ -17,28 +17,5 @@ deps = """
 """
 
 packages = """
-	blueman
-	cryptsetup
-	dosfstools
-	epdfview
-	ftp-ssl
-	gamix
-	jfsutils
-	man-db
-	manpages
-	memtest86+
 	chromium-browser
-	module-assistant
-	openssh-client
-	reiserfsprogs
-	sshfs
-	smbclient
-	smbfs
-	testdisk
-	xchat
-	xfsprogs
-	xpad
-	unzip
-	wodim
-	zip
 """

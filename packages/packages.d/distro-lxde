@@ -1,6 +1,5 @@
 desc = """
-	Distro specific packages for an LXDE desktop. There is no art package,
-	yet, so use ouranos' GDM theme.
+	Distro specific packages for an LXDE desktop.
 """
 
 packages = """

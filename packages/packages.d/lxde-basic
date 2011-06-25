@@ -1,8 +1,12 @@
 desc = """
-	Basic LXDE applications.
+	Minimal LXDE desktop environment.
 """
 
 packages = """
-	dbus-x11
-	lxde
+	blueman
+	epdfview
+	gamix
+	xchat
+	xchat-systray
+	xpad
 """

@@ -1,5 +1,8 @@
 pyfll (2011.02) UNRELEASED; urgency=low
 
+  [ Chris Hildebrandt ]
+  * clean outdated/unwanted packages from LXDE profile, move the rest over to lxde-basic
+
   [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
   * add debsums to utils-essential.
