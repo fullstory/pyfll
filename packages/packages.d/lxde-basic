@@ -5,6 +5,7 @@ desc = """
 packages = """
 	blueman
 	epdfview
+	gnome-icon-theme
 	xchat
 	xchat-systray
 	xpad
