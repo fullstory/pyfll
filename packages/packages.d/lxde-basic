@@ -8,13 +8,10 @@ packages = """
 	gksu
 	gvfs-backends
 	gvfs-fuse
-	lxde-icon-theme
-	lxde-settings-daemon
+	lxde
 	lxmusic
-	lxrandr
 	lxlauncher
 	lxtask
 	xchat
 	xchat-systray
-	xpad
 """
