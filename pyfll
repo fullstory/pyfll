@@ -1948,7 +1948,7 @@ class FLLBuilder(object):
             initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
             
             grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('     linux /boot/%s boot=fll %s\n' % (vmlinuz_r, cmdline))
+            grubcfg.write('     linux /boot/%s boot=fll quiet %s\n' % (vmlinuz_r, cmdline))
             grubcfg.write('     initrd /boot/%s\n' % initrd_r)
             grubcfg.write('}\n')
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
