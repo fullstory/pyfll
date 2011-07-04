@@ -39,8 +39,10 @@ pyfll (2011.02) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * dynamically prefix exclusion file with / for absolute paths for rsync for
     devmapper (sorry about the sed, not sure how to do sanely in python)
+  * initial (u)efi support for amd64, driven by inclusion of
+    grub-efi-amd64-bin, requires xorriso to generate those isos
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 23 Jun 2011 00:45:11 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Mon, 04 Jul 2011 20:48:57 +0100
 
 pyfll (2011.01) geras; urgency=low
 

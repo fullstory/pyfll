@@ -1713,6 +1713,36 @@ class FLLBuilder(object):
                     self.log.exception('failed to copy grub file to staging dir')
                     raise Error
 
+            # efi
+            gfile_dir = os.path.join(chroot, 'usr/lib/grub/x86_64-efi')
+            if os.path.isdir(gfile_dir):
+                gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                          if f.endswith('.mod') or f.endswith('.lst')]
+                gfiles.append(os.path.join(chroot,'/usr/share/grub/unicode.pf2'))
+                if len(gfiles) > 0:
+                    self.log.debug('copying grub efi stage files to boot dir')
+                    grub_dir = os.path.join(boot_dir, 'grub', 'x86_64-efi')
+                    if not os.path.isdir(grub_dir):
+                        os.mkdir(grub_dir, 0755)
+                for file in gfiles:
+                    try:
+                        shutil.copy(file, grub_dir)
+                    except IOError:
+                        self.log.exception('failed to copy grub efi file to staging dir')
+                        raise Error
+                efi_dir = os.path.join(self.temp, 'staging/efi/boot')
+                if not os.path.isdir(efi_dir):
+                    if not os.path.isdir(os.path.join(self.temp, 'staging/efi')):
+                        os.mkdir(os.path.join(self.temp, 'staging/efi'), 0755)
+                    os.mkdir(efi_dir, 0755)
+                try:
+                    shutil.copy(os.path.join(chroot, 'tmp/efi/boot/bootx64.efi'), efi_dir)
+                    shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
+                    shutil.copy(os.path.join(chroot, 'tmp/iso_uuid'), os.path.join(self.temp, 'staging'))
+                except IOError:
+                    self.log.exception('failed to copy efi boot files to staging dir')
+                    raise Error
+
         isolinux = os.path.join(chroot, 'usr/lib/syslinux/isolinux.bin')
         if os.path.isfile(isolinux):
             try:
@@ -1876,6 +1906,59 @@ class FLLBuilder(object):
             grubcfg.write('}\n')
 
         grubcfg.close()
+        
+
+    def _writeGrubEfiCfg(self, stage_dir, boot_dir, grub_dir, kvers,
+                      timeout, cmdline):
+        '''Write grub.cfg for live media.'''
+        self.log.debug('writing efi grub.cfg for live media')
+
+        grubcfg = open(os.path.join(grub_dir, 'grub.cfg'), 'w')
+        grubcfg.write('insmod efi_gop\n')
+        grubcfg.write('insmod efi_uga\n')
+        grubcfg.write('insmod font\n')
+        grubcfg.write('insmod biosdisk\n')
+        grubcfg.write('insmod pc\n')
+        grubcfg.write('insmod gpt\n')
+        grubcfg.write('set timeout=%d\n' % int(timeout))
+        grubcfg.write('if loadfont ${prefix}/unicode.pf2 ; then\n')
+        grubcfg.write('  set gfxmode=auto\n')
+        grubcfg.write('  insmod gfxterm\n')
+        grubcfg.write('  set gfxpayload=keep\n')
+        grubcfg.write('  terminal_output gfxterm\n')
+        grubcfg.write('fi\n\n')
+        grubcfg.write('set menu_color_normal=cyan/blue\n')
+        grubcfg.write('set menu_color_highlight=white/blue\n\n')
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+        
+        kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz-%s' % k
+            initrd = 'initrd.img-%s' % k
+
+            for f in [vmlinuz, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            # assumes isolinux config will rename them :-/
+            vmlinuz_r = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+            initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+            
+            grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
+            grubcfg.write('     linux /boot/%s boot=fll %s\n' % (vmlinuz_r, cmdline))
+            grubcfg.write('     initrd /boot/%s\n' % initrd_r)
+            grubcfg.write('}\n')
+            kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
+
+        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
+            grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
+            grubcfg.write('     linux16 /boot/memtest\n')
+            grubcfg.write('}\n')
+
+        grubcfg.close()
 
 
     def _writeYabootCfg(self, stage_dir, boot_dir, ppc_dir, kvers,
@@ -2016,6 +2099,10 @@ class FLLBuilder(object):
         if len(grub2_modules) > 0:
             self._writeGrubCfg(stage_dir, boot_dir, grub_dir, kvers,
                                timeout, cmdline)
+            grub_efi_dir = os.path.join(grub_dir, 'x86_64-efi')
+            if os.path.isdir(grub_efi_dir):
+                self._writeGrubEfiCfg(stage_dir, boot_dir, grub_efi_dir,
+                                      kvers, timeout, cmdline)
         else:
             self._writeMenuLst(stage_dir, boot_dir, grub_dir, kvers,
                                timeout, cmdline)
@@ -2219,10 +2306,14 @@ class FLLBuilder(object):
         md5_file = iso_file + '.md5'
         sha256_file = iso_file + '.sha256'
 
-        cmd = 'genisoimage'
+        if os.path.isfile(os.path.join(stage, 'efi.img')):
+            cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
+        else:
+            cmd = 'genisoimage -J -r -hide-rr-moved'
+
         if self.opts.v:
             cmd += ' -v'
-        cmd += ' -pad -l -J -r -hide-rr-moved'
+        cmd += ' -pad -l'
         cmd2 = ''
 
         if os.path.isfile(os.path.join(stage, 'boot/isolinux/isolinux.bin')):
@@ -2251,8 +2342,25 @@ class FLLBuilder(object):
             # (4.7*10^9)*(1/1024)
             cmd += ' -hfs-parms MAX_XTCSIZE=18287938'
 
+        if os.path.isfile(os.path.join(stage, 'efi.img')):
+            uuid_file = None
+            uuid = None
+            try:
+                uuid_file = open(os.path.join(stage, 'iso_uuid'), 'r')
+                uuid = uuid_file.read()
+            except IOError:
+                self.log.exception('failed to read iso_uuid file')
+                raise Error
+            finally:
+                if uuid_file:
+                    uuid_file.close()
+            cmd += ' --modification-date=%s --efi-boot efi.img --protective-msdos-label' % uuid
+
         cmd += ' -V %s' % distro_name[:32]
-        cmd += ' -sort %s' % sort_file
+        if os.path.isfile(os.path.join(stage, 'efi.img')):
+            cmd += ' --sort-weight 0 / --sort-weight 1 /boot --sort-weight 2 /boot/grub -x iso_uuid'
+        else:
+            cmd += ' -sort %s' % sort_file
         cmd += ' -x genisoimage.sort'
         cmd += ' -o %s %s' % (iso_file, stage)
 

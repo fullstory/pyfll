@@ -17,3 +17,4 @@ Dependencies:
 
 Recommends:
   reprepro (for liveapt functionality)
+  xorriso (for amd64 with efi)
