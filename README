@@ -16,5 +16,5 @@ Dependencies:
   syslinux
 
 Recommends:
-  reprepro (for liveapt functionality)
+  reprepro (for liveapt functionality and extras (amd64 with efi))
   xorriso (for amd64 with efi)
