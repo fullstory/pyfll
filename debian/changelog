@@ -1,10 +1,11 @@
 pyfll (2011.02) UNRELEASED; urgency=low
 
+  * NOT RELEASED YET
+
   [ Chris Hildebrandt ]
   * clean outdated/unwanted packages from LXDE profile, move the rest over to lxde-basic
 
   [ Stefan Lippers-Hollmann ]
-  * NOT RELEASED YET
   * add debsums to utils-essential.
   * drop lzma as valid compression methods.
   * re-enable xserver-xorg-video-all, instead of hardcoded partial list.
@@ -29,6 +30,8 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * s/partitionmanager/gparted/, to gain basic GPT support.
   * tweak mkfs options for reiserfs loop image creation (devmapper).
   * tweak mkfs options for jfs loop image creation (devmapper).
+  * don't write /etc/kernel-img.conf anymore, it's usage is deprecated and
+    discouraged.
 
   [ Joaquim Boura ]
   * Initial update to python APT API v0.8.0 (module initialization functions
@@ -43,7 +46,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
     grub-efi-amd64-bin, requires xorriso to generate those isos
   * add extras repo, intially with just grub-efi and deps when appropriate
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Mon, 04 Jul 2011 23:46:41 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 05 Jul 2011 03:15:14 +0200
 
 pyfll (2011.01) geras; urgency=low
 

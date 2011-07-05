@@ -1053,9 +1053,6 @@ class FLLBuilder(object):
                 f.write('ff02::1 ip6-allnodes\n')
                 f.write('ff02::2 ip6-allrouters\n')
                 f.write('ff02::3 ip6-allhosts\n')
-            elif file == '/etc/kernel-img.conf':
-                f.write('do_bootloader = No\n')
-                f.write('warn_initrd   = No\n')
             elif file == '/etc/network/interfaces':
                 f.write('# /etc/network/interfaces - ')
                 f.write('configuration file for ifup(8), ifdown(8)\n\n')
@@ -1080,7 +1077,6 @@ class FLLBuilder(object):
         '''Initial creation of conffiles required in chroot.'''
         self._writeFile(arch, '/etc/fstab')
         self._writeFile(arch, '/etc/hostname')
-        self._writeFile(arch, '/etc/kernel-img.conf')
         self._writeFile(arch, '/etc/network/interfaces')
 
 
@@ -1120,21 +1116,6 @@ class FLLBuilder(object):
         if os.path.isfile(os.path.join(chroot, 'etc/resolv.conf')) and \
            not os.path.islink(os.path.join(chroot, 'etc/resolv.conf')):
             self._writeFile(arch, '/etc/resolv.conf')
-
-        if os.path.isfile(os.path.join(chroot, 'usr/sbin/update-grub')):
-            self.log.debug('add grub hooks to /etc/kernel-img.conf')
-            f = None
-            try:
-                f = open(os.path.join(chroot, 'etc/kernel-img.conf'), 'a')
-                f.write('postinst_hook = /usr/sbin/update-grub\n')
-                f.write('postrm_hook   = /usr/sbin/update-grub\n')
-            except IOError:
-                self.log.exception('failed to open file for writing: %s' %
-                                   '/etc/kernel-img.conf')
-                raise Error
-            finally:
-                if f:
-                    f.close()
 
 
     def _makeInitramfs(self, arch):
