@@ -45,8 +45,14 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * initial (u)efi support for amd64, driven by inclusion of
     grub-efi-amd64-bin, requires xorriso to generate those isos
   * add extras repo, intially with just grub-efi and deps when appropriate
+  * add grub-efi debs to extras repo, means amd64 requires reprepro as long
+    as grub-efi-amd64-bin is included
+  * create uuid/${iso_uuid} file for grub.cfg in /efi/boot/bootx64.efi
+    memdisk to find drive with iso contents for fromhd
+  * /boot/efi/bootx64.efi is different then the one used for cd booting, 
+    sets fromhd and supports mbr/gpt disks using lvm, fat, ext2 grub modules
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 05 Jul 2011 03:15:14 +0200
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 06 Jul 2011 16:32:58 +0100
 
 pyfll (2011.01) geras; urgency=low
 

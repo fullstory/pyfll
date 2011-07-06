@@ -14,10 +14,13 @@ do_postinst() {
 			say 'Creating grub-efi boot files'
 			iso_uuid=$(date -u +%Y-%m-%d-%H-%M-%S-00)
 			echo ${iso_uuid} | sed -e s/-//g > /tmp/iso_uuid
+			mkdir /tmp/uuid
+			touch /tmp/uuid/${iso_uuid}
 			memdisk_img=`mktemp "/tmp/tmp.XXXXXXXXXX"` || exit 1
 			memdisk_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
 			mkdir -p ${memdisk_dir}/boot/grub
 			cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
+set from=""
 search --fs-uuid --set=root ${iso_uuid}
 set prefix=(\${root})/boot/grub/x86_64-efi
 source \$prefix/grub.cfg
@@ -29,6 +32,18 @@ EOF
 			rm -rf ${memdisk_img}
 			mformat -C -f 2880 -L 16 -i /tmp/efi.img ::
 			mcopy -s -i /tmp/efi.img /tmp/efi ::/
+			rm /tmp/efi/boot/bootx64.efi
+			memdisk_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
+			mkdir -p ${memdisk_dir}/boot/grub
+			cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
+set from=fromhd
+search --file --set=root /uuid/${iso_uuid}
+set prefix=(\${root})/boot/grub/x86_64-efi
+source \$prefix/grub.cfg
+EOF
+			(cd "${memdisk_dir}"; tar -cf - boot) > "${memdisk_img}"
+			rm -rf ${memdisk_dir}
+			grub-mkimage -O x86_64-efi -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi/boot/bootx64.efi search iso9660 configfile normal memdisk tar part_msdos part_gpt lvm fat ext2
 		fi
 	fi
 

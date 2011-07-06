@@ -1766,6 +1766,12 @@ class FLLBuilder(object):
                     shutil.copy(os.path.join(chroot, 'tmp/efi/boot/bootx64.efi'), efi_dir)
                     shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
                     shutil.copy(os.path.join(chroot, 'tmp/iso_uuid'), os.path.join(self.temp, 'staging'))
+                    uuid_dir = os.path.join(chroot, 'tmp/uuid')
+                    uuid_stage = os.path.join(self.temp, 'staging/uuid')
+                    os.mkdir(uuid_stage, 0755)
+                    ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
+                    for file in ufiles:
+                        shutil.copy(file, uuid_stage)
                 except IOError:
                     self.log.exception('failed to copy efi boot files to staging dir')
                     raise Error
@@ -1944,9 +1950,6 @@ class FLLBuilder(object):
         grubcfg.write('insmod efi_gop\n')
         grubcfg.write('insmod efi_uga\n')
         grubcfg.write('insmod font\n')
-        grubcfg.write('insmod biosdisk\n')
-        grubcfg.write('insmod pc\n')
-        grubcfg.write('insmod gpt\n')
         grubcfg.write('set timeout=%d\n' % int(timeout))
         grubcfg.write('if loadfont ${prefix}/unicode.pf2 ; then\n')
         grubcfg.write('  set gfxmode=auto\n')
@@ -1975,7 +1978,7 @@ class FLLBuilder(object):
             initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
             
             grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('     linux /boot/%s boot=fll quiet %s\n' % (vmlinuz_r, cmdline))
+            grubcfg.write('     linux /boot/%s boot=fll quiet $from %s\n' % (vmlinuz_r, cmdline))
             grubcfg.write('     initrd /boot/%s\n' % initrd_r)
             grubcfg.write('}\n')
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
