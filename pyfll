@@ -1767,11 +1767,9 @@ class FLLBuilder(object):
                     shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
                     shutil.copy(os.path.join(chroot, 'tmp/iso_uuid'), os.path.join(self.temp, 'staging'))
                     uuid_dir = os.path.join(chroot, 'tmp/uuid')
-                    uuid_stage = os.path.join(self.temp, 'staging/uuid')
-                    os.mkdir(uuid_stage, 0755)
                     ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
                     for file in ufiles:
-                        shutil.copy(file, uuid_stage)
+                        shutil.copy(file, grub_dir)
                 except IOError:
                     self.log.exception('failed to copy efi boot files to staging dir')
                     raise Error
@@ -2091,6 +2089,7 @@ class FLLBuilder(object):
             isolinuxcfg.write('\n')
 
         isolinuxcfg.close()
+        shutil.copy(os.path.join(syslinux_dir, 'isolinux.cfg'),os.path.join(syslinux_dir, 'syslinux.cfg'))
 
     def _configBootKvers(self,stage_dir):
         kvers = self._detectLinuxVersion(stage_dir)

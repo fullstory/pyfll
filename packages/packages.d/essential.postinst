@@ -37,7 +37,7 @@ EOF
 			mkdir -p ${memdisk_dir}/boot/grub
 			cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
 set from=fromhd
-search --file --set=root /uuid/${iso_uuid}
+search --file --set=root /boot/grub/x86_64-efi/${iso_uuid}
 set prefix=(\${root})/boot/grub/x86_64-efi
 source \$prefix/grub.cfg
 EOF

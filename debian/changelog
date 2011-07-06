@@ -47,12 +47,14 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * add extras repo, intially with just grub-efi and deps when appropriate
   * add grub-efi debs to extras repo, means amd64 requires reprepro as long
     as grub-efi-amd64-bin is included
-  * create uuid/${iso_uuid} file for grub.cfg in /efi/boot/bootx64.efi
-    memdisk to find drive with iso contents for fromhd
+  * create /boot/grub/x86_64-efi/${iso_uuid} file for grub.cfg in 
+    /efi/boot/bootx64.efi memdisk to find drive with iso contents for fromhd
   * /boot/efi/bootx64.efi is different then the one used for cd booting, 
     sets fromhd and supports mbr/gpt disks using lvm, fat, ext2 grub modules
+  * copy isolinux.cfg to syslinux.cfg so you can use syslinux on a copy of the
+    iso contents on a fat drive (also add mtools to 32bit for this)
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 06 Jul 2011 16:32:58 +0100
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 06 Jul 2011 19:50:43 +0100
 
 pyfll (2011.01) geras; urgency=low
 
