@@ -1993,11 +1993,6 @@ class FLLBuilder(object):
         grubcfg.write('    configfile $prefix/grub.locale.cfg\n')
         grubcfg.write('}\n')
 
-        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
-            grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
-            grubcfg.write('     linux16 /boot/memtest\n')
-            grubcfg.write('}\n')
-
         grubcfg.close()
 
 

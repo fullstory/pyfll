@@ -33,6 +33,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * don't write /etc/kernel-img.conf anymore, it's usage is deprecated and
     discouraged.
   * only offer amd64 kernels for UEFI booting.
+  * drop memtest86+ from UEFI booting, grub-efi can't emulate linux16.
 
   [ Joaquim Boura ]
   * Initial update to python APT API v0.8.0 (module initialization functions
@@ -56,7 +57,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
     iso contents on a fat drive (also add mtools to 32bit for this)
   * add localisation menu and sub-menus for grub-efi lang, keytable and tz
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 07 Jul 2011 02:33:25 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 07 Jul 2011 03:59:59 +0200
 
 pyfll (2011.01) geras; urgency=low
 
