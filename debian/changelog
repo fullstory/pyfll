@@ -53,8 +53,9 @@ pyfll (2011.02) UNRELEASED; urgency=low
     sets fromhd and supports mbr/gpt disks using lvm, fat, ext2 grub modules
   * copy isolinux.cfg to syslinux.cfg so you can use syslinux on a copy of the
     iso contents on a fat drive (also add mtools to 32bit for this)
+  * add localisation menu and sub-menus for grub-efi lang, keytable and tz
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Wed, 06 Jul 2011 19:50:43 +0100
+ -- Niall Walsh <niall@augustus>  Thu, 07 Jul 2011 01:11:55 +0100
 
 pyfll (2011.01) geras; urgency=low
 

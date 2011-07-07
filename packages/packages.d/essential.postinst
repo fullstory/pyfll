@@ -21,6 +21,7 @@ do_postinst() {
 			mkdir -p ${memdisk_dir}/boot/grub
 			cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
 set from=""
+export from
 search --fs-uuid --set=root ${iso_uuid}
 set prefix=(\${root})/boot/grub/x86_64-efi
 source \$prefix/grub.cfg
@@ -37,6 +38,7 @@ EOF
 			mkdir -p ${memdisk_dir}/boot/grub
 			cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
 set from=fromhd
+export from
 search --file --set=root /boot/grub/x86_64-efi/${iso_uuid}
 set prefix=(\${root})/boot/grub/x86_64-efi
 source \$prefix/grub.cfg

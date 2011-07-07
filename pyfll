@@ -1770,6 +1770,10 @@ class FLLBuilder(object):
                     ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
                     for file in ufiles:
                         shutil.copy(file, grub_dir)
+                    data_dir = os.path.join(self.opts.s, 'data')
+                    mfiles = glob.glob(os.path.join(self.opts.s, 'data/grub.*.cfg'))
+                    for file in mfiles:
+                        shutil.copy(file, grub_dir)
                 except IOError:
                     self.log.exception('failed to copy efi boot files to staging dir')
                     raise Error
@@ -1957,6 +1961,7 @@ class FLLBuilder(object):
         grubcfg.write('fi\n\n')
         grubcfg.write('set menu_color_normal=cyan/blue\n')
         grubcfg.write('set menu_color_highlight=white/blue\n\n')
+        grubcfg.write('set kopts=\"$from $bootlang $kbd $tz\"\n\n')
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         
@@ -1976,10 +1981,14 @@ class FLLBuilder(object):
             initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
             
             grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('     linux /boot/%s boot=fll quiet $from %s\n' % (vmlinuz_r, cmdline))
+            grubcfg.write('     linux /boot/%s boot=fll quiet $kopts %s\n' % (vmlinuz_r, cmdline))
             grubcfg.write('     initrd /boot/%s\n' % initrd_r)
             grubcfg.write('}\n')
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
+
+        grubcfg.write('\nmenuentry \"Localisation\" {\n')
+        grubcfg.write('    configfile $prefix/grub.locale.cfg\n')
+        grubcfg.write('}\n')
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
