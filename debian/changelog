@@ -32,6 +32,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * tweak mkfs options for jfs loop image creation (devmapper).
   * don't write /etc/kernel-img.conf anymore, it's usage is deprecated and
     discouraged.
+  * only offer amd64 kernels for UEFI booting.
 
   [ Joaquim Boura ]
   * Initial update to python APT API v0.8.0 (module initialization functions
@@ -55,7 +56,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
     iso contents on a fat drive (also add mtools to 32bit for this)
   * add localisation menu and sub-menus for grub-efi lang, keytable and tz
 
- -- Niall Walsh <niall@augustus>  Thu, 07 Jul 2011 01:11:55 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 07 Jul 2011 02:33:25 +0200
 
 pyfll (2011.01) geras; urgency=low
 

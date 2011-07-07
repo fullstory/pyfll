@@ -1971,6 +1971,9 @@ class FLLBuilder(object):
             vmlinuz = 'vmlinuz-%s' % k
             initrd = 'initrd.img-%s' % k
 
+            if cpu != 'amd64':
+                continue
+
             for f in [vmlinuz, initrd]:
                 if not os.path.isfile(os.path.join(boot_dir, f)):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
