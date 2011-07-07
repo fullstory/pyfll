@@ -56,8 +56,9 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * copy isolinux.cfg to syslinux.cfg so you can use syslinux on a copy of the
     iso contents on a fat drive (also add mtools to 32bit for this)
   * add localisation menu and sub-menus for grub-efi lang, keytable and tz
+  * use xorriso for all iso creation
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 07 Jul 2011 03:59:59 +0200
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 07 Jul 2011 16:34:08 +0100
 
 pyfll (2011.01) geras; urgency=low
 

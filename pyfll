@@ -2320,32 +2320,15 @@ class FLLBuilder(object):
         '''Generate live media iso image.'''
         stage = os.path.join(self.temp, 'staging')
 
-        sort = None
-        try:
-            sort = open(os.path.join(stage, 'genisoimage.sort'), 'w')
-            sort.write('boot/grub/* 10000\n')
-            sort.write('boot/* 1000\n')
-            sort.write('%s/* 100\n' % self.conf['distro']['FLL_IMAGE_DIR'])
-        except IOError:
-            self.log.exception('failed to write genisoimage.sort file')
-            raise Error
-        finally:
-            if sort:
-                sort.close()
-
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
 
         iso_name = self._getDistroMediaName() + '.iso'
 
         iso_file = os.path.join(self.opts.o, iso_name)
-        sort_file = os.path.join(stage, 'genisoimage.sort')
         md5_file = iso_file + '.md5'
         sha256_file = iso_file + '.sha256'
 
-        if os.path.isfile(os.path.join(stage, 'efi.img')):
-            cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
-        else:
-            cmd = 'genisoimage -J -r -hide-rr-moved'
+        cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
 
         if self.opts.v:
             cmd += ' -v'
@@ -2390,13 +2373,10 @@ class FLLBuilder(object):
             finally:
                 if uuid_file:
                     uuid_file.close()
-            cmd += ' --modification-date=%s --efi-boot efi.img --protective-msdos-label' % uuid
+            cmd += ' --modification-date=%s --efi-boot efi.img' % uuid
 
-        cmd += ' -V %s' % distro_name[:32]
-        if os.path.isfile(os.path.join(stage, 'efi.img')):
-            cmd += ' --sort-weight 0 / --sort-weight 1 /boot --sort-weight 2 /boot/grub -x iso_uuid'
-        else:
-            cmd += ' -sort %s' % sort_file
+        cmd += ' --protective-msdos-label -V %s' % distro_name[:32]
+        cmd += ' --sort-weight 0 / --sort-weight 1 /boot --sort-weight 2 /boot/grub -x iso_uuid'
         cmd += ' -x genisoimage.sort'
         cmd += ' -o %s %s' % (iso_file, stage)
 
