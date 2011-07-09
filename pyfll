@@ -1530,8 +1530,20 @@ class FLLBuilder(object):
             return
 
         # rsync needs absolute paths in exclude-file
-        cmd = ['sed', '-i', '-e', 's|^|/|', os.path.join('tmp','fll_sqfs_exclusion')]
-        self._execInChroot(arch, cmd)
+        exclusion_file = os.path.join(chroot, 'tmp', 'fll_sqfs_exclusion')
+        try:
+            exclusion_handle = open(exclusion_file, 'r')
+            exclusion_data = exclusion_handle.read()
+            exclusion_handle.close()
+            exclusion_handle = open(exclusion_file, 'w')
+            for line in exclusion_data.splitlines():
+                exclusion_handle.write('/%s\n' % line)
+        except IOError:
+            self.log.exception('error rewriting squashfs exclusion file')
+            raise Error
+        finally:
+            if exclusion_handle:
+                exclusion_handle.close()
 
         image_fs = 'ext4'
         if ( 'FLL_IMAGE_FS' in self.conf['distro'] and len(self.conf['distro']['FLL_IMAGE_FS'])):
