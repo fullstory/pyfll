@@ -2388,8 +2388,11 @@ class FLLBuilder(object):
             cmd += ' --modification-date=%s --efi-boot efi.img' % uuid
 
         cmd += ' --protective-msdos-label -V %s' % distro_name[:32]
-        cmd += ' --sort-weight 0 / --sort-weight 1 /boot --sort-weight 2 /boot/grub -x iso_uuid'
-        cmd += ' -x genisoimage.sort'
+        if os.path.isdir(os.path.join(stage, 'boot')):
+            cmd += ' --sort-weight 0 / --sort-weight 1 /boot'
+            if os.path.isdir(os.path.join(stage, 'boot/grub')):
+                cmd += ' --sort-weight 2 /boot/grub'
+        cmd += ' -x iso_uuid -x genisoimage.sort'
         cmd += ' -o %s %s' % (iso_file, stage)
 
         self.log.info('generating iso image of live media...')
