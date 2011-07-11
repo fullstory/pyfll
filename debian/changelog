@@ -34,6 +34,8 @@ pyfll (2011.02) UNRELEASED; urgency=low
     discouraged.
   * only offer amd64 kernels for UEFI booting.
   * drop memtest86+ from UEFI booting, grub-efi can't emulate linux16.
+  * add libgl1-mesa-dri-experimental to the xserver list, it allows basic
+    acceleration for nouveau.
 
   [ Joaquim Boura ]
   * Initial update to python APT API v0.8.0 (module initialization functions
@@ -58,7 +60,7 @@ pyfll (2011.02) UNRELEASED; urgency=low
   * add localisation menu and sub-menus for grub-efi lang, keytable and tz
   * use xorriso for all iso creation
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Sat, 09 Jul 2011 15:45:25 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 12 Jul 2011 01:04:37 +0200
 
 pyfll (2011.01) geras; urgency=low
 

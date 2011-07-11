@@ -7,6 +7,7 @@ packages = """
 	fontconfig
 	fontconfig-config
 	libgl1-mesa-dri
+	libgl1-mesa-dri-experimental
 	menu
 	mesa-utils
 	sux
