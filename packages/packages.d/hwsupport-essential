@@ -16,6 +16,7 @@ packages = """
 	pcmciautils
 	pciutils
 	udev
+	usbutils
 """
 
 i386 = """
@@ -25,4 +26,3 @@ i386 = """
 amd64 = """
 	acpid
 """
-
