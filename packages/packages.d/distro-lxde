@@ -6,10 +6,8 @@ packages = """
 	desktop-defaults-lxde
 	gksu
 #	lxdm
-#	lxdm-conf
 #	aptosid-art-lxde
 	aptosid-art-wallpaper
-#	aptosid-lxde-common
 	slim
 	gparted
 """
