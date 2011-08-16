@@ -290,11 +290,11 @@ class FLLBuilder(object):
         for arch in self.conf['archs'].keys():
             if 'linux' not in self.conf['archs'][arch]:
                 if arch == 'i386':
-                    cpu = '686'
+                    cpu = '486'
                 else:
                     cpu = arch
 
-                linux = '2.6-' + cpu
+                linux = cpu
 
                 self.conf['archs'][arch].setdefault('linux', [ linux ])
             else:
