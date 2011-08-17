@@ -5,8 +5,9 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * nuke static mtab and replace it by a symlink to /proc/mounts.
   * add kdebase-workspace-bin to automatic recommends handling.
   * adapt to new kernel packaging.
+  * add iw to utils-essential.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 16 Aug 2011 15:52:09 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 17 Aug 2011 15:56:37 +0200
 
 pyfll (2011.02) imera; urgency=low
 
