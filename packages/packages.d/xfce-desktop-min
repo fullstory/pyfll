@@ -18,6 +18,7 @@ packages = """
 	mpg321
 	myspell-en-us
 	pm-utils
+	policykit-1
 	shared-mime-info
 	thunar
 	thunar-data

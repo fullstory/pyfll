@@ -10,9 +10,10 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * exclude temporary iso_uuid from md5sum listing.
 
   [ Rick Battle ]
-  * replaced gcm3 with lightdm for xfce
+  * replaced gdm3 with lightdm for xfce
+  * added policykit-1 to xfce-desktop-min per debian bug #643292
 
- -- Rick Battle <rick.battle@solmera.com>  Mon, 10 Oct 2011 22:54:51 -0700
+ -- Rick Battle <rick.battle@solmera.com>  Mon, 10 Oct 2011 23:35:58 -0700
 
 pyfll (2011.02) imera; urgency=low
 
