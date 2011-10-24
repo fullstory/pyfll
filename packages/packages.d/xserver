@@ -12,7 +12,7 @@ packages = """
 	mesa-utils
 	sux
 	ttf-dejavu
-	ttf-liberation
+	fonts-liberation
 	xauth
 	xfonts-base
 	xfonts-75dpi
