@@ -8,8 +8,9 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * add iw to utils-essential.
   * exclude temporary iso_uuid from md5sum listing.
   * s/ttf-liberation/fonts-liberation/
+  * drop chromium from package profiles, it lacks competent maintainers.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 24 Oct 2011 14:25:44 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 14 Nov 2011 19:55:09 +0100
 
 pyfll (2011.02) imera; urgency=low
 
