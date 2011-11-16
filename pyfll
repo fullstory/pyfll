@@ -2076,7 +2076,11 @@ class FLLBuilder(object):
         distro = self.conf['distro']['FLL_DISTRO_NAME']
 
         isolinuxcfg = open(os.path.join(syslinux_dir, 'isolinux.cfg'), 'w')
-        isolinuxcfg.write('ui gfxboot bootlogo\n')
+        isolinuxcfg.write('display isolinux.msg\n')
+        isolinuxcfg.write('ui gfxboot bootlogo isolinux.msg\n')
+        isolinuxmsg = open(os.path.join(syslinux_dir, 'isolinux.msg'), 'w')
+        isolinuxmsg.write('\nWelcome!\n')
+        isolinuxmsg.write('\nTo start the system, type one of the label names below and press [enter]:\n\n')
 
         kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
         for k in kvers:
@@ -2096,19 +2100,26 @@ class FLLBuilder(object):
             isolinuxcfg.write('\tkernel /boot/%s\n' % (vmlinuz))
             isolinuxcfg.write('\tappend initrd=/boot/%s boot=fll %s\n' % (initrd, cmdline))
             isolinuxcfg.write('\n')
+            isolinuxmsg.write('\t%s_%s_(%s)\n' % (distro, cpu, k))
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
 
         isolinuxcfg.write('label Boot_from_Hard_Disk\n')
         isolinuxcfg.write('\tlocalboot 0x80\n')
         isolinuxcfg.write('\n')
+        isolinuxmsg.write('\tBoot_from_Hard_Disk\n')
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             isolinuxcfg.write('label Memory_test_(memtest86+)\n')
             isolinuxcfg.write('\tkernel /boot/memtest\n')
             isolinuxcfg.write('\n')
+            isolinuxmsg.write('\tMemory_test_(memtest86+)\n')
 
         isolinuxcfg.close()
         shutil.copy(os.path.join(syslinux_dir, 'isolinux.cfg'),os.path.join(syslinux_dir, 'syslinux.cfg'))
+
+        isolinuxmsg.write('\nHave a lot of fun...\n\n')
+        isolinuxmsg.close()
+        shutil.copy(os.path.join(syslinux_dir, 'isolinux.msg'),os.path.join(syslinux_dir, 'syslinux.msg'))
 
     def _configBootKvers(self,stage_dir):
         kvers = self._detectLinuxVersion(stage_dir)
