@@ -2100,19 +2100,19 @@ class FLLBuilder(object):
             isolinuxcfg.write('\tkernel /boot/%s\n' % (vmlinuz))
             isolinuxcfg.write('\tappend initrd=/boot/%s boot=fll %s\n' % (initrd, cmdline))
             isolinuxcfg.write('\n')
-            isolinuxmsg.write('\t%s_%s_(%s)\n' % (distro, cpu, k))
+            isolinuxmsg.write('%s_%s_(%s)\n' % (distro, cpu, k))
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
 
         isolinuxcfg.write('label Boot_from_Hard_Disk\n')
         isolinuxcfg.write('\tlocalboot 0x80\n')
         isolinuxcfg.write('\n')
-        isolinuxmsg.write('\tBoot_from_Hard_Disk\n')
+        isolinuxmsg.write('Boot_from_Hard_Disk\n')
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             isolinuxcfg.write('label Memory_test_(memtest86+)\n')
             isolinuxcfg.write('\tkernel /boot/memtest\n')
             isolinuxcfg.write('\n')
-            isolinuxmsg.write('\tMemory_test_(memtest86+)\n')
+            isolinuxmsg.write('Memory_test_(memtest86+)\n')
 
         isolinuxcfg.close()
         shutil.copy(os.path.join(syslinux_dir, 'isolinux.cfg'),os.path.join(syslinux_dir, 'syslinux.cfg'))
