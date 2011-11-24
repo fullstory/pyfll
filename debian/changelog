@@ -1,5 +1,6 @@
 pyfll (2011.03) UNRELEASED; urgency=low
 
+  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
   * add usbutils to hwsupport-essential.
   * nuke static mtab and replace it by a symlink to /proc/mounts.
@@ -11,7 +12,10 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * drop chromium from package profiles, it lacks competent maintainers.
   * add textmode fallback to isolinux.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 17 Nov 2011 00:42:06 +0100
+  [ Rick Battle ]
+  * added gnome-settings-daemon to xfce-desktop-min for gdm3 compatibility
+
+ -- Rick Battle <rick.battle@solmera.com>  Wed, 23 Nov 2011 20:19:34 -0800
 
 pyfll (2011.02) imera; urgency=low
 

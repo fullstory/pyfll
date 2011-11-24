@@ -10,6 +10,7 @@ packages = """
 	gksu
 	gtk2-engines-xfce
 	gnome-icon-theme
+	gnome-settings-daemon
 	gxine
 	gxineplugin
 	libnotify-bin
