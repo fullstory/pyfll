@@ -10,7 +10,8 @@ packages = """
 	menu
 	mesa-utils
 	sux
-	ttf-dejavu
+	ttf-dejavu-core
+	ttf-dejavu-extra
 	fonts-liberation
 	xauth
 	xfonts-base
