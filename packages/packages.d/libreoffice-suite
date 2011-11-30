@@ -9,5 +9,5 @@ packages = """
 	libreoffice-impress
 	libreoffice-math
 	libreoffice-writer
-	mythes-en-us
+	#mythes-en-us
 """
