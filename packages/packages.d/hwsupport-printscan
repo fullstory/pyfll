@@ -10,12 +10,12 @@ packages = """
 	foomatic-db-engine
 	foomatic-db-gutenprint
 	foomatic-filters
-	foo2zjs
 	ghostscript-cups
 	ghostscript-x
 	hpijs-ppds
 	hplip
 	openprinting-ppds
+	printer-driver-foo2zjs
 	printer-driver-gutenprint
 	printer-driver-min12xxw
 	printer-driver-splix

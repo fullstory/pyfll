@@ -17,6 +17,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
     - s/cups-driver-gutenprint/printer-driver-gutenprint/
     - s/min12xxw/printer-driver-min12xxw/
     - s/splix/printer-driver-splix/
+    - s/foo2zjs/printer-driver-foo2zjs/
   * update font dependencies:
     - ttf-dejavu --> ttf-dejavu-core && ttf-dejavu-extra
     - s/ttf-kochi-gothic/fonts-vlgothic/
@@ -26,7 +27,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
   [ Rick Battle ]
   * added gnome-settings-daemon to xfce-desktop-min for gdm3 compatibility
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 30 Nov 2011 22:40:35 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 30 Nov 2011 23:40:02 +0100
 
 pyfll (2011.02) imera; urgency=low
 
