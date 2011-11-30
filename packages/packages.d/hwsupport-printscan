@@ -6,7 +6,6 @@ packages = """
 	cups
 	cups-client
 	cups-bsd
-	cups-driver-gutenprint
 	foomatic-db
 	foomatic-db-engine
 	foomatic-db-gutenprint
@@ -17,11 +16,12 @@ packages = """
 	hpijs-ppds
 	hplip
 	openprinting-ppds
-	min12xxw
+	printer-driver-gutenprint
+	printer-driver-min12xxw
+	printer-driver-splix
 	pnm2ppa
 	sane
 	sane-utils
 	libsane-extras
-	splix
 	system-config-printer-udev
 """
