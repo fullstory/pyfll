@@ -24,12 +24,14 @@ pyfll (2011.03) UNRELEASED; urgency=low
     - s/ttf-kochi-gothic/fonts-vlgothic/
   * drop obsolete crap.
   * disable mythes-* for the tiem being (#640606, #640607, #643644).
-  * s/kdelirc/kremotecontrol/
+  * dereference transitional packages:
+    - s/kdelirc/kremotecontrol/
+    - s/virtualbox-ose-guest-x11/virtualbox-guest-x11/
 
   [ Rick Battle ]
   * added gnome-settings-daemon to xfce-desktop-min for gdm3 compatibility
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 30 Nov 2011 23:44:04 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 30 Nov 2011 23:46:46 +0100
 
 pyfll (2011.02) imera; urgency=low
 
