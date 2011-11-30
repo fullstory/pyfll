@@ -18,8 +18,8 @@ packages = """
 	printer-driver-foo2zjs
 	printer-driver-gutenprint
 	printer-driver-min12xxw
+	printer-driver-pnm2ppa
 	printer-driver-splix
-	pnm2ppa
 	sane
 	sane-utils
 	libsane-extras
