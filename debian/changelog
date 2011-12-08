@@ -31,7 +31,13 @@ pyfll (2011.03) UNRELEASED; urgency=low
   [ Rick Battle ]
   * added gnome-settings-daemon to xfce-desktop-min for gdm3 compatibility
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 30 Nov 2011 23:46:46 +0100
+  [ Niall Walsh ]
+  * grub "isohybrid" (with fromhd automagic):
+    - create grub core image setting $from to fromhd
+    - create grub_embed using core.img and boot.img
+    - build iso with --embedded-boot /path/to/grub_embed
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 08 Dec 2011 22:17:06 +0000
 
 pyfll (2011.02) imera; urgency=low
 

@@ -1732,6 +1732,7 @@ class FLLBuilder(object):
                           if f.endswith('.mod') or f.endswith('.img')
                           or f.endswith('.lst')]
                 gfiles.append(os.path.join(chroot, 'tmp/grub_eltorito'))
+                gfiles.append(os.path.join(chroot, 'tmp/grub_embed'))
             else:
                 gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
                           if f.startswith('stage2') or f.startswith('iso9660')]
@@ -1930,6 +1931,7 @@ class FLLBuilder(object):
         grubcfg.write('fi\n\n')
         grubcfg.write('set menu_color_normal=cyan/blue\n')
         grubcfg.write('set menu_color_highlight=white/blue\n\n')
+        grubcfg.write('set liveopts="$from"\n\n')
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         for k in kvers:
@@ -1943,7 +1945,7 @@ class FLLBuilder(object):
                     raise Error
 
             grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('	linux /boot/%s boot=fll %s\n' % (vmlinuz, cmdline))
+            grubcfg.write('	linux /boot/%s boot=fll $liveopts %s\n' % (vmlinuz, cmdline))
             grubcfg.write('	initrd /boot/%s\n' % initrd)
             grubcfg.write('}\n')
 
@@ -2368,7 +2370,7 @@ class FLLBuilder(object):
         elif os.path.isdir(os.path.join(stage, 'boot/grub')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
             if os.path.isfile(os.path.join(stage, 'boot/grub/grub_eltorito')):
-                cmd += ' -b boot/grub/grub_eltorito'
+                cmd += ' -b boot/grub/grub_eltorito -no-emul-boot -boot-info-table --embedded-boot %s' % os.path.join(stage,'boot/grub/grub_embed')
             elif os.path.isfile(os.path.join(stage, 'boot/grub/iso9660_stage1_5')):
                 cmd += ' -b boot/grub/iso9660_stage1_5 -c boot/grub/boot.cat'
             elif os.path.isfile(os.path.join(stage, 'boot/grub/stage2_eltorito')):
