@@ -27,6 +27,8 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * dereference transitional packages:
     - s/kdelirc/kremotecontrol/
     - s/virtualbox-ose-guest-x11/virtualbox-guest-x11/
+  * drop explicit dependencies on build-essential and hwinfo from
+    gnome-stripped, thanks to RoEn and convbsd.
 
   [ Rick Battle ]
   * added gnome-settings-daemon to xfce-desktop-min for gdm3 compatibility
@@ -37,7 +39,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
     - create grub_embed using core.img and boot.img
     - build iso with --embedded-boot /path/to/grub_embed
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 08 Dec 2011 22:17:06 +0000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 17 Dec 2011 17:23:12 +0100
 
 pyfll (2011.02) imera; urgency=low
 

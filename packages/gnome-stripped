@@ -15,7 +15,5 @@ deps = """
 """
 
 packages = """
-	build-essential
 	cdebootstrap
-	hwinfo
 """
