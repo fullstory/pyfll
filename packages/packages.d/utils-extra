@@ -6,15 +6,12 @@ packages = """
 	aspell
 	build-essential
 	cdebootstrap
-	cdrdao
 	cryptsetup
 	debconf-utils
 	debhelper
-	dvd+rw-tools
 	dvb-apps
 	dosfstools
 	ftp-ssl
-	genisoimage
 	iproute
 	jfsutils
 	man-db
@@ -38,6 +35,6 @@ packages = """
 	xfsprogs
 	unzip
 	vpnc
-	wodim
+	xorriso
 	zip
 """
