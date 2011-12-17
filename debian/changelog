@@ -30,6 +30,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * drop explicit dependencies on build-essential and hwinfo from
     gnome-stripped, thanks to RoEn and convbsd.
   * adapt gnome-essential for GNOME3, thanks to convbsd, RoEn and bfree.
+  * initscripts >=2.88dsf-16 doesn't requires special mtab handling anymore.
 
   [ Rick Battle ]
   * added gnome-settings-daemon to xfce-desktop-min for gdm3 compatibility
@@ -40,7 +41,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
     - create grub_embed using core.img and boot.img
     - build iso with --embedded-boot /path/to/grub_embed
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 17 Dec 2011 17:34:09 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 17 Dec 2011 17:45:26 +0100
 
 pyfll (2011.02) imera; urgency=low
 

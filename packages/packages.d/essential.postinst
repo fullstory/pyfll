@@ -74,14 +74,6 @@ EOF
 		/etc/login.defs
 	say 'Modifying /etc/pam.d/common-password for SHA-256'	
 	sed -i -r 's/(^password.*)md5/\1sha256/' /etc/pam.d/common-password
-
-	# XXX: temporarily make /etc/mtab a symlink to /proc/mounts, until util-linux
-	#      does it itself.
-	say 'Make mtab a symlink to /proc/mounts'
-	if [ ! -L /etc/mtab ]; then
-		rm -f /etc/mtab
-		ln -sf /proc/mounts /etc/mtab
-	fi
 }
 
 case "${1}" in
