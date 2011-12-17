@@ -3,10 +3,12 @@ desc = """
 """
 
 packages = """
-	epiphany-browser
-	epiphany-extensions
 	gdm3
-	gnome-core
+	gnome-keyring
+	gnome-session-fallback
+	gnome-session
+	gnome-terminal
+	metacity
+	nautilus
 	xchat
-	xchat-systray
 """

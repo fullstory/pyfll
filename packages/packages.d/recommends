@@ -6,6 +6,7 @@ desc = """
 packages = """
 	bash
 	fll-live-initscripts
+	gnome-keyring
 	k3b
 	kdebase-workspace-bin
 	kontact
