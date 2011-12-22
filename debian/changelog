@@ -32,6 +32,8 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * adapt gnome-essential for GNOME3, thanks to convbsd, RoEn and bfree.
   * initscripts >=2.88dsf-16 doesn't requires special mtab handling anymore.
   * replace various tools to write optical media by xorriso, to rule 'em all.
+  * generate locale for uk_UA.
+  * isc-dhcp-client: work around #648676, #609851.
 
   [ Rick Battle ]
   * added gnome-settings-daemon to xfce-desktop-min for gdm3 compatibility
@@ -42,7 +44,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
     - create grub_embed using core.img and boot.img
     - build iso with --embedded-boot /path/to/grub_embed
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 17 Dec 2011 19:32:20 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 22 Dec 2011 02:01:30 +0100
 
 pyfll (2011.02) imera; urgency=low
 
