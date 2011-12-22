@@ -35,9 +35,6 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * generate locale for uk_UA.
   * isc-dhcp-client: work around #648676, #609851.
 
-  [ Rick Battle ]
-  * added gnome-settings-daemon to xfce-desktop-min for gdm3 compatibility
-
   [ Niall Walsh ]
   * grub "isohybrid" (with fromhd automagic):
     - create grub core image setting $from to fromhd
