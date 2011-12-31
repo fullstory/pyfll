@@ -30,4 +30,6 @@ packages = """
 	qemu-kvm
 	myspell-en-us
 	libreoffice-kde
+	spice-vdagent
+	spice-client-gtk
 """

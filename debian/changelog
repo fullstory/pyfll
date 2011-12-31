@@ -35,6 +35,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
   * generate locale for uk_UA.
   * isc-dhcp-client: work around #648676, #609851.
   * create mtab symlink already within pyfll, to avoid warnings.
+  * add spice-vdagent and spice-client-gtk to kde-full, thanks to x-un-i.
 
   [ Niall Walsh ]
   * grub "isohybrid" (with fromhd automagic):
@@ -42,7 +43,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
     - create grub_embed using core.img and boot.img
     - build iso with --embedded-boot /path/to/grub_embed
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 22 Dec 2011 23:08:43 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 31 Dec 2011 17:47:01 +0100
 
 pyfll (2011.02) imera; urgency=low
 
