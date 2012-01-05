@@ -1,7 +1,12 @@
-pyfll (2011.03) UNRELEASED; urgency=low
+pyfll (2012.01) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 05 Jan 2012 01:24:27 +0100
+
+pyfll (2011.03) ponos; urgency=low
 
   [ Stefan Lippers-Hollmann ]
-  * NOT RELEASED YET
   * add usbutils to hwsupport-essential.
   * nuke static mtab and replace it by a symlink to /proc/mounts.
   * add kdebase-workspace-bin to automatic recommends handling.
@@ -43,7 +48,7 @@ pyfll (2011.03) UNRELEASED; urgency=low
     - create grub_embed using core.img and boot.img
     - build iso with --embedded-boot /path/to/grub_embed
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 31 Dec 2011 17:47:01 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 05 Jan 2012 01:24:18 +0100
 
 pyfll (2011.02) imera; urgency=low
 
