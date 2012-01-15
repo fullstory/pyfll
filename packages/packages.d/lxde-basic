@@ -5,7 +5,7 @@ desc = """
 packages = """
 	blueman
 	epdfview
-	gksu
+#	gksu
 	gvfs-backends
 	gvfs-fuse
 	lxde
