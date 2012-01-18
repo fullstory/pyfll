@@ -13,5 +13,4 @@ packages = """
 	lxlauncher
 	lxtask
 	xchat
-	xchat-systray
 """
