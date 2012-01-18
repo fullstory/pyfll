@@ -958,7 +958,7 @@ class FLLBuilder(object):
                     self._execInChroot(arch, cmd.split(),
                                        check_returncode = False)
                 else:
-                    cmd = 'gpg --keyserver wwwkeys.eu.pgp.net '
+                    cmd = 'gpg --keyserver wwwkeys.pgp.net '
                     cmd += '--recv-keys ' + r['gpgkey']
                     self._execInChroot(arch, cmd.split(),
                                        check_returncode = False)

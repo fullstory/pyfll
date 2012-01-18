@@ -4,8 +4,9 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * drop dhclient.conf mangling, #648676 has finally been fixed.
   * switch to compat level 9.
   * drop xchat-systray from LXDE, thank to RoEn.
+  * switch to wwwkeys.pgp.net, wwwkeys.eu.pgp.net is NXDOMAIN, thanks to RoEn.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 18 Jan 2012 21:55:08 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 18 Jan 2012 21:56:54 +0100
 
 pyfll (2011.03) ponos; urgency=low
 
