@@ -1,13 +1,18 @@
 pyfll (2012.01) UNRELEASED; urgency=low
 
-  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
+
+  [ Stefan Lippers-Hollmann ]
   * drop dhclient.conf mangling, #648676 has finally been fixed.
+  * switch to compat level 9.
+  * drop xchat-systray from LXDE, thank to RoEn.
+  * switch to wwwkeys.pgp.net, wwwkeys.eu.pgp.net is NXDOMAIN, thanks to RoEn.
+  * tweak gnome-lite, thanks to RoEn and convbsd.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
 
- -- Joaquim Boura <x-un-i@sapo.pt>  Fri, 20 Jan 2012 22:11:21 +0100
+ -- Joaquim Boura <x-un-i at sapo.pt>  Fri, 20 Jan 2012 22:11:21 +0100
 
 pyfll (2011.03) ponos; urgency=low
 
