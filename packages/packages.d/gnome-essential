@@ -1,11 +1,12 @@
 desc = """
-	Minimal GNOME desktop environment.
+	Minimal GNOME desktop apps.
 """
 
 packages = """
+	file-roller
 	gdm3
+	gksu
 	gnome-keyring
-	gnome-session-fallback
 	gnome-session
 	gnome-terminal
 	metacity

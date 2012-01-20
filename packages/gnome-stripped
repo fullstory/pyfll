@@ -1,5 +1,5 @@
 desc = """
-	Minimal GNOME desktop environment.
+	Minimal Gnome desktop environment.
 """
 
 deps = """
@@ -8,8 +8,8 @@ deps = """
 	distro-gnome
 	distro-tools
 	distro-tools-x
-	gnome-essential
 	hwsupport-essential
+	gnome-essential
 	utils-essential
 	xserver
 """

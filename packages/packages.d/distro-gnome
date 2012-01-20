@@ -1,10 +1,9 @@
 desc = """
-	Distro specific packages for an GNOME desktop.
+	Distro specific GNOME packages.
 """
 
 packages = """
-	desktop-defaults-gnome
-	gksu
-	#aptosid-art-gnome
+	## desktop-defaults-gnome
+	## aptosid-art-gnome
 	gparted
 """

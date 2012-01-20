@@ -7,6 +7,7 @@ packages = """
 	bash
 	fll-live-initscripts
 	gnome-keyring
+	gnome-session
 	k3b
 	kdebase-workspace-bin
 	kontact
@@ -15,4 +16,5 @@ packages = """
 	ntpdate
 	python-dbus
 	xfce4-session
+	seahorse-daemon
 """

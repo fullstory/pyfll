@@ -1,5 +1,5 @@
 desc = """
-	Complete GNOME desktop environment with OpenOffice.
+	Complete GNOME desktop environment with OpenOffice and IceWeasel.
 """
 
 deps = """
@@ -8,20 +8,28 @@ deps = """
 	distro-gnome
 	distro-tools
 	distro-tools-x
-	gnome-essential
-	gnome-basic
-	gnome-essential
-#	gnome-desktop
+	fluxbox
 	hwsupport-essential
 	hwsupport-extra
+	hwsupport-powermanagement
 	hwsupport-printscan
+	gnome-essential
+	gnome-basic
+	gnome-desktop
 	libreoffice-suite
 	utils-essential
 	utils-extra
+	utils-x
 	xserver
 """
 
 packages = """
+	dnsutils
+	icedtea-plugin
 	iceweasel
+	qemu-kvm
+	myspell-en-us
+	libreoffice-gnome
+	spice-vdagent
+	spice-client-gtk
 """
-
