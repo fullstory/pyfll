@@ -12,7 +12,10 @@ pyfll (2012.01) UNRELEASED; urgency=low
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
 
- -- Joaquim Boura <x-un-i@sapo.pt>  Fri, 20 Jan 2012 22:11:21 +0100
+  [ Rick Battle ]
+  * s/$old_release/thanatos/
+
+ -- Rick Battle <rick.battle@solmera.com>  Fri, 20 Jan 2012 23:59:38 -0800
 
 pyfll (2011.03) ponos; urgency=low
 
