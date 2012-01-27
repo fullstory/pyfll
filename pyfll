@@ -1772,9 +1772,7 @@ class FLLBuilder(object):
                         raise Error
                 efi_dir = os.path.join(self.temp, 'staging/efi/boot')
                 if not os.path.isdir(efi_dir):
-                    if not os.path.isdir(os.path.join(self.temp, 'staging/efi')):
-                        os.mkdir(os.path.join(self.temp, 'staging/efi'), 0755)
-                    os.mkdir(efi_dir, 0755)
+                    os.makedirs(efi_dir, 0755)
                 try:
                     shutil.copy(os.path.join(chroot, 'tmp/efi/boot/bootx64.efi'), efi_dir)
                     shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
