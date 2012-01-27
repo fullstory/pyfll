@@ -1,0 +1,24 @@
+desc = """
+	Normal GNOME desktop Applications
+"""
+
+packages = """
+	liferea
+	epiphany-extensions
+	flegita
+	gnome-bluetooth
+	f-spot
+	hplip-gui
+	fonts-vlgothic
+	gedit
+	gnome-commander
+	gnome-control-center
+	evolution-plugins
+	bareftp
+	seahorse-daemon
+	evolution
+	transmission-gtk
+#	system-config-printer-kde
+	# wpagui
+	guake
+"""
