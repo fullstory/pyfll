@@ -15,7 +15,10 @@ pyfll (2012.01) UNRELEASED; urgency=low
   [ Rick Battle ]
   * s/$old_release/thanatos/
 
- -- Rick Battle <rick.battle@solmera.com>  Fri, 20 Jan 2012 23:59:38 -0800
+  [ Joaquim Boura ]
+  * gnome-desktop was missing. Also fixed my email address. 
+
+ -- Joaquim Boura <x-un-i@sapo.pt>  Fri, 27 Jan 2012 17:56:50 +0100
 
 pyfll (2011.03) ponos; urgency=low
 

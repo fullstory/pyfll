@@ -3,7 +3,7 @@ Section: misc
 Priority: optional
 Maintainer: Kel Modderman <kel@otaku42.de>
 Uploaders: Stefan Lippers-Hollmann <s.l-h@gmx.de>,
- Joaquim Boura <x-un-i at sapo.pt>,
+ Joaquim Boura <x-un-i@sapo.pt>,
  Chris Hildebrandt <slam@aptosid.com>
 Build-Depends: debhelper (>= 9.20120115)
 Standards-Version: 3.9.2
