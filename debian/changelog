@@ -17,8 +17,9 @@ pyfll (2012.01) UNRELEASED; urgency=low
 
   [ Joaquim Boura ]
   * gnome-desktop was missing. Also fixed my email address. 
+  * replace kipi-plugins by kipi-plugins-common
 
- -- Joaquim Boura <x-un-i@sapo.pt>  Fri, 27 Jan 2012 17:56:50 +0100
+ -- Joaquim Boura <x-un-i@sapo.pt>  Tue, 31 Jan 2012 18:15:16 +0100
 
 pyfll (2011.03) ponos; urgency=low
 

@@ -19,7 +19,7 @@ packages = """
 	kgamma
 	kget
 	kgpg
-	kipi-plugins
+	kipi-plugins-common
 	kmahjongg
 	kmail
 	konq-plugins
