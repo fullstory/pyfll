@@ -10,4 +10,5 @@ packages = """
 	gnome-alsamixer
 	gnome-applets
 	evince
+	epiphany
 """

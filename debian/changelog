@@ -19,8 +19,9 @@ pyfll (2012.01) UNRELEASED; urgency=low
   [ Joaquim Boura ]
   * gnome-desktop was missing. Also fixed my email address. 
   * replace kipi-plugins by kipi-plugins-common
+  * added epiphany to the lite. stripped get's iceweasel
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 10 Feb 2012 14:48:38 +0100
+ -- Joaquim Boura <x-un-i@sapo.pt>  Fri, 10 Feb 2012 16:42:54 +0100
 
 pyfll (2011.03) ponos; urgency=low
 
