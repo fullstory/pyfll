@@ -9,6 +9,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * switch to wwwkeys.pgp.net, wwwkeys.eu.pgp.net is NXDOMAIN, thanks to RoEn.
   * tweak gnome-lite, thanks to RoEn and convbsd.
   * s/libxine1-xvdr/libxine2-xvdr/
+  * bump standards version to 3.9.3, no changes necessary.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
@@ -21,7 +22,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * replace kipi-plugins by kipi-plugins-common
   * added epiphany to the lite. stripped get's iceweasel
 
- -- Joaquim Boura <x-un-i@sapo.pt>  Fri, 10 Feb 2012 16:42:54 +0100
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 23 Feb 2012 16:51:34 +0100
 
 pyfll (2011.03) ponos; urgency=low
 
