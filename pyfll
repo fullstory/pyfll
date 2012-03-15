@@ -1930,6 +1930,7 @@ class FLLBuilder(object):
         grubcfg.write('set menu_color_normal=cyan/blue\n')
         grubcfg.write('set menu_color_highlight=white/blue\n\n')
         grubcfg.write('set liveopts="$from"\n\n')
+        grubcfg.write('if [ -n "${iso_path}" ]; then liveopts="${liveopts} fromiso=${iso_path}"; fi\n\n')
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         for k in kvers:
@@ -1952,6 +1953,11 @@ class FLLBuilder(object):
             grubcfg.write('	linux16	/boot/memtest\n')
             grubcfg.write('}\n')
 
+        grubcfg.close()
+        
+        self.log.debug('writing loopback.cfg for live media')
+        grubcfg = open(os.path.join(grub_dir, 'loopback.cfg'), 'w')
+        grubcfg.write('source /boot/grub/grub.cfg\n')
         grubcfg.close()
         
 

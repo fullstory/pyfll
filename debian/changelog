@@ -22,7 +22,10 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * replace kipi-plugins by kipi-plugins-common
   * added epiphany to the lite. stripped get's iceweasel
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 23 Feb 2012 16:51:34 +0100
+  [ Niall Walsh ]
+  * add loopback.cfg for grub (e.g. super grub disk 2)
+
+ -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 15 Mar 2012 21:35:10 +0000
 
 pyfll (2011.03) ponos; urgency=low
 
