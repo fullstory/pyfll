@@ -25,7 +25,10 @@ pyfll (2012.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * add loopback.cfg for grub (e.g. super grub disk 2)
 
- -- Niall Walsh <niallwalsh@users.berlios.de>  Thu, 15 Mar 2012 21:35:10 +0000
+  [ Rick Batle ]
+  * removed duplicate listing of gparted from kde-essential 
+
+ -- Rick Batle <rick.battle@solmera.com>  Mon, 19 Mar 2012 13:09:42 -0700
 
 pyfll (2011.03) ponos; urgency=low
 
