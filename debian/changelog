@@ -28,8 +28,9 @@ pyfll (2012.01) UNRELEASED; urgency=low
   [ Rick Batle ]
   * removed duplicate listing of gparted from kde-essential 
   * added dialog to cli package to increase usability
+  * added qtcruve to kde-essential to boost gtk app integration
 
- -- Rick Battle <rick.battle@solmera.com>  Mon, 19 Mar 2012 20:57:24 -0700
+ -- Rick Battle <rick.battle@solmera.com>  Mon, 19 Mar 2012 21:04:57 -0700
 
 pyfll (2011.03) ponos; urgency=low
 

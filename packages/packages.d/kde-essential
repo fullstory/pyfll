@@ -10,4 +10,5 @@ packages = """
 	kdm
 	konversation
 	phonon-backend-gstreamer
+	qtcruve
 """
