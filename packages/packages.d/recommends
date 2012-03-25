@@ -8,6 +8,7 @@ packages = """
 	fll-live-initscripts
 	gnome-keyring
 	gnome-session
+	initscripts
 	k3b
 	kdebase-workspace-bin
 	kontact

@@ -10,28 +10,25 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * tweak gnome-lite, thanks to RoEn and convbsd.
   * s/libxine1-xvdr/libxine2-xvdr/
   * bump standards version to 3.9.3, no changes necessary.
+  * add initscripts to recommends handling, particularly because of psmisc.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
-
-  [ Rick Battle ]
-  * s/$old_release/thanatos/
-
-  [ Joaquim Boura ]
   * gnome-desktop was missing. Also fixed my email address. 
   * replace kipi-plugins by kipi-plugins-common
   * added epiphany to the lite. stripped get's iceweasel
 
-  [ Niall Walsh ]
-  * add loopback.cfg for grub (e.g. super grub disk 2)
-
-  [ Rick Batle ]
+  [ Rick Battle ]
+  * s/$old_release/thanatos/
   * removed duplicate listing of gparted from kde-essential 
   * added dialog to cli package to increase usability
   * added qtcruve to kde-essential to boost gtk app integration
   * with appologies for the dyslexia, s/qtcruve/qtcurve/
 
- -- Rick Battle <rick.battle@solmera.com>  Wed, 21 Mar 2012 20:41:47 -0700
+  [ Niall Walsh ]
+  * add loopback.cfg for grub (e.g. super grub disk 2)
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 25 Mar 2012 22:55:58 +0200
 
 pyfll (2011.03) ponos; urgency=low
 
