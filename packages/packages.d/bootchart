@@ -1,0 +1,10 @@
+desc = """
+	Monitor boot process with bootchartd. To use it, append
+	init=/sbin/bootchartd to kernel command line.
+"""
+
+packages = """
+	acct
+	bootchart
+"""
+

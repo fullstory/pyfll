@@ -1,0 +1,17 @@
+desc = """
+	Packages that should have all packages they recommend installed to
+	function properly.
+"""
+
+packages = """
+	bash
+	fll-live-initscripts
+	k3b
+	kdebase-workspace-bin
+	kontact
+	kopete
+	netbase
+	ntpdate
+	python-dbus
+	xfce4-session
+"""

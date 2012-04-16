@@ -1,0 +1,9 @@
+desc = """
+	Utilities useful for all package profiles, that depends on X.
+"""
+
+packages = """
+	libxine1-xvdr
+	xsane
+	zenity
+"""

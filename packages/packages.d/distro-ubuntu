@@ -1,0 +1,43 @@
+desc = """
+	Distro specific common packages.
+"""
+
+debconf = """
+        passwd passwd/root-password-crypted password *
+"""
+
+packages = """
+	app-install-data-partner
+	branding-ubuntu
+	example-content
+	friendly-recovery
+	geoclue-ubuntu-geoip
+	ubiquity
+	ubiquity-casper
+	ubiquity-frontend-gtk
+	ubiquity-slideshow-ubuntu
+	ubiquity-ubuntu-artwork
+	ubuntu-artwork
+	ubuntu-desktop
+	ubuntu-docs
+	ubuntu-extras-keyring
+	ubuntu-keyring
+	ubuntu-mono
+	ubuntu-sounds
+	ubuntu-sso-client
+	ubuntu-standard
+	ubuntu-system-service
+	ubuntu-wallpapers
+	ubuntuone-client
+	ubuntuone-client-gnome
+	ubuntuone-control-panel
+	ubuntuone-control-panel-gtk
+	ubuntuone-couch
+	ubuntuone-installer
+"""
+
+i386 = """
+"""
+
+amd64 = """
+"""

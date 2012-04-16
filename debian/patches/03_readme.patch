@@ -1,0 +1,19 @@
+--- a/README
++++ b/README
+@@ -3,7 +3,7 @@
+ 
+ Example Usage:
+   1) cp fll.conf ..; edit ../fll.conf
+-  2) ./fll -c ../fll.conf -b /tmp/fll/ -o /tmp/fll/
++  2) sudo ./fll -c ../fll.conf -b /tmp/fll/ -o /tmp/fll/
+ 
+ Dependencies:
+   python (>= 2.5)
+@@ -12,6 +12,7 @@
+   cdebootstrap | debootstrap
+   xorriso
+   python-fll
++    - available natively from https://launchpad.net/~bernard-gray/+archive/ppa-cleary
+   squashfs-tools
+   syslinux
+ 

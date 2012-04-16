@@ -1,0 +1,25 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	say 'Disabling bitmap fonts'
+	ln -sf ../conf.avail/70-no-bitmaps.conf \
+		/etc/fonts/conf.d/70-no-bitmaps.conf
+	# This must be done post fontconfig-config installation
+	echo fontconfig-config fontconfig/enable_bitmaps boolean false | \
+		debconf-set-selections
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

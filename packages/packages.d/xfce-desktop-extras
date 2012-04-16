@@ -1,0 +1,18 @@
+desc = """
+	XFCE desktop add-ons
+"""
+
+
+packages = """
+	abiword
+	brasero
+	evince-gtk
+	fonts-vlgothic
+	gcalctool
+	gnumeric
+	gpicview
+	gstreamer0.10-fluendo-mp3
+	gstreamer0.10-plugins-base
+	orage
+	transmission
+"""

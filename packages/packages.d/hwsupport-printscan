@@ -1,0 +1,27 @@
+desc = """
+	Package that provide support for printing or scanning.
+"""
+
+packages = """
+	cups
+	cups-client
+	cups-bsd
+	foomatic-db
+	foomatic-db-engine
+	foomatic-db-gutenprint
+	foomatic-filters
+	ghostscript-cups
+	ghostscript-x
+	hpijs-ppds
+	hplip
+	openprinting-ppds
+	printer-driver-foo2zjs
+	printer-driver-gutenprint
+	printer-driver-min12xxw
+	printer-driver-pnm2ppa
+	printer-driver-splix
+	sane
+	sane-utils
+	libsane-extras
+	system-config-printer-udev
+"""

@@ -1,0 +1,484 @@
+--- /dev/null
++++ b/packages/ubuntu-desktop
+@@ -0,0 +1,14 @@
++desc = """
++	Packages to build the standard Ubuntu desktop
++"""
++
++deps = """
++	cli-ubuntu
++	distro-ubuntu
++	hwsupport-ubuntu
++	libreoffice-suite
++	unity
++	utils-ubuntu
++	xserver-ubuntu
++"""
++
+--- /dev/null
++++ b/packages/packages.d/unity
+@@ -0,0 +1,103 @@
++desc = """
++	Ubuntu Unity desktop environment.
++"""
++
++packages = """
++	unity
++	unity-2d
++	unity-2d-launcher
++	unity-2d-panel
++	unity-2d-places
++	unity-2d-spread
++	unity-asset-pool
++	unity-common
++	unity-greeter
++	unity-lens-applications
++	unity-lens-files
++	unity-lens-music
++	unity-scope-musicstores
++	unity-services
++## desktop programs ##
++	brasero
++	brasero-cdrkit
++	empathy
++	firefox
++	firefox-globalmenu
++	firefox-gnome-support
++	firefox-locale-en
++	firefox-locale-es
++	firefox-locale-pt
++	firefox-locale-zh-hans
++	gnobots2
++	gnome-accessibility-themes
++	gnome-bluetooth
++	gnome-disk-utility
++	gnome-icon-theme-symbolic
++	gnome-online-accounts
++	gnome-orca
++	gnome-screensaver
++	gnome-sudoku
++	gnome-user-guide
++	gnomine
++	gparted
++	gwibber
++	gwibber-service
++	gwibber-service-facebook
++	gwibber-service-identica
++	gwibber-service-twitter
++	im-switch
++	indicator-application
++	indicator-appmenu
++	indicator-datetime
++	indicator-messages
++	indicator-power
++	indicator-session
++	indicator-sound
++	indicator-status-provider-mc5
++	mahjongg
++	nautilus-sendto-empathy
++	nautilus-share
++	network-manager-gnome
++	network-manager-pptp-gnome
++	notify-osd-icons
++	overlay-scrollbar
++	policykit-desktop-privileges
++	python-appindicator
++	python-gobject-cairo
++	python-gst0.10
++	python-indicate
++	python-telepathy
++	python-uno
++	python-virtkey
++	python-zeitgeist
++	rhythmbox
++	rhythmbox-plugin-cdrecorder
++	rhythmbox-plugins
++	sessioninstaller
++	shotwell
++	simple-scan
++	telepathy-butterfly
++	telepathy-gabble
++	telepathy-haze
++	telepathy-idle
++	telepathy-indicator
++	telepathy-salut
++	thunderbird
++	thunderbird-globalmenu
++	thunderbird-gnome-support
++	totem
++	totem-common
++	totem-mozilla
++	totem-plugins
++	transmission-common
++	transmission-gtk
++	usb-creator-common
++	usb-creator-gtk
++	vinagre
++	vino
++	xdg-utils
++	xul-ext-ubufox
++	zeitgeist
++	zeitgeist-core
++	zeitgeist-datahub
++"""
+--- /dev/null
++++ b/packages/packages.d/cli-ubuntu
+@@ -0,0 +1,9 @@
++desc = """
++	Common command line utilities.
++"""
++
++packages = """
++	nano
++	vim-common
++	vim-tiny
++"""
+--- /dev/null
++++ b/packages/packages.d/xserver-ubuntu
+@@ -0,0 +1,48 @@
++desc = """
++	X Server packages.
++"""
++
++packages = """
++	dmz-cursor-theme
++	fontconfig
++	fontconfig-config
++	fonts-kacst
++	fonts-kacst-one
++	fonts-lao
++	fonts-liberation
++	fonts-nanum
++	libgl1-mesa-dri
++	libgl1-mesa-glx
++	ttf-dejavu-core
++	ttf-indic-fonts-core
++	ttf-khmeros-core
++	ttf-opensymbol
++	ttf-punjabi-fonts
++	ttf-takao-pgothic
++	ttf-thai-tlwg
++	ttf-ubuntu-font-family
++	ttf-wqy-microhei
++	xauth
++	xcursor-themes
++	xfonts-base
++	xfonts-mathml
++	xfonts-scalable
++	xserver-xorg
++	xserver-xorg-input-all
++	xserver-xorg-video-all
++	xinit
++"""
++
++i386 = """
++	virtualbox-guest-dkms
++	virtualbox-guest-utils
++	virtualbox-guest-x11
++	xserver-xorg-input-vmmouse
++"""
++
++amd64 = """
++	virtualbox-guest-dkms
++	virtualbox-guest-utils
++	virtualbox-guest-x11
++	xserver-xorg-input-vmmouse
++"""
+--- /dev/null
++++ b/packages/packages.d/utils-ubuntu
+@@ -0,0 +1,113 @@
++desc = """
++	Misc. utilities
++"""
++
++packages = """
++	acl
++	anacron
++	apg
++	apparmor
++	appmenu-gtk
++	appmenu-gtk3
++	appmenu-qt
++	apport
++	apport-gtk
++	apport-symptoms
++	apt-transport-https
++	apt-xapian-index
++	apturl
++	aspell
++	aspell-en
++	avahi-autoipd
++	avahi-daemon
++	avahi-utils
++	bluez
++	bluez-alsa
++	bluez-cups
++	bluez-gstreamer
++	brltty
++	btrfs-tools
++	bzip2
++	cifs-utils
++	cmap-adobe-japan1
++	colord
++	command-not-found
++	cron
++	debconf-i18n
++	deja-dup
++	dnsmasq-base
++	duplicity
++	dvd+rw-tools
++	enchant
++	espeak
++	evolution-data-server
++	exiv2
++	gcc
++	gcc-4.6
++	gdb
++	ibus
++	ibus-gtk
++	ibus-gtk3
++	ibus-pinyin
++	ibus-pinyin-db-android
++	ibus-table
++	icc-profiles-free
++	iptables
++	iputils-ping
++	iputils-tracepath
++	isc-dhcp-client
++	jfsutils
++	jockey-common
++	jockey-gtk
++	kbd
++	kerneloops-daemon
++	less
++	logrotate
++	manpages
++	manpages-dev
++	media-player-info
++	mlocate
++	mobile-broadband-provider-info
++	modemmanager
++	mousetweaks
++	mtr-tiny
++	mysql-common
++	netbase
++	netcat-openbsd
++	ntpdate
++	onboard
++	protobuf-compiler
++	python-argparse
++	python-crypto
++	python-dateutil
++	python-farsight
++	python-libproxy
++	python-mako
++	python-markupsafe
++	python-pam
++	python-papyon
++	python-support
++	qt-at-spi
++	rdesktop
++	rsync
++	rsyslog
++	rtkit
++	samba-common-bin
++	smbclient
++	sni-qt
++	speech-dispatcher
++	sudo
++	tcpd
++	tcpdump
++	ufw
++	unionfs-fuse
++	ureadahead
++	wamerican
++	wget
++	wireless-tools
++	wireless-regdb
++	wpasupplicant
++"""
++
++debconf = """
++"""
+--- /dev/null
++++ b/packages/packages.d/hwsupport-ubuntu
+@@ -0,0 +1,62 @@
++desc = """
++	Packages that provide some kind of support for very common harware.
++"""
++
++packages = """
++	acpi-support
++	alsa-base
++	crda
++	cups
++	cups-bsd
++	cups-client
++	cups-common
++	cups-driver-gutenprint
++	cups-ppdc
++	dmraid
++	foo2zjs
++	foomatic-db-engine
++	ginn
++	ghostscript-cups
++	hpijs
++	hplip
++	hplip-cups
++	hplip-data
++	hwdata
++	irqbalance
++	laptop-detect
++	network-manager
++	network-manager-pptp
++	pcmciautils
++	pciutils
++	pppconfig
++	pppoeconf
++	printer-driver-c2esp
++	ptouch-driver
++	pulseaudio-esound-compat
++	pulseaudio-module-bluetooth
++	pulseaudio-module-gconf
++	pulseaudio-module-x11
++	python-serial
++	pxljr
++	radeontool
++	rastertosag-gdi
++	sane-utils
++	splix
++	system-config-printer-udev
++	toshset
++	udev
++	usb-modeswitch
++	usb-modeswitch-data
++	usbutils
++	vbetool
++	wireless-crda
++	xfsprogs
++"""
++
++i386 = """
++	acpid
++"""
++
++amd64 = """
++	acpid
++"""
+--- /dev/null
++++ b/packages/packages.d/hwsupport-ubuntu.postinst
+@@ -0,0 +1,32 @@
++#!/bin/sh -e
++
++say() {
++	echo "I: $@..."
++}
++
++do_postinst() {
++	if [ -w /etc/lvm/lvm.conf ]; then
++		say 'Setting sane(r) defaults for lvm2'
++		DEFAULT_LVM_FILTER='[ "r|/dev/cdrom|", "r|/dev/dvd|" ]'
++
++		sed -i -e 's%^\([[:space:]]*# By default\) we accept every block device:$%\1 we exclude optical drives:%' \
++		       -e 's%^\([[:space:]]*filter =\).*%\1 '"${DEFAULT_LVM_FILTER}"'%' \
++		        /etc/lvm/lvm.conf
++	fi
++
++	if [ -w /etc/mdadm/mdadm.conf ]; then
++		say 'Prune leaked build host mdadm setups from the ISO.'
++		sed -i "/^ARRAY.*/d" /etc/mdadm/mdadm.conf
++	fi
++}
++
++case "${1}" in
++	postinst)
++		do_postinst
++		;;
++	*)
++		echo "Usage: ${0} postinst"
++		;;
++esac
++
++:
+--- /dev/null
++++ b/packages/packages.d/distro-ubuntu
+@@ -0,0 +1,43 @@
++desc = """
++	Distro specific common packages.
++"""
++
++debconf = """
++        passwd passwd/root-password-crypted password *
++"""
++
++packages = """
++	app-install-data-partner
++	branding-ubuntu
++	example-content
++	friendly-recovery
++	geoclue-ubuntu-geoip
++	ubiquity
++	ubiquity-casper
++	ubiquity-frontend-gtk
++	ubiquity-slideshow-ubuntu
++	ubiquity-ubuntu-artwork
++	ubuntu-artwork
++	ubuntu-desktop
++	ubuntu-docs
++	ubuntu-extras-keyring
++	ubuntu-keyring
++	ubuntu-mono
++	ubuntu-sounds
++	ubuntu-sso-client
++	ubuntu-standard
++	ubuntu-system-service
++	ubuntu-wallpapers
++	ubuntuone-client
++	ubuntuone-client-gnome
++	ubuntuone-control-panel
++	ubuntuone-control-panel-gtk
++	ubuntuone-couch
++	ubuntuone-installer
++"""
++
++i386 = """
++"""
++
++amd64 = """
++"""
+--- a/packages/packages.d/essential
++++ b/packages/packages.d/essential
+@@ -10,12 +10,16 @@
+ 
+ packages = """
+ 	adduser
++	lupin-casper
++	casper
+ 	console-setup
+-	fll-live-initramfs
+-	fll-live-initscripts
+ 	locales
++        plymouth-label
++        plymouth-theme-ubuntu-logo
++        plymouth-theme-ubuntu-text
+ 	squashfs-tools
+ 	initramfs-tools
++	upstart
+ """
+ 
+ i386 = """
+--- a/packages/packages.d/libreoffice-suite
++++ b/packages/packages.d/libreoffice-suite
+@@ -6,8 +6,12 @@
+ 	libreoffice-calc
+ 	libreoffice-core
+ 	libreoffice-draw
++	libreoffice-emailmerge
++	libreoffice-gnome
++	libreoffice-gtk
+ 	libreoffice-impress
+ 	libreoffice-math
+ 	libreoffice-writer
+ 	#mythes-en-us
++	openoffice.org-hyphenation
+ """

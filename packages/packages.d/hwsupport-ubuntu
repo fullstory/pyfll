@@ -1,0 +1,62 @@
+desc = """
+	Packages that provide some kind of support for very common harware.
+"""
+
+packages = """
+	acpi-support
+	alsa-base
+	crda
+	cups
+	cups-bsd
+	cups-client
+	cups-common
+	cups-driver-gutenprint
+	cups-ppdc
+	dmraid
+	foo2zjs
+	foomatic-db-engine
+	ginn
+	ghostscript-cups
+	hpijs
+	hplip
+	hplip-cups
+	hplip-data
+	hwdata
+	irqbalance
+	laptop-detect
+	network-manager
+	network-manager-pptp
+	pcmciautils
+	pciutils
+	pppconfig
+	pppoeconf
+	printer-driver-c2esp
+	ptouch-driver
+	pulseaudio-esound-compat
+	pulseaudio-module-bluetooth
+	pulseaudio-module-gconf
+	pulseaudio-module-x11
+	python-serial
+	pxljr
+	radeontool
+	rastertosag-gdi
+	sane-utils
+	splix
+	system-config-printer-udev
+	toshset
+	udev
+	usb-modeswitch
+	usb-modeswitch-data
+	usbutils
+	vbetool
+	wireless-crda
+	xfsprogs
+"""
+
+i386 = """
+	acpid
+"""
+
+amd64 = """
+	acpid
+"""

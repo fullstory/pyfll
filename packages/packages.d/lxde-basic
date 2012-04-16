@@ -1,0 +1,17 @@
+desc = """
+	Minimal LXDE desktop environment.
+"""
+
+packages = """
+	blueman
+	epdfview
+	gksu
+	gvfs-backends
+	gvfs-fuse
+	lxde
+	lxmusic
+	lxlauncher
+	lxtask
+	xchat
+	xchat-systray
+"""

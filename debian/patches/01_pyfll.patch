@@ -1,0 +1,126 @@
+--- a/pyfll
++++ b/pyfll
+@@ -221,7 +221,8 @@
+             image_file += '.686'
+         else:
+             image_file += '.%s' % arch
+-
++	# casper requires the compressed chroot to have .squashfs suffix
++        image_file += '.squashfs'
+         self.log.debug('image_file: %s' % image_file)
+         return image_file
+ 
+@@ -315,8 +316,8 @@
+ 
+         if 'sourcedistro' not in self.conf or \
+            'name' not in self.conf['sourcedistro']:
+-            self.opts.N = 'debian'
+-            self.opts.C = 'sid'
++            self.opts.N = 'ubuntu'
++            self.opts.C = 'precise'
+         else:
+             self.opts.N = self.conf['sourcedistro']['name']
+             if 'codename' not in self.conf['sourcedistro']:
+@@ -829,10 +830,10 @@
+         self.log.info('bootstrapping %s %s %s...' % (distro,codename,arch))
+ 
+         bootstrapper = self.conf['options'].get('bootstrapper')
+-        if bootstrapper == 'debootstrap':
+-            self.__debBootStrap(arch, dir, mirror, codename)
+-        else:
++        if bootstrapper == 'cdebootstrap':
+             self.__cdebBootStrap(arch, dir, mirror, codename)
++        else:
++            self.__debBootStrap(arch, dir, mirror, codename)
+ 
+         shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
+         shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
+@@ -1695,18 +1696,22 @@
+         kvers = self._detectLinuxVersion(chroot)
+         for k in kvers:
+             initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
++	    # in ubuntu, the kernel naming is not arch specific, so
++	    # some rejigging of the initrd/vmlinuz naming is required in the iso
++            images = glob.glob(os.path.join(chroot, 'boot', 'vmlinu*-' + k))
++            initrd_dest = os.path.join(boot_dir, 'initrd.img-%s.%s' % (k,arch) )
++            vmlinuz_dest = os.path.join(boot_dir, '%s.%s' % (os.path.basename(images[0]),arch) )
+             if os.path.isfile(initrd):
+                 self.log.debug('copying %s to staging dir' % initrd)
+-                shutil.copy(initrd, boot_dir)
++                shutil.copy(initrd, initrd_dest)
+             else:
+                 self.log.critical('could not find initramfs image to ' +
+                                   'copy to staging dir.')
+                 raise Error
+             
+-            images = glob.glob(os.path.join(chroot, 'boot', 'vmlinu*-' + k))
+             if len(images) == 1:
+                 self.log.debug('copying %s to staging dir' % images[0])
+-                shutil.copy(images[0], boot_dir)
++                shutil.copy(images[0], vmlinuz_dest)
+             else:
+                 self.log.critical('could not find linux kernel image to ' +
+                                   'copy to staging dir.')
+@@ -1857,6 +1862,14 @@
+                 self.log.exception('failed to copy memtest86+ to staging dir')
+                 raise Error
+ 
++	# apt on cdrom workaround for ubuntu, ref:
++	# https://bugs.launchpad.net/ubuntu/+source/casper/+bug/909919
++	apt_conf_dir = os.path.join(self.temp, 'staging', '.disk')
++        os.mkdir(apt_conf_dir, 0755)
++        apt_conf_info = open(os.path.join(apt_conf_dir, 'info'), 'w')
++        apt_conf_info.write(self._getDistroStamp())
++        apt_conf_info.close()
++
+ 
+     def _writeMenuLst(self, stage_dir, boot_dir, grub_dir, kvers,
+                       timeout, cmdline):
+@@ -2077,16 +2090,31 @@
+ 
+         distro = self.conf['distro']['FLL_DISTRO_NAME']
+ 
++	#### BG TEST
++        #readmedisk = open(os.path.join(stage_dir, 'README.diskdefines'), 'w')
++        #readmedisk.write('#define DISKNAME  Ubuntu 12.04 LTS "Precise Pangolin" - Alpha amd64\n')
++        #readmedisk.write('#define TYPE  binary\n')
++        #readmedisk.write('#define TYPEbinary  1\n')
++        #readmedisk.write('#define ARCH  amd64\n')
++        #readmedisk.write('#define ARCHamd64  1\n')
++        #readmedisk.write('#define DISKNUM  1\n')
++        #readmedisk.write('#define DISKNUM1  1\n')
++        #readmedisk.write('#define TOTALNUM  0\n')
++        #readmedisk.write('#define TOTALNUM0  1\n')
++        #readmedisk.close()
++	#### END BG TEST
++
+         isolinuxcfg = open(os.path.join(syslinux_dir, 'isolinux.cfg'), 'w')
+-        isolinuxcfg.write('display isolinux.msg\n')
+-        isolinuxcfg.write('ui gfxboot bootlogo isolinux.msg\n')
+         isolinuxmsg = open(os.path.join(syslinux_dir, 'isolinux.msg'), 'w')
+         isolinuxmsg.write('\nWelcome!\n')
+         isolinuxmsg.write('\nTo start the system, type one of the label names below and press [enter]:\n\n')
++        # haven't worked out what gfxboot options are in ubuntu yet,
++        # so we bypass this screen and boot the one image instead
++        isolinuxcfg.write('timeout %s\n' % self._configBootTimeout())
+ 
+         kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
+         for k in kvers:
+-            cpu = k[k.rfind('-') + 1:]
++            cpu = k[k.rfind('.') + 1:]
+             vmlinuz = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+             os.rename(os.path.join(boot_dir, 'vmlinuz-%s' % k), os.path.join(boot_dir, vmlinuz))
+             initrd = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+@@ -2097,10 +2125,11 @@
+                     self.log.critical('%s was not found in %s' % (f, boot_dir))
+                     raise Error
+ 
++	    isolinuxcfg.write('default %s_%s_(%s)\n' % (distro, cpu, k))
+             isolinuxcfg.write('\n')
+             isolinuxcfg.write('label %s_%s_(%s)\n' % (distro, cpu, k))
+             isolinuxcfg.write('\tkernel /boot/%s\n' % (vmlinuz))
+-            isolinuxcfg.write('\tappend initrd=/boot/%s boot=fll %s\n' % (initrd, cmdline))
++	    isolinuxcfg.write('\tappend boot=casper initrd=/boot/%s %s\n' % (initrd, cmdline))
+             isolinuxcfg.write('\n')
+             isolinuxmsg.write('%s_%s_(%s)\n' % (distro, cpu, k))
+             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1

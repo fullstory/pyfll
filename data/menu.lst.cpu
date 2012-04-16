@@ -1,0 +1,29 @@
+default 0
+timeout -1
+color red/black light-red/black
+foreground EE0000
+background 400000
+gfxmenu /boot/message
+
+title  Check md5sums
+kernel /boot/@vmlinuz@ boot=fll quiet md5sum
+initrd /boot/@initrd@
+
+title  Text Mode
+kernel /boot/@vmlinuz@ boot=fll quiet 3 
+initrd /boot/@initrd@
+
+title  Serial console
+kernel /boot/@vmlinuz@ boot=fll quiet console=ttyS0,115200 console=tty 
+initrd /boot/@initrd@
+
+#title  Defaults with unionfs
+#kernel /boot/@vmlinuz@ boot=fll quiet unionfs 
+#initrd /boot/@initrd@
+
+#title  Serial console with unionfs
+#kernel /boot/@vmlinuz@ boot=fll quiet unionfs console=ttyS0,115200 console=tty 
+#initrd /boot/@initrd@
+
+title Main Menu
+configfile /boot/grub/menu.lst

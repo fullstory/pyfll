@@ -1,0 +1,14 @@
+desc = """
+	Packages to build the standard Ubuntu desktop
+"""
+
+deps = """
+	cli-ubuntu
+	distro-ubuntu
+	hwsupport-ubuntu
+	libreoffice-suite
+	unity
+	utils-ubuntu
+	xserver-ubuntu
+"""
+

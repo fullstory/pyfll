@@ -1,0 +1,43 @@
+desc = """
+	Utilities that are very useful, but not absolutely required.
+"""
+
+packages = """
+	aspell
+	build-essential
+	cdebootstrap
+	cdrdao
+	cryptsetup
+	debconf-utils
+	debhelper
+	dvd+rw-tools
+	dvb-apps
+	dosfstools
+	ftp-ssl
+	genisoimage
+	iproute
+	jfsutils
+	man-db
+	manpages
+	memtest86+
+	mlocate
+	module-assistant
+	ntpdate
+	ntfs-3g
+	nmap
+	openssh-client
+	pwgen
+	reiserfsprogs
+	sshfs
+	smbclient
+	smbfs
+	strace
+	testdisk
+	tofrodos
+	traceroute
+	xfsprogs
+	unzip
+	vpnc
+	wodim
+	zip
+"""

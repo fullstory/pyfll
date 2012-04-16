@@ -1,0 +1,22 @@
+desc = """
+	Distro specific common packages.
+"""
+
+debconf = """
+        passwd passwd/root-password-crypted password *
+"""
+
+packages = """
+	apt-conf-aptosid
+	aptosid-archive-keyring
+	aptosid-scripts
+	udev-config-aptosid
+"""
+
+i386 = """
+	gfxboot-theme-aptosid
+"""
+
+amd64 = """
+	gfxboot-theme-aptosid
+"""

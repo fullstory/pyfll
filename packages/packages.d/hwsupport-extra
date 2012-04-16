@@ -1,0 +1,19 @@
+desc = """
+	Packages that provide some kind of support for harware, but are not
+	absolutely required.
+"""
+
+packages = """
+	alsa-utils
+	bluetooth
+	bluez-pcmcia-support
+	dmidecode
+	dmsetup
+	rfkill
+	usb-modeswitch
+	vbetool
+"""
+
+i386 = """
+	libc6-i686
+"""

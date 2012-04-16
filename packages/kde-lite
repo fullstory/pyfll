@@ -1,0 +1,25 @@
+desc = """
+	Basic KDE desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-kde
+	distro-tools
+	distro-tools-x
+	fluxbox
+	hwsupport-essential
+	hwsupport-powermanagement
+	hwsupport-extra
+	hwsupport-printscan
+	kde-essential
+	kde-basic
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+"""

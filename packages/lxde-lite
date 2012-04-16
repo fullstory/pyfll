@@ -1,0 +1,20 @@
+desc = """
+	A basic LXDE desktop.
+"""
+
+deps = """
+	cli
+	distro
+	distro-lxde
+	distro-tools
+	distro-tools-x
+	hwsupport-essential
+	hwsupport-powermanagement
+	lxde-basic
+	utils-essential
+	utils-x
+	xserver
+"""
+
+packages = """
+"""

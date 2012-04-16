@@ -1,0 +1,96 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	# create grub2 ElTorito support
+	if which grub-mkimage >/dev/null; then
+		say 'Creating grub2 El Torito image file'
+		grub-mkimage -d /usr/lib/grub/*-pc/ --format=i386-pc -o /tmp/grub_eltorito~ biosdisk iso9660
+		cat /usr/lib/grub/*-pc/cdboot.img /tmp/grub_eltorito~ > /tmp/grub_eltorito
+                say 'Creating grub2 hd image file'
+                tmp_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
+                cat << EOF > ${tmp_dir}/grub.cfg
+set from=fromhd
+export from
+configfile \$prefix/grub.cfg
+EOF
+
+                grub-mkimage -O i386-pc -c ${tmp_dir}/grub.cfg -o ${tmp_dir}/core.img biosdisk iso9660
+                cat /usr/lib/grub/*-pc/boot.img ${tmp_dir}/core.img > /tmp/grub_embed
+		if [ -d /usr/lib/grub/x86_64-efi ]; then
+			say 'Creating grub-efi boot files'
+			iso_uuid=$(date -u +%Y-%m-%d-%H-%M-%S-00)
+			echo ${iso_uuid} | sed -e s/-//g > /tmp/iso_uuid
+			mkdir /tmp/uuid
+			touch /tmp/uuid/${iso_uuid}
+			memdisk_img=`mktemp "/tmp/tmp.XXXXXXXXXX"` || exit 1
+			memdisk_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
+			mkdir -p ${memdisk_dir}/boot/grub
+			cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
+set from=""
+export from
+search --fs-uuid --set=root ${iso_uuid}
+set prefix=(\${root})/boot/grub/x86_64-efi
+source \$prefix/grub.cfg
+EOF
+			(cd "${memdisk_dir}"; tar -cf - boot) > "${memdisk_img}"
+			rm -rf ${memdisk_dir}
+			mkdir -p /tmp/efi/boot
+			grub-mkimage -O x86_64-efi -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi/boot/bootx64.efi search iso9660 configfile normal memdisk tar part_msdos fat
+			rm -rf ${memdisk_img}
+			mformat -C -f 2880 -L 16 -i /tmp/efi.img ::
+			mcopy -s -i /tmp/efi.img /tmp/efi ::/
+			rm /tmp/efi/boot/bootx64.efi
+			memdisk_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
+			mkdir -p ${memdisk_dir}/boot/grub
+			cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
+set from=fromhd
+export from
+search --file --set=root /boot/grub/x86_64-efi/${iso_uuid}
+set prefix=(\${root})/boot/grub/x86_64-efi
+source \$prefix/grub.cfg
+EOF
+			(cd "${memdisk_dir}"; tar -cf - boot) > "${memdisk_img}"
+			rm -rf ${memdisk_dir}
+			grub-mkimage -O x86_64-efi -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi/boot/bootx64.efi search iso9660 configfile normal memdisk tar part_msdos part_gpt lvm fat ext2
+		fi
+	fi
+
+	# disable recovery modes for grub2
+	if [ -w /etc/default/grub ]; then
+		if grep -q ^GRUB_DISABLE_RECOVERY\= /etc/default/grub; then
+			sed -i "s/^\(GRUB_DISABLE_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
+		else
+			sed -i "s/^\#\(GRUB_DISABLE_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
+		fi
+	fi
+
+	# Change MD5 to SHA-256 for password hashes.
+	say 'Modifying /etc/login.defs for SHA-256'
+	sed -i -r 's/^#?[[:space:]]*ENCRYPT_METHOD.*/ENCRYPT_METHOD SHA256/' \
+		/etc/login.defs
+	say 'Modifying /etc/pam.d/common-password for SHA-256'	
+	sed -i -r 's/(^password.*)md5/\1sha256/' /etc/pam.d/common-password
+
+	# XXX: temporarily make /etc/mtab a symlink to /proc/mounts, until util-linux
+	#      does it itself.
+	say 'Make mtab a symlink to /proc/mounts'
+	if [ ! -L /etc/mtab ]; then
+		rm -f /etc/mtab
+		ln -sf /proc/mounts /etc/mtab
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+[ ! "$1" = "postinst" ] && exit 0
+
+# apply some sanity checks to the installed package list
+
+exit 0

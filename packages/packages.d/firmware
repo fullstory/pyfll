@@ -1,0 +1,23 @@
+desc = """
+	Collection of non-free firmware and/or drivers. The non-free section
+	of the debian and aptosid repositories is required for installation of
+	these packages. If a live medium is built and includes these packages,
+	it may not be freely redistributed.
+"""
+
+debconf = """
+#	b43-fwcutter b43-fwcutter/cut_firmware boolean true
+	firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true
+"""
+
+packages = """
+	atmel-firmware
+#	b43-fwcutter
+	bluez-firmware
+	firmware-ipw2x00
+	firmware-iwlwifi
+	firmware-ralink
+	firmware-realtek
+	libertas-firmware
+	zd1211-firmware
+"""

@@ -1,0 +1,19 @@
+Usage:
+  See ./fll --help
+
+Example Usage:
+  1) cp fll.conf ..; edit ../fll.conf
+  2) ./fll -c ../fll.conf -b /tmp/fll/ -o /tmp/fll/
+
+Dependencies:
+  python (>= 2.5)
+  python-apt
+  python-configobj
+  cdebootstrap | debootstrap
+  xorriso
+  python-fll
+  squashfs-tools
+  syslinux
+
+Recommends:
+  reprepro (for liveapt functionality and extras (amd64 with efi))

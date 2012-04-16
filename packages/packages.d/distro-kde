@@ -1,0 +1,10 @@
+desc = """
+	Distro specific KDE packages.
+"""
+
+packages = """
+	desktop-defaults-kde
+	aptosid-art-kde
+	skanlite
+	gparted
+"""

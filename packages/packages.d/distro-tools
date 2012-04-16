@@ -1,0 +1,12 @@
+desc = """
+	Distro specific tools.
+"""
+
+packages = """
+	ceni
+	infobash
+	pppconfig
+	pppoeconf
+	sshstart
+	wvdial
+"""

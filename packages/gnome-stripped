@@ -1,0 +1,21 @@
+desc = """
+	Minimal GNOME desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-gnome
+	distro-tools
+	distro-tools-x
+	gnome-essential
+	hwsupport-essential
+	utils-essential
+	xserver
+"""
+
+packages = """
+	build-essential
+	cdebootstrap
+	hwinfo
+"""

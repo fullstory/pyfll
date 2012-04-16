@@ -1,0 +1,13 @@
+desc = """
+	Distro specific packages for an LXDE desktop.
+"""
+
+packages = """
+	desktop-defaults-lxde
+	gksu
+#	lxdm
+#	aptosid-art-lxde
+	aptosid-art-wallpaper
+	slim
+	gparted
+"""

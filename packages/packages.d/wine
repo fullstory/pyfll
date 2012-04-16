@@ -1,0 +1,24 @@
+desc = """
+	Complete WINE (Windows API Implementation) suite.
+"""
+
+packages = """
+	wine
+	wine-utils
+	libwine
+	libwine-alsa
+	libwine-capi
+	libwine-cms
+	libwine-dev
+	libwine-esd
+	libwine-gl
+	libwine-gphoto2
+	libwine-ldap
+	libwine-nas
+	libwine-print
+	libwine-sane
+"""
+
+i386 = """
+	libwine-jack
+"""

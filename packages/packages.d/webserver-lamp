@@ -1,0 +1,13 @@
+desc = """
+	LAMP application suite.
+"""
+
+packages = """
+	apache2-mpm-prefork
+	libapache2-mod-php5
+	mysql-server
+	php5
+	php5-mysql
+	phpmyadmin
+"""
+

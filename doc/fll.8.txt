@@ -1,0 +1,73 @@
+FLL(8)
+======
+Kel Modderman <kel@otaku42.de>
+
+
+NAME
+----
+fll - FULLSTORY build script for sid/aptosid
+
+
+SYNOPSIS
+--------
+'fll -c' <config file> [-b <directory> -o <directory> -l <file>] [-Bdpqv]
+
+
+DESCRIPTION
+-----------
+fll(8) is a python script that provides a framework to build an ISO Image from the current repositories of sid/aptosid.
+
+
+OPTIONS
+-------
+-h, --help::
+show this help message and exit
+-a <arch>, --arch=<arch>::
+Build architecture, overrides config file.
+-b <directory>, --build=<directory>::
+Build directory. A large amount of free space is required.
+-B, --binary::
+Do binary build only. Disable generation of URI lists.
+Default: False
+-c <config file>, --config=<config file>::
+Configuration file. This option may be used more than
+once to process multiple configurations. A
+configuration file must be specified.
+-d, --debug::
+Enable debug mode. Extra output will be to assist in
+development. Default: False
+-l <file>, --log=<file>::
+Log debug output to file. Note that when logging is
+enabled, output to the console is buffered.
+-o <directory>, --output=<directory>::
+Output directory, where the product of this program
+will be generated.
+-p <profile>, --profile=<profile>::
+Package profile, overrides config file.
+-P, --preserve::
+Preserve build directory. Disable automatic cleanup of
+the build area at exit.
+-q, --quiet::
+Enable quiet mode. Only high priority messages will be
+generated.
+-v, --verbose::
+Enable verbose mode. All messages will be generated,
+such as announcing current operation.
+
+
+AUTHOR
+------
+Kel Modderman <kel@otaku42.de>
+
+
+RESOURCES
+---------
+FULLSTORY Homepage: http://developer.berlios.de/projects/fullstory/
+fll-builder: http://svn.berlios.de/wsvn/fullstory/fll-builder/branches/pyfll
+
+
+COPYING
+-------
+Copyright \(C) 2007 Kel Modderman. Free use of this software is
+granted under the terms of the GNU General Public License (GPL)
+version 2, or at your choice, any later version

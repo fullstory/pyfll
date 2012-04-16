@@ -1,0 +1,8 @@
+desc = """
+	Packages for the eduversum project.
+"""
+
+packages = """
+#	seminarix-handbook # temp disable
+#	khelpcenter4 # eliminate duplicate
+"""

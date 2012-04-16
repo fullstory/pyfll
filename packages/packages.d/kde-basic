@@ -1,0 +1,15 @@
+desc = """
+	Lite KDE desktop Applications
+"""
+
+packages = """
+	gwenview
+	k3b
+	kcalc
+	khelpcenter4
+	kmix
+	knemo
+	kppp
+	ksnapshot
+	okular
+"""

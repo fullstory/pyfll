@@ -1,0 +1,9 @@
+desc = """
+	Common command line utilities.
+"""
+
+packages = """
+	nano
+	vim-common
+	vim-tiny
+"""

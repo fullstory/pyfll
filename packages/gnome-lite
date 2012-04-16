@@ -1,0 +1,23 @@
+desc = """
+	Basic GNOME desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-gnome
+	distro-tools
+	distro-tools-x
+	gnome-essential
+	gnome-basic
+	hwsupport-essential
+	hwsupport-extra
+	hwsupport-printscan
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+"""

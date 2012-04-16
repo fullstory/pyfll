@@ -1,0 +1,11 @@
+desc = """
+	A collection of tools for data rescue situations.
+"""
+
+packages = """
+	dar
+	ddrescue
+	hexedit
+	magicrescue
+"""
+

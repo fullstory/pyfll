@@ -1,0 +1,17 @@
+desc = """
+	Essential libreoffice packages.
+"""
+
+packages = """
+	libreoffice-calc
+	libreoffice-core
+	libreoffice-draw
+	libreoffice-emailmerge
+	libreoffice-gnome
+	libreoffice-gtk
+	libreoffice-impress
+	libreoffice-math
+	libreoffice-writer
+	#mythes-en-us
+	openoffice.org-hyphenation
+"""

@@ -1,0 +1,28 @@
+desc = """
+	A complete XFCE desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-tools
+	distro-tools-x
+	distro-xfce
+	fluxbox
+	hwsupport-essential
+	hwsupport-extra
+	hwsupport-powermanagement
+	hwsupport-printscan
+	utils-essential
+	utils-extra
+	utils-x
+	xfce-desktop-min
+	xfce-desktop-goodies
+	xfce-desktop-extras
+	xserver
+"""
+
+packages = """
+	iceweasel
+"""
+

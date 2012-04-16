@@ -1,0 +1,17 @@
+desc = """
+	Minimal system with an X server. Useful for debugging automatic X
+	configuration.
+"""
+
+deps = """
+	distro
+	fluxbox
+	hwsupport-essential
+	utils-essential
+	xserver
+"""
+
+packages = """
+	fll-live-xorgconfig
+"""
+

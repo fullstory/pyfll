@@ -1,0 +1,72 @@
+FLL(8)
+======
+Kel Modderman <kel@otaku42.de>
+
+
+NAME
+----
+fll - FULLSTORY Skript zur Erstellung von ISO Images
+
+
+SYNOPSIS
+--------
+'fll -c' <Konfigurationsdatei> [-b <Verzeichnis> -o <Verzeichnis> -l <Datei>] [-Bdpqv]
+
+
+BESCHREIBUNG
+------------
+fll(8) ist ein Python Skript zur Erstellung eines tagesaktuellen ISO Image
+aus den Repositories von sid/aptosid 
+
+
+OPTIONEN
+--------
+-h, --help::
+zeigt diese Hilfeseite an
+-a <Architektur>, --arch=<Architektur>::
+zu bauende Architektur (32 / 64 bit) , übergeht die Konfigurationsdatei.
+-b <Verzeichnis>, --build=<Verzeichnis>::
+Bestimmt das Build Verzeichnis. Hier wird viel freier Platz benötigt.
+-B, --binary::
+Baut nur ein binäres Build. Schaltet Erstellung von URI Listen aus.	
+Grundeinstellung: Aus
+-c <Konfigurationsdatei>, --config=<Konfigurationsdatei>::
+Bestimmt die Konfigurationsdatei(en). Diese Option kann mehrfach verwendet
+werden um multiple Konfigurationen umzusetzen. Mindestens eine Datei muss
+angegeben werden.
+-d, --debug::
+Schaltet den debug Modus ein. Ergibt eine erweiterte Ausgabe zur Fehlersuche
+Grundeinstellung: Aus
+-l <Datei>, --log=<Datei>::
+Loggt die debug Ausgabe in eine Datei. Achtung: Wenn die Ausgabe in eine Datei
+umgeleitet wird, ist die Konsolenausgabe reduziert wie ohne den Parameter -d.
+-o <Verzeichnis>, --output=<Verzeichnis>::
+Ausgabeverzeichnis, wo das Produkt dieses Programms erstellt wird.
+-p <Profil>, --profile=<Profil>::
+Paketprofil, (aus /packages oder selbst erstellt), übergeht die
+Konfigurationsdatei.
+-P, --preserve::
+Erhalte das Build Verzeichnis. Schaltet das automatische Aufräumen am Ende des
+Vorgangs aus.
+-q, --quiet::
+Schaltet in den stillen Modus. Nur wichtige Meldungen werden angezeigt.
+-v, --verbose::
+Schaltet in den ausführlichen Modus. Alle Meldungen werden angezeigt.
+
+
+AUTOR
+-----
+Kel Modderman <kel@otaku42.de>
+
+
+QUELLEN
+-------
+FULLSTORY Homepage: http://developer.berlios.de/projects/fullstory/
+fll-builder: http://svn.berlios.de/wsvn/fullstory/fll-builder/branches/pyfll
+
+
+COPYING
+-------
+Copyright \(C) 2007 Kel Modderman. Free use of this software is
+granted under the terms of the GNU General Public License (GPL)
+version 2, or at your choice, any later version

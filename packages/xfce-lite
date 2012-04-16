@@ -1,0 +1,24 @@
+desc = """
+	A lite XFCE desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-tools
+	distro-tools-x
+	distro-xfce
+	fluxbox
+	hwsupport-essential
+	hwsupport-powermanagement
+	utils-essential
+	utils-extra
+	utils-x
+	xfce-desktop-min
+	xserver
+"""
+
+packages = """
+	iceweasel
+"""
+

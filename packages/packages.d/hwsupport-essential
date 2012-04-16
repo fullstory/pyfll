@@ -1,0 +1,28 @@
+desc = """
+	Packages that provide some kind of support for very common harware.
+"""
+
+packages = """
+	alsa-base
+	br2684ctl
+	cpufrequtils
+	crda
+	irqbalance
+	laptop-detect
+	lvm2
+	mdadm
+	nbd-client
+	openfwwf
+	pcmciautils
+	pciutils
+	udev
+	usbutils
+"""
+
+i386 = """
+	acpid
+"""
+
+amd64 = """
+	acpid
+"""

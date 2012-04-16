@@ -1,0 +1,10 @@
+desc = """
+	Distro specific packages for an GNOME desktop.
+"""
+
+packages = """
+	desktop-defaults-gnome
+	gksu
+	#aptosid-art-gnome
+	gparted
+"""

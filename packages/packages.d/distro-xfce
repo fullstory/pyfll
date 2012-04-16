@@ -1,0 +1,10 @@
+desc = """
+	Distro specific packages for an XFCE desktop.
+"""
+
+packages = """
+	desktop-defaults-xfce
+	gksu
+	aptosid-art-xfce
+	gparted
+"""

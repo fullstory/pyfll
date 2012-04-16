@@ -1,0 +1,33 @@
+desc = """
+	Complete KDE desktop environment with OpenOffice and IceWeasel.
+"""
+
+deps = """
+	cli
+	distro
+	distro-kde
+	distro-tools
+	distro-tools-x
+	fluxbox
+	hwsupport-essential
+	hwsupport-extra
+	hwsupport-powermanagement
+	hwsupport-printscan
+	kde-essential
+	kde-basic
+	kde-desktop
+	libreoffice-suite
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+	dnsutils
+	icedtea-plugin
+	iceweasel
+	qemu-kvm
+	myspell-en-us
+	libreoffice-kde
+"""

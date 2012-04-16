@@ -1,0 +1,34 @@
+desc = """
+	Misc. utilities that should always be installed.
+"""
+
+packages = """
+	anacron
+	bzip2
+	console-data
+	console-common
+	cron
+	debsums
+	gdisk
+	iptables
+	iputils-ping
+	isc-dhcp-client
+	iw
+	kbd
+	kexec-tools
+	less
+	logrotate
+	mbr
+	netbase
+	resolvconf
+	rsync
+	rsyslog
+	sudo
+	wget
+	wireless-tools
+	wpasupplicant
+"""
+
+debconf = """
+	kexec-tools kexec-tools/load_kexec boolean false
+"""

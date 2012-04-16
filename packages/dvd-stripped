@@ -1,0 +1,46 @@
+desc = """
+	A combined stripped kde and xfce.
+"""
+
+deps = """
+	cli
+	distro
+	distro-kde
+	distro-xfce
+	distro-tools
+	distro-tools-x
+	fluxbox
+	hwsupport-essential
+	hwsupport-extra
+	hwsupport-powermanagement
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+	ark
+	build-essential
+	cdebootstrap
+	desktop-file-utils
+	gdm3
+	gtk2-engines-xfce
+	kaffeine
+	kde-core
+	kdm
+	konversation
+	kpowersave
+	libnotify-bin
+	shared-mime-info
+	thunar
+	thunar-archive-plugin
+	thunar-data
+	thunar-media-tags-plugin
+	thunar-volman
+	vim-tiny
+	xarchiver
+	xfce4
+	xfwm4
+"""
+

@@ -1,0 +1,15 @@
+desc = """
+	Common command line utilities.
+"""
+
+packages = """
+	elinks-lite
+	gpm
+	htop
+	info
+	mc
+	most
+	screen
+	unp
+	vim
+"""

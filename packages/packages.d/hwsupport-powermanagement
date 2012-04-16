@@ -1,0 +1,10 @@
+desc = """
+	Packages that provide support for powermanagement
+	This is a separate package so it does not conflict with powerdevil/kde4
+"""
+
+packages = """
+	acpi-support-base
+	pm-utils
+	powermgmt-base
+"""

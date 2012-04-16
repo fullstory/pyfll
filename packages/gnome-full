@@ -1,0 +1,27 @@
+desc = """
+	Complete GNOME desktop environment with OpenOffice.
+"""
+
+deps = """
+	cli
+	distro
+	distro-gnome
+	distro-tools
+	distro-tools-x
+	gnome-essential
+	gnome-basic
+	gnome-essential
+#	gnome-desktop
+	hwsupport-essential
+	hwsupport-extra
+	hwsupport-printscan
+	libreoffice-suite
+	utils-essential
+	utils-extra
+	xserver
+"""
+
+packages = """
+	iceweasel
+"""
+

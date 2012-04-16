@@ -1,0 +1,35 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if which vim >/dev/null; then
+		say 'Adding /etc/vim/vimrc.local'
+		cat > /etc/vim/vimrc.local \
+<<EOF
+syntax on
+set autoindent
+set background=light
+set showmatch
+set pastetoggle=<F10>
+EOF
+	fi
+
+	if which most >/dev/null; then
+		say "Setting default pager to ${most}"
+		update-alternatives --set pager $(which most) >/dev/null
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

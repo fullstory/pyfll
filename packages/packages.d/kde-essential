@@ -1,0 +1,14 @@
+desc = """
+	Minimal KDE desktop apps.
+"""
+
+packages = """
+	ark
+	akonadi-backend-sqlite
+	kaffeine
+	kde-plasma-desktop
+	kdm
+	konversation
+	gparted
+	phonon-backend-gstreamer
+"""

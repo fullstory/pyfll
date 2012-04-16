@@ -1,0 +1,820 @@
+pyfll (12.04) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+  * initial commit of pyfll branch with ubuntu patches
+
+ -- Bernard Gray <bernard.gray@gmail.com>  Mon, 16 Apr 2012 16:33:01 +1000
+
+pyfll (2011.02) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+  [ Chris Hildebrandt ]
+  * clean outdated/unwanted packages from LXDE profile, move the rest over to lxde-basic
+
+  [ Stefan Lippers-Hollmann ]
+  * add debsums to utils-essential.
+  * drop lzma as valid compression methods.
+  * re-enable xserver-xorg-video-all, instead of hardcoded partial list.
+  * drop orphaned kde-seminarix flavour.
+  * switch to libreoffice.
+  * drop tvtime from kde-full, there is no analogue tv in Europe anymore.
+  * s/GRUB_DISABLE_LINUX_RECOVERY/GRUB_DISABLE_RECOVERY/
+  * gdm is no more, replace it with gdm3.
+  * add mdadm.
+  * welcome back da_DK.
+  * print out compression algorithm for mksquashfs early.
+  * s/icedtea6-plugin/icedtea-plugin/
+  * bump standards version to 3.9.2, no changes necessary.
+  * ntfs-3g replaces ntfsprogs for the time being, blow the fuse.
+  * add gdisk to utils-essential, needed for managing GPT disks.
+  * add akonadi-backend-sqlite to kde-essential, in order to avoid pulling in
+    mysql.
+  * prune leaked build host mdadm setups from the ISO.
+  * default to phonon-backend-gstreamer, phonon-backend-xine is dead upstream.
+  * remove fuse-utils, all fuse using packages hard-depend on it anyways.
+  * drop recommends handling for hal.
+  * s/partitionmanager/gparted/, to gain basic GPT support.
+  * tweak mkfs options for reiserfs loop image creation (devmapper).
+  * tweak mkfs options for jfs loop image creation (devmapper).
+  * don't write /etc/kernel-img.conf anymore, it's usage is deprecated and
+    discouraged.
+  * only offer amd64 kernels for UEFI booting.
+  * drop memtest86+ from UEFI booting, grub-efi can't emulate linux16.
+  * add libgl1-mesa-dri-experimental to the xserver list, it allows basic
+    acceleration for nouveau.
+
+  [ Joaquim Boura ]
+  * Initial update to python APT API v0.8.0 (module initialization functions
+    were renamed)
+  * split xfce-destop-min to create xfce-desktop-goodies to get rid of deprecated plugins still
+    depending on libhal1
+
+  [ Niall Walsh ]
+  * dynamically prefix exclusion file with / for absolute paths for rsync for
+    devmapper
+  * initial (u)efi support for amd64, driven by inclusion of
+    grub-efi-amd64-bin, requires xorriso to generate those isos
+  * add extras repo, intially with just grub-efi and deps when appropriate
+  * add grub-efi debs to extras repo, means amd64 requires reprepro as long
+    as grub-efi-amd64-bin is included
+  * create /boot/grub/x86_64-efi/${iso_uuid} file for grub.cfg in 
+    /efi/boot/bootx64.efi memdisk to find drive with iso contents for fromhd
+  * /boot/efi/bootx64.efi is different then the one used for cd booting, 
+    sets fromhd and supports mbr/gpt disks using lvm, fat, ext2 grub modules
+  * copy isolinux.cfg to syslinux.cfg so you can use syslinux on a copy of the
+    iso contents on a fat drive (also add mtools to 32bit for this)
+  * add localisation menu and sub-menus for grub-efi lang, keytable and tz
+  * use xorriso for all iso creation
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 12 Jul 2011 01:04:37 +0200
+
+pyfll (2011.01) geras; urgency=low
+
+  [ Joaquim Boura ]
+  * cleanup for the gnome packages
+  * fixed package desription
+
+  [ Stefan Lippers-Hollmann ]
+  * add ntpdate to automatic recommends handling.
+  * add initial squashfs-xz support.
+  * reorder mksquashfs parameters, to allow setting compression algorithms, 
+    also set according filters for powerpc and ppc64.
+  * the default users doesn't need to be group member of sudo.
+  * really disable grub recovery mode for grub-pc.
+  * first aid to work around losetup -d breakage.
+  * drop xresprobe, it's no longer necessary; thanks to bfree for noticing.
+  * update config.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 06 Feb 2011 03:05:33 +0100
+
+pyfll (2010.03) apate; urgency=low
+
+  [ Stefan Lippers-Hollmann ]
+  * fix memtest86+ isolinux entry.
+  * add squashfs-tools to dependencies.
+  * squashfs-tools 4.1 adds lzo as compression method, kernel 2.6.36 and
+    SQUASHFS_LZO required; add it to pyfll. squashfs_comp now accepts "gzip",
+    "lzma" (not supported by mainline kernels yet) and "lzo" (>=2.6.36) now,
+    if squashfs-tools >= 4.1 are available in chroot.
+  * fix x-un-i's mail address.
+  * use --force-unsafe-io while it lasts.
+  * add usb-modeswitch to hwsupport-extra.
+  * starting with dpkg 1.15.8.7, --force-unsafe-io is no longer necessary.
+
+  [ Joaquim Boura ]
+  * added japanese font to the xfce and kde full
+  * removed duplicated line
+
+  [ Niall Walsh ]
+  * allow creation of loop fs image inside squashfs for dmsetup unions. use
+    FLL_UNION_MODULE for aufs or unionfs on squash instead
+  * Add restore_sigpipe for use with preexec_fn
+
+  [ Joaquim Boura ]
+  * Patch for an aptosid-gnome from Angelescu Ovidiu <mrhsaacdoh@gmail.com> aka convbsd
+    and William J. Henderson <tornado@tjtag.com> aka tjtag
+
+  [ Dinko Sabo ]
+  * temp disable packages
+  * eliminate duplicates
+
+  [ Joaquim Boura ]
+  * remove duplicate in hwsupport-printscan
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 27 Dec 2010 02:58:54 +0100
+
+pyfll (2010.02) keres; urgency=low
+
+  * revert "list gdm explicitly in xfce profiles".
+  * s/gfxboot.com/gfxboot.c32/
+  * isohybrid has moved to syslinux, adapt README.
+  * disable foomatic-db-hpijs and foomatic-filters-ppds, which were removed
+    upstream.
+  * adapt isolinux.cfg templates for syslinux 4.0x.
+  * bump standards version to 3.9.1, well we're not packaging anything.
+  * switch to 2010-02 Κῆρες.
+  * bump debhelper dependency to 7.9.3, in order to allow for hypothetical
+    compat 8 compliance.
+  * recommend Debian GeoMirror (http://cdn.debian.net/debian/) as generic
+    debian mirror.
+  * drop syslinux-common dependency (it's implied by syslinux) and add reprepro
+    as recommended package (required for liveapt functionality), thanks to
+    bfree for noticing.
+  * replace kdebluetooth with bluedevil for bluetooth support under KDE.
+  * s/sidux-browser/xdg-browser-launcher/
+  * s/sidux-kernelhacking/kernel-remover/
+  * sidux-vdr/ vdr-gui have been orphaned, remove them from all profiles.
+  * s/sidux-irc/aptosid-irc/
+  * s/configure-dsl/pppoeconf/
+  * drop sidux-searchplugins from package lists.
+  * refer to aptosid kernels in example config.
+  * s/gfxboot-theme-sidux/gfxboot-theme-aptosid/
+  * s/sidux-art-/aptosid-art-/
+  * s/apt-conf-sidux/apt-conf-aptosid/
+  * adapt documention to aptosid.
+  * s/sidux-scripts/aptosid-scripts/
+  * s/udev-config-sidux/udev-config-aptosid/
+  * temporarily disable hal-cups-utils and sidux-manual.
+  * add aptosid-manual.
+  * add workaround for python-apt regression "bad key on cache[p]" (dual-arch
+    ISOs only), thanks to bfree.
+  * switch to new gpg keyring.
+  * switch from hal based printer configuration to udev.
+  * s/grub2/grub-pc/
+  * s/lynx/lynx-cur/
+  * temporarily disable system-config-printer-kde, until new python-kde4
+    arrives.
+  * s/bluez-utils/bluetooth/
+  * vga=791 is deprecated.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 14 Sep 2010 02:49:56 +0000
+
+pyfll (2010.01) hypnos; urgency=low
+
+  [ Stefan Lippers-Hollmann ]
+  * switch to CONCURRENCY=makefile
+  * add rfkill to hwsupport-extra, it is important to enable wlan/ bluetooth
+    in case a driver's rfkill defaults are broken.
+  * s/Μόρος/Ύπνος/g
+  * drop wacom-tools, it's dead and obsoleted by xserver-xorg-input-wacom.
+  * temporarily drop siduxcc from all flavours, it's currently not in a state
+    to be released.
+  * drop xserver-xorg-video-geode, it's gone.
+  * update for new python-apt API:
+    - Attribute 'Set' of the 'apt_pkg.Configuration' object is deprecated, use
+      'set' instead.
+    - Attribute 'Name' of the 'apt_pkg.Package' object is deprecated, use
+      'name' instead.
+  * remove qutecom, it's dead.
+  * switch to dpkg-source 3.0 (native) format.
+  * update standards version to 3.8.4, no changes necessary.
+  * s/kde-minimal/kde-plasma-desktop/
+  * drop gparted from utils-x, it's implicitly pulled in by install-gui.
+  * add partitionmanager to kde-essential, thereby overriding gparted in kde
+    builds.
+  * re-enable kdebluetooth for kde-desktop, a kde4 variant is in unstable now.
+  * drop kdeaccessibility, speech-dispatcher is horribly broken.
+  * disable bootlogd init scripts, they're looping and not needed on the live
+    media.
+  * remove heuristic to search for additional kernel modules, support for
+    linux-modules-extra-2.6 doesn't exist anymore.
+  * drop /etc/sidux-version kernel heuristic.
+  * disable init scripts:
+    - lirc
+    - mysql
+    - postfix
+  * drop lirc from hwsupport-extra, it needs special configuration to function.
+  * no need to set CONCURRENCY=makefile explicitly anymore,
+    sysvinit >= 2.88dsf-4 uses it by default.
+  * handle gdm3 and lxdm as well.
+  * use a common service blacklisting in pyfll and fll-installer.
+  * adapt to new parameter interface of grub-mkimage >= 1.98+20100527.
+  * break out xserver-xorg-video-all, to disable individually broken modules:
+    - xserver-xorg-video-nouveau, no stable kernel ./. userspace ABI yet.
+  * fix package list for the DVD.
+  * add ghostscript-cups to hwsupport-printscan, it's needed for non-postscript
+    printers.
+  * list gdm explicitly in xfce profiles.
+
+  [ Bernard Gray ]
+  * add powermgmt and pm-utils to power management profile -
+    acpi-support-base no longer pulls them in, they're required for suspend modes
+  * add [sourcedistro] section to fll.conf
+    - allows multiple source distro/codename options for debootstrapping
+    - still only tested on debian sid at this stage though
+  * add hwsupport-powermanagement to kde-* (not stripped), seminarix and dvd* profiles
+    - adds suspend-to* support
+
+  [ Chris Hildebrandt ]
+  * add LXDM as an alternative to slim, add LXDE config tools
+  * remove unused lxde-full and lxde-extras package lists, we use lxde-lite only
+  * shorten list of distributed apps, as agreed in lxde team
+
+  [ Kel Modderman ]
+  * Initial update for new python-apt API.
+  * Remove initscript whitelist/blacklist voodoo.
+  * Add some update-rc.d calls to distro.postinst to setup live boot system.
+
+  [ Nikolas Poniros ]
+  * Add cliinstaller to package list of kde-lite/xfce/xfce-lite
+
+  [ Niall Walsh ]
+  * Stop -a clobbering archs from config
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 13 Jun 2010 16:04:15 +0200
+
+pyfll (2009.04) moros; urgency=low
+
+  [ Stefan Lippers-Hollmann ]
+  * switch to grub2.
+  * qemu-kvm replaces kvm.
+  * list kernel versions for grub2 as well.
+  * follow the fate of Μόρος.
+  * cosmetic fixes for syslinux menu.
+  * add syslinux-common to recommended dependencies.
+  * adapt for gfxboot-themes-sidux.
+  * s/FLL_BOOTSPLASH/FLL_GFXBOOT_THEME/g.
+  * disable recovery modes for grub2.
+  * clear default cmdline, it can't be edited from within syslinux+gfxboot.
+  * fix gfxboot theme path in response to #558138.
+  * remove configure-ndiswrapper from distro-tools, it's gone.
+  * re- enable fuse depending packages, fuse-utils has been fixed in 2.8.1-1.1.
+  * allow to set compression algorithm for squashfs-tools >= 4.1.
+  * add virtualbox-ose-guest-x11 to the xserver packages on amd64 and i386.
+  * add nbd-client to the package list.
+  * enhance isolinux boot menu:
+    - boot from Hard Disk
+    - start memtest86+
+  * remove wicd from lxde flavours.
+  * remove hwinfo all profiles, it's no longer needed for h/w detection.
+  * remove fluxbox from kde-stripped.
+  * whitelist kbd and util-linux (hwclock*.sh, which are effectively no-ops on
+    udev based systems) init scripts.
+  * move tvtime from utils-x to kde-full, there is no terrestrial analogue TV
+    in germany anymore.
+  * exclude cached files from /etc/console-setup/cached.kmap.gz from the
+    squashfs.
+  * remove build-essential from kde-stripped.
+  * remove isolinux.bin from md5sum list, it's modified during genisoimage.
+  * add k3b to the kde based package lists again.
+  * add alsa-utils again.
+
+  [ Niall Walsh ]
+  * rework isolinux for gfxboot.com (restore gfxboot-theme-sidux)
+  * use isolinux ahead of grub for genisoimage (include both in essential)
+  * use isohybrid on isolinux iso to make dd'able image
+  * embed count of kernel (by arch) in 8.3 isolinux safe name
+  * init whitelist keyboard-configuration instead of kbd
+  * add /etc/console-setup/cached.kmap.gz to sqfs excludes
+
+  [ Bernard Gray ]
+  * copy over all required bootlogo files for syslinux.
+  * make FLL_BOOTSPLASH configurable.
+
+  [ Chris Hildebrandt ]
+  * remove ooo from lxde-full, add abiword, gnumeric, sylpheed, and more for testing
+  * fixed typo: asunder != asounder
+  * remove gcalculator - not in sid
+  * lxnm officially depreciated upstream
+  * lxmusic became optional upstream, gcalculator not in sid
+  * sync lxde changes with noc
+  * disable sidux-lxde-common, not in debian/sidux repos yet
+
+  [ Nikolas Poniros ]
+  * sync lxde changes with noc
+  * sync with noc. put packages in alphabetical order
+
+  [ Joaquim Boura ]
+  * Added sidux-kernelhacking to distro-tools to include always the kernel-remover
+  * moved sidux-kernelhacking to distro-tools-x
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 31 Dec 2009 04:47:09 +0100
+
+pyfll (2009.03) momos; urgency=low
+
+  [ Stefan Lippers-Hollmann ]
+  * make lxde buildable again.
+  * remove dash from the package list, it's virtually essential. Likewise
+    there's no need to set it explicitly as /bin/sh anymore.
+  * remove insserv from the package list, it's virtually essential.
+  * fix grub.cfg for grub2 ElTorito no-emulation boot.
+  * fix timeout definition for grub2.
+  * temporarily switch to grub2.
+  * color grub2 menu.
+  * bump standards version to 3.8.3, no changes necessary.
+  * remove KDE3 applications again, which had been enabled for aether.
+  * divert update-grub for the build.
+  * fix grub.cfg entry for memtest86+.
+  * celebrate the new openoffice.org-kde.
+  * use slim for lxde profiles.
+  * remove evince-gtk2 from lxde, it pulls in gnome-icon-theme.
+  * revert to grub-gfxboot for the time being.
+  * add "splix" to hwsupport-printscan, it's needed for SPL/ SPL-2 (Samsung)
+    printers.
+  * disable k3b and kdebluetooth again, their kde4 versions are not in a
+    releaseable state yet.
+  * s/icedtea-gcjwebplugin/icedtea6-plugin/
+  * remove geany from lxde builds, a full blown IDE isn't necessary.
+  * remove xfce4-icon-theme, it doesn't exist anymore.
+  * remove fuse-utils depending packages, fuse-utils' triggers fail to succeed
+    in chroot.
+  * drop special handling for virtualbox-ose, there are no redistributable
+    virtualbox-ose kernel modules anymore.
+  * add skanlite to larger kde flavours.
+  * temporarily add libgnome2-0 to abiword instances to workaround a bug in
+    apt's recursive dependency resolver.
+  * fix package lists for seminarix.
+
+  [ Bernard Gray ]
+  * nuke root password via debconf preseeding in distro package profile instead
+    of sed hack on /etc/passwd
+  * update fll.conf for momos release
+
+  [ Niall Walsh ]
+  * add kexec-tools (load_kexec false /usr/share/doc/kexec-tools/README.Debian)
+  * add syslinux/isolinux support
+
+  [ Chris Hildebrandt ]
+  * review lxde lite and full lists
+  * deactivate lxtask, lxnm as they are not installable atm.
+
+  [ Bernard Gray ]
+  * add pm-utils to xfce-desktop-min to fix hibernate error from logout dialog
+  * add myspell-en-us to xfce-desktop-min to fix spellcheck artifacting
+    - added the en-us package since that is what was included in the other profiles,
+      not sure if it needs more, or is handled via python-fll lang/pkg detection
+
+  [ devil ]
+  * added krosspython, parley needs it for its plugins
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 11 Nov 2009 00:16:08 +0000
+
+pyfll (2009.02) aether; urgency=low
+
+  [ Stefan Lippers-Hollmann ]
+  * disable totally broken hplip.
+  * add virtualbox-ose-guest-utils to amd64 builds, virtualbox-ose 2.x claims
+    to cope with amd64 guests, in case hardware virtualisation is available.
+  * hpilp should be installable again.
+  * remove tvtime and kdetv, there are no analogue senders in germany or the
+    US anymore.
+  * #517884 is fixed in Debian, remove the locale generation workaround again.
+  * remove get-kde4-pinning.sh, debian-qt-kde has switched to git and KDE4 is
+    on the doorstep to sid anyways.
+  * dump kde4 preferences for apt, kde4 is in sid now, rendering this obsolete.
+  * kdeservicemenus are not more, remove them.
+  * merge kde4-essential into kde-essential.
+  * remove powersaved and switch to acpi-support-base.
+  * merge kde4-lite into kde-lite.
+  * merge kde4-full into kde-full.
+  * make distro-kde a no-op for now.
+  * enable desktop-defaults-kde again.
+  * remove packages pulling in akonadi . and through this mysql-server.
+  * temporarily disable sidux-vdr.
+  * enable stripped down distro-kde for all profiles.
+  * add ttf-liberation, the ugliness should be fixed now.
+  * re-add 3rd party X drivers, they've been updated by now.
+  * always install phonon-backend-xine for kde profiles, gstreamer just
+    doesn't work.
+  * fix meta packages for KDE.
+  * omit /var/lib/alsa/asound.state.
+  * xfce4-mixer-alsa is no more.
+  * temporarily disable alsa-utils because of #523091.
+  * sidux-vdr is installable again, re-add it to kde-full.
+  * xfce4-mixer-alsa is gone, remove it.
+  * temporarily disable konversation, the version in sid is still kde3 based.
+  * don't fail, if lvm2 is not installed.
+  * include konversation again, 1.2~alpha1-1 has reached unstable.
+  * remove amarok completely, amarok2 hasn't reached sid yet, but depends on
+    mysql-server...
+  * enable digikam again, the kde4 version has reached sid.
+  * enable gwenview again.
+  * bump standards version to 3.8.1, we have little to adhere to.
+  * re-add qt3/ kde3 packages to kde-full only:
+    - k3b
+    - kaffeine
+    - pdfedit
+    - siduxcc
+    - umtsmon
+  * don't install uninstallable recommends for k3b.
+  * add crda to hwsupport-essential.
+  * add virtualbox-ose-guest-x11 to X based flavours on i386/ amd64.
+  * disable krita, it has been removed from sid.
+  * pin ia32-apt-get to -1, maintainer-on-crack.
+  * bump standards version to 3.8.2, we have little to adhere to.
+  * disable VDR, vdr 1.6.0-10 breaks the ABI to its plugins and exposes even
+    more breakage.
+  * temporarily disable audacious.
+  * sync fll.conf
+
+  [ Michael Deelwater ]
+  * packages/lxde:
+    - Add claws-mail as mail client.
+  * packages/packages.d/xfce-desktop-extras:
+    - Replace evince by non-Gnome-dependent evince-gtk.
+  * packages/packages.d/kde-desktop:
+    - Add cosmetic kgamma.
+  * packages/packages.d/lxde-full:
+    - Remove icedove (claws-mail does the job).
+    - Remove Icedtea.
+    - Remove scite (geany is a better replacement).
+    - Remove transmission (in lxde-basic now).
+    - Remove rxvt-unicode (with current bugs regarding tabbing, xterm does the
+      job as well).
+  * packages/packages.d/lxde-basic:
+    - Replace epdfview by more powerful evince-gtk.
+    - Add scintilla-based editor/IDE by Geany.
+    - Add gxine as video viewer.
+    - Replace LXDE metapackage by its dependencies - lxterminal - leafpad.
+    - Add transmission to basic.
+    - Add lxde metapackage again. lxterminal seems to pull in necessary
+      packages for LXDE...
+  * packages/packages.d/hwsupport-printscan:
+    - Remove foomatic-db-hpijsl. It depends on hpijs.
+  * packages/packages.d/essential.postinst:
+    - Modify /etc/login.defs and /etc/pam.d/common-password for usage of
+      SHA-256 as default.
+    - Write locales_to_be_generated in /etc/locale.gen. Temporary fix. To be
+      removed as soon as debconf preseeding works again.
+  * packages/packages.d/cli.postinst:
+    - Fix command check, [ -x "${cmd}" ] fails for empty variables.
+    - Fix undefined $most.
+  * packages/packages.d/utils-x:
+    - Add tvtime (there still is analogue cable).
+  * packages/packages.d/firmware:
+    - Remove b43-fw-cutter.
+    - Replace ipw2100 and ipw2200 by firmware-ipw2x00. Update debconf
+      preseeding.
+
+  [ Joaquim Boura ]
+  * removed xbase-client and added hwsupport-printscan for better printer
+    support on xfce
+  * aqualung is f...cked. replace it for now by audacious. xfce-lite include
+    always gnome-icon-theme
+
+  [ Niall Walsh ]
+  * Strip vmlinuz- from description in menu.lst
+  * run update-initramfs -c for all kernels if update-initramfs was diverted
+
+  [ Bernard Gray ]
+  * split powersaved into it's own hwsupport-powermanagement module so as not
+    to conflict
+    with kde4/powerdevil
+  * add hwsupport-powermanagement to xfce* package profiles
+  * xserver: comment all packages providing xserver-xorg-input-4 making xorg
+    uninstallable
+  * xserver: comment all packages providing xserver-xorg-video-4 making xorg
+    uninstallable
+  * kde4-essential: add ark and konversation to bring it inline with old
+    kde-essential module
+    - this should probably be migrated to the kde-essential module at some
+      point
+  * add hwsupport-printscan and hwsupport-extra to kde4-lite to bring it
+    inline with kde-lite
+  * reinstate kipi-pugins - exiv2 dep now available
+  * add fam to xfce-desktop-min for desktop refresh-ability (thanks bluewater)
+  * comment out xfce-mcs* causing xfce builds to fail
+  * add gpicview to xfce-desktop-extras as decent image viewer per hannes request
+  * remove arch variable from _detectLinuxVersion() exception since it is
+    undefined when single arch is built
+
+  [ Kel Modderman ]
+  * Use OpProgress() base class from apt module to silence unwanted
+    GetCache() noise.
+  * Use md5sum() and sha256sum() utilities of the apt_pkg module instead
+    of extra subprocesses.
+  * Run a dist-upgrade in each build chroot after priming apt so that
+    any packages pulled in during bootstrap phase may be upgraded to
+    those existing in other repositories not involved in the bootstrap.
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 15 Jul 2009 03:11:26 +0200
+
+pyfll (2009.01) ouranos; urgency=low
+
+  [ Michael Deelwater ]
+  * contrib/get-kde4-pinning.sh:
+    - Use KDE 4.2 SVN branch.
+    - Add whitelist entries for pinning.
+    - Remove excluded source packages.
+  * contrib/preferences:
+    - Newly generated by gen-kde4-pinning.sh.
+  * Replace ftp by ftp-ssl.
+  * Remove kde42.debian.net from fll.conf. Does not exist any longer.
+
+  [ Stefan Lippers-Hollmann ]
+  * add openfwwf to hwsupport-essential.
+  * naming.
+  * s/sidux-edu/eduversum/.
+  * fix kde-seminarix package list.
+  * force shrink seminarix to CD sizes.
+  * fix artwork for seminarix.
+
+  [ Niall Walsh ]
+  * Add -D option do a dummy/download-only run.
+
+  [ Joaquim Boura ]
+  * added mbr to easy restore of mbr (lilo is no longer in the isos)
+  * added siduxcc-gtk2 to xfce isos
+  * fix misplacement of siduxcc-gtk2
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 15 Feb 2009 00:29:56 +0000
+
+pyfll (2008.04) pontos; urgency=low
+
+  [ Kel Modderman ]
+  * Merge insserv and its postinst into essential and its postinst, thus
+    preparing is a new system default.
+  * Make cli.postinst path agnostic when checking for availability of
+    programs.
+  * Avoid the use of os.access, use stat and bitwise comparison instead.
+  * Add console-setup to essential, and aim to have it provide system
+    defaults for keyboard settings in future.
+  * Update data/fll_sqfs_exclusion for change in name of udev persistent
+    rules locations.
+  * Clean up arch staging method a bit.
+  * Use a generic writeBootldr() method which calls grub, yaboot or future
+    alternatives as needed.
+  * Add hal-cups-utils to hwsupport-printscan package module, it helps to
+    automatically prepare printers for use without manual admin configuration.
+  * Rename fll.py to pyfll (actually it was already renamed to pyfll.py to
+    avoid namespace conflict when importing the new fll modules, but this
+    was not documented).
+
+  [ Stefan Lippers-Hollmann ]
+  * re- enable kvm for kde-full and dvd.
+  * add foo2zjs to printscan.
+  * remove rcconf, it simply does more harm than good.
+  * revert locale preseed hack (r20659), glibc 2.7-16 should be fixed.
+  * restructure kde4 preferences.
+  * fix get-kde4-pinning.sh
+  * force $HOME to be 0700.
+  * drop capi-isdnconf.
+  * replace gprsconnect, modemlink and ppp-scripts by pppconfig, wvdial and
+    umtsmon.
+  * add wpagui to kde-desktop, sort entries.
+  * fix DVD size.
+  * ditch kvpnc, it's broken.
+
+  [ Bernard Gray ]
+  * temporarily re-add contrib/preferences for kde4 builds
+    - the dynamically generating script is not working because
+      some packages have moved from exp to sid, specifically
+      phonon, libphonon4, libsoprano*
+  * remove automoc and libphonon-dev from kde4 preferences
+  * remove libqimageblitz-* from kde4 preferences
+  * fix non-existant openoffice.org package profile specified in lxde
+  * fix audacious plugins typo in lxde
+  * migrate art requirements for pontos release
+  * set vimrc.local to use bg=dark (current konsole default, also suits xfce/lxde)
+  * revert 21172, konsole default shortcuts use white bg profile
+
+  [ Joaquim Boura ]
+  * added stanza for lxde
+  * moved fluxbox and feh to a own set
+  * removed feh from utils-x
+  * added keyboard layout switcher (thks mzilikazi)
+  * use xfce4 proper plugin instead of external kb switcher
+
+  [ Niall Walsh ]
+  * Add python-gobject to packages.d/hwsupport-printscan to make the supplies
+    work in hplip.
+  * Only setup update-grub in kernel-img.conf if grub is installed.
+  * Allow vmlinux as kernel image.
+  * Use usr/lib/grub to control the staging of grub files and hence creation
+    of live grub config.
+  * Use usr/lib/yaboot/yaboot to control staging of yaboot and hence creation
+    of live yaboot config.
+  * Only enable genisoimage related boot options if grub is instealled.
+  * xserver-xorg-input-vmmouse, xserver-xorg-video-openchrome, grub-gfxboot,
+    gfxboot-theme-sidux and acpid are i386 and amd64 only.
+  * Add yaboot to powerpc essential packages.
+  * Allow single or multiple kernels in config.
+  * try to mimic debian-cd setup for powerpc genisoimage options.
+  * Set mode (default 0644) for files created by _writeFile
+  * Use python-fll to detect locale packages
+
+  [ Michael Deelwater ]
+  * fll.py:
+    - add -k/--hashkey <key id> option
+    - signs MD5 and SHA256 hashes if key is available
+  * fll.py:
+    - do not try to chown a non-existing signature
+  * packages/packages.d/essential.postinst:
+    - write locales_to_generate in /etc/locale.gen and call locale-gen;
+      provisional fix
+  * LXDE:
+    - Add lite and full LXDE package lists.
+    - Let distro-lxde use desktop-defaults-lxde and the Ourea GDM theme. There
+      is no sidux-art-lxde, yet.
+    - Add lxde-lite package profile.
+  * package lists:
+    - Add tofrodos (providing dos2unix and unix2dos) to utils-extra.
+    - Change vim-full (=vim-gnome) to vim-gtk in dvd.
+  * DVD package profile:
+    - Remove icemc (not in sid).
+    - Uncomment amule, it is installable.
+  * wine package list:
+    - Make libwine-jack i386 only.
+  * fll.conf:
+    - Add unofficial KDE 4.2 repository to example file.
+
+  [ Horst Tritremmel ]
+  * install-meta removed from distro-tools-x.
+    it's not the best for a out-dated rolling release distro
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Tue, 23 Dec 2008 03:40:22 +0000
+
+pyfll (2008.03) ourea; urgency=low
+
+  [ Kel Modderman ]
+  * Modify past and current changelog entries to use date release code for
+    version number.
+  * Add screen to initscript whitelist.
+  * Add support for grub2 as live media bootloader.
+  * More cupsys -> cups package name changes (cups-driver-gutenprint).
+  * Use a common timestamp for iso name and /etc/distro-version of all chroots
+    contained on iso. The timestamp is taken from moment of invocation of
+    build process.
+  * Add info to command line utility line-up.
+  * Add FLL_DISTRO_URL to distro-defaults section of default build config.
+  * Add aspell and i18n entry. It is used by various desktop apps
+    (eg. xchat, kmail).
+  * Put en_AU in i18n list.
+  * Drop ttf-bitstream-vera from xserver package module, our desktop settings
+    use ttf-dejavu now.
+  * Add autoindent option to vimrc.local configuration created by
+    cli.postinst.
+  * When disabling bitmap font, use a relative symlink rather than an
+    absolute one.
+  * ttf-liberation should encompass all of what ttf-freefont provided,
+    therefore remove ttf-freefont as it is no longer required.
+  * Uncomment xserver-xorg-video-openchrome and give it some exposure.
+  * Drop ttf-liberation per default, it seem to render poorly in
+    mozilla.
+  * Add feh so that fluxbox can set a background.
+  * Remove bluez-utils from data/fll_init_whitelist, it is not clear
+    what mechanism should be used for starting the bluetooth services,
+    udev-config-sidux seems to also provide one.
+  * Add bluez-utils and bluez-pcmcia-support to hwsupport-extra package
+    module.
+  * Whitelist bluz-utils initscripts again.
+
+  [ Stefan Lippers-Hollmann ]
+  * add xfce4-session to recommends handling, primarily to pull in dbus-x11
+    for XFCE builds.
+  * add kopete to recommends handling to support SSL connections.
+  * remove xchat-systray from xfce, as both provide systray icons, thanks to
+    towo.
+  * add default user to vboxusers.
+  * replace ktorrent by ktorrent2.2 for kde-desktop (kde3).
+  * add openjdk-6.
+  * adapt example config to not use "sidux" as distro name.
+  * generate kde4 pinning automatically from Debian's source package svn.
+  * add kde-l10n to apt-pinning.
+  * tweak pinning whitelist.
+  * switch pinning whitelist to blacklist.
+  * fix anchor package for kde(4)-l10n.
+  * add fll-live-initscripts to automatic recommends handling, required for
+    liveapt.
+  * give gtk-qt-engine the boot from the dvd profile, it's broken.
+  * add netbase to automatic recommends handling, we need to keep ifupdown -
+    hard dependency or not.
+  * icedtea-gcjwebplugin has finally hit main.
+  * drop lilo, it's implicitly conflicting with grub and about to be dropped
+    post-lenny.
+  * remove FileType preconfiguration from vimrc.local, it's erroring out.
+  * add zenity to XFCE.
+  * add utils-x to xfce-lite.
+  * depend pm syslog dæmon (rsyslog) directly, instead of pulling it in
+    through startsyslog indirectly.
+  * add kvm support and the userspace tools to kde-full.
+  * disable kvm for the time being.
+
+  [ Bernard Gray ]
+  * move hplip-gui to kde-desktop - it pulls in 88MB qt libs, tx ModestUser
+  * patch to allow for an apt_preferences fll.conf var for custom apt-pinning
+   - this is useful for kde4 testing, and is ignored if commented
+  * add commented debian-experimental repo section as example for kde4 testing
+  * add contrib dir including valid apt preferences file for kde4 testing
+  * add kde4-lite and associated package profile for kde4 testing
+  * update apt-pin preferences to handle kde4 full metapackage
+  * add kde4-full and associated package lists
+  * adjust default fll.conf to use ourea wallpaper
+  * replace non-existent sidux-art-gnome with sidux-art-xfce for distr-xfce
+
+  [ Niall Walsh ]
+  * use ['packages']['lang'] to generate a list of packages required
+    per lang and an on-cd debian package repo with them for liveapt.
+  * dvb-utils replaced by dvb-apps
+  * add on-cd repo packages to the manifest (binary and source)
+  * add packagesearch to builds with qt4
+  * do not try to find i18n packages for the country part of a locale
+  * do try and find i18n packages for the non-hyphenated locale (e.g. ptbr)
+
+  [ Joaquim Boura ]
+  * splited xfce into xfce and xfce-lite.
+  * use xarchiver instead of thunar-archive-plugin as this needs ark or
+    file-roller.
+
+  [ Ferdinand Thommes ]
+  * add foo2zjs for HP Printers
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 22 Sep 2008 22:37:12 +0200
+
+pyfll (2008.02) erebos; urgency=low
+
+  [ Kel Modderman ]
+  * Add minimal ./debian/* infrastructure to source tree for archival and
+    copyright purposes.
+  * Adapt fll.py to python2.5, which has try, except, finally blocks.
+  * Word wrap de/fll.8.txt to sane 80 character per line.
+  * Use partition string method of python2.5 to determine pathnames inside of
+    a build chroot.
+  * Update README file to indicate current minimum requirements.
+  * No longer explicitly rebuild the initramfs for installed kernels.
+  * Write /etc/default/distro configuration file before installation of
+    package so that the live initramfs may be preseeded correctly.
+  * Support trivial repositories when repo config section contains the
+    'trivial' keyword set to any value at all.
+  * Add insserv.postinst to activate startpar concurrency when insserv is
+    used.
+  * Add wacom-tools to xserver package module.
+  * Drop update-menus from xserver.postinst, dpkg-trigger now takes care of
+    it.
+  * Update fll_init_whitelist for cupsys -> cups rename.
+
+  [ Bernard Gray ]
+  * kcalc (desktop calulator) should be a core kde utility, moved to kde-basic
+  * xfce needs a desktop calculator, add gcalctool
+  * set erebos default wallpaper in fll.conf template
+  * add/replace gtk-qt-engine and kde-style-domino to appropriate pkg lists
+  * revert accidental commit of my temp pkg changes
+  * remove wmauda (dock remote control for audacious) to keep audacious out of
+    xfce - audacious has a new (hours old) bug where it segfaults on start
+      - aqualung is left as the default music player
+  * partial revert 18631 - domino -> qtcurve
+  * update hwsupport-printscan for cupsys -> cups transition
+   From 1.3.7-6 changelog:
+   "Rename the package to cups. This is the proper upstream name. Upstream has
+    made it clear that the usual distro patches are not a trademark
+    violation." -- Martin Pitt <mpitt@debian.org>
+  * still waiting on cups(ys)-driver-gutenprint package to get updated
+
+
+  [ Ferdinand Thommes ]
+  * added kdmtheme to packages.d/kde-desktop for easier editing of themes
+  * sorted dvd package list for release
+  * changes for release in dvd and kde-seminarix
+  * edited dvd and kde-seminarix for release
+  * hopefuly cleaned up my mess in /packages/dvd
+  * added openoffice.org-kde again
+  * added siduxcc again to packages/dvd
+  * trimmed kde-seminarix to /home/devil 690 MB, k3b counted in
+  * fixed dvd package list for release
+  * added transmission to xfce-desktop
+
+  [ Stefan Lippers-Hollmann ]
+  * try to save 10 MB in kde-seminarix.
+  * add temporary kde-lite-linuxtag flavour.
+  * Linuxtag is done, nuke the orphans.
+  * xserver-xorg-video-radeonhd is now covered by xserver-xorg-video-all.
+  * wengophone isn't installable these days.
+  * bump standards version to 3.8.0, no changes necessary.
+  * add xserver-xorg-video-openchrome to xserver task.
+  * fix Uploaders syntax.
+  * don't show unionfs alternatives for now, it conflicts with aufs.
+  * remove no longer existing packages:
+    - fujiplay (Closes: #476780).
+    - screenkast (Closes: #482978).
+  * add skeleton for sanity.postinst to give the installed package lists some
+    sanity checks against misbehaving packages.
+  * remove openchrome again, doesn't work without further userspace and kernel
+    DRM changes.
+  * add ttf-liberation.
+  * don't squash /etc/blkid.tab.
+  * add automatic recommends to k3b.
+  * clean up.
+  * add vdr-plugin-pvrinput.
+
+ -- Kel Modderman <kel@otaku42.de>  Fri, 27 Jun 2008 08:37:14 +1000

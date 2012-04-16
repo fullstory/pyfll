@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if [ -w /etc/ppp/peers/kppp-options ]; then
+		say 'Allowing kppp noauth capability'
+		sed -i 's/^#noauth/noauth/' /etc/ppp/peers/kppp-options
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

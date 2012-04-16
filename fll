@@ -1,0 +1,42 @@
+#!/bin/sh -e
+
+# Copyright: (C) 2008 Kel Modderman <kel@otaku42.de>
+# License:   GPLv2 or any later version
+
+# By default we execute this as root user
+ROOTEXEC=yes
+
+# Locate directory we are called from
+THIS_DIR=$(dirname $(readlink -f ${0}))
+DEFAULTD="/usr/share/fll"
+
+# Locate the real program
+if [ -f ${THIS_DIR}/pyfll ]; then
+	FLL="${THIS_DIR}/pyfll --share ${THIS_DIR}"
+elif [ -f /usr/share/fll/pyfll ]; then
+	FLL="${DEFAULTD}/pyfll --share ${DEFAULTD}"
+else
+	echo "Error locating pyfll.py, aborting." >&2
+	exit 1
+fi
+
+# Get callers uid and gid for permission adjustment
+USER_UID=$(getent passwd ${USER} | cut -d\: -f3)
+USER_GID=$(getent passwd ${USER} | cut -d\: -f4)
+
+for arg in "${@}"; do
+	case "${arg}" in
+		-h*|--help|-n*|--non-root)
+			ROOTEXEC=no
+			break
+			;;
+	esac
+done
+
+if [ "${ROOTEXEC}" = yes ]; then
+	echo "Requires root!"
+	ROOT_CMD="/usr/bin/python ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
+	exec su root --command "${ROOT_CMD}"
+else
+	exec /usr/bin/python ${FLL} ${@}
+fi

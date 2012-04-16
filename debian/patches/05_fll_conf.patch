@@ -1,0 +1,129 @@
+--- a/fll.conf
++++ b/fll.conf
+@@ -1,10 +1,10 @@
+ [ 'sourcedistro' ]
+ # this section is experimental, modify at your own risk
+-#	name = debian
+-#	codename = sid
++	name = ubuntu
++	codename = precise
+ 
+ [ 'packages' ]
+-profile = kde-lite
++profile = ubuntu-desktop
+ 
+ i18n = """
+ 	#cs_CZ
+@@ -12,7 +12,7 @@
+ 	de_DE
+ 	#el_GR
+ 	#en_AU
+-	#en_GB
++	en_GB
+ 	en_US
+ 	#es_ES
+ 	#fr_FR
+@@ -56,28 +56,40 @@
+ 
+ [ 'archs' ]
+ 	#[[ 'i386' ]]
+-	#linux = aptosid-686
++	#linux = generic
+ 
+ 	#[[ 'amd64' ]]
+-	#linux = aptosid-amd64
++	#linux = generic
+ 
+ [ 'repos' ]
+-	[[ 'debian' ]]
+-	label		= debian
+-	uri		= http://cdn.debian.net/debian/
+-	cached		=
+-	suite		= sid
+-	components	= main
+-
+-	[[ 'aptosid' ]]
+-	label		= aptosid
+-	uri		= http://aptosid.com/debian/
+-	cached		=
+-	suite		= sid
+-	components	= main fix.main
+-	gpgkey		= E3BD538B
+-	#gpgkey		= /usr/share/aptosid-archive-keyring/0xE3BD538B.asc
+-	#keyring	= aptosid-archive-keyring
++        [[ 'ubuntu' ]]
++        label            = ubuntu
++        uri              = http://au.archive.ubuntu.com/ubuntu/
++        cached           =
++        suite            = precise
++        components       = main universe
++
++        [[ 'ubuntu-updates' ]]
++        label            = ubuntu-updates
++        uri              = http://au.archive.ubuntu.com/ubuntu/
++        cached           =
++        suite            = precise-updates
++        components       = main universe
++        #gpgkey          = 437D05B5
++        #gpgkey          = /path/to/ubuntu-archive.gpg
++        keyring          = ubuntu-keyring
++
++        [[ 'ubuntu-partner' ]]
++        label            = ubuntu-partner
++        uri              = http://archive.canonical.com/ubuntu/
++        cached           = http://gulf:3142/archive.canonical.com/ubuntu/
++        #cached          =
++        suite            = precise
++        components       = partner
++        #gpgkey          = 437D05B5
++        #gpgkey          = /path/to/ubuntu-archive.gpg
++        keyring          = ubuntu-keyring
++
+ 
+ [ 'options' ]
+ #build_dir =
+@@ -98,30 +110,30 @@
+ 
+ #apt_recommends = yes
+ 
+-#bootstrapper = cdebootstrap
++bootstrapper = debootstrap
+ 
+ #squashfs_comp = gzip
+ 
+ [ 'distro' ]
+ FLL_DISTRO_NAME = "fullstory"
+-FLL_DISTRO_URL =  "http://developer.berlios.de/projects/fullstory/"
++FLL_DISTRO_URL =  "http://developer.berlios.de/projects/fullstory"
+ 
+-FLL_IMAGE_DIR  = "fullstory"
++FLL_IMAGE_DIR  = "casper"
+ FLL_IMAGE_FILE = "fullstory"
+ #FLL_IMAGE_FS = "ext4"
+ #FLL_IMAGE_MB = "16384"
+-#FLL_UNION_MODULE = "dmsetup"
++FLL_UNION_MODULE = "aufs"
+ FLL_MOUNTPOINT = "/fll/fullstory"
+ FLL_MEDIA_NAME = "fullstory.iso"
+ 
+-FLL_LIVE_USER        = "fullstory"
++FLL_LIVE_USER        = "ubuntu"
+ FLL_LIVE_USER_GROUPS = "dialout dip fuse cdrom audio video plugdev users floppy netdev powerdev scanner vboxusers kvm"
+ 
+-FLL_WALLPAPER        = "/usr/share/wallpapers/aptosid-imera"
+-FLL_GFXBOOT_THEME    = "2011-02-imera"
+-FLL_IRC_SERVER       = "irc.oftc.net"
++FLL_WALLPAPER        = "/usr/share/backgrounds/warty-final-ubuntu.png"
++FLL_GFXBOOT_THEME    = "ubuntu"
++FLL_IRC_SERVER       = "irc.freenode.net"
+ FLL_IRC_PORT         = "6667"
+-FLL_IRC_CHANNEL      = "#aptosid"
++FLL_IRC_CHANNEL      = "#ubuntu"
+ FLL_CDROM_INDEX      = "fullstory release notes"
+ FLL_CDROM_INDEX_ICON = "release/release-notes"
+ 
+@@ -130,3 +142,4 @@
+ FLL_DISTRO_CODENAME          =
+ FLL_DISTRO_CODENAME_REV_SAFE =
+ FLL_DISTRO_CODENAME_REV      =
++

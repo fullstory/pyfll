@@ -1,0 +1,10 @@
+desc = """
+	Only the essential software that is required to boot.
+"""
+
+deps = """
+	distro
+	hwsupport-essential
+	utils-essential
+"""
+

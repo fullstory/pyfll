@@ -1,0 +1,2597 @@
+#!/usr/bin/python -tt
+# -*- coding: utf-8 -*-
+
+__author__    = 'Kel Modderman'
+__copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
+__license__   = 'GPLv2 or any later version'
+
+from configobj import ConfigObj
+from subprocess import *
+from fll.locales import FllLocales, FllLocalesError
+
+import apt_pkg
+import apt
+import atexit
+import datetime
+import fileinput
+import glob
+import logging
+import optparse
+import os
+import sys
+import shutil
+import signal
+import stat
+import tempfile
+
+def restore_sigpipe():
+    """Convenience function so that subprocess may be executed with
+    SIGPIPE restored to default (http://bugs.python.org/issue1652)."""
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+class Error(Exception):
+    '''A generic error handler that does nothing.'''
+    pass
+
+
+class FLLBuilder(object):
+    env = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
+           'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'SHELL': '/bin/bash',
+           'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
+           'DEBCONF_NOWARNINGS': 'yes'}
+
+    diverts = ['/usr/sbin/policy-rc.d',
+               '/sbin/modprobe',
+               '/sbin/insmod',
+               '/usr/sbin/update-grub',
+               '/usr/sbin/update-initramfs']
+
+    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
+
+
+    def __init__(self, options):
+        '''Accept options dict, setup logging.'''
+        self.opts = options
+        self.conf = None
+        self.temp = None
+
+        self.log = logging.getLogger('log')
+        self.log.setLevel(logging.DEBUG)
+
+        self.time = datetime.datetime.utcnow()
+
+
+    def __filterList(self, list, dup_warn = True):
+        '''Return a list containing no duplicate items given a list that
+        may have duplicate items.'''
+
+        d = dict()
+        for l in list:
+            if l in d and dup_warn:
+                self.log.debug('duplicate: %s' % l)
+            else:
+                d[l] = True
+
+        list = d.keys()
+        list.sort()
+
+        return list
+
+
+    def __lines2list(self, lines):
+        '''Return a list of stripped strings given a group of line
+        separated strings'''
+        return [s.strip() for s in lines.splitlines()
+                if s.strip() and not s.lstrip().startswith('#')]
+
+
+    def __isexecutable(self, file):
+        '''Return True is file is executable, False otherwise.'''
+        try:
+            mode = os.stat(file)[stat.ST_MODE]
+        except OSError:
+            return False
+
+        if stat.S_ISREG(mode) and mode & stat.S_IXUSR:
+            return True
+        else:
+            return False
+
+
+    def __prepDir(self, dir):
+        '''Set up working directories.'''
+        if not os.path.isdir(dir):
+            try:
+                os.makedirs(dir)
+                os.chown(dir, self.opts.u, self.opts.g)
+            except:
+                self.log.exception('failed to create dir: %s' % dir)
+                raise Error
+
+        return os.path.realpath(dir)
+
+
+    def __initLogger(self, lvl):
+        '''Set up the logger.'''
+        fmt = logging.Formatter('%(asctime)s %(levelname)-5s - %(message)s')
+        out = logging.StreamHandler()
+        out.setFormatter(fmt)
+        out.setLevel(lvl)
+        self.log.addHandler(out)
+
+
+    def __initLogFile(self, file):
+        '''Set up a log file.'''
+        file = os.path.realpath(file)
+        dir = os.path.dirname(file)
+        self.__prepDir(dir)
+
+        try:
+            fmt = logging.Formatter('%(asctime)s %(levelname)-5s ' +
+                                     '%(message)s')
+            logfile = logging.FileHandler(filename = file, mode = 'w')
+            logfile.setFormatter(fmt)
+            logfile.setLevel(logging.DEBUG)
+            self.log.addHandler(logfile)
+            os.chown(file, self.opts.u, self.opts.g)
+        except:
+            self.log.exception('failed to setup logfile')
+            raise Error
+
+
+    def checkOpts(self):
+        '''Check and provide default class options.'''
+        if self.opts.d:
+            self.__initLogger(logging.DEBUG)
+        else:
+            self.__initLogger(logging.INFO)
+
+        if self.opts.l:
+            self.__initLogFile(self.opts.l)
+
+        if self.opts.c:
+            if os.path.isfile(self.opts.c):
+                self.opts.c = os.path.realpath(self.opts.c)
+            else:
+                self.log.critical('configuration file does not exist: %s' %
+                                  self.opts.c)
+                raise Error
+        else:
+            self.log.critical('no config file specified on command line')
+            raise Error
+
+        if self.opts.s:
+            if not os.path.isdir(self.opts.s):
+                self.log.critical('share directory not exist: %s' %
+                                  self.opts.s)
+                raise Error
+
+        self.opts.s = os.path.realpath(self.opts.s)
+
+        if self.opts.o:
+            self.opts.o = self.__prepDir(self.opts.o)
+
+        if self.opts.b:
+            self.opts.b = self.__prepDir(self.opts.b)
+
+
+
+    def _processDefaults(self, d):
+        '''Form a distro-defaults data structure to be written to
+        /etc/default/distro of each chroot, and used for release name.'''
+        for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+                  'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
+                  'FLL_LIVE_USER_GROUPS', 'FLL_GFXBOOT_THEME']:
+            if not d.get(k):
+                self.log.critical("%s' is required in 'distro' section " % k +
+                                  "of build conf")
+                raise Error
+
+        for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+                  'FLL_LIVE_USER', 'FLL_DISTRO_CODENAME_SAFE',
+                  'FLL_DISTRO_CODENAME_REV_SAFE']:
+            if not d.get(k):
+                continue
+            if not d[k].isalnum():
+                self.log.critical("'%s' is not alphanumeric: %s" % (k, d[k]))
+                raise Error
+            elif d[k].find(' ') >= 0:
+                self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
+                raise Error
+
+        version = d.get('FLL_DISTRO_VERSION')
+        if version and version != 'snapshot':
+            if not d.get('FLL_DISTRO_CODENAME_SAFE'):
+                self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
+                                  "'FLL_DISTRO_CODENAME_SAFE' is not")
+                raise Error
+
+            for k in ['FLL_DISTRO_CODENAME', 'FLL_DISTRO_CODENAME_REV']:
+                safe = k + '_SAFE'
+                if d.get(safe) and not d.get(k):
+                    d[k] = d[safe]
+        else:
+            d['FLL_DISTRO_VERSION'] = 'snapshot'
+
+
+    def _getDistroImageFile(self, arch):
+        '''Return image file that compressed chroot will be archived to.'''
+        image_file = self.conf['distro']['FLL_IMAGE_FILE']
+        if arch == 'i386':
+            image_file += '.686'
+        else:
+            image_file += '.%s' % arch
+
+        self.log.debug('image_file: %s' % image_file)
+        return image_file
+
+
+    def _getDistroStamp(self):
+        '''Return a string suitable for the distro stamp file.'''
+        d = self.conf['distro']
+        stamp = ' '.join([d['FLL_DISTRO_NAME'], d['FLL_DISTRO_VERSION']])
+        if d.get('FLL_DISTRO_VERSION') == 'snapshot':
+            stamp += ' - %s' % self.conf['packages']['profile']
+        else:
+            if d.get('FLL_DISTRO_CODENAME_REV'):
+                stamp += ' - %s' % d['FLL_DISTRO_CODENAME']
+                stamp += ' %s -' % d['FLL_DISTRO_CODENAME_REV']
+            else:
+                stamp += ' %s -' % d['FLL_DISTRO_CODENAME']
+
+            stamp += ' %s' % self.conf['packages']['profile']
+
+        stamp += ' - (%s)' % self.timestamp
+
+        self.log.debug('stamp: %s' % stamp)
+        return stamp
+
+
+    def _getDistroMediaName(self):
+        '''Return a string suitable for the distro stamp file.'''
+        d = self.conf['distro']
+        name = '-'.join([d['FLL_DISTRO_NAME'], d['FLL_DISTRO_VERSION']])
+        if d.get('FLL_DISTRO_VERSION') == 'snapshot':
+            name += '-%s' % self.conf['packages']['profile']
+        else:
+            if d.get('FLL_DISTRO_CODENAME_REV'):
+                name += '-%s-%s' % (d['FLL_DISTRO_CODENAME_SAFE'],
+                                    d['FLL_DISTRO_CODENAME_REV_SAFE'])
+            else:
+                name += '-%s' % d['FLL_DISTRO_CODENAME_SAFE']
+
+            name += '-%s' % self.conf['packages']['profile']
+
+        name += '-' + '-'.join(self.conf['archs'].keys())
+        name += '-%s' % self.timestamp
+
+        self.log.debug('name: %s' % name)
+        return name
+
+
+    def _processConf(self):
+        '''Process configuration options.'''
+        arch = ''
+        if self.opts.a:
+            arch = self.opts.a
+        elif not self.conf.get('archs'):
+            arch = Popen(['dpkg', '--print-architecture'], preexec_fn=restore_sigpipe,
+                              stdout=PIPE).communicate()[0].rstrip()
+
+        if len(arch):
+            self.log.debug('arch: %s' % arch)
+            if arch not in self.conf['archs'].keys():
+                self.conf['archs'] = {arch: dict()}
+            else:
+                for arch2 in self.conf['archs'].keys():
+                    if arch != arch2:
+                        del self.conf['archs'][arch2]
+
+        for arch in self.conf['archs'].keys():
+            if 'linux' not in self.conf['archs'][arch]:
+                if arch == 'i386':
+                    cpu = '486'
+                else:
+                    cpu = arch
+
+                linux = cpu
+
+                self.conf['archs'][arch].setdefault('linux', [ linux ])
+            else:
+                linux = self.conf['archs'][arch]['linux']
+                if isinstance(linux, str):
+                    self.conf['archs'][arch]['linux'] = [ linux ]
+                elif not isinstance(linux, list):
+                    self.log.critical('invalid linux for arch %s in config'
+                                      % arch)
+                    raise Error
+            for linux in self.conf['archs'][arch]['linux']:
+                self.log.debug("linux (%s): %s" %
+                               (arch, self.conf['archs'][arch]['linux']))
+
+        if len(self.conf['repos'].keys()) < 1:
+            self.log.critical('no apt repos were specified in build config')
+            raise Error
+
+        if 'sourcedistro' not in self.conf or \
+           'name' not in self.conf['sourcedistro']:
+            self.opts.N = 'debian'
+            self.opts.C = 'sid'
+        else:
+            self.opts.N = self.conf['sourcedistro']['name']
+            if 'codename' not in self.conf['sourcedistro']:
+                self.log.critical('codename undefined in distro section of build config')
+                raise Error
+            else:
+                self.opts.C = self.conf['sourcedistro']['codename']
+                
+        if self.opts.N not in self.conf['repos']:
+            self.log.critical('%s repo not configured in build config' % self.opts.N)
+            raise Error
+
+        for repo in self.conf['repos'].keys():
+            if self.conf['repos'][repo].get('trivial'):
+                words = ['label', 'uri']
+            else:
+                words = ['label', 'uri', 'suite', 'components']
+
+            for word in words:
+                if word not in self.conf['repos'][repo]:
+                    self.log.critical("no '%s' for apt repo '%s'" %
+                                     (word, repo))
+                    raise Error
+
+        if self.opts.p:
+            self.conf['packages']['profile'] = self.opts.p
+        elif 'profile' not in self.conf['packages']:
+            self.conf['packages']['profile'] = 'kde-lite'
+        self.log.debug('profile: %s' % self.conf['packages']['profile'])
+
+        if 'i18n' not in self.conf['packages'] or \
+           not self.__lines2list(self.conf['packages']['i18n']):
+            self.conf['packages']['i18n'] = 'en_US'
+        i18n = self.__lines2list(self.conf['packages']['i18n'])
+        self.log.debug('i18n: %s' % ' '.join(i18n))
+
+	if 'hashkey' not in self.conf['options']:
+	    self.log.info('No key for signing ISO hashes!')
+	    self.opts.k = None
+	else:
+	    self.opts.k = self.conf['options'].get('hashkey')
+	    self.log.debug('Using key %s for signing.' % self.opts.k)
+
+        if not 'options' in self.conf:
+            self.conf['options'] = dict()
+
+        if self.conf['options'].get('build_dir'):
+            if not self.opts.b:
+                dir = self.conf['options']['build_dir']
+                self.opts.b = self.__prepDir(dir)
+        else:
+            if not self.opts.b:
+                self.opts.b = self.__prepDir(os.getcwd())
+
+        if self.conf['options'].get('output_dir'):
+            if not self.opts.o:
+                dir = self.conf['options']['output_dir']
+                self.opts.o = self.__prepDir(dir)
+        else:
+            if not self.opts.o:
+                self.opts.o = self.__prepDir(os.getcwd())
+
+        if self.conf['options'].get('build_log'):
+            if not self.opts.l:
+                self.opts.l = self.conf['options']['build_log']
+                self.__initLogFile(self.opts.l)
+
+        if self.conf['options'].get('http_proxy'):
+            self.env['http_proxy'] = self.conf['options']['http_proxy']
+
+        if self.conf['options'].get('ftp_proxy'):
+            self.env['ftp_proxy'] = self.conf['options']['ftp_proxy']
+
+        self.conf['options'].setdefault('apt_preferences', None)
+        self.conf['options'].setdefault('apt_recommends', 'no')
+        self.conf['options'].setdefault('media_include', None)
+
+        if 'distro' in self.conf:
+                self._processDefaults(self.conf['distro'])
+                self.log.debug('distro-defaults:')
+                for k, v in self.conf['distro'].items():
+                    self.log.debug('%s="%s"' % (k, v))
+                self.log.debug('testing stamp/name:')
+                self._getDistroStamp()
+                self._getDistroMediaName()
+        else:
+            self.log.critical('distro section not found in build config')
+            raise Error
+
+
+    def parseConf(self):
+        '''Parse build configuration file and return it in a dict.'''
+        self.log.info('reading configuration file...')
+
+        self.conf = ConfigObj(self.opts.c)
+        self._processConf()
+
+
+    def _processPkgProfile(self, arch, profile, dir):
+        '''Return a dict, arch string as key and package, debconf and postinst
+        lists.'''
+        pkgs = {'debconf': [], 'packages': [], 'postinst': []}
+
+        linux_meta = ['linux-image', 'linux-headers']
+        for kvers in self.conf['archs'][arch]['linux']:
+            pkgs['packages'].extend(['-'.join([l, kvers]) for l in linux_meta])
+
+        pname = os.path.basename(profile)
+        self.log.debug('processing package profile for %s: %s' % (arch, pname))
+
+        pfile = ConfigObj(profile)
+
+        if 'desc' in pfile:
+            for l in self.__lines2list(pfile['desc']):
+                self.log.debug('  %s' % l)
+
+        if 'debconf' in pfile:
+            self.log.debug('debconf:')
+            for d in self.__lines2list(pfile['debconf']):
+                pkgs['debconf'].append(d)
+                self.log.debug('  %s', d)
+
+        if 'debconf' in self.conf['packages']:
+            self.log.debug('debconf (config):')
+            for d in self.__lines2list(self.conf['packages']['debconf']):
+                pkgs['debconf'].append(d)
+                self.log.debug('  %s' % d)
+
+        if 'packages' in pfile:
+            self.log.debug('packages:')
+            for p in self.__lines2list(pfile['packages']):
+                pkgs['packages'].append(p)
+                self.log.debug('  %s' % p)
+
+        if 'packages' in self.conf['packages']:
+            self.log.debug('packages (config):')
+            for p in self.__lines2list(self.conf['packages']['packages']):
+                pkgs['packages'].append(p)
+                self.log.debug('  %s' % p)
+
+        if arch in pfile:
+            self.log.debug('packages (%s):' % arch)
+            for p in self.__lines2list(pfile[arch]):
+                pkgs['packages'].append(p)
+                self.log.debug('  %s' % p)
+
+        deps = ['essential']
+        if 'deps' in pfile:
+            self.log.debug('deps:')
+            for dep in self.__lines2list(pfile['deps']):
+                deps.append(dep)
+                self.log.debug('  %s' % dep)
+
+        if 'deps' in self.conf['packages']:
+            self.log.debug('deps (config):')
+            for dep in self.__lines2list(self.conf['packages']['deps']):
+                deps.append(dep)
+                self.log.debug('  %s' % dep)
+
+        if os.path.isfile(profile + '.postinst'):
+            self.log.debug('registering postinst script')
+            pkgs['postinst'].append(profile + '.postinst')
+
+        self.log.debug('---')
+
+        for dep in deps:
+            depfile = os.path.join(dir, 'packages.d', dep)
+
+            if not os.path.isfile(depfile):
+                self.log.critical('no such dep file: %s' % depfile)
+                raise Error
+
+            dname = os.path.basename(depfile)
+            self.log.debug('processing dependency file: %s' % dname)
+
+            dfile = ConfigObj(depfile)
+
+            if 'desc' in dfile:
+                for l in self.__lines2list(dfile['desc']):
+                    self.log.debug('  %s' % l)
+
+            if 'debconf' in dfile:
+                self.log.debug('debconf:')
+                for d in self.__lines2list(dfile['debconf']):
+                    pkgs['debconf'].append(d)
+                    self.log.debug('  %s' % d)
+
+            if 'packages' in dfile:
+                self.log.debug('packages:')
+                for p in self.__lines2list(dfile['packages']):
+                    pkgs['packages'].append(p)
+                    self.log.debug('  %s' % p)
+
+            if arch in dfile:
+                self.log.debug('packages (%s):' % arch)
+                for p in self.__lines2list(dfile[arch]):
+                    pkgs['packages'].append(p)
+                    self.log.debug('  %s' % p)
+
+            if os.path.isfile(depfile + '.postinst'):
+                self.log.debug('registering postinst script')
+                pkgs['postinst'].append(depfile + '.postinst')
+
+            self.log.debug('---')
+
+        self.log.debug('package summary for %s:' % arch)
+        pkgs['packages'].sort()
+        for p in pkgs['packages']:
+            self.log.debug('  %s' % p)
+
+        self.log.debug('debconf summary for %s:' % arch)
+        pkgs['debconf'].sort()
+        for d in pkgs['debconf']:
+            self.log.debug('  %s' % d)
+
+        pkgs['packages'] = self.__filterList(pkgs['packages'])
+
+        return pkgs
+
+
+    def parsePkgProfile(self):
+        '''Parse packages profile file(s).'''
+        self.log.info('processing package profile (%s)...' %
+                      self.conf['packages']['profile'])
+
+        dir = os.path.join(self.opts.s, 'packages')
+        file = os.path.join(dir, self.conf['packages']['profile'])
+
+        if not os.path.isfile(file):
+            self.log.critical('no such package profile file: %s' % file)
+            raise Error
+
+        self.pkgs = dict()
+        for arch in self.conf['archs'].keys():
+            self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
+
+
+    def _getDebconfList(self, arch):
+        '''Return debconf list for arch.'''
+        return self.pkgs[arch]['debconf']
+
+
+    def _getPackageList(self, arch):
+        '''Return package list for arch.'''
+        return self.pkgs[arch]['packages']
+
+
+    def _getPostinstList(self, arch):
+        '''Return postinst list for arch.'''
+        return self.pkgs[arch]['postinst']
+
+
+    def _stageMedia(self, point, dir, fnames):
+        '''Copy content from a directory to live media staging area.'''
+        orig, dest = point
+        dirname = dir.partition(orig)[2].lstrip('/')
+
+        remove = []
+        for f in fnames:
+            if f.startswith('.') or f.endswith('~'):
+                remove.append(f)
+            elif os.path.isdir(os.path.join(dir, f)) and \
+                 f == 'boot':
+                remove.append(f)
+            elif os.path.isdir(os.path.join(dir, f)):
+                if not os.path.isdir(os.path.join(dest, dirname, f)):
+                    os.mkdir(os.path.join(dest, dirname, f))
+            else:
+                if not os.path.isfile(os.path.join(dest, dirname, f)):
+                    shutil.copy(os.path.join(dir, f),
+                                os.path.join(dest, dirname))
+
+        for r in remove:
+            fnames.remove(r)
+
+
+    def stageBuildArea(self):
+        '''Prepare temporary directory for chroots and result staging area.'''
+        self.log.debug('preparing build area...')
+
+        self.temp = tempfile.mkdtemp(prefix = 'fll_', dir = self.opts.b)
+        os.chown(self.temp, self.opts.u, self.opts.g)
+
+        atexit.register(self.cleanup)
+
+        stage = os.path.join(self.temp, 'staging')
+        os.mkdir(stage)
+        os.mkdir(os.path.join(stage, 'boot'))
+        os.mkdir(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR']))
+
+        if self.conf['options']['media_include']:
+            media_include = self.conf['options']['media_include']
+            if os.path.isdir(media_include):
+                try:
+                    os.path.walk(media_include, self._stageMedia,
+                                 (media_include, stage))
+                except:
+                    self.log.exception('problem copying media_include ' +
+                                       'contents to staging dir')
+                    raise Error
+
+
+    def _mount(self, chroot):
+        '''Mount virtual filesystems in a chroot.'''
+        virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
+
+        for v in virtfs.items():
+            cmd = ['mount', '-t', v[0], 'fll-' + v[0],
+                   os.path.join(chroot, v[1])]
+
+            retv = call(cmd, preexec_fn=restore_sigpipe)
+            if retv != 0:
+                self.log.critical('failed to mount chroot %s' % v[0])
+                raise Error
+
+
+    def _umount(self, chrootdir):
+        '''Umount any mount points in a chroot.'''
+        umount_list = []
+        try:
+            for line in open('/proc/mounts'):
+                (dev, mnt, fs, options, d, p) = line.split()
+                if mnt.startswith(chrootdir):
+                    umount_list.append(mnt)
+        except IOError:
+            self.log.exception('failed to open /proc/mounts')
+            raise Error
+
+        umount_list.sort(key=len)
+        umount_list.reverse()
+
+        for mpoint in umount_list:
+            retv = call(['umount', mpoint], preexec_fn=restore_sigpipe)
+            if retv != 0:
+                self.log.critical('umount failed for: %s' % mpoint)
+                raise Error
+
+
+    def _nuke(self, dir):
+        '''Nuke directory tree.'''
+        if os.path.isdir(dir):
+            self.log.debug('nuking directory: %s' % dir)
+            try:
+                shutil.rmtree(dir)
+            except:
+                self.log.exception('unable to remove %s' % dir)
+                raise Error
+        else:
+            self.log.debug('not nuking directory (does not exist): %s' % dir)
+
+
+    def _nukeChroot(self, arch):
+        '''Convenience function to nuke chroot given by arch name.'''
+        if not self.opts.P:
+            self.log.info('nuking %s chroot...' % arch)
+            chroot = os.path.join(self.temp, arch)
+            self._umount(chroot)
+            self._nuke(chroot)
+
+
+    def cleanup(self):
+        '''Clean up the build area after taking care that all build chroots
+        have been taken care of.'''
+        self.log.info('cleaning up...')
+
+        for arch in self.conf['archs'].keys():
+            dir = os.path.join(self.temp, arch)
+            if os.path.isdir(dir):
+                self.log.debug('cleaning up %s chroot...' % arch)
+                self._umount(dir)
+                if not self.opts.P:
+                    self._nuke(dir)
+
+        if not self.opts.P:
+            self._nuke(self.temp)
+
+
+    def __execLogged(self, cmd, check_returncode):
+        '''Execute a command logging all output. Output sent to the console is
+        buffered until the command has finished execution.'''
+        self.log.debug(' '.join(cmd))
+
+        try:
+            c = Popen(cmd, stdout = PIPE, stderr = STDOUT, env = self.env,
+                      close_fds = True, preexec_fn=restore_sigpipe)
+            cout = c.communicate()[0]
+            retv = c.returncode
+        except KeyboardInterrupt:
+            raise Error
+        except:
+            self.log.exception('problem executing command: %s' % ' '.join(cmd))
+            raise Error
+
+        for line in cout.splitlines():
+            if self.opts.q:
+                self.log.debug(line.rstrip())
+            else:
+                self.log.info(line.rstrip())
+
+        if retv != 0 and check_returncode:
+            self.log.critical('command failed with return value: %d' %
+                              c.returncode)
+            raise Error
+
+
+    def __exec(self, cmd, check_returncode):
+        '''Execute subprocess without buffering output in a pipe.'''
+        self.log.debug(' '.join(cmd))
+
+        try:
+            if self.opts.q:
+                retv = call(cmd, stdout = open(os.devnull, 'w'),
+                            stderr = STDOUT, env = self.env,
+                            close_fds = True, preexec_fn=restore_sigpipe)
+            else:
+                retv = call(cmd, env = self.env, close_fds = True,
+                            preexec_fn=restore_sigpipe)
+        except KeyboardInterrupt:
+            raise Error
+        except:
+            self.log.exception('problem executing command: %s' % ' '.join(cmd))
+            raise Error
+
+        if retv != 0 and check_returncode:
+            self.log.critical('command failed with return value: %d' % retv)
+            raise Error
+
+
+    def _execCmd(self, cmd, check_returncode = True):
+        '''Convenience wrapper for subprocess execution.'''
+        if self.opts.l:
+            self.__execLogged(cmd, check_returncode)
+        else:
+            self.__exec(cmd, check_returncode)
+
+
+    def _execInChroot(self, arch, args, check_returncode = True):
+        '''Run command in a chroot.'''
+        chroot = os.path.join(self.temp, arch)
+        cmd = ['chroot', chroot]
+        cmd.extend(args)
+
+        self._mount(chroot)
+
+        if self.opts.l:
+            self.__execLogged(cmd, check_returncode)
+        else:
+            self.__exec(cmd, check_returncode)
+
+        self._umount(chroot)
+
+
+    def _aptGetInstall(self, arch, pkgs, download_only = False):
+        '''An apt-get install wrapper. Automatic installation of recommended
+        packages defaults to disabled.'''
+        aptget = ['apt-get', '--yes']
+
+        if download_only:
+            aptget.append('--download-only')
+        if self.conf['options']['apt_recommends'] == 'no':
+            aptget.extend(['-o', 'APT::Install-Recommends=0'])
+        if self.opts.d:
+            aptget.extend(['-o', 'APT::Get::Show-Versions=1'])
+
+        aptget.append('install')
+        aptget.extend(pkgs)
+
+        self._execInChroot(arch, aptget)
+
+
+    def __cdebBootStrap(self, arch, dir, mirror, codename):
+        '''Bootstrap a debian system with cdebootstrap.'''
+        cmd = ['cdebootstrap', '--arch=%s' % arch, '--include=apt-utils,gnupg',
+               '--flavour=minimal', codename, dir, mirror]
+
+        if self.opts.d:
+            cmd.append('--debug')
+        elif self.opts.v:
+            cmd.append('--verbose')
+
+        self._execCmd(cmd)
+
+        cmd = 'dpkg --purge cdebootstrap-helper-rc.d'
+        self._execInChroot(arch, cmd.split())
+
+
+    def __debBootStrap(self, arch, dir, mirror, codename):
+        '''Bootstrap a debian system with debootstrap.'''
+        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils,gnupg',
+               '--variant=minbase', codename, dir, mirror]
+
+        if self.opts.d or self.opts.v:
+            cmd.insert(1, '--verbose')
+
+        self._execCmd(cmd)
+
+
+    def _bootStrap(self, arch):
+        '''Bootstrap a debian system with cdebootstrap.'''
+        distro = self.opts.N
+        debian = self.conf['repos'][distro]
+        codename = self.opts.C
+        if debian.get('cached'):
+            mirror = debian['cached']
+        else:
+            mirror = debian['uri']
+
+        dir = os.path.join(self.temp, arch)
+
+        self.log.info('bootstrapping %s %s %s...' % (distro,codename,arch))
+
+        bootstrapper = self.conf['options'].get('bootstrapper')
+        if bootstrapper == 'debootstrap':
+            self.__debBootStrap(arch, dir, mirror, codename)
+        else:
+            self.__cdebBootStrap(arch, dir, mirror, codename)
+
+        shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
+        shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
+
+
+    def _writeAptLists(self, arch, cached = False, src_uri = False):
+        '''Write apt source lists to /etc/apt/sources.list.d/*.'''
+        chroot = os.path.join(self.temp, arch)
+        for repo in self.conf['repos'].keys():
+            r = self.conf['repos'][repo]
+            file = os.path.join(chroot, 'etc/apt/sources.list.d',
+                                r['label'] + '.list')
+
+            if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
+                s = None
+                try:
+                    s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
+                    s.write('#   %-74s#\n' % file.partition(chroot)[2])
+                except IOError:
+                    self.log.exception('failed to open /etc/apt/sources.list')
+                    raise Error
+                finally:
+                    if s:
+                        s.close()
+
+            self.log.debug("creating %s" % file)
+
+            line = []
+            if cached and r.get('cached'):
+                line.append(r['cached'])
+            else:
+                line.append(r['uri'])
+
+            if r.get('trivial'):
+                line.append('./')
+            else:
+                line.append(r['suite'])
+                line.append(r['components'])
+
+            line.append("\n")
+
+            l = ' '.join(line)
+            self.log.debug('%s: %s', repo, l.rstrip())
+
+            list = None
+            try:
+                list = open(file, 'w')
+                list.write('deb ' + l)
+                if not src_uri or self.opts.B:
+                    list.write('#deb-src ' + l)
+                else:
+                    list.write('deb-src ' + l)
+            except IOError:
+                self.log.exception('failed to open %s' % file)
+                raise Error
+            finally:
+                if list:
+                    list.close()
+
+        if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
+            s = None
+            try:
+                s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
+                s.write('# ' * 39 + '#\n')
+            except IOError:
+                self.log.exception('failed to open %s' % file)
+                raise Error
+            finally:
+                if s:
+                    s.close()
+
+
+    def _primeApt(self, arch):
+        '''Prepare apt for work in each build chroot. Fetch all required gpg
+        keys and initialize apt_pkg config.'''
+        self.log.info('preparing apt in %s chroot...' % arch)
+        chroot = os.path.join(self.temp, arch)
+
+        apt_preferences = self.conf['options']['apt_preferences']
+        if apt_preferences:
+            self.log.info('importing apt preferences file')
+            try:
+                shutil.copy(apt_preferences, os.path.join(chroot, 'etc/apt/'))
+            except IOError:
+                self.log.error('apt preferences file failed to copy: %s' %
+                               apt_preferences)
+                raise Error
+
+        self.log.debug('removing sources.list from %s chroot' % arch)
+        list = os.path.join(chroot, 'etc/apt/sources.list')
+        if os.path.isfile(list):
+            os.unlink(list)
+
+        self._writeAptLists(arch, cached = True, src_uri = True)
+
+        keyrings = []
+        for repo in self.conf['repos'].keys():
+            r = self.conf['repos'][repo]
+            if 'keyring' in r and r['keyring']:
+                keyrings.append(r['keyring'])
+
+        if len(keyrings) > 0:
+            self._execInChroot(arch, 'apt-get update'.split())
+            cmd = 'apt-get --allow-unauthenticated --yes install'.split()
+            cmd.extend(keyrings)
+            self._execInChroot(arch, cmd)
+
+        gpgkeys = []
+        for repo in self.conf['repos'].keys():
+            r = self.conf['repos'][repo]
+            if 'gpgkey' in r:
+                self.log.debug('importing gpg key for %s' % r['label'])
+                gpgkeys.append(r['gpgkey'])
+
+                if r['gpgkey'].startswith('http'):
+                    cmd = 'gpg --fetch-keys ' + r['gpgkey']
+                    self._execInChroot(arch, cmd.split())
+                elif os.path.isfile(r['gpgkey']):
+                    dest = os.path.join(self.temp, arch, 'root')
+                    file = os.path.basename(r['gpgkey'])
+                    shutil.copy(r['gpgkey'], dest)
+                    cmd = 'gpg --import /root/' + file
+                    self._execInChroot(arch, cmd.split(),
+                                       check_returncode = False)
+                else:
+                    cmd = 'gpg --keyserver wwwkeys.eu.pgp.net '
+                    cmd += '--recv-keys ' + r['gpgkey']
+                    self._execInChroot(arch, cmd.split(),
+                                       check_returncode = False)
+
+        if len(gpgkeys) > 0:
+            cmd = 'apt-key add /root/.gnupg/pubring.gpg'
+            self._execInChroot(arch, cmd.split())
+
+        self._execInChroot(arch, 'apt-get update'.split())
+        # Upgrade any essential packages from sources not available
+        # during bootstrap phase.
+        self._execInChroot(arch, 'apt-get dist-upgrade -y'.split())
+
+        apt_pkg.init_config()
+        apt_pkg.config.set('RootDir', chroot)
+        apt_pkg.config.set('APT::Architecture', arch)
+        apt_pkg.init_system()
+
+
+    def _dpkgAddDivert(self, arch):
+        '''Divert some facilities and replace temporaily with /bin/true (or
+        some other more appropiate facility.'''
+        chroot = os.path.join(self.temp, arch)
+        for d in self.diverts:
+            self.log.debug("diverting %s" % d)
+            cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
+            cmd += d
+            self._execInChroot(arch, cmd.split())
+
+            if d == '/usr/sbin/policy-rc.d':
+                self._writeFile(arch, d)
+                os.chmod(os.path.join(chroot, d.lstrip('/')), 0755)
+            else:
+                os.symlink('/bin/true', os.path.join(chroot, d.lstrip('/')))
+
+
+    def _dpkgUnDivert(self, arch):
+        '''Undivert facilities diverted by self._dpkgAddDivert().'''
+        chroot = os.path.join(self.temp, arch)
+        for d in self.diverts:
+            self.log.debug("undoing diversion: %s" % d)
+            os.unlink(os.path.join(chroot, d.lstrip('/')))
+            cmd = 'dpkg-divert --remove --rename ' + d
+            self._execInChroot(arch, cmd.split())
+
+
+    def _writeFile(self, arch, file):
+        '''Write a file in a chroot. Templates for common files included
+        below.'''
+        chroot = os.path.join(self.temp, arch)
+
+        f = None
+        fn = None
+        mode = 0644
+        try:
+            fn = os.path.join(chroot, file.lstrip('/'))
+            if os.path.isfile(fn):
+                mode = None
+            f = open(fn, 'w')
+            self.log.debug('writing file: %s' % file)
+            if file == '/etc/default/distro':
+                d = self.conf['distro'].keys()
+                d.sort()
+                for k in d:
+                    if k.startswith('FLL_DISTRO_CODENAME'):
+                        continue
+                    elif k == 'FLL_MOUNTPOINT':
+                        f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
+                        test = '$([ -d "$%s" ] && echo live' % k
+                        test += ' || echo installed)'
+                        f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test))
+                    elif k == 'FLL_IMAGE_FILE':
+                        image_file = self._getDistroImageFile(arch)
+                        f.write('%s="%s"\n' % (k, image_file))
+                        f.write('%s="$%s/$%s"\n' % ('FLL_IMAGE_LOCATION',
+                                                    'FLL_IMAGE_DIR', k))
+                    else:
+                        f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
+            elif file == '/etc/fstab':
+                f.write('# /etc/fstab: static file system information\n')
+            elif file == '/etc/hostname':
+                hostname = self.conf['distro']['FLL_DISTRO_NAME']
+                f.write(hostname + '\n')
+            elif file == '/etc/hosts':
+                hostname = self.conf['distro']['FLL_DISTRO_NAME']
+                f.write('127.0.0.1\tlocalhost\n')
+                f.write('127.0.0.1\t' + hostname + '\n\n')
+                f.write('# Below lines are for IPv6 capable hosts\n')
+                f.write('::1     ip6-localhost ip6-loopback\n')
+                f.write('fe00::0 ip6-localnet\n')
+                f.write('ff00::0 ip6-mcastprefix\n')
+                f.write('ff02::1 ip6-allnodes\n')
+                f.write('ff02::2 ip6-allrouters\n')
+                f.write('ff02::3 ip6-allhosts\n')
+            elif file == '/etc/network/interfaces':
+                f.write('# /etc/network/interfaces - ')
+                f.write('configuration file for ifup(8), ifdown(8)\n\n')
+                f.write('# The loopback interface\n')
+                f.write('auto lo\n')
+                f.write('iface lo inet loopback\n')
+            elif file == '/usr/sbin/policy-rc.d':
+                f.write('#!/bin/sh\n')
+                f.write('echo "$0 denied action: \`$1 $2\'" >&2\n')
+                f.write('exit 101\n')
+        except IOError:
+            self.log.exception('failed to open file for writing: %s' % file)
+            raise Error
+        finally:
+            if f:
+                f.close()
+                if mode:
+                    os.chmod(fn, mode)
+
+
+    def _defaultEtc(self, arch):
+        '''Initial creation of conffiles required in chroot.'''
+        self._writeFile(arch, '/etc/fstab')
+        self._writeFile(arch, '/etc/hostname')
+        self._writeFile(arch, '/etc/network/interfaces')
+
+
+    def _distroDefaultEtc(self, arch):
+        '''Write the /etc/default/distro file.'''
+        self._writeFile(arch, '/etc/default/distro')
+
+
+    def _finalEtc(self, arch):
+        '''Final editing of conffiles in chroot.'''
+        chroot = os.path.join(self.temp, arch)
+
+        distro_version = '%s-version' % \
+                         self.conf['distro']['FLL_DISTRO_NAME'].lower()
+        distro_version = os.path.join(chroot, 'etc', distro_version)
+
+        self.log.debug('stamping distro version: %s' % distro_version)
+        f = None
+        try:
+            f = open(distro_version, 'w')
+            f.write(self._getDistroStamp())
+        except IOError:
+            self.log.exception('failed to open file for writing: %s' %
+                               distro_version)
+            raise Error
+        finally:
+            if f:
+                f.close()
+                os.chmod(distro_version, 0444)
+
+        self._writeFile(arch, '/etc/hosts')
+        self._writeFile(arch, '/etc/motd.tail')
+
+        self.log.debug('writing final apt sources.list(s)')
+        self._writeAptLists(arch)
+
+        if os.path.isfile(os.path.join(chroot, 'etc/resolv.conf')) and \
+           not os.path.islink(os.path.join(chroot, 'etc/resolv.conf')):
+            self._writeFile(arch, '/etc/resolv.conf')
+
+
+    def _makeInitramfs(self, arch):
+        '''Generate the initramfs if update-initramfs was diverted'''
+        if '/usr/sbin/update-initramfs' in self.diverts and not self.opts.D:
+            chroot = os.path.join(self.temp, arch)
+            kvers = self._detectLinuxVersion(chroot)
+            for k in kvers:
+                cmd = 'update-initramfs -c -k %s' % k
+                if self.opts.v:
+                    cmd += ' -v'
+                self._execInChroot(arch, cmd.split())
+
+
+    def _preseedDebconf(self, arch):
+        '''Preseed debconf with values read from package lists.'''
+        chroot = os.path.join(self.temp, arch)
+        debconf_list = self._getDebconfList(arch)
+
+        if debconf_list:
+            self.log.info('preseeding debconf in %s chroot...' % arch)
+            debconf = None
+            try:
+                debconf = open(os.path.join(chroot, 'tmp',
+                                            'fll_debconf_selections'), 'w')
+                debconf.writelines([d + '\n' for d in debconf_list])
+            except IOError:
+                self.log.exception('failed to open file for writing: %s' %
+                                   '/tmp/fll_debconf_selections')
+                raise Error
+            finally:
+                if debconf:
+                    debconf.close()
+
+            cmd = 'debconf-set-selections '
+            if self.opts.v:
+                cmd += '--verbose '
+            cmd += '/tmp/fll_debconf_selections'
+
+            self._execInChroot(arch, cmd.split())
+
+
+    def _detectLinuxVersion(self, chroot):
+        '''Return version string of a singularly installed linux-image.'''
+        kvers = [f[f.find('-')+1:] for f in
+                 os.listdir(os.path.join(chroot, 'boot'))
+                 if f.startswith('vmlinuz-') or f.startswith('vmlinux-')]
+        if self.opts.D:
+            arch = chroot[chroot.rfind('/')+1:]
+            kvers = [f[len('linux-image-'):] for f in
+                     self.pkgs[arch]['install']
+                     if f.startswith('linux-image-')]
+
+        if len(kvers) > 0:
+            kvers.sort()
+            return kvers
+
+        self.log.critical('failed to detect linux version installed in chroot')
+        raise Error
+
+
+    def _detectLocalePkgs(self, i18n, wanted, cache):
+        '''Provide automated detection for extra i18n packages.'''
+        self.log.info('detecting i18n packages for %s...' % ' '.join(i18n))
+
+        i18n_module = ConfigObj('/usr/share/fll/data/locales-pkg-map')
+        self.log.debug('i18n_module:')
+        self.log.debug(i18n_module)
+
+        fll_locales = FllLocales(cache, wanted, i18n_module)
+        i18n_list = []
+        for locale in sorted(i18n):
+            try:
+                loc_pkg_list = fll_locales.detect_locale_packages(locale)
+            except FllLocalesError:
+                print_error('Failed to parse locale string: %s' % locale)
+            else:
+                i18n_list.extend(loc_pkg_list)
+
+        self.log.debug('i18n_list:')
+        self.log.debug(i18n_list)
+        return i18n_list
+
+
+    def _detectRecommendedPkgs(self, wanted, cache):
+        '''Provide automated detection for packages in recommends whitelist.'''
+        if self.conf['options']['apt_recommends'] == 'yes':
+            return []
+
+        self.log.info('detecting whitelisted recommended packages...')
+        rec_module = ConfigObj(os.path.join(self.opts.s, 'packages',
+                                            'packages.d', 'recommends'))
+        rec_dict = dict([(p, True) for p in
+                         self.__lines2list(rec_module['packages'])])
+        self.log.debug('rec_dict:')
+        self.log.debug(rec_dict)
+
+        rec_list = []
+        for p in wanted.keys():
+            if not p in rec_dict:
+                continue
+            package = cache[p]
+            current = package.current_ver
+            if not current:
+                versions = package.version_list
+                if not versions:
+                    continue
+                version = versions[0]
+                for other_version in versions:
+                    if apt_pkg.version_compare(version.ver_str,
+                                              other_version.ver_str) < 0:
+                        version = other_version
+                current = version
+
+            depends = current.depends_list
+            list = depends.get('Recommends', [])
+            for dependency in list:
+                name = dependency[0].target_pkg.name
+                dep = cache[name]
+                if dep.current_ver:
+                    continue
+                rec_list.append(dep.name)
+
+        self.log.debug('rec_list:')
+        self.log.debug(rec_list)
+        return rec_list
+
+
+    def __getSourcePkg(self, pkg, depcache, records):
+        '''Get the source package name of a given package.'''
+        version = depcache.get_candidate_ver(pkg)
+
+        if not version:
+            return None
+        file, index = version.file_list.pop(0)
+        records.lookup((file, index))
+
+        if records.source_pkg != "":
+            srcpkg = records.source_pkg
+        else:
+            srcpkg = pkg.name
+        return srcpkg
+
+
+    def _collectManifest(self, arch):
+        '''Collect package and source package URI information from each
+        chroot.'''
+        chroot = os.path.join(self.temp, arch)
+        self.log.info('collecting package manifest for %s...' % arch)
+
+        cache = apt_pkg.Cache(apt.progress.base.OpProgress())
+        records = apt_pkg.PackageRecords(cache)
+        depcache = apt_pkg.DepCache(cache)
+
+        manifest = dict([(p.name, p.current_ver.ver_str)
+                         for p in cache.packages if p.current_ver
+                         and not p.name.startswith('cdebootstrap-helper')])
+        if 'install' in self.pkgs[arch]:
+            manifest.update(self.pkgs[arch]['install'])
+        if 'langpack' in self.pkgs[arch]:
+            manifest.update(self.pkgs[arch]['langpack'])
+        if 'extras' in self.pkgs[arch]:
+            manifest.update(self.pkgs[arch]['extras'])
+        self.pkgs[arch]['manifest'] = manifest
+
+        if self.opts.B:
+            return
+
+        self.log.info('querying source package URIs for %s...' % arch)
+
+        sources = apt_pkg.SourceRecords()
+        sources.restart()
+
+        packages = manifest.keys()
+        packages.sort()
+        srcpkg_seen = dict()
+        uris = []
+        for p in packages:
+            for k in self._detectLinuxVersion(chroot):
+                if p.endswith('-modules-' + k):
+                    p = p[:p.find('-modules-' + k)]
+                    p += '-source'
+
+            if p.startswith('cdebootstrap-helper'):
+                continue
+
+            srcpkg = self.__getSourcePkg(cache[p], depcache, records)
+            if not srcpkg:
+                self.log.critical('failed to lookup srcpkg name for %s' % p)
+                raise Error
+            self.log.debug('%s -> %s' % (p, srcpkg))
+
+            if srcpkg in srcpkg_seen:
+                self.log.debug('already processed %s, skipping...' % srcpkg)
+                continue
+            else:
+                srcpkg_seen[srcpkg] = True
+
+            u = []
+            while sources.lookup(srcpkg):
+                u.extend([sources.index.archive_uri(sources.files[f][2])
+                          for f in range(len(sources.files))])
+            if len(u) > 0:
+                self.log.debug(u)
+                uris.extend(u)
+            else:
+                self.log.critical('failed to query source uris for %s' % srcpkg)
+                raise Error
+
+        uris.sort()
+        self.pkgs[arch]['source'] = uris
+
+
+    def _installPkgs(self, arch, codename):
+        '''Install packages.'''
+        cache = apt_pkg.Cache(apt.progress.base.OpProgress())
+        if cache.ver_file_count < 200:
+            self.log.info('installPkgs cache had %s' % cache.ver_file_count)
+            cache = apt_pkg.Cache(apt.progress.base.OpProgress())
+            self.log.info('installPkgs cache has %s' % cache.ver_file_count)
+
+        i18n_list = self.__lines2list(self.conf['packages']['i18n'])
+        pkgs_want = self._getPackageList(arch)
+        pkgs_base = [p.name for p in cache.packages if p.current_ver]
+        pkgs_dict = dict([(p, True) for p in pkgs_base + pkgs_want])
+
+        pkgs_want.extend(self._detectLocalePkgs(i18n_list, pkgs_dict, cache))
+        pkgs_want.extend(self._detectRecommendedPkgs(pkgs_dict, cache))
+
+        self.log.info('installing packages in %s chroot...' % arch)
+        self._aptGetInstall(arch, self.__filterList(pkgs_want),
+                            download_only = self.opts.D)
+
+        if self.opts.D:
+            chroot = os.path.join(self.temp, arch)
+            aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
+            self.pkgs[arch]['install'] = dict()
+            for debfile in glob.glob(aptcache):
+                # create dict with package name = version to extend manifest
+                pkg, vers, extra = debfile.split('/')[-1].split('_')
+                self.pkgs[arch]['install'][pkg] = vers.replace('%3a', ':')
+
+        # Fetch extra debs if appropriate and reprepro them
+        extras = []
+        if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/x86_64-efi')):
+            extras.append('grub-efi')
+            extras.append('grub-efi-amd64')
+        if len(extras):
+            self.pkgs[arch]['extras'] = dict()
+            self._execInChroot(arch, ['apt-get', 'clean'])
+            self._aptGetInstall(arch, extras,
+                                download_only = True)
+            # Generate a basic reprepro conf/distributions.
+            extras = os.path.join(self.temp, 'staging', 'extras')
+            extras_conf = os.path.join(extras, 'conf')
+            if not os.path.isdir(extras_conf):
+                os.makedirs(extras_conf)
+                extras_dist = os.path.join(extras, 'conf', 'distributions')
+                rconf = None
+                try:
+                    rconf = open(extras_dist, "w")
+                    rconf.write('Codename: %s\n' % codename)
+                    rconf.write('Architectures: ')
+                    for a in self.conf['archs'].keys():
+                        rconf.write(''.join([a,' ']))
+                    rconf.write('\n')
+                    rconf.write('Components: main\n')
+                    rconf.write('Description: extra packages\n')
+                except IOError:
+                    self.log.exception('error preparing reprepro for extras')
+                    raise Error
+                finally:
+                    if rconf:
+                        rconf.close()
+
+            # Find all the debs and includedeb them.
+            chroot = os.path.join(self.temp, arch)
+            aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
+            for debfile in glob.glob(aptcache):
+                if not self.opts.D:
+                    self._execCmd(['reprepro', '-Vb', extras, 'includedeb', codename,
+                                  debfile])
+                # create dict with package name = version to extend manifest
+                pkg, vers, extra = debfile.split('/')[-1].split('_')
+                self.pkgs[arch]['extras'][pkg] = vers.replace('%3a', ':')
+
+        # Calculate packages for each language.
+        self.pkgs[arch]['langpack'] = dict()
+        if 'lang' not in self.conf['packages']:
+            return
+
+        lang_list = self.__lines2list(self.conf['packages']['lang'])
+        lang_full = pkgs_want
+        i18n = os.path.join(self.temp, 'staging', 'i18n')
+        for lang in lang_list:
+            lang_pkgs = self._detectLocalePkgs([ lang ], pkgs_dict, cache)
+            i18n_arch = os.path.join(i18n, arch)
+            if not os.path.isdir(i18n_arch):
+                os.makedirs(i18n_arch)
+            i18n_lang = os.path.join(i18n, arch, lang)
+            i18nlist = None
+            try:
+                i18nlist = open(i18n_lang, "w")
+                for pkg in lang_pkgs:
+                    i18nlist.write('%s ' % (pkg))
+            except IOError:
+                    self.log.exception('error writing i18n file for lang: %s' %
+                                       lang)
+                    raise Error
+            finally:
+                if i18nlist:
+                    i18nlist.close()
+            lang_full.extend(lang_pkgs)
+
+        # Fetch all extra lang packages and reprepro them.
+        if lang_pkgs:
+            self._execInChroot(arch, ['apt-get', 'clean'])
+            self._aptGetInstall(arch, self.__filterList(lang_full),
+                                download_only = True)
+            # Generate a basic reprepro conf/distributions.
+            i18n_conf = os.path.join(i18n, 'conf')
+            if not os.path.isdir(i18n_conf):
+                os.mkdir(i18n_conf)
+                i18n_dist = os.path.join(i18n, 'conf', 'distributions')
+                rconf = None
+                try:
+                    rconf = open(i18n_dist, "w")
+                    rconf.write('Codename: %s\n' % codename)
+                    rconf.write('Architectures: ')
+                    for a in self.conf['archs'].keys():
+                        rconf.write(''.join([a,' ']))
+                    rconf.write('\n')
+                    rconf.write('Components: main\n')
+                    rconf.write('Description: i18n packages\n')
+                except IOError:
+                    self.log.exception('error preparing reprepro')
+                    raise Error
+                finally:
+                    if rconf:
+                        rconf.close()
+
+            # Find all the debs and includedeb them.
+            chroot = os.path.join(self.temp, arch)
+            aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
+            for debfile in glob.glob(aptcache):
+                if not self.opts.D:
+                    self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', codename,
+                                  debfile])
+                # create dict with package name = version to extend manifest
+                pkg, vers, extra = debfile.split('/')[-1].split('_')
+                self.pkgs[arch]['langpack'][pkg] = vers.replace('%3a', ':')
+
+
+    def _postInst(self, arch):
+        '''Run package module postinst scripts in a chroot.'''
+        if self.opts.D:
+            return
+        chroot = os.path.join(self.temp, arch)
+
+        self.log.info('performing post-install tasks in %s chroot...' % arch)
+
+        for script in self._getPostinstList(arch):
+            sname = os.path.basename(script)
+            try:
+                shutil.copy(script, os.path.join(chroot, 'tmp'))
+                os.chmod(os.path.join(chroot, 'tmp', sname), 0755)
+            except:
+                self.log.exception('error preparing postinst script: %s' %
+                                   sname)
+                raise Error
+
+            cmd = '/tmp/%s postinst' % sname
+            self._execInChroot(arch, cmd.split())
+            os.unlink(os.path.join(chroot, 'tmp', sname))
+
+
+    def _zerologs(self, arch, dir, fnames):
+        '''Truncate all log files.'''
+        chroot = os.path.join(self.temp, arch)
+        chrootdir = dir.partition(chroot)[2]
+
+        for f in fnames:
+            if not os.path.isfile(os.path.join(dir, f)):
+                continue
+            self._writeFile(arch, os.path.join(chrootdir, f))
+
+
+    def _cleanChroot(self, arch):
+        '''Remove unwanted content from a chroot.'''
+        self.log.info('purging unwanted content from %s chroot...' % arch)
+        chroot = os.path.join(self.temp, arch)
+
+        cmd = 'dpkg --purge fll-live-initramfs'
+        self._execInChroot(arch, cmd.split())
+        self._execInChroot(arch, 'apt-get clean'.split())
+        self._execInChroot(arch, 'dpkg --clear-avail'.split())
+
+        os.path.walk(os.path.join(chroot, 'var/log'), self._zerologs, arch)
+
+
+    def _chrootImageFS(self, arch):
+        '''Make filesystem image of chroot.'''
+        chroot = os.path.join(self.temp, arch)
+
+        # exclusion file needed even if imaging isn't
+        # TODO rename away from sqfs
+        exclude_file = os.path.join(self.opts.s, 'data', 'fll_sqfs_exclusion')
+        shutil.copy(exclude_file, os.path.join(chroot, 'tmp'))
+
+        # no imagefs for aufs/unionfs
+        if 'FLL_UNION_MODULE' in self.conf['distro'] and len(self.conf['distro']['FLL_UNION_MODULE']) and self.conf['distro']['FLL_UNION_MODULE'] != "dmsetup":
+            return
+
+        # rsync needs absolute paths in exclude-file
+        exclusion_file = os.path.join(chroot, 'tmp', 'fll_sqfs_exclusion')
+        try:
+            exclusion_handle = open(exclusion_file, 'r')
+            exclusion_data = exclusion_handle.read()
+            exclusion_handle.close()
+            exclusion_handle = open(exclusion_file, 'w')
+            for line in exclusion_data.splitlines():
+                exclusion_handle.write('/%s\n' % line)
+        except IOError:
+            self.log.exception('error rewriting squashfs exclusion file')
+            raise Error
+        finally:
+            if exclusion_handle:
+                exclusion_handle.close()
+
+        image_fs = 'ext4'
+        if ( 'FLL_IMAGE_FS' in self.conf['distro'] and len(self.conf['distro']['FLL_IMAGE_FS'])):
+            image_fs = self.conf['distro']['FLL_IMAGE_FS']
+
+        self.log.info('creating %s filesystem of %s chroot...' % (image_fs, arch))
+        image_file = self._getDistroImageFile(arch)
+
+        # create a dir for the image
+        cmd = ['mkdir', 'squash']
+        self._execInChroot(arch, cmd)
+
+        # Dummy build, just touch the image_file and return
+        if self.opts.D:
+            cmd = ['touch', os.path.join('squash', image_file)]
+            self._execInChroot(arch, cmd)
+            return
+
+        # 16G default is abitrary and large
+        image_size = 16 * 1024
+        if ( 'FLL_IMAGE_MB' in self.conf['distro'] and len(self.conf['distro']['FLL_IMAGE_MB'])):
+            image_size = int(self.conf['distro']['FLL_IMAGE_MB'])
+        
+        # create the fs image
+        # makes a sparse file which has to be bigger then target fs
+        cmd = ['dd', 'if=/dev/zero', 'of=%s' % os.path.join(chroot, 'squash', image_file), 'bs=1K', 'seek=%s' % (image_size*1024-1), 'count=1']
+        self._execCmd(cmd)
+
+        # Get free loop device
+        try:
+            retv = Popen(['losetup', '-f'],bufsize=1024, stdout=PIPE,
+                         stderr=STDOUT, preexec_fn=restore_sigpipe,
+                         close_fds = True)
+            rest = retv.communicate()
+            if rest[1] != None or rest[0] == None :
+                self.log.critical('failed to find a loop device: %s' % rest[1])
+            fsloop = rest[0][:-1]
+        except IOError:
+            self.log.exception('failed to retrieve free loop device from losetup')
+            raise Error
+
+        # setup the loop device on the image file
+        cmd = ['losetup', fsloop, os.path.join(chroot, 'squash', image_file)]
+        self._execCmd(cmd)
+
+        # create the fs in the loop device
+        cmd = ['mkfs.%s' % image_fs]
+        if image_fs == 'ext3' or image_fs == 'ext4' :
+            cmd.append('-O')
+            cmd.append('^has_journal')
+        elif image_fs == 'jfs' :
+            cmd.append('-f')
+        elif image_fs == 'reiserfs' :
+            cmd.append('-f')
+        cmd.append(fsloop)
+        self._execCmd(cmd)
+        # we don't want fsck running on the live image
+        if image_fs[:3] == 'ext' :
+            cmd = ['tune2fs', '-c', '0', fsloop]
+            self._execCmd(cmd)
+
+        # drop the manual loop device
+        # XXX: work around "losetup -d" breakage
+        cmd = ['losetup', '-d', fsloop]
+        for i in range(0, 59):
+            try:
+                self._execCmd(cmd)
+            except:
+                self.log.info('Loop device still busy (%i seconds)!' % (i + 1))
+                time.sleep(1)
+                continue
+            finally:
+                self.log.info('successfully detached loop device: %s' % fsloop)
+                break
+            self.log.critical('failed to drop loop device: %s' % fsloop)
+            raise Error
+       
+        # create a dir, loop mount squash/image_file on it and rsync in chroot
+        fs_image_mnt='%s.mnt' % image_file
+        cmd = ['mkdir', fs_image_mnt]
+        self._execInChroot(arch, cmd)
+        cmd = ['mount', '-t', image_fs, '-o', 'loop', os.path.join(chroot, 'squash', image_file), os.path.join(chroot, fs_image_mnt)]
+        # execCmd to leave it mounted, next execInChroot will umount it
+        self._execCmd(cmd)
+        # copy in to the loop with rsync using the "squashfs" exclusion list
+        # also exclude the squash dir itself
+        # TODO rename away from sqfs
+        self.log.info('rsync: move chroot into loop image.')
+        cmd = ['rsync', '-a', '--exclude=squash', '--exclude=%s' % fs_image_mnt, '--exclude-from=/tmp/fll_sqfs_exclusion', '.', fs_image_mnt]
+        self._execInChroot(arch, cmd)
+        # get rid of the mount point
+        self._nuke(os.path.join(chroot, fs_image_mnt))
+
+    def _chrootSquashfs(self, arch):
+        '''Make squashfs filesystem image of chroot.'''
+        self.log.info('creating squashfs filesystem of %s chroot...' % arch)
+        chroot = os.path.join(self.temp, arch)
+
+        image_file = self._getDistroImageFile(arch)
+        if self.opts.D:
+            cmd = ['touch', image_file]
+            self._execInChroot(arch, cmd)
+            return
+
+        if os.path.isfile(os.path.join(chroot, 'squash', '%s' % image_file)):
+            cmd = ['mksquashfs', 'squash', image_file, '-noappend']
+        else:
+            cmd = ['mksquashfs', '.', image_file, '-noappend']
+
+        # set compression algorithm for squashfs-tools >= 4.1
+        squashfs_comp = self.conf['options'].get('squashfs_comp')
+        if squashfs_comp in ['gzip', 'lzo', 'xz']:
+            self.log.info('using squashfs(%s)...' % squashfs_comp)
+            cmd.extend(['-comp', '%s' % squashfs_comp])
+            if squashfs_comp == 'xz':
+                if arch == 'amd64' or arch == 'i386':
+                    cmd.extend(['-Xbcj', 'x86'])
+                elif arch == 'powerpc' or arch == 'ppc64':
+                    cmd.extend(['-Xbcj', 'powerpc'])
+        
+        if not os.path.isfile(os.path.join(chroot, 'squash', '%s' % image_file)):
+            cmd.extend(['-wildcards', '-ef', '/tmp/fll_sqfs_exclusion', '-e', image_file])
+
+        if self.opts.l or self.opts.q:
+            cmd.append('-no-progress')
+
+        self._execInChroot(arch, cmd)
+
+
+    def _stageArch(self, arch):
+        '''Stage files for an arch for final genisofs.'''
+        self.log.info('staging live %s media...' % arch)
+        chroot = os.path.join(self.temp, arch)
+        boot_dir = os.path.join(self.temp, 'staging', 'boot')
+
+        image_file = os.path.join(chroot, self._getDistroImageFile(arch))
+        image_dir = os.path.join(self.temp, 'staging',
+                                 self.conf['distro']['FLL_IMAGE_DIR'])
+        try:
+            os.chmod(image_file, 0644)
+            shutil.move(image_file, image_dir)
+        except IOError:
+            self.log.exception('failed to move squashfs image to staging dir')
+            raise Error
+
+        if self.opts.D:
+            return
+
+        kvers = self._detectLinuxVersion(chroot)
+        for k in kvers:
+            initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
+            if os.path.isfile(initrd):
+                self.log.debug('copying %s to staging dir' % initrd)
+                shutil.copy(initrd, boot_dir)
+            else:
+                self.log.critical('could not find initramfs image to ' +
+                                  'copy to staging dir.')
+                raise Error
+            
+            images = glob.glob(os.path.join(chroot, 'boot', 'vmlinu*-' + k))
+            if len(images) == 1:
+                self.log.debug('copying %s to staging dir' % images[0])
+                shutil.copy(images[0], boot_dir)
+            else:
+                self.log.critical('could not find linux kernel image to ' +
+                                  'copy to staging dir.')
+                raise Error
+
+        message = os.path.join(chroot, 'etc', 'bootsplash', 'themes', self.conf['distro']['FLL_GFXBOOT_THEME'], 'bootloader', 'message')
+        if os.path.isfile(message):
+            self.log.debug('copying grub-gfxboot message file to boot dir')
+            try:
+                shutil.copy(message, boot_dir)
+                message = os.path.join(boot_dir, 'message')
+            except IOError:
+                self.log.exception('failed to copy grub message file to ' +
+                                   'staging dir')
+                raise Error
+
+        if os.path.isdir(os.path.join(chroot, 'usr/lib/grub')):
+            gfile_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
+
+            grub2_modules = glob.glob(os.path.join(gfile_dir, '*.mod'))
+            if len(grub2_modules) > 0:
+                gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                          if f.endswith('.mod') or f.endswith('.img')
+                          or f.endswith('.lst')]
+                gfiles.append(os.path.join(chroot, 'tmp/grub_eltorito'))
+                gfiles.append(os.path.join(chroot, 'tmp/grub_embed'))
+            else:
+                gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                          if f.startswith('stage2') or f.startswith('iso9660')]
+
+            if len(gfiles) > 0:
+                self.log.debug('copying grub stage files to boot dir')
+                grub_dir = os.path.join(boot_dir, 'grub')
+                if not os.path.isdir(grub_dir):
+                    os.mkdir(grub_dir, 0755)
+            else:
+                self.log.exception('grub stage files not found')
+                raise Error
+
+            for file in gfiles:
+                try:
+                    shutil.copy(file, grub_dir)
+                except IOError:
+                    self.log.exception('failed to copy grub file to staging dir')
+                    raise Error
+
+            # efi
+            gfile_dir = os.path.join(chroot, 'usr/lib/grub/x86_64-efi')
+            if os.path.isdir(gfile_dir):
+                gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                          if f.endswith('.mod') or f.endswith('.lst')]
+                gfiles.append(os.path.join(chroot,'/usr/share/grub/unicode.pf2'))
+                if len(gfiles) > 0:
+                    self.log.debug('copying grub efi stage files to boot dir')
+                    grub_dir = os.path.join(boot_dir, 'grub', 'x86_64-efi')
+                    if not os.path.isdir(grub_dir):
+                        os.mkdir(grub_dir, 0755)
+                for file in gfiles:
+                    try:
+                        shutil.copy(file, grub_dir)
+                    except IOError:
+                        self.log.exception('failed to copy grub efi file to staging dir')
+                        raise Error
+                efi_dir = os.path.join(self.temp, 'staging/efi/boot')
+                if not os.path.isdir(efi_dir):
+                    if not os.path.isdir(os.path.join(self.temp, 'staging/efi')):
+                        os.mkdir(os.path.join(self.temp, 'staging/efi'), 0755)
+                    os.mkdir(efi_dir, 0755)
+                try:
+                    shutil.copy(os.path.join(chroot, 'tmp/efi/boot/bootx64.efi'), efi_dir)
+                    shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
+                    shutil.copy(os.path.join(chroot, 'tmp/iso_uuid'), os.path.join(self.temp, 'staging'))
+                    uuid_dir = os.path.join(chroot, 'tmp/uuid')
+                    ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
+                    for file in ufiles:
+                        shutil.copy(file, grub_dir)
+                    data_dir = os.path.join(self.opts.s, 'data')
+                    mfiles = glob.glob(os.path.join(self.opts.s, 'data/grub.*.cfg'))
+                    for file in mfiles:
+                        shutil.copy(file, grub_dir)
+                except IOError:
+                    self.log.exception('failed to copy efi boot files to staging dir')
+                    raise Error
+
+        isolinux = os.path.join(chroot, 'usr/lib/syslinux/isolinux.bin')
+        if os.path.isfile(isolinux):
+            try:
+               stage_dir = os.path.join(self.temp, 'staging')
+               syslinux_dir = os.path.join(stage_dir, 'boot/isolinux')
+               if not os.path.isdir(syslinux_dir):
+                   os.mkdir(syslinux_dir, 0755)
+               shutil.copy(isolinux, syslinux_dir)
+               gfxboot = os.path.join(chroot, 'usr/lib/syslinux/gfxboot.c32')
+               shutil.copy(gfxboot, syslinux_dir)
+               bootlogo_dir = os.path.join(chroot, 'etc', 'bootsplash', 'themes', self.conf['distro']['FLL_GFXBOOT_THEME'], 'cdrom')
+               bootlogo = glob.glob(os.path.join(bootlogo_dir, '*'))
+               for file in bootlogo:
+                   try:
+                       shutil.copy(file, syslinux_dir)
+                   except IOError:
+                       self.log.exception('failed to copy bootlogo files to staging dir')
+                       raise Error
+               #isl_pxe = os.path.join(chroot, 'usr/lib/syslinux/pxelinux.0');
+               #shutil.copy(isl_pxe, stage_dir);
+               # both vesamenu.c32 and linux.c32 seem to be required
+               #isl_menu = os.path.join(chroot, 'usr/lib/syslinux/vesamenu.c32');
+               #shutil.copy(isl_menu, stage_dir);
+               #isl_linux = os.path.join(chroot, 'usr/lib/syslinux/linux.c32');
+               #shutil.copy(isl_linux, stage_dir);
+               # other modules probably useful to have available in syslinux
+               # not used in current config though
+               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/chain.c32');
+               #shutil.copy(isl_module, stage_dir);
+               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/cmd.c32');
+               #shutil.copy(isl_module, stage_dir);
+               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/elf.c32');
+               #shutil.copy(isl_module, stage_dir);
+               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/ifcpu64.c32');
+               #shutil.copy(isl_module, stage_dir);
+               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/kbdmap.c32');
+               #shutil.copy(isl_module, stage_dir);
+               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/reboot.c32');
+            except IOError:
+                    self.log.exception('failed to copy isolinux files')
+                    raise Error
+
+        yaboot = os.path.join(chroot, 'usr/lib/yaboot/yaboot')
+        if os.path.isfile(yaboot):
+            try:
+                shutil.copy(yaboot, boot_dir)
+                ppc_dir = os.path.join(self.temp, 'staging', 'ppc')
+                if not os.path.isdir(ppc_dir):
+                    os.mkdir(ppc_dir)
+                chrp_dir = os.path.join(ppc_dir, 'chrp')
+                if not os.path.isdir(chrp_dir):
+                    os.mkdir(chrp_dir)
+            except IOError:
+                    self.log.exception('failed to copy yaboot file and make ppc dir')
+                    raise Error
+
+        memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
+        memtest_out = os.path.join(boot_dir, 'memtest')
+        if os.path.isfile(memtest):
+            self.log.debug('copying memtest86+ to boot dir')
+            try:
+                shutil.copy(memtest, memtest_out)
+            except IOError:
+                self.log.exception('failed to copy memtest86+ to staging dir')
+                raise Error
+
+
+    def _writeMenuLst(self, stage_dir, boot_dir, grub_dir, kvers,
+                      timeout, cmdline):
+        '''Write grub-legacy menu.lst for live media.'''
+        self.log.debug('writing grub menu.lst for live media')
+
+        menulst = open(os.path.join(grub_dir, 'menu.lst'), 'w')
+        menulst.write('default 0\n')
+        menulst.write('timeout %d\n' % int(timeout))
+        menulst.write('color red/black light-red/black\n')
+        menulst.write('foreground EE0000\n')
+        menulst.write('background 400000\n')
+
+        if os.path.isfile(os.path.join(boot_dir, 'message')):
+            menulst.write('gfxmenu /boot/message\n')
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz-%s' % k
+            initrd = 'initrd.img-%s' % k
+
+            for f in [vmlinuz, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            menulst.write('\n')
+            menulst.write('title  %s %s (%s)\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
+            menulst.write('kernel /boot/%s boot=fll %s\n' % (vmlinuz, cmdline))
+            menulst.write('initrd /boot/%s\n' % initrd)
+            menulst.write('\n')
+            menulst.write('title  %s %s Extra Options\n' % (distro, cpu))
+            menulst.write('configfile /boot/grub/menu.lst.%s\n' % cpu)
+
+            menucpu = open(os.path.join(grub_dir, 'menu.lst.%s' % cpu), 'w')
+            for lines in fileinput.input(os.path.join(self.opts.s, 'data',
+                                                      'menu.lst.cpu')):
+                for line in lines.splitlines():
+                    if line.find('@vmlinuz@') >= 0:
+                        line = line.replace('@vmlinuz@', vmlinuz)
+                    if line.find('@initrd@') >= 0:
+                        line = line.replace('@initrd@', initrd)
+                    menucpu.write('%s\n' % line)
+            menucpu.close()
+
+        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
+            menulst.write('\n')
+            menulst.write('title Memory test (memtest86+)\n')
+            menulst.write('kernel /boot/memtest\n')
+
+        menulst.close()
+
+
+    def _writeGrubCfg(self, stage_dir, boot_dir, grub_dir, kvers,
+                      timeout, cmdline):
+        '''Write grub.cfg for live media.'''
+        self.log.debug('writing grub.cfg for live media')
+
+        grubcfg = open(os.path.join(grub_dir, 'grub.cfg'), 'w')
+        grubcfg.write('insmod biosdisk\n')
+        grubcfg.write('insmod pc\n')
+        grubcfg.write('insmod gpt\n')
+        grubcfg.write('set timeout=%d\n' % int(timeout))
+        grubcfg.write('if loadfont /usr/share/grub/unicode.pf2 ; then\n')
+        grubcfg.write('  set gfxmode=640x480\n')
+        grubcfg.write('  insmod gfxterm\n')
+        grubcfg.write('  insmod vbe\n')
+        grubcfg.write('  if terminal_output.gfxterm ; then true ; else\n')
+        grubcfg.write('    terminal gfxterm\n')
+        grubcfg.write('  fi\n')
+        grubcfg.write('fi\n\n')
+        grubcfg.write('set menu_color_normal=cyan/blue\n')
+        grubcfg.write('set menu_color_highlight=white/blue\n\n')
+        grubcfg.write('set liveopts="$from"\n\n')
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz-%s' % k
+            initrd = 'initrd.img-%s' % k
+
+            for f in [vmlinuz, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
+            grubcfg.write('	linux /boot/%s boot=fll $liveopts %s\n' % (vmlinuz, cmdline))
+            grubcfg.write('	initrd /boot/%s\n' % initrd)
+            grubcfg.write('}\n')
+
+        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
+            grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
+            grubcfg.write('	linux16	/boot/memtest\n')
+            grubcfg.write('}\n')
+
+        grubcfg.close()
+        
+
+    def _writeGrubEfiCfg(self, stage_dir, boot_dir, grub_dir, kvers,
+                      timeout, cmdline):
+        '''Write grub.cfg for live media.'''
+        self.log.debug('writing efi grub.cfg for live media')
+
+        grubcfg = open(os.path.join(grub_dir, 'grub.cfg'), 'w')
+        grubcfg.write('insmod efi_gop\n')
+        grubcfg.write('insmod efi_uga\n')
+        grubcfg.write('insmod font\n')
+        grubcfg.write('set timeout=%d\n' % int(timeout))
+        grubcfg.write('if loadfont ${prefix}/unicode.pf2 ; then\n')
+        grubcfg.write('  set gfxmode=auto\n')
+        grubcfg.write('  insmod gfxterm\n')
+        grubcfg.write('  set gfxpayload=keep\n')
+        grubcfg.write('  terminal_output gfxterm\n')
+        grubcfg.write('fi\n\n')
+        grubcfg.write('set menu_color_normal=cyan/blue\n')
+        grubcfg.write('set menu_color_highlight=white/blue\n\n')
+        grubcfg.write('set kopts=\"$from $bootlang $kbd $tz\"\n\n')
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+        
+        kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz-%s' % k
+            initrd = 'initrd.img-%s' % k
+
+            if cpu != 'amd64':
+                continue
+
+            for f in [vmlinuz, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            # assumes isolinux config will rename them :-/
+            vmlinuz_r = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+            initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+            
+            grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
+            grubcfg.write('     linux /boot/%s boot=fll quiet $kopts %s\n' % (vmlinuz_r, cmdline))
+            grubcfg.write('     initrd /boot/%s\n' % initrd_r)
+            grubcfg.write('}\n')
+            kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
+
+        grubcfg.write('\nmenuentry \"Localisation\" {\n')
+        grubcfg.write('    configfile $prefix/grub.locale.cfg\n')
+        grubcfg.write('}\n')
+
+        grubcfg.close()
+
+
+    def _writeYabootCfg(self, stage_dir, boot_dir, ppc_dir, kvers,
+                      timeout, cmdline):
+        '''Write yaboot setup for live media.'''
+        if not os.path.isfile(os.path.join(boot_dir, 'yaboot')):
+            return
+
+        self.log.debug('writing yaboot files for live media')
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+
+        bootinfo = open(os.path.join(ppc_dir, 'bootinfo.txt'), 'w')
+        bootinfo.write('<chrp-boot>\n')
+        bootinfo.write('<description>%s Live Linux on powerpc</description>\n' % distro)
+        bootinfo.write('<os-name>%s</os-name>\n' % distro)
+        bootinfo.write('<boot-script>boot &device;:\\boot\yaboot</boot-script>\n')
+        bootinfo.write('</chrp-boot>\n')
+        bootinfo.close()
+
+        etc_dir = os.path.join(stage_dir,'etc');
+        if not os.path.isdir(etc_dir):
+            os.mkdir(etc_dir)
+
+        yaboot = open(os.path.join(etc_dir, 'yaboot.conf'), 'w')
+        yaboot.write('init-message="Welcome to %s"\n' % distro)
+        #yaboot.write('message=/boot/yaboot.message')
+        yaboot.write('timeout=%d\n' % int(int(timeout)*10))
+
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinux = 'vmlinux-%s' % k
+            initrd = 'initrd.img-%s' % k
+
+            for f in [vmlinux, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            yaboot.write('\n')
+            yaboot.write('image=/boot/%s\n' % (vmlinux))
+            yaboot.write('\tlabel=%s-%s-%s\n' % (distro, cpu, k))
+            yaboot.write('\tappend="boot=fll %s"\n' % (cmdline))
+            yaboot.write('\tinitrd=/boot/%s\n' % initrd)
+            yaboot.write('\n')
+
+        yaboot.close()
+        # yaboot.conf, hfs.map and ofboot.b in hfs-blessed /boot
+        # ofboot and hfs.map from debian-cd (ofboot has path changed)
+        shutil.copy(os.path.join(etc_dir, 'yaboot.conf'), boot_dir)
+        shutil.copy(os.path.join(self.opts.s, 'data', 'hfs.map'), boot_dir)
+        shutil.copy(os.path.join(self.opts.s, 'data', 'ofboot.b'), boot_dir)
+
+    def _writeIsolinuxWrap(self):
+        stage_dir = os.path.join(self.temp, 'staging')
+        boot_dir = os.path.join(stage_dir, 'boot')
+        syslinux_dir = os.path.join(boot_dir, 'isolinux')
+        isolinux = os.path.join(syslinux_dir, 'isolinux.bin');
+        if not os.path.isfile(isolinux):
+            return
+
+        self.log.debug('writing isolinux config for live media')
+
+        kvers = self._configBootKvers(stage_dir)
+        timeout = self._configBootTimeout()
+        cmdline =  self._configBootCmdline()
+
+        distro = self.conf['distro']['FLL_DISTRO_NAME']
+
+        isolinuxcfg = open(os.path.join(syslinux_dir, 'isolinux.cfg'), 'w')
+        isolinuxcfg.write('display isolinux.msg\n')
+        isolinuxcfg.write('ui gfxboot bootlogo isolinux.msg\n')
+        isolinuxmsg = open(os.path.join(syslinux_dir, 'isolinux.msg'), 'w')
+        isolinuxmsg.write('\nWelcome!\n')
+        isolinuxmsg.write('\nTo start the system, type one of the label names below and press [enter]:\n\n')
+
+        kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
+        for k in kvers:
+            cpu = k[k.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+            os.rename(os.path.join(boot_dir, 'vmlinuz-%s' % k), os.path.join(boot_dir, vmlinuz))
+            initrd = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+            os.rename(os.path.join(boot_dir, 'initrd.img-%s' % k), os.path.join(boot_dir, initrd))
+
+            for f in [vmlinuz, initrd]:
+                if not os.path.isfile(os.path.join(boot_dir, f)):
+                    self.log.critical('%s was not found in %s' % (f, boot_dir))
+                    raise Error
+
+            isolinuxcfg.write('\n')
+            isolinuxcfg.write('label %s_%s_(%s)\n' % (distro, cpu, k))
+            isolinuxcfg.write('\tkernel /boot/%s\n' % (vmlinuz))
+            isolinuxcfg.write('\tappend initrd=/boot/%s boot=fll %s\n' % (initrd, cmdline))
+            isolinuxcfg.write('\n')
+            isolinuxmsg.write('%s_%s_(%s)\n' % (distro, cpu, k))
+            kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
+
+        isolinuxcfg.write('label Boot_from_Hard_Disk\n')
+        isolinuxcfg.write('\tlocalboot 0x80\n')
+        isolinuxcfg.write('\n')
+        isolinuxmsg.write('Boot_from_Hard_Disk\n')
+
+        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
+            isolinuxcfg.write('label Memory_test_(memtest86+)\n')
+            isolinuxcfg.write('\tkernel /boot/memtest\n')
+            isolinuxcfg.write('\n')
+            isolinuxmsg.write('Memory_test_(memtest86+)\n')
+
+        isolinuxcfg.close()
+        shutil.copy(os.path.join(syslinux_dir, 'isolinux.cfg'),os.path.join(syslinux_dir, 'syslinux.cfg'))
+
+        isolinuxmsg.write('\nHave a lot of fun...\n\n')
+        isolinuxmsg.close()
+        shutil.copy(os.path.join(syslinux_dir, 'isolinux.msg'),os.path.join(syslinux_dir, 'syslinux.msg'))
+
+    def _configBootKvers(self,stage_dir):
+        kvers = self._detectLinuxVersion(stage_dir)
+        if len(kvers) < 1:
+            self.log.critical('failed to find linux kernel image to include in boot conf')
+            raise Error
+        return kvers
+
+    def _configBootTimeout(self):
+        timeout = self.conf['options'].get('boot_timeout')
+        if not timeout:
+            timeout = '30'
+        return timeout
+
+    def _configBootCmdline(self):
+        cmdline =  self.conf['options'].get('boot_cmdline')
+        if not cmdline:
+            cmdline = ''
+        return cmdline
+
+    def _writeGrubWrap(self):
+        '''Write final GRUB configuration for live media.'''
+        stage_dir = os.path.join(self.temp, 'staging')
+        boot_dir = os.path.join(stage_dir, 'boot')
+        grub_dir = os.path.join(boot_dir, 'grub')
+
+        if not os.path.isdir(grub_dir):
+            return
+        self.log.debug('writing grub config for live media')
+
+        kvers = self._configBootKvers(stage_dir)
+        timeout = self._configBootTimeout()
+        cmdline =  self._configBootCmdline()
+
+        grub2_modules = glob.glob(os.path.join(grub_dir, '*.mod'))
+        if len(grub2_modules) > 0:
+            self._writeGrubCfg(stage_dir, boot_dir, grub_dir, kvers,
+                               timeout, cmdline)
+            grub_efi_dir = os.path.join(grub_dir, 'x86_64-efi')
+            if os.path.isdir(grub_efi_dir):
+                self._writeGrubEfiCfg(stage_dir, boot_dir, grub_efi_dir,
+                                      kvers, timeout, cmdline)
+        else:
+            self._writeMenuLst(stage_dir, boot_dir, grub_dir, kvers,
+                               timeout, cmdline)
+
+
+    def _writeYabootWrap(self):
+        '''Write final yaboot configuration for live media.'''
+        stage_dir = os.path.join(self.temp, 'staging')
+        boot_dir = os.path.join(stage_dir, 'boot')
+        ppc_dir = os.path.join(stage_dir, 'ppc')
+
+        if not os.path.isdir(ppc_dir):
+            return
+        self.log.debug('writing yaboot config for live media')
+        kvers = self._detectLinuxVersion(stage_dir)
+        if len(kvers) < 1:
+            self.log.critical('failed to find vmlinux to include in grub conf')
+            raise Error
+
+        timeout = self.conf['options'].get('boot_timeout')
+        if not timeout:
+            timeout = '30'
+
+        cmdline =  self.conf['options'].get('boot_cmdline')
+        if not cmdline:
+            cmdline = 'quiet'
+
+        self._writeYabootCfg(stage_dir, boot_dir, ppc_dir, kvers,
+                               timeout, cmdline)
+
+    def writeBootldr(self):
+        '''Choose which bootloader to configure based on archs, and
+        call the appropriate method to do that.'''
+        archs = self.conf['archs'].keys()
+
+        self._writeGrubWrap()
+        self._writeIsolinuxWrap()
+        if 'powerpc' in archs or 'ppc64' in archs:
+            self._writeYabootWrap()
+
+    def __md5sum(self, filename):
+        '''Calculate md5sum of a file and return it.'''
+        return apt_pkg.md5sum(file(filename))
+
+
+    def __sha256sum(self, filename):
+        '''Calculate sha256sum of a file and return it.'''
+        return apt_pkg.sha256sum(file(filename))
+
+
+    def _md5sums(self, base, dir, fnames):
+        '''Function given to os.path.walk of self.writeMd5Sums().'''
+        for f in fnames:
+            file = os.path.join(dir, f)
+            filename = file.partition(base)[2].lstrip('/')
+
+            if not os.path.isfile(file) or f == 'md5sums':
+                continue
+            if dir.endswith('grub') and f.find('stage') >= 0:
+                continue
+            if dir.endswith('isolinux') and f.find('isolinux.bin') >= 0:
+                continue
+            if f.find('iso_uuid') >= 0:
+                continue
+
+            md5sums = None
+            try:
+                md5sums = open(os.path.join(base, 'md5sums'), 'a')
+                md5sums.write("%s *%s\n" % (self.__md5sum(file), filename))
+            except IOError:
+                self.log.exception('failed to write md5sums file')
+                raise Error
+            finally:
+                if md5sums:
+                    md5sums.close()
+
+
+    def writeMd5Sums(self):
+        '''Calculate md5sums of major release contents.'''
+        self.log.info('calculating md5sums of live media...')
+        stage = os.path.join(self.temp, 'staging')
+        os.path.walk(stage, self._md5sums, stage)
+
+    def _signFile(self, file):
+        '''Sign a file with hashkey if available.'''
+        if self.opts.k:
+            self.log.info('Signing file %s...' % file)
+            cmd = ['gpg', '-s', '--default-key']
+            cmd.append(self.opts.k)
+            cmd.append(file)
+            self._execCmd(cmd)
+        else:
+            self.log.info('Not signing file %s: No key given.' % file)
+
+    def __archManifest(self, arch):
+        '''Write manifest information to file.'''
+        pkgs = self.pkgs[arch]['manifest'].keys()
+        pkgs.sort(key=len)
+        l = len(pkgs[-1])
+        pkgs.sort()
+
+        return ["%s %s\n" % (p.ljust(l), self.pkgs[arch]['manifest'][p])
+                for p in pkgs]
+
+
+    def _writeManifests(self, file):
+        '''Write package manifest lists.'''
+        archs = self.conf['archs'].keys()
+        for arch in archs:
+            manifest_name = '%s.%s.manifest' % (file, arch)
+
+            manifest_file = os.path.join(self.opts.o, manifest_name)
+
+            manifest = None
+            try:
+                manifest = open(manifest_file, 'w')
+                manifest.writelines(self.__archManifest(arch))
+            except IOError:
+                self.log.exception('failed to write file: %s' % manifest_file)
+                raise Error
+            finally:
+                if manifest:
+                    manifest.close()
+                    os.chown(manifest_file, self.opts.u, self.opts.g)
+
+
+    def _writeSources(self, file):
+        '''Write source URI lists.'''
+        sources_list = []
+        archs = self.conf['archs'].keys()
+        for arch in archs:
+            sources_list.extend(self.pkgs[arch]['source'])
+        sources_list = self.__filterList(sources_list, dup_warn = False)
+
+        sources_name = file + '.sources'
+        sources_file = os.path.join(self.opts.o, sources_name)
+
+        sources = None
+        try:
+            sources = open(sources_file, 'w')
+            sources.writelines(["%s\n" % s for s in sources_list])
+        except IOError:
+            self.log.exception('failed to write file: %s' % sources_file)
+            raise Error
+        finally:
+            if sources:
+                sources.close()
+                os.chown(sources_file, self.opts.u, self.opts.g)
+
+        cached = dict()
+        for r in self.conf['repos']:
+            if self.conf['repos'][r].get('cached'):
+                cached_uri = self.conf['repos'][r]['cached']
+                uri = self.conf['repos'][r]['uri']
+                cached[cached_uri.rstrip('/')] = uri.rstrip('/')
+
+        if len(cached.keys()) > 0:
+            os.rename(sources_file, sources_file + '-cached')
+        else:
+            return
+
+        sources = None
+        try:
+            sources = open(sources_file, 'w')
+            for s in sources_list:
+                for c in cached.keys():
+                    if s.startswith(c):
+                        s = s.replace(c, cached[c], 1)
+                        break
+                sources.write('%s\n' % s)
+        except IOError:
+            self.log.exception('failed to write file: %s' % sources_file)
+            raise Error
+        finally:
+            if sources:
+                sources.close()
+                os.chown(sources_file, self.opts.u, self.opts.g)
+
+
+    def genLiveMedia(self):
+        '''Generate live media iso image.'''
+        stage = os.path.join(self.temp, 'staging')
+
+        distro_name = self.conf['distro']['FLL_DISTRO_NAME']
+
+        iso_name = self._getDistroMediaName() + '.iso'
+
+        iso_file = os.path.join(self.opts.o, iso_name)
+        md5_file = iso_file + '.md5'
+        sha256_file = iso_file + '.sha256'
+
+        cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
+
+        if self.opts.v:
+            cmd += ' -v'
+        cmd += ' -pad -l'
+        cmd2 = ''
+
+        if os.path.isfile(os.path.join(stage, 'boot/isolinux/isolinux.bin')):
+            cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
+            cmd += ' -b boot/isolinux/isolinux.bin -c boot/isolinux/isolinux.cat'
+            cmd2 = 'isohybrid %s' % iso_file
+
+        elif os.path.isdir(os.path.join(stage, 'boot/grub')):
+            cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
+            if os.path.isfile(os.path.join(stage, 'boot/grub/grub_eltorito')):
+                cmd += ' -b boot/grub/grub_eltorito -no-emul-boot -boot-info-table --embedded-boot %s' % os.path.join(stage,'boot/grub/grub_embed')
+            elif os.path.isfile(os.path.join(stage, 'boot/grub/iso9660_stage1_5')):
+                cmd += ' -b boot/grub/iso9660_stage1_5 -c boot/grub/boot.cat'
+            elif os.path.isfile(os.path.join(stage, 'boot/grub/stage2_eltorito')):
+                cmd += ' -b boot/grub/stage2_eltorito -c boot/grub/boot.cat'
+            else:
+                self.log.critical('failed to find grub El Torito image file')
+                raise Error
+        elif os.path.isdir(os.path.join(stage, 'ppc')):
+            cmd += ' -chrp-boot -T -netatalk -hfs -probe'
+            cmd += ' -map %s/boot/hfs.map' % stage
+            cmd += ' -part -no-desktop -hfs-bless %s/boot' % stage
+            cmd += ' -hfs-volid %s --iso-level 2 --chrp-boot' % distro_name[:32]
+            # 4M/1G reserved for hfs recommended
+            # This limits to a full 4.7GB DVD
+            # (4.7*10^9)*(1/1024)
+            cmd += ' -hfs-parms MAX_XTCSIZE=18287938'
+
+        if os.path.isfile(os.path.join(stage, 'efi.img')):
+            uuid_file = None
+            uuid = None
+            try:
+                uuid_file = open(os.path.join(stage, 'iso_uuid'), 'r')
+                uuid = uuid_file.read()
+            except IOError:
+                self.log.exception('failed to read iso_uuid file')
+                raise Error
+            finally:
+                if uuid_file:
+                    uuid_file.close()
+            cmd += ' --modification-date=%s --efi-boot efi.img' % uuid
+
+        cmd += ' --protective-msdos-label -V %s' % distro_name[:32]
+        if os.path.isdir(os.path.join(stage, 'boot')):
+            cmd += ' --sort-weight 0 / --sort-weight 1 /boot'
+            if os.path.isdir(os.path.join(stage, 'boot/grub')):
+                cmd += ' --sort-weight 2 /boot/grub'
+        cmd += ' -x iso_uuid -x genisoimage.sort'
+        cmd += ' -o %s %s' % (iso_file, stage)
+
+        self.log.info('generating iso image of live media...')
+        self._execCmd(cmd.split())
+        if len(cmd2):
+            self.log.info('converting to hybrid iso...')
+            self._execCmd(cmd2.split())
+
+        os.chown(iso_file, self.opts.u, self.opts.g)
+
+        self.log.info('calculating md5sum of live media iso image...')
+        md5 = None
+        try:
+            md5 = open(md5_file, 'w')
+            md5.write("%s *%s\n" % (self.__md5sum(iso_file),
+                                    os.path.basename(iso_file)))
+        except IOError:
+            self.log.exception('failed to write md5sums file')
+            raise Error
+        finally:
+            if md5:
+                md5.close()
+                os.chown(md5_file, self.opts.u, self.opts.g)
+                if self.opts.k:
+                    self.log.info('signing md5 hash...')
+                    self._signFile(md5_file)
+                    os.chown(md5_file + '.gpg', self.opts.u, self.opts.g)
+
+        self.log.info('calculating sha256sum of live media iso image...')
+        sha256 = None
+        try:
+            sha256 = open(sha256_file, 'w')
+            sha256.write("%s *%s\n" % (self.__sha256sum(iso_file),
+                                       os.path.basename(iso_file)))
+        except IOError:
+            self.log.exception('failed to write sha256sums file')
+            raise Error
+        finally:
+            if sha256:
+                sha256.close()
+                os.chown(sha256_file, self.opts.u, self.opts.g)
+                if self.opts.k:
+                    self.log.info('signing sha256 hash...')
+                    self._signFile(sha256_file)
+                    os.chown(sha256_file + '.gpg', self.opts.u, self.opts.g)
+
+        self._writeManifests(os.path.splitext(iso_file)[0])
+        if not self.opts.B:
+            self._writeSources(os.path.splitext(iso_file)[0])
+
+        for f in glob.glob('%s*' % os.path.splitext(iso_file)[0]):
+            self.log.info(f)
+
+
+    def buildChroots(self):
+        '''Main loop to call all chroot building functions.'''
+        archs = self.conf['archs'].keys()
+	codename = self.opts.C
+        for arch in archs:
+            self._bootStrap(arch)
+            self._dpkgAddDivert(arch)
+            self._defaultEtc(arch)
+            self._distroDefaultEtc(arch)
+            self._preseedDebconf(arch)
+            self._primeApt(arch)
+            self._installPkgs(arch, codename)
+            self._postInst(arch)
+            self._collectManifest(arch)
+            self._finalEtc(arch)
+            self._dpkgUnDivert(arch)
+            self._makeInitramfs(arch)
+            self._cleanChroot(arch)
+            self._chrootImageFS(arch)
+            self._chrootSquashfs(arch)
+            self._stageArch(arch)
+            self._nukeChroot(arch)
+
+
+    def main(self):
+        '''Main loop.'''
+        self.checkOpts()
+        self.parseConf()
+        self.parsePkgProfile()
+        self.stageBuildArea()
+
+        if self.opts.n:
+            sys.exit(0)
+
+        self.buildChroots()
+        self.writeBootldr()
+        self.writeMd5Sums()
+        self.genLiveMedia()
+
+        duration = datetime.datetime.utcnow() - self.time
+        self.log.info('build duration was %d minutes and %d seconds' %
+                      divmod(duration.seconds, 60))
+
+
+if __name__ == '__main__':
+    p = optparse.OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
+                              '-o <directory> -l <file>] [-BdDpqv]')
+
+    p.add_option('-a', '--arch', dest = 'a', action = 'store',
+                 type = 'string', metavar = '<arch>',
+                 help = 'Build architecture, overrides config file.')
+
+    p.add_option('-b', '--build', dest = 'b', action = 'store',
+                 type = 'string', metavar = '<directory>',
+                 help = 'Build directory. A large amount of free space ' +
+                 'is required.')
+
+    p.add_option('-B', '--binary', dest = 'B', action = 'store_true',
+                 help = 'Do binary build only. Disable generation of ' +
+                 'URI lists. Default: %default')
+
+    p.add_option('-c', '--config', dest = 'c', action = 'store',
+                 type = 'string', metavar = '<config file>',
+                 help = 'Configuration file. This option may be used ' +
+                 'more than once to process multiple configurations. ' +
+                 'A configuration file must be specified.')
+
+    p.add_option('-d', '--debug', dest = 'd', action = 'store_true',
+                 help = 'Enable debug mode. Extra output will be ' +
+                 'to assist in development. Default: %default')
+
+    p.add_option('-D', '--dummy', dest = 'D', action = 'store_true',
+                 help = 'Enable dummy mode. Download only ' +
+                 'and no squashfs. Default: %default')
+
+    p.add_option('-g', '--gid', dest = 'g', action = 'store',
+                 type = 'int', metavar = '<group id>',
+                 help = optparse.SUPPRESS_HELP)
+
+    p.add_option('-k', '--hashkey', dest = 'k', action = 'store',
+                 type = 'string', metavar = '<key id>', help = 'Set key ' +
+                 'to sign MD5 and SHA256 hashes of the generated ISOs.')
+
+    p.add_option('-l', '--log', dest = 'l', action = 'store',
+                 type = 'string', metavar = '<file>',
+                 help = 'Log debug output to file. Note that when ' +
+                 'logging is enabled, output to the console is buffered.')
+
+    p.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
+                 help = optparse.SUPPRESS_HELP)
+
+    p.add_option('-o', '--output', dest = 'o', action = 'store',
+                 type = 'string', metavar = '<directory>',
+                 help = 'Output directory, where the product of this ' +
+                 'program will be generated.')
+
+    p.add_option('-p', '--profile', dest = 'p', action = 'store',
+                 type = 'string', metavar = '<profile>',
+                 help = 'Package profile, overrides config file.')
+
+    p.add_option('-P', '--preserve', dest = 'P', action = 'store_true',
+                 help = 'Preserve build directory. Disable automatic ' +
+                 'cleanup of the build area at exit.')
+
+    p.add_option('-q', '--quiet', dest = 'q', action = 'store_true',
+                 help = 'Enable quiet mode. Only high priority messages ' +
+                 'will be generated.')
+
+    p.add_option('-s', '--share', dest = 's', action = 'store',
+                 type = 'string', metavar = '<directory>',
+                 help = optparse.SUPPRESS_HELP)
+
+    p.add_option('-u', '--uid', dest = 'u', action = 'store',
+                 type = 'int', metavar = '<user id>',
+                 help = optparse.SUPPRESS_HELP)
+
+    p.add_option('-v', '--verbose', dest = 'v', action = 'store_true',
+                 help = 'Enable verbose mode. All messages will be ' +
+                 'generated, such as announcing current operation.')
+
+    p.set_defaults(b = None, B = False, d = False, D = False, g = os.getgid(),
+                   k = None, l = None, n = False, o = None, p = None,
+                   P = False, q = False, s = None, u = os.getuid(), v = False)
+
+    options = p.parse_args()[0]
+
+    try:
+        fll = FLLBuilder(options)
+        fll.main()
+    except KeyboardInterrupt:
+        pass
+    except Error:
+        sys.exit(1)

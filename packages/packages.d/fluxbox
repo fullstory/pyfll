@@ -1,0 +1,12 @@
+desc = """
+	fluxbox
+"""
+
+packages = """
+	fluxbox
+	feh
+"""
+
+i386 = """
+"""
+

@@ -1,0 +1,14 @@
+desc = """
+	Debian development utilities.
+"""
+
+packages = """
+	cdbs
+	debhelper
+	debconf-utils
+	devscripts
+	fakeroot
+	pbuilder
+	lintian
+"""
+

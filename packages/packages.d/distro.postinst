@@ -1,0 +1,78 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	say 'Reconfiguring distro-defaults'
+	# Reconfigure to ensure out LSB defaults are in place for
+	# starting desktop managers in runlevel 5 only
+	for dm in gdm3 kdm lxdm slim wdm xdm; do
+		[ -x /etc/init.d/${dm} ] || continue
+		update-rc.d -f ${dm} remove
+	done
+
+	dpkg-reconfigure distro-defaults
+
+	for dm in gdm3 kdm lxdm slim wdm xdm; do
+		[ -x /etc/init.d/${dm} ] || continue
+		update-rc.d ${dm} defaults
+	done
+
+	say 'Disabling selected initscripts which should not start in live mode'
+
+	# remember keep service blacklists in sync with fll-installer!
+	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single"
+	REMOVED_SERVICES=""
+	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
+
+	# disable services not wanted on the live CD
+	for service in ${DISABLED_SERVICES} ${SERVICE_BLACKLIST}; do
+		[ -x "/etc/init.d/${service}" ] || continue
+		update-rc.d "${service}" disable
+	done
+
+	# remove particularly nasty services, don't use!
+	for service in ${REMOVED_SERVICES}; do
+		[ -x "/etc/init.d/${service}" ] || continue
+		update-rc.d -f "${service}" remove
+	done
+
+	# Quite hacky, but /etc/nbd-client default conf
+	# leaves a broken partial /dev/nbd0 config
+	sed -i 's#/dev/nbd0##' /etc/nbd-client
+
+	say 'Hacking /etc/inittab for passwdless login'
+	# We also set default runlevel to 5
+	sed -e 's#^id:[0-6]:initdefault:#id:5:initdefault:#' \
+	    -e 's#:/sbin/getty#:/sbin/getty -n -i -l /usr/bin/fll_login#' \
+	    -e 's#^\([0-6]\):23:#\1:2345:#' \
+		/usr/share/sysvinit/inittab > /etc/inittab
+
+	say 'Preseeding /etc/adduser.conf'
+	sed -i 's/^DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
+
+	. /etc/default/distro
+	unset GROUPS
+	for g in ${FLL_LIVE_USER_GROUPS}; do
+		if getent group ${g} >/dev/null; then
+			GROUPS="${GROUPS} ${g}"
+		fi
+	done
+
+	sed -i -e 's/^#\?\(EXTRA_GROUPS=\).*/\1"'"${GROUPS# }"'"/' \
+	       -e 's/^#\?\(ADD_EXTRA_GROUPS=\).*/\11/' \
+		/etc/adduser.conf
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

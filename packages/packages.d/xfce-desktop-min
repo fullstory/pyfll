@@ -1,0 +1,44 @@
+desc = """
+	Lite XFCE desktop
+"""
+
+
+packages = """
+	desktop-file-utils
+	gconf2
+	gdm3
+	gksu
+	gtk2-engines-xfce
+	gnome-icon-theme
+	gnome-settings-daemon
+	gxine
+	gxineplugin
+	libnotify-bin
+	mousepad
+	mpg321
+	myspell-en-us
+	pm-utils
+	shared-mime-info
+	thunar
+	thunar-data
+	thunar-archive-plugin
+	thunar-media-tags-plugin
+	thunar-volman
+	trayer
+	xarchiver
+	xbitmaps
+	xchat
+	xfce4
+	xfce4-artwork
+	xfce4-dev-tools
+	xfce4-mixer
+	xfce4-panel
+	xfce4-session 
+	xfce4-terminal
+	xfce4-utils
+	xfdesktop4
+	xfprint4
+	xfwm4
+	xtrlock
+	zenity
+"""

@@ -1,0 +1,1006 @@
+--- /dev/null
++++ b/packages/dbw
+@@ -0,0 +1,23 @@
++desc = """
++        Packages required for the De Bortoli GT Desktop environment
++"""
++
++deps = """
++	cli
++	devel-dbw
++        distro-dbw
++	distro-ubuntu
++	games-dbw
++	gnome-dbw
++        hwsupport-essential
++        hwsupport-extra
++	hwsupport-printscan
++#	ldap-dbw
++	soe-dbw
++        utils-essential
++        utils-extra
++        utils-multimedia
++	wine
++	xserver
++"""
++
+--- /dev/null
++++ b/packages/packages.d/distro-dbw
+@@ -0,0 +1,36 @@
++desc = """
++        DBW specific common packages.
++"""
++
++debconf = """
++        passwd passwd/root-password-crypted password $1$cmHgNI82$hAaqjvCXNkXCJbmjdAWpm0
++"""
++
++packages = """
++	apt-conf-dbw
++	dbw-acroread-settings
++	dbw-art-wallpaper
++        dbw-chrome-settings
++        dbw-clipit-settings
++        dbw-filezilla-settings
++        dbw-init-scripts
++        dbw-launcher-mfg
++        dbw-launcher-email
++        dbw-launcher-rdesktop
++        dbw-mozilla-settings
++        dbw-ooo-settings
++        dbw-print
++	dbw-wizard
++        dbw-x11vnc-settings
++	hunspell-en-us
++	myspell-en-au
++	myspell-en-gb
++	udev-config-dbw
++	wbritish
++"""
++
++i386 = """
++"""
++
++amd64 = """
++"""
+--- /dev/null
++++ b/packages/packages.d/distro-ubuntu
+@@ -0,0 +1,34 @@
++desc = """
++        Ubuntu specific common packages.
++"""
++
++debconf = """
++"""
++
++packages = """
++	app-install-data-partner
++	branding-ubuntu
++        geoclue-ubuntu-geoip
++        launchpad-integration
++        ubuntu-artwork
++        ubuntu-docs
++        ubuntu-extras-keyring
++        ubuntu-keyring
++        ubuntu-minimal
++        ubuntu-keyring
++        ubuntu-sounds
++        ubuntu-system-service
++        ubuntu-wallpapers
++	unity
++	unity-asset-pool
++	unity-common
++	unity-place-applications
++	unity-place-files
++"""
++
++i386 = """
++"""
++
++amd64 = """
++"""
++
+--- /dev/null
++++ b/packages/packages.d/devel-dbw
+@@ -0,0 +1,19 @@
++desc = """
++        Developer tools for DBW IT users
++"""
++
++debconf = """
++"""
++
++packages = """
++	dnsutils
++	gparted
++	scite
++	tilda
++"""
++
++i386 = """
++"""
++
++amd64 = """
++"""
+--- /dev/null
++++ b/packages/packages.d/gnome-dbw
+@@ -0,0 +1,137 @@
++desc = """
++        Gnome specific packages for DBW/Ubuntu environment
++"""
++
++debconf = """
++"""
++
++packages = """
++	brasero
++	brasero-cdrkit
++        checkbox
++        checkbox-gtk
++	clipit
++	compiz
++	compiz-core
++	compiz-gnome
++	compiz-plugins
++	compiz-plugins-main
++	compizconfig-backend-gconf
++	eog
++	evince
++	firefox-gnome-support
++	file-roller
++	gcalctool
++	gconf-editor
++	gedit
++        gdm
++        geoclue
++	gnome-about
++	gnome-applets
++	gnome-applets-data
++	gnome-bluetooth
++	gnome-codec-install
++	gnome-control-center
++	gnome-desktop-data
++	gnome-disk-utility
++	gnome-doc-utils
++	gnome-games-common
++	gnome-icon-theme
++	gnome-mag
++	gnome-mahjongg
++	gnome-media
++	gnome-media-common
++	gnome-menus
++	gnome-mime-data
++	gnome-nettool
++	gnome-orca
++	gnome-panel
++	gnome-panel-bonobo
++	gnome-panel-data
++	gnome-power-manager
++	gnome-screensaver
++	gnome-screenshot
++	gnome-search-tool
++	gnome-session
++	gnome-session-bin
++	gnome-session-canberra
++	gnome-session-common
++	gnome-settings-daemon
++	gnome-sudoku
++	gnome-system-log
++	gnome-system-monitor
++	gnome-system-tools
++	gnome-terminal
++	gnome-terminal-data
++	gnome-themes-selected
++	gnome-themes-ubuntu
++	gnome-user-guide
++	gnome-utils-common
++	gnomine
++	gsettings-desktop-schemas
++	gstreamer0.10-alsa
++	gstreamer0.10-gnonlin
++	gstreamer0.10-nice
++	gstreamer0.10-plugins-base
++	gstreamer0.10-plugins-base-apps
++	gstreamer0.10-plugins-good
++	gstreamer0.10-pulseaudio
++	gstreamer0.10-tools
++	gstreamer0.10-x
++	humanity-icon-theme
++	ibus
++	ibus-gtk
++	ibus-pinyin
++	ibus-pinyin-db-android
++	ibus-table
++	im-switch
++	indicator-applet
++	indicator-applet-appmenu
++	indicator-applet-complete
++	indicator-applet-session
++	indicator-application
++	indicator-appmenu
++	indicator-datetime
++	indicator-me
++	indicator-messages
++	indicator-session
++	indicator-sound
++	keyboard-configuration
++	libcanberra-gtk-module
++	libcanberra-pulse
++	media-player-info
++	metacity
++	nautilus
++	nautilus-data
++	nautilus-sendto
++	nautilus-sendto-empathy
++	nautilus-share
++	network-manager-gnome
++	notify-osd
++	notify-osd-icons
++	policykit-desktop-privileges
++        popularity-contest
++	remmina
++	remmina-plugin-rdp
++	remmina-plugin-vnc
++        screensaver-default-images
++	seahorse
++	shotwell
++	simple-scan
++	software-center
++	system-config-printer-gnome
++	system-config-printer-udev
++	system-tools-backends
++	totem
++	totem-mozilla
++	totem-plugins
++	tsclient
++        ttf-ubuntu-font-family
++"""
++
++i386 = """
++"""
++
++amd64 = """
++"""
++
+--- a/packages/packages.d/hwsupport-essential
++++ b/packages/packages.d/hwsupport-essential
+@@ -4,17 +4,19 @@
+ 
+ packages = """
+ 	alsa-base
++	bluez
++	bluez-alsa
++	bluez-cups
++	bluez-gstreamer
+ 	br2684ctl
+ 	cpufrequtils
+-	crda
+ 	irqbalance
+ 	laptop-detect
+ 	lvm2
+-	mdadm
+-	nbd-client
+-	openfwwf
++	network-manager
+ 	pcmciautils
+ 	pciutils
++	pulseaudio
+ 	udev
+ """
+ 
+--- a/packages/packages.d/hwsupport-printscan
++++ b/packages/packages.d/hwsupport-printscan
+@@ -4,9 +4,10 @@
+ 
+ packages = """
+ 	cups
+-	cups-client
+ 	cups-bsd
++	cups-client
+ 	cups-driver-gutenprint
++	cups-ppdc
+ 	foomatic-db
+ 	foomatic-db-engine
+ 	foomatic-db-gutenprint
+@@ -14,8 +15,10 @@
+ 	foo2zjs
+ 	ghostscript-cups
+ 	ghostscript-x
++	hpijs
+ 	hpijs-ppds
+ 	hplip
++	hplip-cups
+ 	openprinting-ppds
+ 	min12xxw
+ 	pnm2ppa
+--- /dev/null
++++ b/packages/packages.d/ldap-dbw
+@@ -0,0 +1,27 @@
++desc = """
++        LDAP interraction tools
++"""
++
++debconf = """
++        libpam-runtime    libpam-runtime/profiles    multiselect    unix, ldap, consolekit
++        ldap-auth-config    ldap-auth-config/dbrootlogin    boolean    false
++        ldap-auth-config    ldap-auth-config/move-to-debconf    boolean    true
++        ldap-auth-config    ldap-auth-config/ldapns/ldap-server    string    ldap://ldap1 ldap://ldap2
++        ldap-auth-config    ldap-auth-config/ldapns/base-dn    string    dc=debortoli,dc=private
++        ldap-auth-config    ldap-auth-config/override    boolean    true
++        ldap-auth-config    ldap-auth-config/ldapns/ldap_version    select    3
++        ldap-auth-config    ldap-auth-config/dblogin    boolean    false
++"""
++
++packages = """
++	ldap-auth-config
++	libnss-ldap
++	libpam-ck-connector
++	libpam-ccreds
++	libpam-ldap
++	libpam-mount
++	libnss-db
++	ldap-auth-client
++	ldap-utils
++	nss-updatedb
++"""
+--- /dev/null
++++ b/packages/packages.d/soe-dbw
+@@ -0,0 +1,78 @@
++desc = """
++        DBW Standard Operating Environment packages - cross platform standard apps
++"""
++
++debconf = """
++	acroread        		acroread/default-viewer boolean false
++	ttf-mscorefonts-installer       msttcorefonts/accepted-mscorefonts-eula boolean true
++	sun-java6-jre     		shared/accepted-sun-dlj-v1-1    boolean true
++        ocsinventory-agent      	ocsinventory-agent/tag  string
++        ocsinventory-agent      	ocsinventory-agent/method       select  http
++        ocsinventory-agent      	ocsinventory-agent/server       string  ocs1
++"""
++
++packages = """
++	acroread=9.4.6-0natty1dbw1
++	filezilla
++	firefox
++	flashplugin-nonfree
++	gimp
++	gimp-data
++	gimp-help-common
++	gimp-help-en
++	gimp-plugin-registry
++	google-chrome-unstable
++	icedtea-plugin
++	inkscape
++	python-lxml
++	python-numpy
++	libwmf-bin
++	msttcorefonts
++	ocsinventory-agent
++        ooobasis3.3-base
++        ooobasis3.3-calc
++        ooobasis3.3-core01
++        ooobasis3.3-core02
++        ooobasis3.3-core03
++        ooobasis3.3-core04
++        ooobasis3.3-core05
++        ooobasis3.3-core06
++        ooobasis3.3-core07
++        ooobasis3.3-draw
++        ooobasis3.3-en-gb
++        ooobasis3.3-en-gb-base
++        ooobasis3.3-en-gb-calc
++        ooobasis3.3-en-gb-draw
++        ooobasis3.3-en-gb-help
++        ooobasis3.3-en-gb-impress
++        ooobasis3.3-en-gb-math
++        ooobasis3.3-en-gb-res
++        ooobasis3.3-en-gb-writer
++        ooobasis3.3-images
++        ooobasis3.3-impress
++        ooobasis3.3-javafilter
++        ooobasis3.3-ooolinguistic
++        ooobasis3.3-writer
++        openoffice.org-debian-menus
++        openoffice.org-ure
++        openoffice.org3
++        openoffice.org3-base
++        openoffice.org3-calc
++        openoffice.org3-dict-en
++        openoffice.org3-draw
++        openoffice.org3-en-gb
++        openoffice.org3-impress
++        openoffice.org3-writer
++	scribus
++	scribus-doc
++	scribus-template
++        sun-java6-bin
++        sun-java6-plugin
++"""
++
++i386 = """
++"""
++
++amd64 = """
++"""
++
+--- a/packages/packages.d/utils-essential
++++ b/packages/packages.d/utils-essential
+@@ -22,6 +22,8 @@
+ 	resolvconf
+ 	rsync
+ 	rsyslog
++	samba-common
++	samba-common-bin
+ 	sudo
+ 	wget
+ 	wireless-tools
+--- /dev/null
++++ b/packages/packages.d/gnome-dbw.postinst
+@@ -0,0 +1,124 @@
++#!/bin/sh -e
++
++set -x
++
++say() {
++	echo "I: $@..."
++}
++
++do_postinst() {
++	say 'Set nautilus bookmarks'
++	cat > /etc/skel/.gtk-bookmarks << EOF
++file:///data data
++file:///network network
++EOF
++
++	say 'Set custom gconf keys'
++
++	# set gconf xml.defaults
++	#background & screensaver
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /desktop/gnome/background/picture_filename "/usr/share/backgrounds/dbw-gt.jpg"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type bool --set /apps/gnome-screensaver/user_switch_enabled false
++	#clock applet
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type bool --set /apps/panel/applets/applet_1/prefs/show_weather false
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type bool --set /apps/panel/applets/applet_1/prefs/show_temperature false
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type list --list-type string --set /apps/panel/applets/applet_1/prefs/cities \
++	  '[<location name="Sydney" timezone="Australia/Sydney" latitude="-33.950001" longitude="151.183334" code="YSSY" current="false">,<location name="Adelaide" timezone="Australia/Adelaide" latitude="-34.933334" longitude="138.516663" code="YPAD" current="false">,<location name="Perth" timezone="Australia/Perth" latitude="-31.933332" longitude="115.949997" code="YPPH" current="false">,<location name="Brisbane" timezone="Australia/Brisbane" latitude="-27.383333" longitude="153.100006" code="YBBN" current="false">,<location name="London" timezone="Europe/London" latitude="51.483334" longitude="-0.450000" code="EGLL" current="false">,<location name="Brussels" timezone="Europe/Brussels" latitude="50.900002" longitude="4.533333" code="EBBR" current="false">,<location name="New York" timezone="America/New_York" latitude="40.783333" longitude="-73.966667" code="KNYC" current="false">]'
++
++	#close/max/min buttons on right
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /apps/metacity/general/button_layout "menu:minimize,maximize,close"
++	#nautilus defaults
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /apps/nautilus/preferences/default_folder_viewer "list_view"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /apps/nautilus/preferences/show_image_thumbnails "never"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /apps/nautilus/preferences/preview_sound "never"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /apps/nautilus/preferences/show_directory_item_counts "never"
++	#proxy
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /system/proxy/mode "manual"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /system/proxy/secure_host "proxy1"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type int --set /system/proxy/secure_port 80
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type bool --set /system/http_proxy/use_authentication true
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type bool --set /system/http_proxy/use_http_proxy true
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type bool --set /system/http_proxy/use_same_proxy true
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /system/http_proxy/host "proxy1"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type list --list-type string --set /system/http_proxy/ignore_hosts \
++	  [localhost,127.0.0.0/8,*.local,*.private,apache1,gulf,irms]
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type int --set /system/http_proxy/port 80
++	# gnome screen grabber
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /apps/compiz/plugins/gnomecompat/allscreens/options/command_screenshot "gnome-screenshot --interactive"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type string --set /apps/metacity/keybinding_commands/command_screenshot "gnome-screenshot --interactive"
++	# disable user switching
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type bool --set /desktop/gnome/lockdown/disable_user_switching true
++	# allow x restarts with ctrl+alt+bsp
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type list --list-type string --set /desktop/gnome/peripherals/keyboard/kbd/options \
++	  '[terminate      terminate:ctrl_alt_bksp]'
++	# number of workspaces
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
++	  --type int --set /apps/metacity/general/num_workspaces 1
++
++	# set gconf xml.mandatory
++	#proxy
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type string --set /system/proxy/mode "manual"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type string --set /system/proxy/secure_host "proxy1"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type int --set /system/proxy/secure_port 80
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type bool --set /system/http_proxy/use_authentication true
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type bool --set /system/http_proxy/use_http_proxy true
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type bool --set /system/http_proxy/use_same_proxy true
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type string --set /system/http_proxy/host "proxy1"
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type list --list-type string --set /system/http_proxy/ignore_hosts \
++	  [localhost,127.0.0.0/8,*.local,*.private,apache1,gulf,irms]
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type int --set /system/http_proxy/port 80
++	# disable user switching
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type bool --set /desktop/gnome/lockdown/disable_user_switching true
++	# allow x restarts with ctrl+alt+bsp
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type list --list-type string --set /desktop/gnome/peripherals/keyboard/kbd/options \
++	  '[terminate      terminate:ctrl_alt_bksp]'
++	# number of workspaces
++	gconftool --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
++	  --type int --set /apps/metacity/general/num_workspaces 1
++	return 0
++}
++
++case "${1}" in
++	postinst)
++		do_postinst
++		;;
++	*)
++		echo "Usage: ${0} postinst"
++		;;
++esac
++
++:
+--- /dev/null
++++ b/packages/packages.d/utils-extra.postinst
+@@ -0,0 +1,37 @@
++#!/bin/sh -e
++
++set -x
++
++say() {
++	echo "I: $@..."
++}
++
++do_postinst() {
++        say 'Hacking /etc/default/ntpdate for default local ntp server'
++        sed -i 's/^NTPSERVERS=.*/NTPSERVERS="ntp1.debortoli.private"/' /etc/default/ntpdate
++
++#        say 'Setting up authorised ssh hosts...'
++#	touch /root/tempfile
++#        mkdir -p /root/.ssh
++#        cat > /root/.ssh/authorized_keys << EOF
++#ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAycXDZKnEKYoDJ99FduTBZe5df8oI7JJgeRTnMKeVCtzExZs2JEjDOAq7+AdOvUe8Hvuu2AVsyFrj5FlaTpdeVDAUBWmvPaxK3i8cT7GUOdut5YU6y998USIvGnyEwnReM/51ttlxgACc7tNmorUiJ4X5Hyd+5jY5QMEEki9iJv0= root@mrtg1.debortoli.com.au
++#ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAycXDZKnEKYoDJ99FduTBZe5df8oI7JJgeRTnMKeVCtzExZs2JEjDOAq7+AdOvUe8Hvuu2AVsyFrj5FlaTpdeVDAUBWmvPaxK3i8cT7GUOdut5YU6y998USIvGnyEwnReM/51ttlxgACc7tNmorUiJ4X5Hyd+5jY5QMEEki9iJv0= root@mrtg1.debortoli.local
++#ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAycXDZKnEKYoDJ99FduTBZe5df8oI7JJgeRTnMKeVCtzExZs2JEjDOAq7+AdOvUe8Hvuu2AVsyFrj5FlaTpdeVDAUBWmvPaxK3i8cT7GUOdut5YU6y998USIvGnyEwnReM/51ttlxgACc7tNmorUiJ4X5Hyd+5jY5QMEEki9iJv0= root@mrtg1.debortoli.private
++#EOF
++#	ls -l /root/tempfile
++#	cat /root/.ssh/authorized_keys
++
++	return 0
++
++}
++
++case "${1}" in
++	postinst)
++		do_postinst
++		;;
++	*)
++		echo "Usage: ${0} postinst"
++		;;
++esac
++
++:
+--- a/packages/packages.d/essential
++++ b/packages/packages.d/essential
+@@ -10,12 +10,15 @@
+ 
+ packages = """
+ 	adduser
++	casper
+ 	console-setup
+-	fll-live-initramfs
+-	fll-live-initscripts
+ 	locales
++	plymouth-label
++	plymouth-theme-ubuntu-logo
++	plymouth-theme-ubuntu-text
+ 	squashfs-tools
+ 	initramfs-tools
++	upstart
+ """
+ 
+ i386 = """
+@@ -26,7 +29,6 @@
+ 
+ amd64 = """
+ 	grub-pc
+-	grub-efi-amd64-bin
+ 	efibootmgr
+ 	mtools
+ 	syslinux
+--- /dev/null
++++ b/packages/packages.d/games-dbw
+@@ -0,0 +1,11 @@
++desc = """
++        Games for the office desktop
++"""
++
++packages = """
++	aisleriot
++	gbrainy
++	gnome-sudoku
++	gnome-mahjongg
++	gnomine
++"""
+--- a/packages/packages.d/utils-extra
++++ b/packages/packages.d/utils-extra
+@@ -4,38 +4,41 @@
+ 
+ packages = """
+ 	aspell
+-	build-essential
+-	cdebootstrap
++	avahi-autoipd
++	avahi-daemon
++	avahi-utils
+ 	cdrdao
+ 	cryptsetup
+ 	debconf-utils
+-	debhelper
+ 	dvd+rw-tools
+ 	dvb-apps
+ 	dosfstools
+ 	ftp-ssl
+-	genisoimage
++	gvfs-backends
++	gvfs-fuse
+ 	iproute
+-	jfsutils
+ 	man-db
+ 	manpages
+-	memtest86+
+ 	mlocate
+-	module-assistant
+ 	ntpdate
+ 	ntfs-3g
++	ntfsprogs
+ 	nmap
+ 	openssh-client
+ 	pwgen
+-	reiserfsprogs
++	qcad
++	qcad-data
++	rdesktop
+ 	sshfs
+ 	smbclient
+ 	smbfs
+ 	strace
++	tcpdump
++	telnet
+ 	testdisk
+ 	tofrodos
+ 	traceroute
+-	xfsprogs
++	unionfs-fuse
+ 	unzip
+ 	vpnc
+ 	wodim
+--- a/packages/packages.d/hwsupport-extra
++++ b/packages/packages.d/hwsupport-extra
+@@ -9,6 +9,10 @@
+ 	bluez-pcmcia-support
+ 	dmidecode
+ 	dmsetup
++	pulseaudio-esound-compat
++	pulseaudio-module-bluetooth
++	pulseaudio-module-gconf
++	pulseaudio-module-x11
+ 	rfkill
+ 	usb-modeswitch
+ 	vbetool
+--- a/packages/packages.d/xserver
++++ b/packages/packages.d/xserver
+@@ -10,9 +10,13 @@
+ 	libgl1-mesa-dri-experimental
+ 	menu
+ 	mesa-utils
+-	sux
++#	nvidia-173
++#	nvidia-glx-173
++#	nvidia-173-kernel-source
+ 	ttf-dejavu
+ 	ttf-liberation
++	ttf-opensymbol
++	x11vnc
+ 	xauth
+ 	xfonts-base
+ 	xfonts-75dpi
+@@ -22,6 +26,11 @@
+ 	xserver-xorg
+ 	xserver-xorg-input-all
+ 	xserver-xorg-video-all
++	xserver-xorg-video-ati
++	xserver-xorg-video-fbdev
++	xserver-xorg-video-intel
++	xserver-xorg-video-vesa
++	xserver-xorg-video-vmware
+ 	xinit
+ 	xutils
+ """
+--- a/packages/packages.d/wine
++++ b/packages/packages.d/wine
+@@ -3,22 +3,11 @@
+ """
+ 
+ packages = """
+-	wine
+-	wine-utils
+-	libwine
+-	libwine-alsa
+-	libwine-capi
+-	libwine-cms
+-	libwine-dev
+-	libwine-esd
+-	libwine-gl
+-	libwine-gphoto2
+-	libwine-ldap
+-	libwine-nas
+-	libwine-print
+-	libwine-sane
++	gnome-exe-thumbnailer
++	ttf-symbol-replacement-wine1.3
++	wine1.3
++	wine1.3-gecko
+ """
+ 
+ i386 = """
+-	libwine-jack
+ """
+--- /dev/null
++++ b/packages/dbw-minimal
+@@ -0,0 +1,11 @@
++desc = """
++        Minimal set of packages required for test building the De Bortoli GT Desktop environment
++"""
++
++deps = """
++	distro-dbw
++        hwsupport-essential
++	ldap-dbw
++        utils-essential
++"""
++
+--- /dev/null
++++ b/packages/packages.d/ldap-dbw.postinst
+@@ -0,0 +1,171 @@
++#!/bin/sh -e
++
++say() {
++        echo "I: $@..."
++}
++
++do_postinst() {
++
++        say 'Configuring LDAP for DBW environment'
++        sed -i 's/compat/files ldap [NOTFOUND=return] db/' /etc/nsswitch.conf
++        pam-auth-update
++
++        cat >> /etc/pam.d/common-session << EOF
++session optional        pam_mkhomedir.so skel=/etc/skel umask=0077
++EOF
++
++        say 'Configuring sudo access for it'
++        cat >> /etc/sudoers << EOF
++# allow sudo access for IT
++%it ALL=(ALL) NOPASSWD: ALL
++
++EOF
++
++       cat >> /etc/ldap.conf << EOF
++# prevent local system users from being checked in ldap
++nss_initgroups_ignoreusers root,daemon,bin,sys,sync,games,man,lp,mail,news,uucp,proxy,www-data,backup,list,irc,gnats,nobody,libuuid,messagebus,syslog,avahi-autoipd,avahi,usbmux,speech-dispatcher,kernoops,pulse,rtkit,gdm,hplip,saned,ubuntu
++
++bind_policy soft
++
++timelimit 15
++
++bind_timelimit 15
++
++EOF
++
++	# cache ldap credentials locally
++	nss_updatedb ldap
++
++        # setup pam_mount.conf.xml
++        say 'Configuring pam_mount'
++        cat > /etc/security/pam_mount.conf.xml << EOF
++<?xml version="1.0" encoding="utf-8" ?>
++<!DOCTYPE pam_mount SYSTEM "pam_mount.conf.xml.dtd">
++<!--
++       See pam_mount.conf(5) for a description.
++-->
++
++<pam_mount>
++
++               <!-- debug should come before everything else,
++               since this file is still processed in a single pass
++               from top-to-bottom -->
++
++<debug enable="0" />
++
++               <!-- Volume definitions -->
++               <!-- Dirty hack cause the first one always fails... -->
++               <volume sgrp="Domain Users" fstype="cifs" server="3tales" path="dummy" mountpoint="/home/%(USER)/network/3tales/dummy" />
++               <!-- All Users -->
++               <volume sgrp="Domain Users" fstype="cifs" server="3tales" path="%(USER)" mountpoint="/home/%(USER)/network/3tales/%(USER)" />
++               <!--<volume sgrp="Domain Users" fstype="cifs" server="3tales" path="%(USER)" mountpoint="/home/%(USER)/network/3tales/%(USER)" /> -->
++               <volume sgrp="Domain Users" fstype="cifs" server="3tales" path="scratch" mountpoint="/home/%(USER)/network/3tales/scratch" />
++               <!-- Accounts -->
++               <volume sgrp="acc_pay" fstype="cifs" server="3tales" path="acc_pay" mountpoint="/home/%(USER)/network/3tales/acc_pay" />
++               <volume sgrp="acc_pay" fstype="cifs" server="3tales" path="brss" mountpoint="/home/%(USER)/network/3tales/brss" />
++               <volume sgrp="acc_rec" fstype="cifs" server="3tales" path="acc_rec" mountpoint="/home/%(USER)/network/3tales/acc_rec" />
++               <volume sgrp="acc_rec" fstype="cifs" server="3tales" path="bilbul_cellar_door" mountpoint="/home/%(USER)/network/3tales/bilbul_cellar_door" />
++               <volume sgrp="banking" fstype="cifs" server="3tales" path="banking" mountpoint="/home/%(USER)/network/3tales/banking" />
++               <!-- Branch Specific -->
++               <volume sgrp="branch_adel" fstype="cifs" server="3tales" path="branch_adel" mountpoint="/home/%(USER)/network/3tales/branch_adel" />
++               <volume sgrp="branch_bris" fstype="cifs" server="3tales" path="branch_bris" mountpoint="/home/%(USER)/network/3tales/branch_bris" />
++               <volume sgrp="branch_hun" fstype="cifs" server="3tales" path="branch_hun" mountpoint="/home/%(USER)/network/3tales/branch_hun" />
++               <volume sgrp="branch_melb" fstype="cifs" server="3tales" path="branch_melb" mountpoint="/home/%(USER)/network/3tales/branch_melb" />
++               <volume sgrp="branch_per" fstype="cifs" server="3tales" path="branch_per" mountpoint="/home/%(USER)/network/3tales/branch_per" />
++               <volume sgrp="branch_syd" fstype="cifs" server="3tales" path="branch_syd" mountpoint="/home/%(USER)/network/3tales/branch_syd" />
++               <volume sgrp="branch_syd_reports" fstype="cifs" server="3tales" path="branch_syd_reports" mountpoint="/home/%(USER)/network/3tales/branch_syd_reports" />
++               <volume sgrp="branch_yar" fstype="cifs" server="3tales" path="branch_yar" mountpoint="/home/%(USER)/network/3tales/branch_yar" />
++               <!-- Export -->
++               <volume sgrp="export" fstype="cifs" server="3tales" path="export" mountpoint="/home/%(USER)/network/3tales/export" />
++               <volume sgrp="export" fstype="cifs" server="3tales" path="exp_scratch" mountpoint="/home/%(USER)/network/3tales/exp_scratch" />
++               <volume sgrp="export" fstype="cifs" server="3tales" path="dbases" mountpoint="/home/%(USER)/network/3tales/dbases" />
++               <volume sgrp="export" fstype="cifs" server="3tales" path="spamm" mountpoint="/home/%(USER)/network/3tales/spamm" />
++               <!-- Finance -->
++               <volume sgrp="finance" fstype="cifs" server="3tales" path="finance" mountpoint="/home/%(USER)/network/3tales/finance" />
++               <volume sgrp="finance" fstype="cifs" server="3tales" path="fin_scratch" mountpoint="/home/%(USER)/network/3tales/fin_scratch" />
++               <volume sgrp="finance" fstype="cifs" server="3tales" path="gst" mountpoint="/home/%(USER)/network/3tales/gst" />
++               <volume sgrp="finance" fstype="cifs" server="3tales" path="spamm" mountpoint="/home/%(USER)/network/3tales/spamm" />
++               <!-- HR/Payroll -->
++               <volume sgrp="hr" fstype="cifs" server="3tales" path="hr" mountpoint="/home/%(USER)/network/3tales/hr" />
++               <volume sgrp="hr_public" fstype="cifs" server="3tales" path="hr_public" mountpoint="/home/%(USER)/network/3tales/hr_public" />
++               <volume sgrp="hr_scratch" fstype="cifs" server="3tales" path="hr_scratch" mountpoint="/home/%(USER)/network/3tales/hr_scratch" />
++               <volume sgrp="payroll" fstype="cifs" server="3tales" path="payroll" mountpoint="/home/%(USER)/network/3tales/payroll" />
++               <!-- IT -->
++               <volume sgrp="it" fstype="cifs" server="3tales" path="dbases" mountpoint="/home/%(USER)/network/3tales/dbases" />
++               <volume sgrp="it" fstype="cifs" server="3tales" path="it" mountpoint="/home/%(USER)/network/3tales/it" />
++               <volume sgrp="it" fstype="cifs" server="3tales" path="it_scratch" mountpoint="/home/%(USER)/network/3tales/it_scratch" />
++               <volume sgrp="it" fstype="cifs" server="3tales" path="promo" mountpoint="/home/%(USER)/network/3tales/promo" />
++               <volume sgrp="it" fstype="cifs" server="3tales" path="software" mountpoint="/home/%(USER)/network/3tales/software" />
++               <volume sgrp="it" fstype="cifs" server="3tales" path="spamm" mountpoint="/home/%(USER)/network/3tales/spamm" />
++               <volume sgrp="it" fstype="cifs" server="3tales" path="brss" mountpoint="/home/%(USER)/network/3tales/brss" />
++               <!-- Operations -->
++               <volume sgrp="brewery" fstype="cifs" server="3tales" path="brewery" mountpoint="/home/%(USER)/network/3tales/brewery" />
++               <volume sgrp="brewery" fstype="cifs" server="3tales" path="promash" mountpoint="/home/%(USER)/network/3tales/promash" />
++               <volume sgrp="cap_works" fstype="cifs" server="3tales" path="cap_works" mountpoint="/home/%(USER)/network/3tales/cap_works" />
++               <volume sgrp="cellar" fstype="cifs" server="3tales" path="cellar" mountpoint="/home/%(USER)/network/3tales/cellar" />
++               <volume sgrp="despatch" fstype="cifs" server="3tales" path="despatch" mountpoint="/home/%(USER)/network/3tales/despatch" />
++               <volume sgrp="engineering" fstype="cifs" server="3tales" path="engr" mountpoint="/home/%(USER)/network/3tales/engr" />
++               <volume sgrp="operations" fstype="cifs" server="3tales" path="operations" mountpoint="/home/%(USER)/network/3tales/operations" />
++               <volume sgrp="operations_admin" fstype="cifs" server="3tales" path="operations_administration" mountpoint="/home/%(USER)/network/3tales/operations_administration" />
++               <volume sgrp="packng" fstype="cifs" server="3tales" path="packng" mountpoint="/home/%(USER)/network/3tales/packng" />
++               <volume sgrp="planning" fstype="cifs" server="3tales" path="planning" mountpoint="/home/%(USER)/network/3tales/planning" />
++               <volume sgrp="quality" fstype="cifs" server="3tales" path="quality" mountpoint="/home/%(USER)/network/3tales/quality" />
++               <volume sgrp="risk_management" fstype="cifs" server="3tales" path="risk_management" mountpoint="/home/%(USER)/network/3tales/risk_management" />
++               <volume sgrp="vineyard" fstype="cifs" server="3tales" path="vineyard" mountpoint="/home/%(USER)/network/3tales/vineyard" />
++               <volume sgrp="weighbridge" fstype="cifs" server="3tales" path="weighbridge" mountpoint="/home/%(USER)/network/3tales/weighbridge" />
++               <volume sgrp="wmaking" fstype="cifs" server="3tales" path="dbases" mountpoint="/home/%(USER)/network/3tales/dbases" />
++               <volume sgrp="wmaking" fstype="cifs" server="3tales" path="wmaking" mountpoint="/home/%(USER)/network/3tales/dbases" />
++               <!-- Promo/Marketing -->
++               <volume sgrp="promo" fstype="cifs" server="3tales" path="promo" mountpoint="/home/%(USER)/network/3tales/promo" />
++               <volume sgrp="promo" fstype="cifs" server="3tales" path="promo_images_nbu" mountpoint="/home/%(USER)/network/3tales/promo_images_nbu" />
++               <volume sgrp="promo" fstype="cifs" server="3tales" path="spamm" mountpoint="/home/%(USER)/network/3tales/spamm" />
++               <volume sgrp="complaints" fstype="cifs" server="3tales" path="complaints" mountpoint="/home/%(USER)/network/3tales/complaints" />
++               <volume sgrp="marketing" fstype="cifs" server="3tales" path="marketing" mountpoint="/home/%(USER)/network/3tales/marketing" />
++               <!-- Sales -->
++               <volume sgrp="bilbul_cellar_door" fstype="cifs" server="3tales" path="bilbul_cellar_door" mountpoint="/home/%(USER)/network/3tales/bilbul_cellar_door" />
++               <volume sgrp="nat_accounts" fstype="cifs" server="3tales" path="nat_accounts" mountpoint="/home/%(USER)/network/3tales/nat_accounts" />
++               <volume sgrp="spamm" fstype="cifs" server="3tales" path="spamm" mountpoint="/home/%(USER)/network/3tales/spamm" />
++
++               <!-- pam_mount parameters: General tunables -->
++
++<!--
++<luserconf name=".pam_mount.conf.xml" />
++-->
++
++<!-- Note that commenting out mntoptions will give you the defaults.
++    You will need to explicitly initialize it with the empty string
++    to reset the defaults to nothing. -->
++<mntoptions allow="nosuid,nodev,loop,encryption,fsck,nonempty,allow_root,allow_other" />
++<!--
++<mntoptions deny="suid,dev" />
++<mntoptions allow="*" />
++<mntoptions deny="*" />
++-->
++<mntoptions require="nosuid,nodev" />
++<path>/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin</path>
++
++<logout wait="0" hup="0" term="0" kill="0" />
++
++
++               <!-- pam_mount parameters: Volume-related -->
++
++<mkmountpoint enable="1" remove="true" />
++
++</pam_mount>
++EOF
++
++
++}
++
++case "${1}" in
++        postinst)
++                do_postinst
++                ;;
++        *)
++                echo "Usage: ${0} postinst"
++                ;;
++esac
++
++:
++
++
+--- /dev/null
++++ b/packages/packages.d/soe-dbw.postinst
+@@ -0,0 +1,30 @@
++#!/bin/sh -e
++
++say() {
++	echo "I: $@..."
++}
++
++do_postinst() {
++	say 'setting x-www-browser to firefox'
++	update-alternatives --set x-www-browser /usr/bin/firefox
++
++	say 'uninstall openjdk'
++	apt-get remove -y openjdk*
++
++        say 'reconfiguring ocs1 config'
++        echo "server=ocs1" > /etc/ocsinventory/ocsinventory-agent.cfg
++
++        say 'remove custom chrome repository it sets up'
++        rm -f /etc/apt/sources.list.d/google-chrome.list
++}
++
++case "${1}" in
++	postinst)
++		do_postinst
++		;;
++	*)
++		echo "Usage: ${0} postinst"
++		;;
++esac
++
++:
+--- /dev/null
++++ b/packages/packages.d/utils-multimedia
+@@ -0,0 +1,12 @@
++desc = """
++        Misc. multimedia utilities for playback of common types
++"""
++
++debconf = """
++"""
++
++packages = """
++	flac
++	gstreamer0.10-plugins-ugly
++	gstreamer0.10-ffmpeg
++"""

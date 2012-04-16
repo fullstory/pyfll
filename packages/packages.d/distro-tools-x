@@ -1,0 +1,15 @@
+desc = """
+	Distro specific packages with dependencies on X Window System.
+"""
+
+packages = """
+	aptosid-irc
+	aptosid-manual-en
+	configure-cups
+	fll-live-xorgconfig
+	install-gui
+	install-usb-gui
+	kernel-remover
+	setpassword
+	xdg-browser-launcher
+"""
