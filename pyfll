@@ -7,7 +7,6 @@ __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
 from subprocess import *
-from fll.locales import FllLocales, FllLocalesError
 
 import apt_pkg
 import apt
@@ -29,7 +28,142 @@ def restore_sigpipe():
     SIGPIPE restored to default (http://bugs.python.org/issue1652)."""
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-class Error(Exception):
+FLL_LOCALE_DEFAULTS = {
+    'be': 'be_BY',
+    'cs': 'cs_CZ',
+    'da': 'da_DK',
+    'en': 'en_US',
+    'el': 'el_GR',
+    'ga': 'ga_IE',
+    'he': 'he_IL',
+    'ja': 'ja_JP',
+    'ko': 'ko_KR',
+    'nb': 'nb_NO',
+    'nn': 'nn_NO',
+    'pt': 'pt_BR',
+    'sl': 'sl_SI',
+    'zh': 'zh_CN'
+}
+
+
+class FllLocalesError(Exception):
+    """
+    An FllError class for use by FllLocales.
+    """
+    pass
+
+
+class FllLocales(object):
+    """
+    A class which provides the ability to determine lists of locale specific
+    Debian packages using it's detect_locale_packages method.
+
+    Arguments:
+    cache    - an apt_pkg cache object
+    packages - a list or dict of package names which are installed, or are
+               going to be installed. Locale specific packages are selected
+               for packages in this data structure.
+    map      - a dict which maps package names with a list of package prefixes
+               from which the locale string pattern matching can be used
+               to match locale support packages. The prefered input for map is:
+               ConfigObj('data/fll-locales-pkg-map').
+    """
+    def __init__(self, cache, packages, map):
+        self.loc_pkgs_set = set()
+        for pkg in cache.packages:
+            if not pkg.version_list:
+                continue
+            if pkg.name not in packages:
+                continue
+            for loc_pkg in map.keys():
+                if pkg.name == loc_pkg:
+                    loc_pkg_prefix_list = map.get(loc_pkg)
+                    for loc_pkg_prefix in loc_pkg_prefix_list:
+                        self.loc_pkgs_set.add(loc_pkg_prefix)
+                    break
+
+        self.loc_pkgs_list_dict = dict()
+        for loc_pkg in self.loc_pkgs_set:
+            self.loc_pkgs_list_dict[loc_pkg] = list()
+        for pkg in cache.packages:
+            if not pkg.version_list:
+                continue
+            for loc_pkg in self.loc_pkgs_set:
+                if pkg.name.startswith(loc_pkg + '-'):
+                    self.loc_pkgs_list_dict[loc_pkg].append(pkg.name)
+
+    def __compute_locale_loc_suf_list(self, locale):
+        """
+        Compute a list of locale package name suffixes. The sequence of
+        suffixes are in preferential order, the lowest index being most
+        preferential.
+
+        This is a very private method, used by detect_locale_packages.
+
+        Arguments:
+        locale - a locale string (eg. en_AU, pt_PT etc.)
+        """
+        loc_suf_list = list()
+        try:
+            ll, cc = locale.lower().split('_')
+        except ValueError, e:
+            raise FllLocalesError(e)
+        loc_suf_list.append(ll + '-' + cc)
+        loc_suf_list.append(ll + cc)
+        loc_suf_list.append(ll)
+
+        default = FLL_LOCALE_DEFAULTS.get(ll)
+        if default and default != locale:
+            try:
+                ll, cc = default.lower().split('_')
+            except ValueError, e:
+                raise FllLocalesError(e)
+            loc_suf_list.append(ll + '-' + cc)
+            loc_suf_list.append(ll + cc)
+        else:
+            loc_suf_list.append(ll + '-' + ll)
+            loc_suf_list.append(ll + ll)
+
+        if ll != 'en':
+            loc_suf_list.append('i18n')
+
+        return loc_suf_list
+
+    def detect_locale_packages(self, locale):
+        """
+        Process the data structures created at FllLocales instantiation and
+        return a list of package names which are the likely best candidates
+        for the locale string given as argument.
+
+        Arguments:
+        locale - a locale string (eg. en_AU, pt_PT etc.)
+        """
+        suffixes = self.__compute_locale_loc_suf_list(locale)
+
+        loc_pkg_dict = dict()
+        for pkg in self.loc_pkgs_set:
+            loc_pkgs_list = self.loc_pkgs_list_dict.get(pkg)
+            if not loc_pkgs_list:
+                continue
+            if pkg not in loc_pkg_dict:
+                loc_pkg_dict[pkg] = dict()
+            for loc_pkg in loc_pkgs_list:
+                for idx, suf in enumerate(suffixes):
+                    if loc_pkg == '-'.join([pkg, suf]):
+                       loc_pkg_dict[pkg][idx] = loc_pkg
+
+        packages = list()
+        for pkg in self.loc_pkgs_set:
+            pkg_candidates = loc_pkg_dict.get(pkg)
+            if not pkg_candidates:
+                continue
+            best = min(pkg_candidates)
+            packages.append(pkg_candidates[best])
+
+        return packages
+
+
+class FllError(Exception):
     '''A generic error handler that does nothing.'''
     pass
 
@@ -106,7 +240,7 @@ class FLLBuilder(object):
                 os.chown(dir, self.opts.u, self.opts.g)
             except:
                 self.log.exception('failed to create dir: %s' % dir)
-                raise Error
+                raise FllError
 
         return os.path.realpath(dir)
 
@@ -136,7 +270,7 @@ class FLLBuilder(object):
             os.chown(file, self.opts.u, self.opts.g)
         except:
             self.log.exception('failed to setup logfile')
-            raise Error
+            raise FllError
 
 
     def checkOpts(self):
@@ -155,16 +289,16 @@ class FLLBuilder(object):
             else:
                 self.log.critical('configuration file does not exist: %s' %
                                   self.opts.c)
-                raise Error
+                raise FllError
         else:
             self.log.critical('no config file specified on command line')
-            raise Error
+            raise FllError
 
         if self.opts.s:
             if not os.path.isdir(self.opts.s):
                 self.log.critical('share directory not exist: %s' %
                                   self.opts.s)
-                raise Error
+                raise FllError
 
         self.opts.s = os.path.realpath(self.opts.s)
 
@@ -185,7 +319,7 @@ class FLLBuilder(object):
             if not d.get(k):
                 self.log.critical("%s' is required in 'distro' section " % k +
                                   "of build conf")
-                raise Error
+                raise FllError
 
         for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
                   'FLL_LIVE_USER', 'FLL_DISTRO_CODENAME_SAFE',
@@ -194,17 +328,17 @@ class FLLBuilder(object):
                 continue
             if not d[k].isalnum():
                 self.log.critical("'%s' is not alphanumeric: %s" % (k, d[k]))
-                raise Error
+                raise FllError
             elif d[k].find(' ') >= 0:
                 self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
-                raise Error
+                raise FllError
 
         version = d.get('FLL_DISTRO_VERSION')
         if version and version != 'snapshot':
             if not d.get('FLL_DISTRO_CODENAME_SAFE'):
                 self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
                                   "'FLL_DISTRO_CODENAME_SAFE' is not")
-                raise Error
+                raise FllError
 
             for k in ['FLL_DISTRO_CODENAME', 'FLL_DISTRO_CODENAME_REV']:
                 safe = k + '_SAFE'
@@ -304,14 +438,14 @@ class FLLBuilder(object):
                 elif not isinstance(linux, list):
                     self.log.critical('invalid linux for arch %s in config'
                                       % arch)
-                    raise Error
+                    raise FllError
             for linux in self.conf['archs'][arch]['linux']:
                 self.log.debug("linux (%s): %s" %
                                (arch, self.conf['archs'][arch]['linux']))
 
         if len(self.conf['repos'].keys()) < 1:
             self.log.critical('no apt repos were specified in build config')
-            raise Error
+            raise FllError
 
         if 'sourcedistro' not in self.conf or \
            'name' not in self.conf['sourcedistro']:
@@ -321,13 +455,13 @@ class FLLBuilder(object):
             self.opts.N = self.conf['sourcedistro']['name']
             if 'codename' not in self.conf['sourcedistro']:
                 self.log.critical('codename undefined in distro section of build config')
-                raise Error
+                raise FllError
             else:
                 self.opts.C = self.conf['sourcedistro']['codename']
                 
         if self.opts.N not in self.conf['repos']:
             self.log.critical('%s repo not configured in build config' % self.opts.N)
-            raise Error
+            raise FllError
 
         for repo in self.conf['repos'].keys():
             if self.conf['repos'][repo].get('trivial'):
@@ -339,7 +473,7 @@ class FLLBuilder(object):
                 if word not in self.conf['repos'][repo]:
                     self.log.critical("no '%s' for apt repo '%s'" %
                                      (word, repo))
-                    raise Error
+                    raise FllError
 
         if self.opts.p:
             self.conf['packages']['profile'] = self.opts.p
@@ -404,7 +538,7 @@ class FLLBuilder(object):
                 self._getDistroMediaName()
         else:
             self.log.critical('distro section not found in build config')
-            raise Error
+            raise FllError
 
 
     def parseConf(self):
@@ -487,7 +621,7 @@ class FLLBuilder(object):
 
             if not os.path.isfile(depfile):
                 self.log.critical('no such dep file: %s' % depfile)
-                raise Error
+                raise FllError
 
             dname = os.path.basename(depfile)
             self.log.debug('processing dependency file: %s' % dname)
@@ -547,7 +681,7 @@ class FLLBuilder(object):
 
         if not os.path.isfile(file):
             self.log.critical('no such package profile file: %s' % file)
-            raise Error
+            raise FllError
 
         self.pkgs = dict()
         for arch in self.conf['archs'].keys():
@@ -616,7 +750,7 @@ class FLLBuilder(object):
                 except:
                     self.log.exception('problem copying media_include ' +
                                        'contents to staging dir')
-                    raise Error
+                    raise FllError
 
 
     def _mount(self, chroot):
@@ -630,7 +764,7 @@ class FLLBuilder(object):
             retv = call(cmd, preexec_fn=restore_sigpipe)
             if retv != 0:
                 self.log.critical('failed to mount chroot %s' % v[0])
-                raise Error
+                raise FllError
 
 
     def _umount(self, chrootdir):
@@ -643,7 +777,7 @@ class FLLBuilder(object):
                     umount_list.append(mnt)
         except IOError:
             self.log.exception('failed to open /proc/mounts')
-            raise Error
+            raise FllError
 
         umount_list.sort(key=len)
         umount_list.reverse()
@@ -652,7 +786,7 @@ class FLLBuilder(object):
             retv = call(['umount', mpoint], preexec_fn=restore_sigpipe)
             if retv != 0:
                 self.log.critical('umount failed for: %s' % mpoint)
-                raise Error
+                raise FllError
 
 
     def _nuke(self, dir):
@@ -663,7 +797,7 @@ class FLLBuilder(object):
                 shutil.rmtree(dir)
             except:
                 self.log.exception('unable to remove %s' % dir)
-                raise Error
+                raise FllError
         else:
             self.log.debug('not nuking directory (does not exist): %s' % dir)
 
@@ -705,10 +839,10 @@ class FLLBuilder(object):
             cout = c.communicate()[0]
             retv = c.returncode
         except KeyboardInterrupt:
-            raise Error
+            raise FllError
         except:
             self.log.exception('problem executing command: %s' % ' '.join(cmd))
-            raise Error
+            raise FllError
 
         for line in cout.splitlines():
             if self.opts.q:
@@ -719,7 +853,7 @@ class FLLBuilder(object):
         if retv != 0 and check_returncode:
             self.log.critical('command failed with return value: %d' %
                               c.returncode)
-            raise Error
+            raise FllError
 
 
     def __exec(self, cmd, check_returncode):
@@ -735,14 +869,14 @@ class FLLBuilder(object):
                 retv = call(cmd, env = self.env, close_fds = True,
                             preexec_fn=restore_sigpipe)
         except KeyboardInterrupt:
-            raise Error
+            raise FllError
         except:
             self.log.exception('problem executing command: %s' % ' '.join(cmd))
-            raise Error
+            raise FllError
 
         if retv != 0 and check_returncode:
             self.log.critical('command failed with return value: %d' % retv)
-            raise Error
+            raise FllError
 
 
     def _execCmd(self, cmd, check_returncode = True):
@@ -853,7 +987,7 @@ class FLLBuilder(object):
                     s.write('#   %-74s#\n' % file.partition(chroot)[2])
                 except IOError:
                     self.log.exception('failed to open /etc/apt/sources.list')
-                    raise Error
+                    raise FllError
                 finally:
                     if s:
                         s.close()
@@ -887,7 +1021,7 @@ class FLLBuilder(object):
                     list.write('deb-src ' + l)
             except IOError:
                 self.log.exception('failed to open %s' % file)
-                raise Error
+                raise FllError
             finally:
                 if list:
                     list.close()
@@ -899,7 +1033,7 @@ class FLLBuilder(object):
                 s.write('# ' * 39 + '#\n')
             except IOError:
                 self.log.exception('failed to open %s' % file)
-                raise Error
+                raise FllError
             finally:
                 if s:
                     s.close()
@@ -919,7 +1053,7 @@ class FLLBuilder(object):
             except IOError:
                 self.log.error('apt preferences file failed to copy: %s' %
                                apt_preferences)
-                raise Error
+                raise FllError
 
         self.log.debug('removing sources.list from %s chroot' % arch)
         list = os.path.join(chroot, 'etc/apt/sources.list')
@@ -1065,7 +1199,7 @@ class FLLBuilder(object):
                 f.write('exit 101\n')
         except IOError:
             self.log.exception('failed to open file for writing: %s' % file)
-            raise Error
+            raise FllError
         finally:
             if f:
                 f.close()
@@ -1101,7 +1235,7 @@ class FLLBuilder(object):
         except IOError:
             self.log.exception('failed to open file for writing: %s' %
                                distro_version)
-            raise Error
+            raise FllError
         finally:
             if f:
                 f.close()
@@ -1145,7 +1279,7 @@ class FLLBuilder(object):
             except IOError:
                 self.log.exception('failed to open file for writing: %s' %
                                    '/tmp/fll_debconf_selections')
-                raise Error
+                raise FllError
             finally:
                 if debconf:
                     debconf.close()
@@ -1174,7 +1308,7 @@ class FLLBuilder(object):
             return kvers
 
         self.log.critical('failed to detect linux version installed in chroot')
-        raise Error
+        raise FllError
 
 
     def _detectLocalePkgs(self, i18n, wanted, cache):
@@ -1305,7 +1439,7 @@ class FLLBuilder(object):
             srcpkg = self.__getSourcePkg(cache[p], depcache, records)
             if not srcpkg:
                 self.log.critical('failed to lookup srcpkg name for %s' % p)
-                raise Error
+                raise FllError
             self.log.debug('%s -> %s' % (p, srcpkg))
 
             if srcpkg in srcpkg_seen:
@@ -1323,7 +1457,7 @@ class FLLBuilder(object):
                 uris.extend(u)
             else:
                 self.log.critical('failed to query source uris for %s' % srcpkg)
-                raise Error
+                raise FllError
 
         uris.sort()
         self.pkgs[arch]['source'] = uris
@@ -1386,7 +1520,7 @@ class FLLBuilder(object):
                     rconf.write('Description: extra packages\n')
                 except IOError:
                     self.log.exception('error preparing reprepro for extras')
-                    raise Error
+                    raise FllError
                 finally:
                     if rconf:
                         rconf.close()
@@ -1424,7 +1558,7 @@ class FLLBuilder(object):
             except IOError:
                     self.log.exception('error writing i18n file for lang: %s' %
                                        lang)
-                    raise Error
+                    raise FllError
             finally:
                 if i18nlist:
                     i18nlist.close()
@@ -1452,7 +1586,7 @@ class FLLBuilder(object):
                     rconf.write('Description: i18n packages\n')
                 except IOError:
                     self.log.exception('error preparing reprepro')
-                    raise Error
+                    raise FllError
                 finally:
                     if rconf:
                         rconf.close()
@@ -1485,7 +1619,7 @@ class FLLBuilder(object):
             except:
                 self.log.exception('error preparing postinst script: %s' %
                                    sname)
-                raise Error
+                raise FllError
 
             cmd = '/tmp/%s postinst' % sname
             self._execInChroot(arch, cmd.split())
@@ -1540,7 +1674,7 @@ class FLLBuilder(object):
                 exclusion_handle.write('/%s\n' % line)
         except IOError:
             self.log.exception('error rewriting squashfs exclusion file')
-            raise Error
+            raise FllError
         finally:
             if exclusion_handle:
                 exclusion_handle.close()
@@ -1583,7 +1717,7 @@ class FLLBuilder(object):
             fsloop = rest[0][:-1]
         except IOError:
             self.log.exception('failed to retrieve free loop device from losetup')
-            raise Error
+            raise FllError
 
         # setup the loop device on the image file
         cmd = ['losetup', fsloop, os.path.join(chroot, 'squash', image_file)]
@@ -1619,7 +1753,7 @@ class FLLBuilder(object):
                 self.log.info('successfully detached loop device: %s' % fsloop)
                 break
             self.log.critical('failed to drop loop device: %s' % fsloop)
-            raise Error
+            raise FllError
        
         # create a dir, loop mount squash/image_file on it and rsync in chroot
         fs_image_mnt='%s.mnt' % image_file
@@ -1687,7 +1821,7 @@ class FLLBuilder(object):
             shutil.move(image_file, image_dir)
         except IOError:
             self.log.exception('failed to move squashfs image to staging dir')
-            raise Error
+            raise FllError
 
         if self.opts.D:
             return
@@ -1701,7 +1835,7 @@ class FLLBuilder(object):
             else:
                 self.log.critical('could not find initramfs image to ' +
                                   'copy to staging dir.')
-                raise Error
+                raise FllError
             
             images = glob.glob(os.path.join(chroot, 'boot', 'vmlinu*-' + k))
             if len(images) == 1:
@@ -1710,7 +1844,7 @@ class FLLBuilder(object):
             else:
                 self.log.critical('could not find linux kernel image to ' +
                                   'copy to staging dir.')
-                raise Error
+                raise FllError
 
         message = os.path.join(chroot, 'etc', 'bootsplash', 'themes', self.conf['distro']['FLL_GFXBOOT_THEME'], 'bootloader', 'message')
         if os.path.isfile(message):
@@ -1721,7 +1855,7 @@ class FLLBuilder(object):
             except IOError:
                 self.log.exception('failed to copy grub message file to ' +
                                    'staging dir')
-                raise Error
+                raise FllError
 
         if os.path.isdir(os.path.join(chroot, 'usr/lib/grub')):
             gfile_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
@@ -1744,14 +1878,14 @@ class FLLBuilder(object):
                     os.mkdir(grub_dir, 0755)
             else:
                 self.log.exception('grub stage files not found')
-                raise Error
+                raise FllError
 
             for file in gfiles:
                 try:
                     shutil.copy(file, grub_dir)
                 except IOError:
                     self.log.exception('failed to copy grub file to staging dir')
-                    raise Error
+                    raise FllError
 
             # efi
             gfile_dir = os.path.join(chroot, 'usr/lib/grub/x86_64-efi')
@@ -1769,7 +1903,7 @@ class FLLBuilder(object):
                         shutil.copy(file, grub_dir)
                     except IOError:
                         self.log.exception('failed to copy grub efi file to staging dir')
-                        raise Error
+                        raise FllError
                 efi_dir = os.path.join(self.temp, 'staging/efi/boot')
                 if not os.path.isdir(efi_dir):
                     os.makedirs(efi_dir, 0755)
@@ -1787,7 +1921,7 @@ class FLLBuilder(object):
                         shutil.copy(file, grub_dir)
                 except IOError:
                     self.log.exception('failed to copy efi boot files to staging dir')
-                    raise Error
+                    raise FllError
 
         isolinux = os.path.join(chroot, 'usr/lib/syslinux/isolinux.bin')
         if os.path.isfile(isolinux):
@@ -1806,7 +1940,7 @@ class FLLBuilder(object):
                        shutil.copy(file, syslinux_dir)
                    except IOError:
                        self.log.exception('failed to copy bootlogo files to staging dir')
-                       raise Error
+                       raise FllError
                #isl_pxe = os.path.join(chroot, 'usr/lib/syslinux/pxelinux.0');
                #shutil.copy(isl_pxe, stage_dir);
                # both vesamenu.c32 and linux.c32 seem to be required
@@ -1829,7 +1963,7 @@ class FLLBuilder(object):
                #isl_module = os.path.join(chroot, 'usr/lib/syslinux/reboot.c32');
             except IOError:
                     self.log.exception('failed to copy isolinux files')
-                    raise Error
+                    raise FllError
 
         yaboot = os.path.join(chroot, 'usr/lib/yaboot/yaboot')
         if os.path.isfile(yaboot):
@@ -1843,7 +1977,7 @@ class FLLBuilder(object):
                     os.mkdir(chrp_dir)
             except IOError:
                     self.log.exception('failed to copy yaboot file and make ppc dir')
-                    raise Error
+                    raise FllError
 
         memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
         memtest_out = os.path.join(boot_dir, 'memtest')
@@ -1853,7 +1987,7 @@ class FLLBuilder(object):
                 shutil.copy(memtest, memtest_out)
             except IOError:
                 self.log.exception('failed to copy memtest86+ to staging dir')
-                raise Error
+                raise FllError
 
 
     def _writeMenuLst(self, stage_dir, boot_dir, grub_dir, kvers,
@@ -1880,7 +2014,7 @@ class FLLBuilder(object):
             for f in [vmlinuz, initrd]:
                 if not os.path.isfile(os.path.join(boot_dir, f)):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
-                    raise Error
+                    raise FllError
 
             menulst.write('\n')
             menulst.write('title  %s %s (%s)\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
@@ -1941,7 +2075,7 @@ class FLLBuilder(object):
             for f in [vmlinuz, initrd]:
                 if not os.path.isfile(os.path.join(boot_dir, f)):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
-                    raise Error
+                    raise FllError
 
             grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
             grubcfg.write('	linux /boot/%s boot=fll $liveopts %s\n' % (vmlinuz, cmdline))
@@ -1995,7 +2129,7 @@ class FLLBuilder(object):
             for f in [vmlinuz, initrd]:
                 if not os.path.isfile(os.path.join(boot_dir, f)):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
-                    raise Error
+                    raise FllError
 
             # assumes isolinux config will rename them :-/
             vmlinuz_r = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
@@ -2049,7 +2183,7 @@ class FLLBuilder(object):
             for f in [vmlinux, initrd]:
                 if not os.path.isfile(os.path.join(boot_dir, f)):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
-                    raise Error
+                    raise FllError
 
             yaboot.write('\n')
             yaboot.write('image=/boot/%s\n' % (vmlinux))
@@ -2099,7 +2233,7 @@ class FLLBuilder(object):
             for f in [vmlinuz, initrd]:
                 if not os.path.isfile(os.path.join(boot_dir, f)):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
-                    raise Error
+                    raise FllError
 
             isolinuxcfg.write('\n')
             isolinuxcfg.write('label %s_%s_(%s)\n' % (distro, cpu, k))
@@ -2131,7 +2265,7 @@ class FLLBuilder(object):
         kvers = self._detectLinuxVersion(stage_dir)
         if len(kvers) < 1:
             self.log.critical('failed to find linux kernel image to include in boot conf')
-            raise Error
+            raise FllError
         return kvers
 
     def _configBootTimeout(self):
@@ -2185,7 +2319,7 @@ class FLLBuilder(object):
         kvers = self._detectLinuxVersion(stage_dir)
         if len(kvers) < 1:
             self.log.critical('failed to find vmlinux to include in grub conf')
-            raise Error
+            raise FllError
 
         timeout = self.conf['options'].get('boot_timeout')
         if not timeout:
@@ -2239,7 +2373,7 @@ class FLLBuilder(object):
                 md5sums.write("%s *%s\n" % (self.__md5sum(file), filename))
             except IOError:
                 self.log.exception('failed to write md5sums file')
-                raise Error
+                raise FllError
             finally:
                 if md5sums:
                     md5sums.close()
@@ -2287,7 +2421,7 @@ class FLLBuilder(object):
                 manifest.writelines(self.__archManifest(arch))
             except IOError:
                 self.log.exception('failed to write file: %s' % manifest_file)
-                raise Error
+                raise FllError
             finally:
                 if manifest:
                     manifest.close()
@@ -2311,7 +2445,7 @@ class FLLBuilder(object):
             sources.writelines(["%s\n" % s for s in sources_list])
         except IOError:
             self.log.exception('failed to write file: %s' % sources_file)
-            raise Error
+            raise FllError
         finally:
             if sources:
                 sources.close()
@@ -2340,7 +2474,7 @@ class FLLBuilder(object):
                 sources.write('%s\n' % s)
         except IOError:
             self.log.exception('failed to write file: %s' % sources_file)
-            raise Error
+            raise FllError
         finally:
             if sources:
                 sources.close()
@@ -2381,7 +2515,7 @@ class FLLBuilder(object):
                 cmd += ' -b boot/grub/stage2_eltorito -c boot/grub/boot.cat'
             else:
                 self.log.critical('failed to find grub El Torito image file')
-                raise Error
+                raise FllError
         elif os.path.isdir(os.path.join(stage, 'ppc')):
             cmd += ' -chrp-boot -T -netatalk -hfs -probe'
             cmd += ' -map %s/boot/hfs.map' % stage
@@ -2400,7 +2534,7 @@ class FLLBuilder(object):
                 uuid = uuid_file.read()
             except IOError:
                 self.log.exception('failed to read iso_uuid file')
-                raise Error
+                raise FllError
             finally:
                 if uuid_file:
                     uuid_file.close()
@@ -2430,7 +2564,7 @@ class FLLBuilder(object):
                                     os.path.basename(iso_file)))
         except IOError:
             self.log.exception('failed to write md5sums file')
-            raise Error
+            raise FllError
         finally:
             if md5:
                 md5.close()
@@ -2448,7 +2582,7 @@ class FLLBuilder(object):
                                        os.path.basename(iso_file)))
         except IOError:
             self.log.exception('failed to write sha256sums file')
-            raise Error
+            raise FllError
         finally:
             if sha256:
                 sha256.close()
@@ -2597,5 +2731,5 @@ if __name__ == '__main__':
         fll.main()
     except KeyboardInterrupt:
         pass
-    except Error:
+    except FllError:
         sys.exit(1)

@@ -29,7 +29,11 @@ pyfll (2012.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * add loopback.cfg for grub (e.g. super grub disk 2)
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 19 Apr 2012 14:34:03 +0200
+  [ Kel Modderman ]
+  * Incorporate FllLocales directly inline to remove dependency on python-fll
+  * Rename Error expection handler as FllError
+
+ -- Kel Modderman <kel@otaku42.de>  Wed, 25 Apr 2012 13:29:54 +1000
 
 pyfll (2011.03) ponos; urgency=low
 
