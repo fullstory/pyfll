@@ -15,6 +15,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * temporarily(?) disable packagesearch, maintenance for this package is
     seriously lacking (FTBS bug open for >8 months).
   * switch to icedtea-7-plugin.
+  * s/kdebase-workspace-bin/kde-workspace-bin/.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
@@ -36,7 +37,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * Incorporate FllLocales directly inline to remove dependency on python-fll
   * Rename Error expection handler as FllError
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Wed, 25 Apr 2012 19:24:37 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Fri, 27 Apr 2012 02:23:38 +0200
 
 pyfll (2011.03) ponos; urgency=low
 

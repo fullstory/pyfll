@@ -10,7 +10,7 @@ packages = """
 	gnome-session
 	initscripts
 	k3b
-	kdebase-workspace-bin
+	kde-workspace-bin
 	kontact
 	kopete
 	netbase
