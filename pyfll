@@ -1069,7 +1069,7 @@ class FLLBuilder(object):
                 keyrings.append(r['keyring'])
 
         if len(keyrings) > 0:
-            self._execInChroot(arch, 'apt-get update'.split())
+            self._execInChroot(arch, 'apt-get -o Acquire::Languages=none update'.split())
             cmd = 'apt-get --allow-unauthenticated --yes install'.split()
             cmd.extend(keyrings)
             self._execInChroot(arch, cmd)
@@ -1101,7 +1101,7 @@ class FLLBuilder(object):
             cmd = 'apt-key add /root/.gnupg/pubring.gpg'
             self._execInChroot(arch, cmd.split())
 
-        self._execInChroot(arch, 'apt-get update'.split())
+        self._execInChroot(arch, 'apt-get -o Acquire::Languages=none update'.split())
         # Upgrade any essential packages from sources not available
         # during bootstrap phase.
         self._execInChroot(arch, 'apt-get dist-upgrade -y'.split())

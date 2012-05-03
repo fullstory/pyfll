@@ -16,6 +16,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
     seriously lacking (FTBS bug open for >8 months).
   * switch to icedtea-7-plugin.
   * s/kdebase-workspace-bin/kde-workspace-bin/.
+  * don't request long descriptions.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
@@ -38,7 +39,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * Rename Error expection handler as FllError
   * add kde-workspace-bin to kde-essential.
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 02:46:00 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
 
 pyfll (2011.03) ponos; urgency=low
 
