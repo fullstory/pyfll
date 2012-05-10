@@ -17,6 +17,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * switch to icedtea-7-plugin.
   * s/kdebase-workspace-bin/kde-workspace-bin/.
   * don't request long descriptions.
+  * drop qtcurve for the time being.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
