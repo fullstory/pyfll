@@ -6,6 +6,7 @@ packages = """
 	aspell
 	build-essential
 	cdebootstrap
+	cifs-utils
 	cryptsetup
 	debconf-utils
 	debhelper
@@ -27,7 +28,6 @@ packages = """
 	reiserfsprogs
 	sshfs
 	smbclient
-	smbfs
 	strace
 	testdisk
 	tofrodos

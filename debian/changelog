@@ -18,6 +18,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * s/kdebase-workspace-bin/kde-workspace-bin/.
   * don't request long descriptions.
   * drop qtcurve for the time being.
+  * s/smbfs/cifs-utils/.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
