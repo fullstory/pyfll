@@ -48,6 +48,8 @@ do_postinst() {
 	sed -e 's#^id:[0-6]:initdefault:#id:5:initdefault:#' \
 	    -e 's#:/sbin/getty#:/sbin/getty -n -i -l /usr/bin/fll_login#' \
 	    -e 's#^\([0-6]\):23:#\1:2345:#' \
+	    -e "s/^\([1]\:[0-6]*\:respawn\:\\/sbin\\/getty.*\) --noclear\(.*$\)/\1\2/" \
+	    -e "s/^[1]\:[0-6]*\:respawn\:\\/sbin\\/getty.*$/& --noclear/" \
 		/usr/share/sysvinit/inittab > /etc/inittab
 
 	say 'Preseeding /etc/adduser.conf'

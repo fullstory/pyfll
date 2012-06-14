@@ -19,6 +19,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * don't request long descriptions.
   * drop qtcurve for the time being.
   * s/smbfs/cifs-utils/.
+  * supply --noclear to tty1, reverted by the installer.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
