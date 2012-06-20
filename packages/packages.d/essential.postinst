@@ -68,13 +68,6 @@ EOF
 		fi
 	fi
 
-	# Change MD5 to SHA-256 for password hashes.
-	say 'Modifying /etc/login.defs for SHA-256'
-	sed -i -r 's/^#?[[:space:]]*ENCRYPT_METHOD.*/ENCRYPT_METHOD SHA256/' \
-		/etc/login.defs
-	say 'Modifying /etc/pam.d/common-password for SHA-256'	
-	sed -i -r 's/(^password.*)md5/\1sha256/' /etc/pam.d/common-password
-
 	# initscripts defers creating the mtab symlink to the first boot,
 	# create it here to avoid the creation warning.
 	say 'Make mtab a symlink to /proc/mounts'

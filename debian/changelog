@@ -20,6 +20,8 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * drop qtcurve for the time being.
   * s/smbfs/cifs-utils/.
   * supply --noclear to tty1, reverted by the installer.
+  * SHA-512 is default for password hashing now, stop modifying login.defs/
+    common-password.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
