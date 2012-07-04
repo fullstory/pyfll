@@ -23,6 +23,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * SHA-512 is default for password hashing now, stop modifying login.defs/
     common-password.
   * add xserver-xorg-video-modesetting
+  * support keys for recent Debian kernels.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible

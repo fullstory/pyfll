@@ -2222,7 +2222,7 @@ class FLLBuilder(object):
         isolinuxmsg.write('\nWelcome!\n')
         isolinuxmsg.write('\nTo start the system, type one of the label names below and press [enter]:\n\n')
 
-        kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
+        kcount = { '686': 0, 'amd': 0, 'pae': 0, '486': 0, 'ppc': 0 }
         for k in kvers:
             cpu = k[k.rfind('-') + 1:]
             vmlinuz = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
