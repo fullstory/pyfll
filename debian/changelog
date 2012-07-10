@@ -24,6 +24,8 @@ pyfll (2012.01) UNRELEASED; urgency=low
     common-password.
   * add xserver-xorg-video-modesetting
   * support keys for recent Debian kernels.
+  * drop sux for the time being, it's totally broken and appears to be
+    unsupported by its maintainer.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible

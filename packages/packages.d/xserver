@@ -9,7 +9,7 @@ packages = """
 	libgl1-mesa-dri
 	menu
 	mesa-utils
-	sux
+#	sux
 	ttf-dejavu-core
 	ttf-dejavu-extra
 	fonts-liberation
