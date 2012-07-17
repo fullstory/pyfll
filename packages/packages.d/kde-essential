@@ -5,6 +5,7 @@ desc = """
 packages = """
 	ark
 	akonadi-backend-sqlite
+	ca-certificates
 	kaffeine
 	kde-plasma-desktop
 	kde-workspace-bin
