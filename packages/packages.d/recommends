@@ -18,4 +18,5 @@ packages = """
 	python-dbus
 	xfce4-session
 	seahorse-daemon
+	upower
 """

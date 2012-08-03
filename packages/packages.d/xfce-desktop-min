@@ -6,18 +6,18 @@ desc = """
 packages = """
 	desktop-file-utils
 	gconf2
-	gdm3
-	gksu
+	# gdm3
 	gtk2-engines-xfce
 	gnome-icon-theme
 	gxine
 	gxineplugin
 	libnotify-bin
+	lightdm
 	mousepad
 	mpg321
 	myspell-en-us
-	pm-utils
 	shared-mime-info
+	upower
 	thunar
 	thunar-data
 	thunar-archive-plugin
@@ -39,5 +39,4 @@ packages = """
 	xfprint4
 	xfwm4
 	xtrlock
-	zenity
 """
