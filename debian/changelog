@@ -27,12 +27,16 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * drop sux for the time being, it's totally broken and appears to be
     unsupported by its maintainer.
   * add ca-certificates to KDE flavours.
+  * don't hack /etc/nbd-client unconditionally.
 
   [ Joaquim Boura ]
   * gnome packages reformulated to a bare minimum. add always possible
   * gnome-desktop was missing. Also fixed my email address. 
   * replace kipi-plugins by kipi-plugins-common
   * added epiphany to the lite. stripped get's iceweasel
+  * switch xfce to lightdm. added upower to the recommends. removed some duplicated entries
+  * added lightdm to distro.postinst
+  * also for lxde
 
   [ Rick Battle ]
   * s/$old_release/thanatos/
@@ -49,11 +53,6 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * Incorporate FllLocales directly inline to remove dependency on python-fll
   * Rename Error expection handler as FllError
   * add kde-workspace-bin to kde-essential.
-
-  [ Joaquim Boura ]
-  * switch xfce to lightdm. added upower to the recommends. removed some duplicated entries
-  * added lightdm to distro.postinst
-  * also for lxde
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
 

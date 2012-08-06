@@ -41,7 +41,9 @@ do_postinst() {
 
 	# Quite hacky, but /etc/nbd-client default conf
 	# leaves a broken partial /dev/nbd0 config
-	sed -i 's#/dev/nbd0##' /etc/nbd-client
+	if [ -w /etc/nbd-client ]; then
+		sed -i 's|/dev/nbd0||' /etc/nbd-client
+	fi
 
 	say 'Hacking /etc/inittab for passwdless login'
 	# We also set default runlevel to 5
