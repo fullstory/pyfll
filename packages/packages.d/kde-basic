@@ -5,6 +5,7 @@ desc = """
 packages = """
 	gwenview
 	k3b
+	k3b-i18n
 	kcalc
 	khelpcenter4
 	kmix

@@ -54,6 +54,10 @@ pyfll (2012.01) UNRELEASED; urgency=low
   * Rename Error expection handler as FllError
   * add kde-workspace-bin to kde-essential.
 
+  [ Rick Battle ]
+  * added translation files for k3b per request:
+    http://www.aptosid.com/index.php?name=PNphpBB2&file=viewtopic&t=2446 
+
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
 
 pyfll (2011.03) ponos; urgency=low
