@@ -1,6 +1,10 @@
-pyfll (2012.01) UNRELEASED; urgency=low
+pyfll (2012.02) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
+
+pyfll (2012.01) thanatos; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * drop dhclient.conf mangling, #648676 has finally been fixed.
@@ -56,7 +60,7 @@ pyfll (2012.01) UNRELEASED; urgency=low
   [ Rick Battle ]
   * s/OpenOffice/LibreOffice/ in description of kde-full 
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sat, 01 Decy 2012 05:49:39 +0200
 
 pyfll (2011.03) ponos; urgency=low
 
