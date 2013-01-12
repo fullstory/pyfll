@@ -6,7 +6,7 @@ Uploaders: Stefan Lippers-Hollmann <s.l-h@gmx.de>,
  Joaquim Boura <x-un-i@sapo.pt>,
  Chris Hildebrandt <slam@aptosid.com>
 Build-Depends: debhelper (>= 9.20120115)
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Vcs-Svn: svn://svn.berlios.de/fullstory/pyfll/trunk
 Vcs-Browser: http://svn.berlios.de/wsvn/fullstory/pyfll/trunk/
 

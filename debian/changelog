@@ -1,6 +1,8 @@
-pyfll (2012.02) UNRELEASED; urgency=low
+pyfll (2013.01) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+  * bump standards version to 3.9.4, no changes necessary.
+  * update FSF postal address to be URLs.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
 
