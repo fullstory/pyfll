@@ -2067,6 +2067,8 @@ class FLLBuilder(object):
         grubcfg.write('if [ -n "${iso_path}" ]; then liveopts="${liveopts} fromiso=${iso_path}"; fi\n\n')
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
+        
+        kcount = { '686': 0, 'amd': 0, 'pae': 0, '486': 0, 'ppc': 0 }
         for k in kvers:
             cpu = k[k.rfind('-') + 1:]
             vmlinuz = 'vmlinuz-%s' % k
@@ -2077,10 +2079,15 @@ class FLLBuilder(object):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
                     raise FllError
 
+            # assumes isolinux config will rename them :-/
+            vmlinuz_r = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+            initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
+
             grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('	linux /boot/%s boot=fll $liveopts %s\n' % (vmlinuz, cmdline))
-            grubcfg.write('	initrd /boot/%s\n' % initrd)
+            grubcfg.write('	linux /boot/%s boot=fll $liveopts %s\n' % (vmlinuz_r, cmdline))
+            grubcfg.write('	initrd /boot/%s\n' % initrd_r)
             grubcfg.write('}\n')
+            kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
@@ -2117,7 +2124,7 @@ class FLLBuilder(object):
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         
-        kcount = { '686': 0, 'amd': 0, 'ppc': 0 }
+        kcount = { '686': 0, 'amd': 0, 'pae': 0, '486': 0, 'ppc': 0 }
         for k in kvers:
             cpu = k[k.rfind('-') + 1:]
             vmlinuz = 'vmlinuz-%s' % k
