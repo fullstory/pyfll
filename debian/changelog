@@ -7,6 +7,7 @@ pyfll (2013.01) UNRELEASED; urgency=low
 
   [ Niall Walsh ]
   * Fix grub.cfg to use isolinux renamed kernel and initrd
+  * add kmenuedit to kde-basic
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
 
