@@ -1495,8 +1495,8 @@ class FLLBuilder(object):
         # Fetch extra debs if appropriate and reprepro them
         extras = []
         if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/x86_64-efi')):
-            extras.append('grub-efi/experimental')
-            extras.append('grub-efi-amd64/experimental')
+            extras.append('grub-efi')
+            extras.append('grub-efi-amd64')
         if len(extras):
             self.pkgs[arch]['extras'] = dict()
             self._execInChroot(arch, ['apt-get', 'clean'])

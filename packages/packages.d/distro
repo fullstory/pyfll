@@ -14,9 +14,9 @@ packages = """
 """
 
 i386 = """
-	#gfxboot-theme-aptosid
+	gfxboot-theme-aptosid
 """
 
 amd64 = """
-	#gfxboot-theme-aptosid
+	gfxboot-theme-aptosid
 """

@@ -19,21 +19,17 @@ packages = """
 """
 
 i386 = """
-	grub-pc/experimental
+	grub-pc
 	mtools
-	#syslinux
+	syslinux
 """
 
 amd64 = """
-	grub-pc/experimental
-	grub-efi-amd64-bin/experimental
-	grub-common/experimental
-	grub2-common/experimental
-	grub-pc-bin/experimental
-	grub-theme-starfield/experimental
+	grub-pc
+	grub-efi-amd64-bin
 	efibootmgr
 	mtools
-	#syslinux
+	syslinux
 """
 
 powerpc = """

@@ -7,7 +7,6 @@ packages = """
 	k3b
 	kcalc
 	khelpcenter4
-	kmenuedit
 	kmix
 	knemo
 	kppp
