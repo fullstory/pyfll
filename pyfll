@@ -1347,8 +1347,13 @@ class FLLBuilder(object):
         self.log.info('detecting whitelisted recommended packages...')
         rec_module = ConfigObj(os.path.join(self.opts.s, 'packages',
                                             'packages.d', 'recommends'))
-        rec_dict = dict([(p, True) for p in
-                         self.__lines2list(rec_module['packages'])])
+        try:
+            rec_dict = dict([(p, True) for p in
+                             self.__lines2list(rec_module['packages'])])
+        except KeyError:
+            self.log.debug('rec_dict:')
+            return []
+
         self.log.debug('rec_dict:')
         self.log.debug(rec_dict)
 
