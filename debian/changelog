@@ -9,6 +9,14 @@ pyfll (2013.01) UNRELEASED; urgency=low
   * Fix grub.cfg to use isolinux renamed kernel and initrd
   * add kmenuedit to kde-basic
 
+  [ Kel Modderman ]
+  * Add python setup script and configuration for package build and
+    installation. Thanks to Bernard Gray.
+  * Add remaining skeletal debian/* components used for Debian package
+    building. Thanks again to Bernard Gray.
+  * Currently no binary packages are currently built from this source,
+    but they could be! Why not?
+
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
 
 pyfll (2012.01) thanatos; urgency=low

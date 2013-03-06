@@ -10,4 +10,18 @@ Standards-Version: 3.9.4
 Vcs-Svn: svn://svn.berlios.de/fullstory/pyfll/trunk
 Vcs-Browser: http://svn.berlios.de/wsvn/fullstory/pyfll/trunk/
 
-# No binary packages are currently built from this source
+# No binary packages are currently built from this source - but they could be!
+#Package: pyfll
+#Architecture: all
+#Depends: ${misc:Depends},
+#         ${python:Depends},
+#         python-apt,
+#         python-configobj,
+#         debootstrap | cdebootstrap,
+#         xorriso,
+#         squashfs-tools,
+#         syslinux
+#Recommends: reprepro
+#Description: FULLSTORY live linux media mastering utility
+# Live linux media mastering utility using an easily replicatable "cleanroom"
+# process
