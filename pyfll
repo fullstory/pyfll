@@ -686,6 +686,11 @@ class FLLBuilder(object):
         self.pkgs = dict()
         for arch in self.conf['archs'].keys():
             self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
+            try:
+                self.pkgs[arch]['packages'] += \
+                    self.__lines2list(self.conf['packages'][arch])
+            except KeyError:
+                pass
 
 
     def _getDebconfList(self, arch):
