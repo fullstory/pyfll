@@ -17,6 +17,10 @@ pyfll (2013.01) UNRELEASED; urgency=low
   * Currently no binary packages are currently built from this source,
     but they could be! Why not?
 
+  [ Rick Battle ]
+  * added libmtp-runtime to fix http://aptosid.com/index.php?name=
+    PNphpBB2&file=viewtopic&p=10761 
+
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Thu, 03 May 2012 23:42:06 +0200
 
 pyfll (2012.01) thanatos; urgency=low

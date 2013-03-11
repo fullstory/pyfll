@@ -9,6 +9,7 @@ packages = """
 	bluez-pcmcia-support
 	dmidecode
 	dmsetup
+	libmtp-runtime
 	rfkill
 	usb-modeswitch
 	vbetool
