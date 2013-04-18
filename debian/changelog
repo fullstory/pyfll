@@ -1,9 +1,12 @@
 pyfll (2013.01) UNRELEASED; urgency=low
 
-  [ Stefan Lippers-Hollmann ]
   * NOT RELEASED YET
+
+  [ Stefan Lippers-Hollmann ]
   * bump standards version to 3.9.4, no changes necessary.
   * update FSF postal address to be URLs.
+  * move dosfstools to utils-essential, mkfs.vfat is required for uefi
+    operations.
 
   [ Niall Walsh ]
   * Fix grub.cfg to use isolinux renamed kernel and initrd
