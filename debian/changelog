@@ -7,7 +7,7 @@ pyfll (2013.01) UNRELEASED; urgency=low
   * update FSF postal address to be URLs.
   * move dosfstools to utils-essential, mkfs.vfat is required for uefi
     operations.
-  * kill no longer existing ddrescue.
+  * replace RMed ddrescue by gddrescue.
   * add ethtool to utils-extra.
 
   [ Niall Walsh ]
