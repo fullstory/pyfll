@@ -4,7 +4,6 @@ desc = """
 
 packages = """
 	dar
-	ddrescue
 	hexedit
 	magicrescue
 """
