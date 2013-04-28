@@ -15,6 +15,8 @@ pyfll (2013.01) UNRELEASED; urgency=low
   [ Niall Walsh ]
   * Fix grub.cfg to use isolinux renamed kernel and initrd
   * add kmenuedit to kde-basic
+  * Add grub.efi.cfg so the efi grub menu offers an option to detect efi
+    files which creates a menu that lets you chainloader them.
 
   [ Kel Modderman ]
   * Add python setup script and configuration for package build and

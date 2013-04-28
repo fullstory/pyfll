@@ -2162,6 +2162,10 @@ class FLLBuilder(object):
         grubcfg.write('    configfile $prefix/grub.locale.cfg\n')
         grubcfg.write('}\n')
 
+        grubcfg.write('\nmenuentry \"Detect EFI bootloaders\" {\n')
+        grubcfg.write('    configfile $prefix/grub.efi.cfg\n')
+        grubcfg.write('}\n')
+
         grubcfg.close()
 
 
