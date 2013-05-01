@@ -11,6 +11,7 @@ pyfll (2013.01) UNRELEASED; urgency=low
   * add ethtool to utils-extra.
   * add xserver-xorg-video-qxl.
   * drop JAVA browser plugins.
+  * drop virtualbox-guest-x11, it won't be in main any longer.
 
   [ Niall Walsh ]
   * Fix grub.cfg to use isolinux renamed kernel and initrd
