@@ -27,11 +27,3 @@ packages = """
 	xinit
 	xutils
 """
-
-i386 = """
-	xserver-xorg-input-vmmouse
-"""
-
-amd64 = """
-	xserver-xorg-input-vmmouse
-"""
