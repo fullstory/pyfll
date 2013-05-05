@@ -1,6 +1,4 @@
-pyfll (2013.01) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+pyfll (2013.01) hesperides; urgency=low
 
   [ Stefan Lippers-Hollmann ]
   * bump standards version to 3.9.4, no changes necessary.
