@@ -5,6 +5,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   [ Stefan Lippers-Hollmann ]
   * drop explicit dependency on xserver-xorg-input-vmmouse, it's covered by
     xserver-xorg-input-all for jessie.
+  * s/iproute/&2/
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
 

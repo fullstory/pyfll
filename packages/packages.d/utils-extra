@@ -13,7 +13,7 @@ packages = """
 	dvb-apps
 	ethtool
 	ftp-ssl
-	iproute
+	iproute2
 	jfsutils
 	man-db
 	manpages
