@@ -6,10 +6,7 @@ desc = """
 packages = """
 	desktop-file-utils
 	gconf2
-	# gdm3
-	gtk2-engines-xfce
 	gnome-icon-theme
-	gxine
 	gxineplugin
 	libnotify-bin
 	lightdm
@@ -17,9 +14,6 @@ packages = """
 	mpg321
 	myspell-en-us
 	shared-mime-info
-	upower
-	thunar
-	thunar-data
 	thunar-archive-plugin
 	thunar-media-tags-plugin
 	thunar-volman
@@ -30,13 +24,7 @@ packages = """
 	xfce4
 	xfce4-artwork
 	xfce4-dev-tools
-	xfce4-mixer
-	xfce4-panel
-	xfce4-session 
+	xfce4-power-manager
 	xfce4-terminal
-	xfce4-utils
-	xfdesktop4
-	xfprint4
-	xfwm4
 	xtrlock
 """

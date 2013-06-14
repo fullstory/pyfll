@@ -7,6 +7,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
     xserver-xorg-input-all for jessie.
   * s/iproute/&2/
 
+  [ Joaquim Boura ]
+  * cleaned up xfce4-desktop-min
+
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
 
 pyfll (2013.01) hesperides; urgency=low
