@@ -6,6 +6,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop explicit dependency on xserver-xorg-input-vmmouse, it's covered by
     xserver-xorg-input-all for jessie.
   * s/iproute/&2/
+  * drop kexec for the time being, it doesn't update the current kernel
+    anymore.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
