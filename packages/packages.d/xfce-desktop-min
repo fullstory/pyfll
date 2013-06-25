@@ -7,7 +7,7 @@ packages = """
 	desktop-file-utils
 	gconf2
 	gnome-icon-theme
-	gxineplugin
+#	gxineplugin
 	libnotify-bin
 	lightdm
 	mousepad

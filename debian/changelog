@@ -10,6 +10,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     anymore.
   * add grub2 locale support for de_DE.
   * add grub2 locale support for nl_NL.
+  * disable gxine for the time being, broken dependencies.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
