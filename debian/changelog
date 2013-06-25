@@ -14,11 +14,12 @@ pyfll (2013.02) UNRELEASED; urgency=low
 
   [ Niall Walsh ]
   * grub >=2 fixups:
-    - do not append grub arch in $prefix for efi but source its grub.cfg
+    - do not append grub arch in $prefix
     - postpone rename of kernel/initrd to 8.3 until after bootloader configs
     - drop grub-legacy support
     - stage non-efi files under i386-pc
-    - loopback detects efi to source correct grub.cfg
+  * major overhaul of live grub.cfg (TODO populate locale data)
+  * temporary drop syslinux from essential for grub testing
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
 

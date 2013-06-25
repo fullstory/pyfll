@@ -34,7 +34,7 @@ set from=""
 export from
 search --fs-uuid --set=root ${iso_uuid}
 set prefix=(\${root})/boot/grub
-source \$prefix/x86_64-efi/grub.cfg
+source \$prefix/grub.cfg
 EOF
 			(cd "${memdisk_dir}"; tar -cf - boot) > "${memdisk_img}"
 			rm -rf ${memdisk_dir}
@@ -51,7 +51,7 @@ set from=fromhd
 export from
 search --file --set=root /boot/grub/x86_64-efi/${iso_uuid}
 set prefix=(\${root})/boot/grub
-source \$prefix/x86_64-efi/grub.cfg
+source \$prefix/grub.cfg
 EOF
 			(cd "${memdisk_dir}"; tar -cf - boot) > "${memdisk_img}"
 			rm -rf ${memdisk_dir}

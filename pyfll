@@ -1857,6 +1857,16 @@ class FLLBuilder(object):
                 raise FllError
 
         if os.path.isdir(os.path.join(chroot, 'usr/lib/grub')):
+            data_dir = os.path.join(self.opts.s, 'data')
+            grub_dir = os.path.join(boot_dir, 'grub')
+            if not os.path.isdir(grub_dir):
+                os.makedirs(grub_dir, 0755)
+            if not os.path.isfile(os.path.join(grub_dir, 'grub.cfg')):
+              shutil.copy(os.path.join(self.opts.s, 'data/grub.cfg'), grub_dir)
+              shutil.copy(os.path.join(chroot, 'usr/share/grub/unicode.pf2'), grub_dir)
+              shutil.copytree(os.path.join(self.opts.s, 'data/locales'), os.path.join(grub_dir, 'locales'))
+              shutil.copytree(os.path.join(self.opts.s, 'data/tz'), os.path.join(grub_dir, 'tz'))
+
             gfile_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
 
             grub2_modules = glob.glob(os.path.join(gfile_dir, '*.mod'))
@@ -1913,10 +1923,6 @@ class FLLBuilder(object):
                     uuid_dir = os.path.join(chroot, 'tmp/uuid')
                     ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
                     for file in ufiles:
-                        shutil.copy(file, grub_dir)
-                    data_dir = os.path.join(self.opts.s, 'data')
-                    mfiles = glob.glob(os.path.join(self.opts.s, 'data/grub.*.cfg'))
-                    for file in mfiles:
                         shutil.copy(file, grub_dir)
                 except IOError:
                     self.log.exception('failed to copy efi boot files to staging dir')
@@ -1994,23 +2000,7 @@ class FLLBuilder(object):
         '''Write grub.cfg for live media.'''
         self.log.debug('writing grub.cfg for live media')
 
-        grubcfg = open(os.path.join(grub_dir, 'grub.cfg'), 'w')
-        grubcfg.write('insmod biosdisk\n')
-        grubcfg.write('insmod pc\n')
-        grubcfg.write('insmod gpt\n')
-        grubcfg.write('set timeout=%d\n' % int(timeout))
-        grubcfg.write('if loadfont /usr/share/grub/unicode.pf2 ; then\n')
-        grubcfg.write('  set gfxmode=640x480\n')
-        grubcfg.write('  insmod gfxterm\n')
-        grubcfg.write('  insmod vbe\n')
-        grubcfg.write('  if terminal_output.gfxterm ; then true ; else\n')
-        grubcfg.write('    terminal gfxterm\n')
-        grubcfg.write('  fi\n')
-        grubcfg.write('fi\n\n')
-        grubcfg.write('set menu_color_normal=cyan/blue\n')
-        grubcfg.write('set menu_color_highlight=white/blue\n\n')
-        grubcfg.write('set liveopts="$from"\n\n')
-        grubcfg.write('if [ -n "${iso_path}" ]; then liveopts="${liveopts} fromiso=${iso_path}"; fi\n\n')
+        grubcfg = open(os.path.join(grub_dir, 'kernels.cfg'), 'w')
 
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         
@@ -2028,11 +2018,38 @@ class FLLBuilder(object):
             vmlinuz_r = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
             initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
 
-            grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('	linux /boot/%s boot=fll $liveopts %s\n' % (vmlinuz_r, cmdline))
+            if cpu[0:3] == 'amd':
+              grubcfg.write('if cpuid -l; then\n')
+            grubcfg.write('havekernel="Y"\n')
+            grubcfg.write('\nmenuentry \"%s %s (%s) $kopts\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
+            grubcfg.write('	linux /boot/%s boot=fll quiet $kopts %s\n' % (vmlinuz_r, cmdline))
             grubcfg.write('	initrd /boot/%s\n' % initrd_r)
             grubcfg.write('}\n')
+            if cpu[0:3] == 'amd':
+              grubcfg.write('fi\n')
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
+        grubcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
+        grubcfg.write('  menuentry "NO SUITABLE KERNELS AVAILABLE" {\n')
+        grubcfg.write('  echo "There are no kernels suitable for this machine available."\n')
+        grubcfg.write('  echo ""\n')
+        grubcfg.write('  if ! cpuid -l; then\n')
+        grubcfg.write('    echo "This machine is NOT 64bit capable."\n')
+        grubcfg.write('    for kk in /boot/vmlinu*.*86; do\n')
+        grubcfg.write('      if [ "$kk" != "/boot/vmlinu*.*86" ]; then\n')
+        grubcfg.write('        have32="true"\n')
+        grubcfg.write('      fi\n')
+        grubcfg.write('    done\n')
+        grubcfg.write('    if [ "${have32}" != "true" ]; then\n')
+        grubcfg.write('      echo "There are no 32bit kernels available"\n')
+        grubcfg.write('      echo "It appears you are trying to boot a 64bit release on a 32bit machine"\n')
+        grubcfg.write('      echo "This cannot work!"\n')
+        grubcfg.write('    fi\n')
+        grubcfg.write('  fi\n')
+        grubcfg.write('  echo "Press Escape to return to the main menu"\n')
+        grubcfg.write('  sleep --interruptible 9999\n')
+        grubcfg.write('  menu_reload\n')
+        grubcfg.write('  }\n')
+        grubcfg.write('fi\n')
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             grubcfg.write('\nmenuentry \"Memory test (memtest86+)\" {\n')
@@ -2043,70 +2060,9 @@ class FLLBuilder(object):
         
         self.log.debug('writing loopback.cfg for live media')
         grubcfg = open(os.path.join(grub_dir, 'loopback.cfg'), 'w')
-        grubcfg.write('if [ "${grub_platform}" = "efi" ]; then\n')
-        grubcfg.write('  source /boot/grub/x86_64-efi/grub.cfg\n')
-        grubcfg.write('else\n')
-        grubcfg.write('  source /boot/grub/grub.cfg\n')
-        grubcfg.write('fi\n')
+        grubcfg.write('source /boot/grub/grub.cfg\n')
         grubcfg.close()
         
-
-    def _writeGrubEfiCfg(self, stage_dir, boot_dir, grub_dir, kvers,
-                      timeout, cmdline):
-        '''Write grub.cfg for live media.'''
-        self.log.debug('writing efi grub.cfg for live media')
-
-        grubcfg = open(os.path.join(grub_dir, 'grub.cfg'), 'w')
-        grubcfg.write('insmod efi_gop\n')
-        grubcfg.write('insmod efi_uga\n')
-        grubcfg.write('insmod font\n')
-        grubcfg.write('set timeout=%d\n' % int(timeout))
-        grubcfg.write('if loadfont ${prefix}/unicode.pf2 ; then\n')
-        grubcfg.write('  set gfxmode=auto\n')
-        grubcfg.write('  insmod gfxterm\n')
-        grubcfg.write('  set gfxpayload=keep\n')
-        grubcfg.write('  terminal_output gfxterm\n')
-        grubcfg.write('fi\n\n')
-        grubcfg.write('set menu_color_normal=cyan/blue\n')
-        grubcfg.write('set menu_color_highlight=white/blue\n\n')
-        grubcfg.write('set kopts=\"$from $bootlang $kbd $tz\"\n\n')
-        grubcfg.write('if [ -n "${iso_path}" ]; then kopts="${kopts} fromiso=${iso_path}"; fi\n\n')
-
-        distro = self.conf['distro']['FLL_DISTRO_NAME']
-        
-        kcount = { '686': 0, 'amd': 0, 'pae': 0, '486': 0, 'ppc': 0 }
-        for k in kvers:
-            cpu = k[k.rfind('-') + 1:]
-            vmlinuz = 'vmlinuz-%s' % k
-            initrd = 'initrd.img-%s' % k
-
-            if cpu != 'amd64':
-                continue
-
-            for f in [vmlinuz, initrd]:
-                if not os.path.isfile(os.path.join(boot_dir, f)):
-                    self.log.critical('%s was not found in %s' % (f, boot_dir))
-                    raise FllError
-
-            vmlinuz_r = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
-            initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
-            
-            grubcfg.write('\nmenuentry \"%s %s (%s)\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('     linux /boot/%s boot=fll quiet $kopts %s\n' % (vmlinuz_r, cmdline))
-            grubcfg.write('     initrd /boot/%s\n' % initrd_r)
-            grubcfg.write('}\n')
-            kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
-
-        grubcfg.write('\nmenuentry \"Localisation\" {\n')
-        grubcfg.write('    configfile $prefix/grub.locale.cfg\n')
-        grubcfg.write('}\n')
-
-        grubcfg.write('\nmenuentry \"Detect EFI bootloaders\" {\n')
-        grubcfg.write('    configfile $prefix/grub.efi.cfg\n')
-        grubcfg.write('}\n')
-
-        grubcfg.close()
-
 
     def _writeYabootCfg(self, stage_dir, boot_dir, ppc_dir, kvers,
                       timeout, cmdline):
@@ -2257,10 +2213,6 @@ class FLLBuilder(object):
 
         self._writeGrubCfg(stage_dir, boot_dir, grub_dir, kvers,
                            timeout, cmdline)
-        grub_efi_dir = os.path.join(grub_dir, 'x86_64-efi')
-        if os.path.isdir(grub_efi_dir):
-            self._writeGrubEfiCfg(stage_dir, boot_dir, grub_efi_dir,
-                                  kvers, timeout, cmdline)
 
     def _writeYabootWrap(self):
         '''Write final yaboot configuration for live media.'''
@@ -2296,6 +2248,8 @@ class FLLBuilder(object):
         self._writeIsolinuxWrap()
         if 'powerpc' in archs or 'ppc64' in archs:
             self._writeYabootWrap()
+        if self.opts.D:
+            return
         stage_dir = os.path.join(self.temp, 'staging')
         boot_dir = os.path.join(stage_dir, 'boot')
         kcount = { '686': 0, 'amd': 0, 'pae': 0, '486': 0, 'ppc': 0 }
