@@ -8,6 +8,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/iproute/&2/
   * drop kexec for the time being, it doesn't update the current kernel
     anymore.
+  * add grub2 locale support for de_DE.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
