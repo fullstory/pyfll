@@ -8,8 +8,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/iproute/&2/
   * drop kexec for the time being, it doesn't update the current kernel
     anymore.
-  * add grub2 locale support for de_DE.
-  * add grub2 locale support for nl_NL.
   * disable gxine for the time being, broken dependencies.
 
   [ Joaquim Boura ]
@@ -21,8 +19,10 @@ pyfll (2013.02) UNRELEASED; urgency=low
     - postpone rename of kernel/initrd to 8.3 until after bootloader configs
     - drop grub-legacy support
     - stage non-efi files under i386-pc
-  * major overhaul of live grub.cfg (TODO populate locale data)
+  * major overhaul of live grub.cfg
   * temporary drop syslinux from essential for grub testing
+  * added locales2grub to use fll-live-initsripts locales.csv to produce
+    data/locales/ll_CC data/tz/$region and data/locales/keyboards
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
 

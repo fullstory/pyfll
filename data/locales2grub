@@ -1,0 +1,89 @@
+#!/usr/bin/perl
+use strict;
+
+my %res;
+my %tz;
+my $tz;
+my $reg;
+my $city;
+my %kbd;
+my $kbd;
+my $ll;
+my $cc;
+
+my $csv=shift;
+open(IN,$csv)||die "failed to open locales.csv file $csv for reading: $!";
+my $header=<IN>;
+my @names=split(/\t/,$header);
+
+while(<IN>){
+  my @fields=split(/\t/);
+  $fields[0]=~s/\.utf8$//;
+  ($ll, $cc)=split('_',$fields[0]);
+  next if ($ll=~/^00$/);
+  $fields[3]=~s/\,.*$//;
+  $res{$ll}{$cc}{'kbd'}=$fields[3];
+  $kbd{$fields[3]}=1 if ($fields[3]!~/^us$/);
+  #$res{$ll}{$cc}{'var'}=$fields[4];
+  #$res{$ll}{$cc}{'opt'}=$fields[5];
+  $res{$ll}{$cc}{'tz'}=$fields[6];
+  ($reg, $city) = split('/',$fields[6]);
+  $tz{$reg}{$city}=1;
+  if ($fields[1]=="0") {
+    unshift(@{$res{$ll}{'ccs'}},$cc);
+  }
+  else {
+    $res{$ll}{'ccs'}[length($res{$ll}{'ccs'})]=$cc;
+  }
+}
+close(IN);
+
+foreach $ll (sort(keys(%res))) {
+  #print $ll." ".join(",",@{$res{$ll}{'ccs'}})."\n";
+  foreach $cc (@{$res{$ll}{'ccs'}}) {
+    my $file="locales/${ll}_${cc}";
+    open(OUT,">$file")||die "failed to open $file for writing: $!";
+    print OUT "lang=$ll
+bootlang=\"lang=${ll}_${cc}\"
+def_bootlang=\"${ll}_${cc}\"
+if [ -z \"\${keyboard}\" ]; then
+  def_keyboard=\"$res{$ll}{$cc}{'kbd'}\"
+fi
+if [ -z \"\${timezone}\" ]; then
+  def_timezone=\"$res{$ll}{$cc}{'tz'}\"
+fi
+";
+    close(OUT);
+  }
+}
+
+my (%done);
+foreach $tz (sort(keys(%tz))) {
+  if ($done{$tz}==0) {
+    (-e "tz/$tz")&&(unlink "tz/$tz");
+    $done{$tz}=1;
+  }
+  open(OUT,">>tz/$tz")||die "failed to open tz/$tz for appending: $!";
+  my $cities=$tz{$tz};
+  my $list=join(" ",sort(keys(%$cities)));
+  print OUT "for tz in $list; do
+  menuentry \"$tz/\${tz}\" {
+    timezone=\"tz=\${1}\"
+    def_timezone=\"\${1}\"
+    menu_reload
+  }
+done
+";
+  close OUT;
+}
+my $file="locales/keyboards";
+open(OUT,">$file")||die "failed to open $file for writing : $!";
+print OUT 'for kk in '.join(" ",("us",sort(keys(%kbd)))).'; do
+      menuentry "keytable=${kk}" "${kk}" {
+        def_keyboard="${2}"
+        keyboard="keytable=${2}"
+        menu_reload
+      }
+    done
+';
+close(OUT);

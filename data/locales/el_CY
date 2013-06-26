@@ -1,6 +1,6 @@
 lang=el
-bootlang="lang=el_GR"
-def_bootlang="el_GR"
+bootlang="lang=el_CY"
+def_bootlang="el_CY"
 if [ -z "${keyboard}" ]; then
   def_keyboard="gr"
 fi
