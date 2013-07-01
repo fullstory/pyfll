@@ -23,6 +23,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * temporary drop syslinux from essential for grub testing
   * added locales2grub to use fll-live-initsripts locales.csv to produce
     data/locales/ll_CC data/tz/$region and data/locales/keyboards
+  * change kernel sorting to use apt_pkg and reverse
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
 
