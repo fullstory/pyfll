@@ -24,6 +24,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * added locales2grub to use fll-live-initsripts locales.csv to produce
     data/locales/ll_CC data/tz/$region and data/locales/keyboards
   * change kernel sorting to use apt_pkg and reverse
+  * re-kill display of memtest on UEFI where it fails
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
 
