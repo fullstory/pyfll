@@ -14,7 +14,6 @@ packages = """
 	kdeadmin
 	kdemultimedia-kio-plugins
 	kdepim-kresources
-	kdepim-wizards
 	kdf
 	kgamma
 	kget

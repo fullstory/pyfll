@@ -9,6 +9,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop kexec for the time being, it doesn't update the current kernel
     anymore.
   * disable gxine for the time being, broken dependencies.
+  * nuke obsolete kdepim-wizards from high orbit.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
