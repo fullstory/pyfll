@@ -10,6 +10,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
     anymore.
   * disable gxine for the time being, broken dependencies.
   * nuke obsolete kdepim-wizards from high orbit.
+  * packages.d/hwsupport-essential: add firmware-linux-free (carl9170).
+  * packages.d/firmware: add firmware-linux-nonfree (radeon).
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

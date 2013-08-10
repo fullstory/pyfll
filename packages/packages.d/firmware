@@ -16,6 +16,7 @@ packages = """
 	bluez-firmware
 	firmware-ipw2x00
 	firmware-iwlwifi
+	firmware-linux-nonfree
 	firmware-ralink
 	firmware-realtek
 	libertas-firmware
