@@ -1431,9 +1431,6 @@ class FLLBuilder(object):
 
         self.log.info('querying source package URIs for %s...' % arch)
 
-        sources = apt_pkg.SourceRecords()
-        sources.restart()
-
         packages = manifest.keys()
         packages.sort()
         srcpkg_seen = dict()
@@ -1460,6 +1457,8 @@ class FLLBuilder(object):
                 srcpkg_seen[srcpkg] = True
 
             u = []
+            sources = apt_pkg.SourceRecords()
+            sources.restart()
             while sources.lookup(srcpkg):
                 u.extend([sources.index.archive_uri(sources.files[f][2])
                           for f in range(len(sources.files))])

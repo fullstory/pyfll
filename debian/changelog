@@ -28,6 +28,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
     data/locales/ll_CC data/tz/$region and data/locales/keyboards
   * change kernel sorting to use apt_pkg and reverse
   * re-kill display of memtest on UEFI where it fails
+  * fix sources generation by recreating and restarting SourceRecords for
+    each package.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
 
