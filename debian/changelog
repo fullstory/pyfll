@@ -8,7 +8,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/iproute/&2/
   * drop kexec for the time being, it doesn't update the current kernel
     anymore.
-  * disable gxine for the time being, broken dependencies.
   * nuke obsolete kdepim-wizards from high orbit.
   * packages.d/hwsupport-essential: add firmware-linux-free (carl9170).
   * packages.d/firmware: add firmware-linux-nonfree (radeon).
