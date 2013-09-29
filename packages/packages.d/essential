@@ -21,7 +21,7 @@ packages = """
 i386 = """
 	grub-pc
 	mtools
-	#syslinux
+	syslinux
 """
 
 amd64 = """
@@ -29,7 +29,7 @@ amd64 = """
 	grub-efi-amd64-bin
 	efibootmgr
 	mtools
-	#syslinux
+	syslinux
 """
 
 powerpc = """

@@ -22,7 +22,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
     - drop grub-legacy support
     - stage non-efi files under i386-pc
   * major overhaul of live grub.cfg
-  * temporary drop syslinux from essential for grub testing
   * added locales2grub to use fll-live-initsripts locales.csv to produce
     data/locales/ll_CC data/tz/$region and data/locales/keyboards
   * change kernel sorting to use apt_pkg and reverse
