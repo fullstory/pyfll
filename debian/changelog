@@ -12,6 +12,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * packages.d/hwsupport-essential: add firmware-linux-free (carl9170).
   * packages.d/firmware: add firmware-linux-nonfree (radeon).
   * s/qemu-kvm/qemu-system/.
+  * drop explicit dependencies on xserver-xorg-video-modesetting and
+    xserver-xorg-video-qxl, these are now provided by xserver-xorg-driver-all.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
