@@ -16,7 +16,8 @@ packages = """
 	netbase
 	ntpdate
 	python-dbus
-	xfce4-session
+	qemu-system-x86
 	seahorse-daemon
 	upower
+	xfce4-session
 """

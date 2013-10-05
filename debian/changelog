@@ -14,6 +14,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/qemu-kvm/qemu-system/.
   * drop explicit dependencies on xserver-xorg-video-modesetting and
     xserver-xorg-video-qxl, these are now provided by xserver-xorg-driver-all.
+  * add qemu-system-x86 to automatic recommends handling.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
