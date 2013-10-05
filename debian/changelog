@@ -11,6 +11,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * nuke obsolete kdepim-wizards from high orbit.
   * packages.d/hwsupport-essential: add firmware-linux-free (carl9170).
   * packages.d/firmware: add firmware-linux-nonfree (radeon).
+  * s/qemu-kvm/qemu-system/.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
