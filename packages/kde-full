@@ -26,9 +26,16 @@ deps = """
 packages = """
 	dnsutils
 	iceweasel
-	qemu-system
 	myspell-en-us
 	libreoffice-kde
 	spice-vdagent
 	spice-client-gtk
+"""
+
+amd64 = """
+	qemu-system-x86
+"""
+
+i386 = """
+	qemu-system-x86
 """
