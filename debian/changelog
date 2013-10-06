@@ -17,6 +17,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * add qemu-system-x86 to automatic recommends handling, install
     qemu-system-x86 only on x86 systems.
   * s/kdemultimedia-kio-plugins/kio-audiocd/
+  * s/ttf-dejavu-core/fonts-dejavu-core/
+  * s/ttf-dejavu-extra/fonts-dejavu-extra/
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
