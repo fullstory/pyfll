@@ -12,12 +12,12 @@ packages = """
 	kbattleship
 	kcharselect
 	kdeadmin
-	kdemultimedia-kio-plugins
 	kdepim-kresources
 	kdf
 	kgamma
 	kget
 	kgpg
+	kio-audiocd
 	kipi-plugins
 	kmahjongg
 	kmail
