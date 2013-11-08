@@ -37,6 +37,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * fix sources generation by recreating and restarting SourceRecords for
     each package.
 
+  [ Roland Engert ]
+  * add initial razorqt profile 
+
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
 
 pyfll (2013.01) hesperides; urgency=low

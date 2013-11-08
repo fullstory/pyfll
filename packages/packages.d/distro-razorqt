@@ -1,0 +1,14 @@
+desc = """
+	Distro specific packages for an LXDE desktop.
+"""
+
+packages = """
+	lightdm
+#	desktop-defaults-razorqt
+	aptosid-art-wallpaper
+#	aptosid-art-razorqt
+	gparted
+	razorqt
+	razorqt-lightdm-greeter
+	kde-runtime
+"""
