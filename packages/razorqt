@@ -19,4 +19,6 @@ deps = """
 """
 
 packages = """
+	qupzilla
+	qpdfview
 """
