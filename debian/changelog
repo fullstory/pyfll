@@ -19,6 +19,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/kdemultimedia-kio-plugins/kio-audiocd/
   * s/ttf-dejavu-core/fonts-dejavu-core/
   * s/ttf-dejavu-extra/fonts-dejavu-extra/
+  * exclude D-Bus machine-id.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
