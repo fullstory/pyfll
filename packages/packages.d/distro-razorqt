@@ -4,7 +4,7 @@ desc = """
 
 packages = """
 	lightdm
-#	desktop-defaults-razorqt
+	desktop-defaults-razorqt
 	aptosid-art-wallpaper
 #	aptosid-art-razorqt
 	gparted
