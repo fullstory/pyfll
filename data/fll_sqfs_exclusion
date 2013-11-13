@@ -32,7 +32,7 @@ var/cache/debconf/*-old
 var/lib/alsa/asound.state
 var/lib/apt/extended_states
 var/lib/apt/lists/*_dists_*
-/var/lib/dbus/machine-id
+var/lib/dbus/machine-id
 var/lib/dpkg/*-old
 var/lib/initramfs-tools/*
 var/run/*
