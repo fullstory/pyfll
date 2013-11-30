@@ -22,6 +22,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * exclude D-Bus machine-id.
   * razorqt: enable desktop-defaults-razorqt, use iceweasel instead of
     qupzilla.
+  * retire ghostscript-cups.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

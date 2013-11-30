@@ -10,7 +10,6 @@ packages = """
 	foomatic-db-engine
 	foomatic-db-gutenprint
 	foomatic-filters
-	ghostscript-cups
 	ghostscript-x
 	hpijs-ppds
 	hplip
