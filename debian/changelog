@@ -25,6 +25,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * retire ghostscript-cups.
   * retire foomatic-filters.
   * disable hpijs-ppds for the time being.
+  * add /run/ to the exclusion list.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

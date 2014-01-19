@@ -23,6 +23,8 @@ mnt/*
 proc/*
 root/*
 root/.*
+run/*
+run/.*
 sys/*
 tmp/*
 tmp/.*
@@ -36,3 +38,4 @@ var/lib/dbus/machine-id
 var/lib/dpkg/*-old
 var/lib/initramfs-tools/*
 var/run/*
+var/run/.*
