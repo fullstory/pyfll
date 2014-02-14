@@ -55,7 +55,9 @@ do_postinst() {
 		    -e "s/^\([1]\:[0-6]*\:respawn\:\\/sbin\\/getty.*\) --noclear\(.*$\)/\1\2/" \
 		    -e "s/^[1]\:[0-6]*\:respawn\:\\/sbin\\/getty.*$/& --noclear/" \
 			/usr/share/sysvinit/inittab > /etc/inittab
-	elif [ -r '/lib/systemd/system/getty@.service' ]; then
+	fi
+
+	if [ -r '/lib/systemd/system/getty@.service' ]; then
 		say 'systemd: Hacking /etc/systemd/system/getty@.service for passwordless login'
 		sed -e 's#^ExecStart=.*#ExecStart=-/sbin/agetty --noclear -n -i -l /usr/bin/fll_login %I 38400 linux#' \
 			'/lib/systemd/system/getty@.service' > '/etc/systemd/system/getty@.service'
