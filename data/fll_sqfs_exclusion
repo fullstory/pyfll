@@ -11,8 +11,11 @@ etc/localtime
 etc/lvm/archive
 etc/lvm/backup
 etc/lvm/cache
+etc/machine-id
 etc/timezone
 etc/ssh/ssh_host_*key*
+etc/ssl/certs/ssl-cert-snakeoil.pem
+etc/ssl/private/ssl-cert-snakeoil.key
 etc/udev/rules.d/70-persistent-*.rules
 etc/X11/xorg.conf
 home/*

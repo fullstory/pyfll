@@ -27,6 +27,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * disable hpijs-ppds for the time being.
   * add /run/ to the exclusion list.
   * extend getty mangling code to support systemd.
+  * exclude machine_id from generated ISOs.
+  * exclude snakeoil SSL certificates from generated images.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
