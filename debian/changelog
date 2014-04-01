@@ -30,6 +30,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * exclude machine_id from generated ISOs.
   * exclude snakeoil SSL certificates from generated images.
   * update packages.d/firmware.
+  * elinks-lite no longer exists, use full elinks instead.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
