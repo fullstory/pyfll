@@ -29,6 +29,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * extend getty mangling code to support systemd.
   * exclude machine_id from generated ISOs.
   * exclude snakeoil SSL certificates from generated images.
+  * update packages.d/firmware.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
