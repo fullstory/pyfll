@@ -31,6 +31,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * exclude snakeoil SSL certificates from generated images.
   * update packages.d/firmware.
   * elinks-lite no longer exists, use full elinks instead.
+  * exclude (empty) bootstrap.log.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
