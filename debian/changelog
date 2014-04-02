@@ -32,6 +32,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * update packages.d/firmware.
   * elinks-lite no longer exists, use full elinks instead.
   * exclude (empty) bootstrap.log.
+  * disable flegita for the time being, it's not installable.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

@@ -5,7 +5,7 @@ desc = """
 packages = """
 	liferea
 	epiphany-extensions
-	flegita
+#	flegita
 	gnome-bluetooth
 	f-spot
 	hplip-gui
