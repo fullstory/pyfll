@@ -35,6 +35,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * disable flegita for the time being, it's not installable.
   * bump standards version to 3.9.5, no changes necessary.
   * debian/control: switch Vcs tags to github.
+  * disable testdisk for the time being.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

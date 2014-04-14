@@ -29,7 +29,7 @@ packages = """
 	sshfs
 	smbclient
 	strace
-	testdisk
+	#testdisk
 	tofrodos
 	traceroute
 	xfsprogs
