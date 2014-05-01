@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	alsa-base
 	br2684ctl
 	cpufrequtils
 	crda
