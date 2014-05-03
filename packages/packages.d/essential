@@ -20,6 +20,8 @@ packages = """
 
 i386 = """
 	grub-pc
+	grub-efi-ia32-bin
+	#efibootmgr
 	mtools
 	syslinux
 """

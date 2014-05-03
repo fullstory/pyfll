@@ -1504,9 +1504,11 @@ class FLLBuilder(object):
 
         # Fetch extra debs if appropriate and reprepro them
         extras = []
-        if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/x86_64-efi')):
-            extras.append('grub-efi')
-            extras.append('grub-efi-amd64')
+        efitypes = { 'x86_64-efi':'amd64','i386-efi':'ia32' }
+        for efitype in (efitypes.keys()):
+            if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/%s' % efitype)):
+                extras.append('grub-efi')
+                extras.append('grub-efi-%s' % efitypes[efitype])
         if len(extras):
             self.pkgs[arch]['extras'] = dict()
             self._execInChroot(arch, ['apt-get', 'clean'])
@@ -1897,36 +1899,46 @@ class FLLBuilder(object):
                     raise FllError
 
             # efi
-            gfile_dir = os.path.join(chroot, 'usr/lib/grub/x86_64-efi')
-            if os.path.isdir(gfile_dir):
-                gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
-                          if f.endswith('.mod') or f.endswith('.lst')]
-                gfiles.append(os.path.join(chroot,'/usr/share/grub/unicode.pf2'))
-                if len(gfiles) > 0:
-                    self.log.debug('copying grub efi stage files to boot dir')
-                    grub_dir = os.path.join(boot_dir, 'grub', 'x86_64-efi')
-                    if not os.path.isdir(grub_dir):
-                        os.makedirs(grub_dir, 0755)
-                for file in gfiles:
+            efitypes = { 'x86_64-efi':'bootx64','i386-efi':'bootia32' }
+            for efitype in (efitypes.keys()):
+                gfile_dir = os.path.join(chroot, 'usr/lib/grub/%s' % efitype)
+                if os.path.isdir(gfile_dir):
+                    gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
+                            if f.endswith('.mod') or f.endswith('.lst')]
+                    gfiles.append(os.path.join(chroot,'/usr/share/grub/unicode.pf2'))
+                    if len(gfiles) > 0:
+                        self.log.debug('copying grub %s stage files to boot dir' % efitype)
+                        grub_dir = os.path.join(boot_dir, 'grub', efitype)
+                        if not os.path.isdir(grub_dir):
+                            os.makedirs(grub_dir, 0755)
+                    for file in gfiles:
+                        try:
+                            shutil.copy(file, grub_dir)
+                        except IOError:
+                            self.log.exception('failed to copy grub efi file to staging dir')
+                            raise FllError
+                    efi_dir = os.path.join(self.temp, 'staging/efi/boot')
+                    if not os.path.isdir(efi_dir):
+                        os.makedirs(efi_dir, 0755)
                     try:
-                        shutil.copy(file, grub_dir)
+                        shutil.copy(os.path.join(chroot, 'tmp/efi/boot/%s.efi' % efitypes[efitype]), efi_dir)
+                        # could be dual arch so add to existing efi.img if we have one
+                        if not os.path.isfile(os.path.join(self.temp, 'staging', 'efi.img')):
+                            cmd = [ 'mformat', '-C', '-f', '2880', '-L', '16', '-i', '/tmp/efi.img', '::' ]
+                            self._execInChroot(arch, cmd)
+                        else:
+                            shutil.copy(os.path.join(self.temp, 'staging', 'efi.img'),os.path.join(chroot, 'tmp'))
+                        cmd = [ 'mcopy', '-s', '-i', '/tmp/efi.img', '/tmp/efi_img/efi', '::/' ]
+                        self._execInChroot(arch, cmd)
+                        shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
+                        shutil.copy(os.path.join(chroot, 'tmp/iso_uuid'), os.path.join(self.temp, 'staging'))
+                        uuid_dir = os.path.join(chroot, 'tmp/uuid')
+                        ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
+                        for file in ufiles:
+                            shutil.copy(file, grub_dir)
                     except IOError:
-                        self.log.exception('failed to copy grub efi file to staging dir')
+                        self.log.exception('failed to copy efi %s boot files to staging dir' % efitype)
                         raise FllError
-                efi_dir = os.path.join(self.temp, 'staging/efi/boot')
-                if not os.path.isdir(efi_dir):
-                    os.makedirs(efi_dir, 0755)
-                try:
-                    shutil.copy(os.path.join(chroot, 'tmp/efi/boot/bootx64.efi'), efi_dir)
-                    shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
-                    shutil.copy(os.path.join(chroot, 'tmp/iso_uuid'), os.path.join(self.temp, 'staging'))
-                    uuid_dir = os.path.join(chroot, 'tmp/uuid')
-                    ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
-                    for file in ufiles:
-                        shutil.copy(file, grub_dir)
-                except IOError:
-                    self.log.exception('failed to copy efi boot files to staging dir')
-                    raise FllError
 
         isolinux = os.path.join(chroot, 'usr/lib/syslinux/isolinux.bin')
         if os.path.isfile(isolinux):

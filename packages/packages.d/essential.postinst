@@ -4,6 +4,14 @@ say() {
 	echo "I: $@..."
 }
 
+get_efitarget() {
+	if [ "$efitype" = "x86_64-efi" ] ; then
+		efitarget="bootx64"
+	elif [ "$efitype" = "i386-efi" ] ; then
+		efitarget="bootia32"
+	fi
+}
+
 do_postinst() {
 	# create grub2 ElTorito support
 	if which grub-mkimage >/dev/null; then
@@ -20,12 +28,18 @@ EOF
 
                 grub-mkimage -O i386-pc -c ${tmp_dir}/grub.cfg -o ${tmp_dir}/core.img biosdisk iso9660
                 cat /usr/lib/grub/*-pc/boot.img ${tmp_dir}/core.img > /tmp/grub_embed
-		if [ -d /usr/lib/grub/x86_64-efi ]; then
+		efitypes="x86_64-efi i386-efi"
+		doefi=""
+		for efitype in $efitypes ; do
+			[ -d "/usr/lib/grub/${efitype}" ] && doefi="Y"
+		done
+		if [ -n "${doefi}" ] ; then
 			say 'Creating grub-efi boot files'
 			iso_uuid=$(date -u +%Y-%m-%d-%H-%M-%S-00)
 			echo ${iso_uuid} | sed -e s/-//g > /tmp/iso_uuid
 			mkdir /tmp/uuid
 			touch /tmp/uuid/${iso_uuid}
+			# create the memdisk image for cd booting
 			memdisk_img=`mktemp "/tmp/tmp.XXXXXXXXXX"` || exit 1
 			memdisk_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
 			mkdir -p ${memdisk_dir}/boot/grub
@@ -38,24 +52,33 @@ source \$prefix/grub.cfg
 EOF
 			(cd "${memdisk_dir}"; tar -cf - boot) > "${memdisk_img}"
 			rm -rf ${memdisk_dir}
+			mkdir -p /tmp/efi_img/efi/boot
 			mkdir -p /tmp/efi/boot
-			grub-mkimage -O x86_64-efi -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi/boot/bootx64.efi search iso9660 configfile normal memdisk tar part_msdos fat
+			for efitype in $efitypes ; do
+				if [ -d "/usr/lib/grub/$efitype" ] ; then
+					get_efitarget
+					grub-mkimage -O ${efitype} -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi_img/efi/boot/${efitarget}.efi search iso9660 configfile normal memdisk tar part_msdos fat
+				fi
+			done
 			rm -rf ${memdisk_img}
-			mformat -C -f 2880 -L 16 -i /tmp/efi.img ::
-			mcopy -s -i /tmp/efi.img /tmp/efi ::/
-			rm /tmp/efi/boot/bootx64.efi
-			memdisk_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
-			mkdir -p ${memdisk_dir}/boot/grub
-			cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
+			for efitype in $efitypes ; do
+				if [ -d "/usr/lib/grub/${efitype}" ] ; then
+					# create the .efi for hd booting
+					get_efitarget
+					memdisk_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
+					mkdir -p ${memdisk_dir}/boot/grub
+					cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
 set from=fromhd
 export from
-search --file --set=root /boot/grub/x86_64-efi/${iso_uuid}
+search --file --set=root /boot/grub/${efitype}/${iso_uuid}
 set prefix=(\${root})/boot/grub
 source \$prefix/grub.cfg
 EOF
-			(cd "${memdisk_dir}"; tar -cf - boot) > "${memdisk_img}"
-			rm -rf ${memdisk_dir}
-			grub-mkimage -O x86_64-efi -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi/boot/bootx64.efi search iso9660 configfile normal memdisk tar part_msdos part_gpt lvm fat ext2
+					(cd "${memdisk_dir}"; tar -cf - boot) > "${memdisk_img}"
+					rm -rf ${memdisk_dir}
+					grub-mkimage -O ${efitype} -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi/boot/${efitarget}.efi search iso9660 configfile normal memdisk tar part_msdos part_gpt lvm fat ext2
+				fi
+			done
 		fi
 	fi
 

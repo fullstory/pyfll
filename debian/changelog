@@ -53,6 +53,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * re-kill display of memtest on UEFI where it fails
   * fix sources generation by recreating and restarting SourceRecords for
     each package.
+  * generate efi images for ia32 on x86 and add grub debs to extras for it
 
   [ Roland Engert ]
   * add initial razorqt profile 
