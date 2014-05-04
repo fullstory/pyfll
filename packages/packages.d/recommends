@@ -9,6 +9,7 @@ packages = """
 	gnome-keyring
 	gnome-session
 	initscripts
+	isolinux
 	k3b
 	kde-workspace-bin
 	kontact

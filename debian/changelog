@@ -54,6 +54,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * fix sources generation by recreating and restarting SourceRecords for
     each package.
   * generate efi images for ia32 on x86 and add grub debs to extras for it
+  * adapt for syslinux v6.
 
   [ Roland Engert ]
   * add initial razorqt profile 

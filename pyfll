@@ -1940,7 +1940,7 @@ class FLLBuilder(object):
                         self.log.exception('failed to copy efi %s boot files to staging dir' % efitype)
                         raise FllError
 
-        isolinux = os.path.join(chroot, 'usr/lib/syslinux/isolinux.bin')
+        isolinux = os.path.join(chroot, 'usr/lib/ISOLINUX/isolinux.bin')
         if os.path.isfile(isolinux):
             try:
                stage_dir = os.path.join(self.temp, 'staging')
@@ -1948,36 +1948,78 @@ class FLLBuilder(object):
                if not os.path.isdir(syslinux_dir):
                    os.mkdir(syslinux_dir, 0755)
                shutil.copy(isolinux, syslinux_dir)
-               gfxboot = os.path.join(chroot, 'usr/lib/syslinux/gfxboot.c32')
-               shutil.copy(gfxboot, syslinux_dir)
+               isolinux_path = os.path.join(chroot, 'usr/lib/syslinux/modules/bios')
+               # list(set([ uniquifys the list so each line can have the deps
+                   #'advdump',
+                   #'complex', 'libcom32', 'libmenu', 'libutil',
+                   #'display', 'libmenu', 'libutil', 'libcom32'
+                   #'entrydump',
+                   #'fancyhello', 'libutil',
+                   #'hello',
+                   #'keytest', 'libutil',
+                   #'localboot', 'libcom32',
+                   #'resolv',
+                   #'serialinfo',
+                   #'simple', 'libmenu', 'libutil', 'libcom32',
+                   #'test', 'libmenu', 'libutil', 'libcom32',
+                   #'test2', 'libmenu', 'libutil', 'libcom32',
+               for syslinux_file in list(set([
+                   'cat',
+                   'chain', 'libutil', 'libcom32',
+                   'cmd', 'libcom32',
+                   'config','libcom32',
+                   'cptime','libutil',
+                   'cpuid',
+                   'cpuidtest', 'libgpl',
+                   'debug',
+                   'disk', 'libgpl',
+                   'dmitest', 'libgpl',
+                   'elf', 'libcom32',
+                   'ethersel', 'libcom32',
+                   'gfxboot', 'libcom32',
+                   'gpxecmd', 'libcom32',
+                   'hdt', 'libutil', 'libgpl', 'libcom32', 'libmenu',
+                   'hexdump', 'libcom32',
+                   'host', 'libcom32',
+                   'ifcpu', 'libutil', 'libgpl', 'libcom32',
+                   'ifcpu64', 'libcom32',
+                   'ifmemdsk', 'libcom32',
+                   'ifplop', 'libcom32',
+                   'kbdmap', 'libcom32',
+                   'kontron_wdt', 'libcom32',
+                   'ldlinux',
+                   'libcom32',
+                   'libgpl',
+                   'liblua',
+                   'libmenu', 'libutil', 'libcom32',
+                   'libutil',
+                   'linux', 'libcom32',
+                   'ls',
+                   'lua', 'liblua', 'libgpl', 'libcom32',
+                   'mboot', 'libcom32',
+                   'meminfo',
+                   'menu', 'libutil',
+                   'pcitest', 'libcom32',
+                   'pmload', 'libcom32',
+                   'poweroff',
+                   'prdhcp', 'libutil', 'libcom32',
+                   'pwd',
+                   'pxechn', 'libutil', 'libcom32',
+                   'reboot', 'libcom32',
+                   'rosh', 'libutil', 'libcom32',
+                   'sanboot', 'libcom32',
+                   'sdi', 'libcom32',
+                   'sysdump', 'libcom32',
+                   'vesainfo',
+                   'vesamenu', 'libutil', 'libcom32',
+                   'vpdtest', 'libgpl',
+                   'whichsys', 'libcom32',
+                   'zzjson', 'libgpl' ])):
+                   shutil.copy(os.path.join(isolinux_path, '%s.c32' % syslinux_file), syslinux_dir)
                bootlogo_dir = os.path.join(chroot, 'etc', 'bootsplash', 'themes', self.conf['distro']['FLL_GFXBOOT_THEME'], 'cdrom')
                bootlogo = glob.glob(os.path.join(bootlogo_dir, '*'))
                for file in bootlogo:
-                   try:
-                       shutil.copy(file, syslinux_dir)
-                   except IOError:
-                       self.log.exception('failed to copy bootlogo files to staging dir')
-                       raise FllError
-               #isl_pxe = os.path.join(chroot, 'usr/lib/syslinux/pxelinux.0');
-               #shutil.copy(isl_pxe, stage_dir);
-               # both vesamenu.c32 and linux.c32 seem to be required
-               #isl_menu = os.path.join(chroot, 'usr/lib/syslinux/vesamenu.c32');
-               #shutil.copy(isl_menu, stage_dir);
-               #isl_linux = os.path.join(chroot, 'usr/lib/syslinux/linux.c32');
-               #shutil.copy(isl_linux, stage_dir);
-               # other modules probably useful to have available in syslinux
-               # not used in current config though
-               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/chain.c32');
-               #shutil.copy(isl_module, stage_dir);
-               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/cmd.c32');
-               #shutil.copy(isl_module, stage_dir);
-               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/elf.c32');
-               #shutil.copy(isl_module, stage_dir);
-               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/ifcpu64.c32');
-               #shutil.copy(isl_module, stage_dir);
-               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/kbdmap.c32');
-               #shutil.copy(isl_module, stage_dir);
-               #isl_module = os.path.join(chroot, 'usr/lib/syslinux/reboot.c32');
+                   shutil.copy(file, syslinux_dir)
             except IOError:
                     self.log.exception('failed to copy isolinux files')
                     raise FllError
