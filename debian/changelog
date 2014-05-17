@@ -36,6 +36,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * bump standards version to 3.9.5, no changes necessary.
   * debian/control: switch Vcs tags to github.
   * don't pull in alsa-base.
+  * disable isolinux for the time being.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
