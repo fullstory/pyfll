@@ -37,6 +37,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * debian/control: switch Vcs tags to github.
   * don't pull in alsa-base.
   * update README (depend on isolinux and reprepro).
+  * lay some more pieces of seminarix to rest.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
