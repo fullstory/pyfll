@@ -22,7 +22,8 @@ Vcs-Browser: https://github.com/fullstory/pyfll
 #         xorriso,
 #         reprepro,
 #         squashfs-tools,
-#         syslinux
+#         syslinux,
+#         syslinux-utils
 #Description: FULLSTORY live linux media mastering utility
 # Live linux media mastering utility using an easily replicatable "cleanroom"
 # process
