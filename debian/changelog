@@ -36,7 +36,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * bump standards version to 3.9.5, no changes necessary.
   * debian/control: switch Vcs tags to github.
   * don't pull in alsa-base.
-  * update README (depend on isolinux and reprepro).
+  * update README (depend on isolinux, syslinux-utils and reprepro).
   * lay some more pieces of seminarix to rest.
 
   [ Joaquim Boura ]

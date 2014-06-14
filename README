@@ -15,4 +15,5 @@ Dependencies:
   squashfs-tools
   isolinux
   syslinux
+  syslinux-utils
   reprepro (for liveapt functionality and extras (uefi))
