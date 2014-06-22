@@ -57,6 +57,13 @@ do_postinst() {
 			/usr/share/sysvinit/inittab > /etc/inittab
 	fi
 
+	# truncate systemd machine-id to zero byte
+	if [ -r /etc/machine-id ]; then
+		say 'systemd: truncate /etc/machine-id'
+		:>/etc/machine-id
+	fi
+
+	# configure live getty configuration for systemd
 	if [ -r '/lib/systemd/system/getty@.service' ]; then
 		say 'systemd: Hacking /etc/systemd/system/getty@.service for passwordless login'
 		sed -e 's#^ExecStart=.*#ExecStart=-/sbin/agetty --noclear -n -i -l /usr/bin/fll_login %I 38400 linux#' \

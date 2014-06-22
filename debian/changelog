@@ -38,6 +38,10 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * don't pull in alsa-base.
   * update README (depend on isolinux, syslinux-utils and reprepro).
   * lay some more pieces of seminarix to rest.
+  * exclude sysvinit/ sysvinit-core and include systemd-sysv for cdebootstrap.
+  * truncate /etc/machine-id to zero byte instead of excluding it. A zero-byte
+    file is handled specially by systemd and regenerates a fresh machine-id
+    while booting.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
