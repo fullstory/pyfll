@@ -2077,7 +2077,7 @@ class FLLBuilder(object):
               grubcfg.write('if cpuid -l; then\n')
             grubcfg.write('havekernel="Y"\n')
             grubcfg.write('\nmenuentry \"%s %s (%s) $kopts\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('	linux /boot/%s boot=fll quiet $kopts %s\n' % (vmlinuz_r, cmdline))
+            grubcfg.write('	linux /boot/%s boot=fll quiet systemd.show_status=1 $kopts %s\n' % (vmlinuz_r, cmdline))
             grubcfg.write('	initrd /boot/%s\n' % initrd_r)
             grubcfg.write('}\n')
             if cpu[0:3] == 'amd':
@@ -2291,7 +2291,7 @@ class FLLBuilder(object):
 
         cmdline =  self.conf['options'].get('boot_cmdline')
         if not cmdline:
-            cmdline = 'quiet'
+            cmdline = 'quiet systemd.show_status=1'
 
         self._writeYabootCfg(stage_dir, boot_dir, ppc_dir, kvers,
                                timeout, cmdline)

@@ -42,6 +42,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * truncate /etc/machine-id to zero byte instead of excluding it. A zero-byte
     file is handled specially by systemd and regenerates a fresh machine-id
     while booting.
+  * supply systemd.show_status=1 by default.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
