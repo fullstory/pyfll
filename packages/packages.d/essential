@@ -23,7 +23,8 @@ i386 = """
 	grub-efi-ia32-bin
 	#efibootmgr
 	mtools
-	isolinux
+	# automatic fromhd support is broken, maybe doomed
+	#isolinux
 """
 
 amd64 = """
@@ -31,7 +32,8 @@ amd64 = """
 	grub-efi-amd64-bin
 	efibootmgr
 	mtools
-	isolinux
+	# automatic fromhd support is broken, maybe doomed
+	#isolinux
 """
 
 powerpc = """

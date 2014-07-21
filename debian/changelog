@@ -62,6 +62,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     each package.
   * generate efi images for ia32 on x86 and add grub debs to extras for it
   * adapt for syslinux v6.
+  * TEMP? drop isolinux and switch to grub (automatic fromhd broken)
 
   [ Roland Engert ]
   * add initial razorqt profile 
