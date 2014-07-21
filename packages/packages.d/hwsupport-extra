@@ -6,7 +6,6 @@ desc = """
 packages = """
 	alsa-utils
 	bluetooth
-	bluez-pcmcia-support
 	dmidecode
 	dmsetup
 	libmtp-runtime
