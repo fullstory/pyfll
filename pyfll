@@ -938,6 +938,8 @@ class FLLBuilder(object):
             cmd.append('--verbose')
 
         self._execCmd(cmd)
+        # procfs is being left mounted since 0.6.2 (#755965)
+        self._umount(dir)
 
         cmd = 'dpkg --purge cdebootstrap-helper-rc.d'
         self._execInChroot(arch, cmd.split())
