@@ -928,7 +928,8 @@ class FLLBuilder(object):
 
     def __cdebBootStrap(self, arch, dir, mirror, codename):
         '''Bootstrap a debian system with cdebootstrap.'''
-        cmd = ['cdebootstrap', '--arch=%s' % arch, '--exclude=sysvinit,sysvinit-core',
+        cmd = ['cdebootstrap', '--arch=%s' % arch,
+               '--exclude=init,sysvinit,sysvinit-core',
                '--include=apt-utils,bzip2,gnupg,systemd-sysv,xz-utils',
                '--flavour=minimal', codename, dir, mirror]
 
