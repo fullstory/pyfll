@@ -2497,7 +2497,7 @@ class FLLBuilder(object):
         if os.path.isfile(os.path.join(stage, 'boot/isolinux/isolinux.bin')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
             cmd += ' -b boot/isolinux/isolinux.bin -c boot/isolinux/isolinux.cat'
-            cmd2 = 'isohybrid %s' % iso_file
+            cmd2 = 'isohybrid -h 255 -s 63 %s' % iso_file
 
         elif os.path.isdir(os.path.join(stage, 'boot/grub')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'

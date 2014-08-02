@@ -44,6 +44,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     file is handled specially by systemd and regenerates a fresh machine-id
     while booting.
   * supply systemd.show_status=1 by default.
+  * isohybrid: adapt geometry for ISOs larger than 1 GB.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
