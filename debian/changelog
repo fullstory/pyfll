@@ -45,6 +45,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     while booting.
   * supply systemd.show_status=1 by default.
   * isohybrid: adapt geometry for ISOs larger than 1 GB.
+  * drop install-usb-gui for the time being.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
