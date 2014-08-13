@@ -12,6 +12,5 @@ deps = """
 """
 
 packages = """
-	fll-live-xorgconfig
 """
 

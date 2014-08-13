@@ -6,7 +6,6 @@ packages = """
 	aptosid-irc
 	aptosid-manual-en
 	configure-cups
-	fll-live-xorgconfig
 	install-gui
 	kernel-remover
 	setpassword
