@@ -47,6 +47,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * isohybrid: adapt geometry for ISOs larger than 1 GB.
   * drop install-usb-gui for the time being.
   * drop fll-xorgconfig.
+  * move alsa-utils from hwsupport-extra to hwsupport-essential.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
