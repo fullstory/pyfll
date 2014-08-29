@@ -49,6 +49,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop fll-xorgconfig.
   * move alsa-utils from hwsupport-extra to hwsupport-essential, it's required
     to set up audio mixers since alsa-base is gone.
+  * drop temporary init overrides, systemd is now installed without them.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
