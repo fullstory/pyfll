@@ -71,6 +71,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * adapt for syslinux v6.
   * TEMP? drop isolinux and switch to grub (automatic fromhd broken)
   * drop bluez-pcmcia-support (gone with bluez 5.x)
+  * same bootloader (grub-* and efibootmgr) packages for i386 and amd64
 
   [ Roland Engert ]
   * add initial razorqt profile 

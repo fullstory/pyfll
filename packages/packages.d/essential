@@ -20,8 +20,9 @@ packages = """
 
 i386 = """
 	grub-pc
+	grub-efi-amd64-bin
 	grub-efi-ia32-bin
-	#efibootmgr
+	efibootmgr
 	mtools
 	# automatic fromhd support is broken, maybe doomed
 	#isolinux
@@ -30,6 +31,7 @@ i386 = """
 amd64 = """
 	grub-pc
 	grub-efi-amd64-bin
+	grub-efi-ia32-bin
 	efibootmgr
 	mtools
 	# automatic fromhd support is broken, maybe doomed
