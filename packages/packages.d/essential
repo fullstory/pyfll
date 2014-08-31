@@ -21,6 +21,7 @@ packages = """
 i386 = """
 	grub-pc
 	grub-efi-ia32-bin
+	grub-efi-amd64-bin
 	efibootmgr
 	mtools
 	# automatic fromhd support is broken, maybe doomed
@@ -29,6 +30,7 @@ i386 = """
 
 amd64 = """
 	grub-pc
+	grub-efi-ia32-bin
 	grub-efi-amd64-bin
 	efibootmgr
 	mtools

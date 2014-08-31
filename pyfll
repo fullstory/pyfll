@@ -1505,16 +1505,22 @@ class FLLBuilder(object):
 
         # Fetch extra debs if appropriate and reprepro them
         extras = []
+        commextra = []
         efitypes = { 'x86_64-efi':'amd64','i386-efi':'ia32' }
         for efitype in (efitypes.keys()):
+            archextra = []
             if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/%s' % efitype)):
-                extras.append('grub-efi')
-                extras.append('grub-efi-%s' % efitypes[efitype])
+                commextra.append('grub-efi')
+                archextra.append('grub-efi-%s' % efitypes[efitype])
+                extras.append(archextra)
+                
         if len(extras):
+            extras.append(commextra)
             self.pkgs[arch]['extras'] = dict()
             self._execInChroot(arch, ['apt-get', 'clean'])
-            self._aptGetInstall(arch, extras,
-                                download_only = True)
+            for archextra in extras:
+                self._aptGetInstall(arch, archextra,
+                                    download_only = True)
             # Generate a basic reprepro conf/distributions.
             extras = os.path.join(self.temp, 'staging', 'extras')
             extras_conf = os.path.join(extras, 'conf')
@@ -1923,12 +1929,12 @@ class FLLBuilder(object):
                         os.makedirs(efi_dir, 0755)
                     try:
                         shutil.copy(os.path.join(chroot, 'tmp/efi/boot/%s.efi' % efitypes[efitype]), efi_dir)
-                        # could be dual arch so add to existing efi.img if we have one
-                        if not os.path.isfile(os.path.join(self.temp, 'staging', 'efi.img')):
-                            cmd = [ 'mformat', '-C', '-f', '2880', '-L', '16', '-i', '/tmp/efi.img', '::' ]
-                            self._execInChroot(arch, cmd)
-                        else:
-                            shutil.copy(os.path.join(self.temp, 'staging', 'efi.img'),os.path.join(chroot, 'tmp'))
+                    except IOError:
+                        self.log.exception('failed to copy efi %s boot files to staging dir' % efitype)
+                        raise FllError
+            try:
+                        cmd = [ 'mformat', '-C', '-f', '2880', '-L', '16', '-i', '/tmp/efi.img', '::' ]
+                        self._execInChroot(arch, cmd)
                         cmd = [ 'mcopy', '-s', '-i', '/tmp/efi.img', '/tmp/efi_img/efi', '::/' ]
                         self._execInChroot(arch, cmd)
                         shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
@@ -1937,8 +1943,8 @@ class FLLBuilder(object):
                         ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
                         for file in ufiles:
                             shutil.copy(file, grub_dir)
-                    except IOError:
-                        self.log.exception('failed to copy efi %s boot files to staging dir' % efitype)
+            except IOError:
+                        self.log.exception('failed to create efi.img')
                         raise FllError
 
         isolinux = os.path.join(chroot, 'usr/lib/ISOLINUX/isolinux.bin')

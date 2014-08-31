@@ -73,6 +73,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop bluez-pcmcia-support (gone with bluez 5.x)
   * add efibootmgr for i386.
   * add firmware menuentry to grub.cfg
+  * same bootloader (grub-* and efibootmgr) packages for i386 and amd64
 
   [ Roland Engert ]
   * add initial razorqt profile 
