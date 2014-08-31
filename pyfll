@@ -1933,19 +1933,19 @@ class FLLBuilder(object):
                         self.log.exception('failed to copy efi %s boot files to staging dir' % efitype)
                         raise FllError
             try:
-                        cmd = [ 'mformat', '-C', '-f', '2880', '-L', '16', '-i', '/tmp/efi.img', '::' ]
-                        self._execInChroot(arch, cmd)
-                        cmd = [ 'mcopy', '-s', '-i', '/tmp/efi.img', '/tmp/efi_img/efi', '::/' ]
-                        self._execInChroot(arch, cmd)
-                        shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
-                        shutil.copy(os.path.join(chroot, 'tmp/iso_uuid'), os.path.join(self.temp, 'staging'))
-                        uuid_dir = os.path.join(chroot, 'tmp/uuid')
-                        ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
-                        for file in ufiles:
-                            shutil.copy(file, grub_dir)
+                cmd = [ 'mformat', '-C', '-f', '2880', '-L', '16', '-i', '/tmp/efi.img', '::' ]
+                self._execInChroot(arch, cmd)
+                cmd = [ 'mcopy', '-s', '-i', '/tmp/efi.img', '/tmp/efi_img/efi', '::/' ]
+                self._execInChroot(arch, cmd)
+                shutil.copy(os.path.join(chroot, 'tmp/efi.img'), os.path.join(self.temp, 'staging'))
+                shutil.copy(os.path.join(chroot, 'tmp/iso_uuid'), os.path.join(self.temp, 'staging'))
+                uuid_dir = os.path.join(chroot, 'tmp/uuid')
+                ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
+                for file in ufiles:
+                    shutil.copy(file, grub_dir)
             except IOError:
-                        self.log.exception('failed to create efi.img')
-                        raise FllError
+                self.log.exception('failed to create efi.img')
+                raise FllError
 
         isolinux = os.path.join(chroot, 'usr/lib/ISOLINUX/isolinux.bin')
         if os.path.isfile(isolinux):
