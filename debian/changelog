@@ -76,6 +76,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * same bootloader (grub-* and efibootmgr) packages for i386 and amd64
   * set and export pager by default in grub.cfg
   * add i386-efi to kernel command line when booted under it
+  * add grub2-fll-portable-efi to extras
 
   [ Roland Engert ]
   * add initial razorqt profile 

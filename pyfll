@@ -1521,6 +1521,7 @@ class FLLBuilder(object):
                 extras.append(archextra)
                 
         if len(extras):
+            commextra.append('grub2-fll-portable-efi')
             extras.append(commextra)
             self.pkgs[arch]['extras'] = dict()
             self._execInChroot(arch, ['apt-get', 'clean'])
