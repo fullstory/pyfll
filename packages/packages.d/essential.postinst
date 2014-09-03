@@ -39,11 +39,11 @@ EOF
 			if [ ! -e /tmp/iso_uuid ]; then
 				iso_uuid=$(date -u +%Y-%m-%d-%H-%M-%S-00)
 				echo ${iso_uuid} | sed -e s/-//g > /tmp/iso_uuid
-				mkdir /tmp/uuid
-				touch /tmp/uuid/${iso_uuid}
 			else
 				iso_uuid=$(cat /tmp/iso_uuid)
 			fi
+			mkdir /tmp/uuid
+			touch /tmp/uuid/${iso_uuid}
 			# create the memdisk image for cd booting
 			memdisk_img=`mktemp "/tmp/tmp.XXXXXXXXXX"` || exit 1
 			memdisk_dir=`mktemp -d "/tmp/tmp.XXXXXXXXXX"` || exit 1
