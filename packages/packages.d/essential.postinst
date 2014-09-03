@@ -62,7 +62,7 @@ EOF
 			for efitype in $efitypes ; do
 				if [ -d "/usr/lib/grub/$efitype" ] ; then
 					get_efitarget
-					grub-mkimage -O ${efitype} -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi_img/efi/boot/${efitarget}.efi search iso9660 configfile normal memdisk tar part_msdos fat
+					grub-mkimage -O ${efitype} -m "${memdisk_img}" --prefix='(memdisk)/boot/grub' -o /tmp/efi_img/efi/boot/${efitarget}.efi search iso9660 configfile normal memdisk tar part_msdos part_gpt fat
 				fi
 			done
 			rm -rf ${memdisk_img}
