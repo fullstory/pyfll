@@ -1,6 +1,7 @@
 boot/initrd.img-*
 dev/*
 dev/.*
+disks/*
 etc/.*lock
 etc/*-
 etc/adjtime

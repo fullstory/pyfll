@@ -78,12 +78,13 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * add i386-efi to kernel command line when booted under it
   * add grub2-fll-portable-efi to extras
   * add part_gpt to built in modules for cd efi loader (for detect efi anyway)
+  * create /disks to reflect changed fstab_generator
 
   [ Roland Engert ]
   * add initial razorqt profile 
   * add qupzilla, qpdfview
 
- -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Sun, 05 May 2013 18:23:39 +0200
+ -- Niall Walsh <niallwalsh@celtux.org>  Fri, 05 Sep 2014 02:39:12 +0100
 
 pyfll (2013.01) hesperides; urgency=low
 
