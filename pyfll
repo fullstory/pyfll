@@ -976,7 +976,7 @@ class FLLBuilder(object):
 
         shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
         shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
-        os.mkdir(os.path.join(dir, 'disks'), mode=0755)
+        os.mkdir(os.path.join(dir, 'disks'), 0755)
 
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
