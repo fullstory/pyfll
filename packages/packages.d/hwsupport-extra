@@ -10,7 +10,6 @@ packages = """
 	libmtp-runtime
 	rfkill
 	usb-modeswitch
-	vbetool
 """
 
 i386 = """

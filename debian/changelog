@@ -51,6 +51,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     to set up audio mixers since alsa-base is gone.
   * drop temporary init overrides, systemd is now installed without them.
   * distro.postinst: stop now obsolete displaymanager dance.
+  * drop vbetool from hwsupport-extra.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
