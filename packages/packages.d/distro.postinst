@@ -5,21 +5,6 @@ say() {
 }
 
 do_postinst() {
-	say 'Reconfiguring distro-defaults'
-	# Reconfigure to ensure out LSB defaults are in place for
-	# starting desktop managers in runlevel 5 only
-	for dm in gdm3 kdm lightdm lxdm slim wdm xdm; do
-		[ -x /etc/init.d/${dm} ] || continue
-		update-rc.d -f ${dm} remove
-	done
-
-	dpkg-reconfigure distro-defaults
-
-	for dm in gdm3 kdm lightdm lxdm slim wdm xdm; do
-		[ -x /etc/init.d/${dm} ] || continue
-		update-rc.d ${dm} defaults
-	done
-
 	say 'Disabling selected initscripts which should not start in live mode'
 
 	# remember keep service blacklists in sync with fll-installer!
