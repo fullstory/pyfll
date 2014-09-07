@@ -2376,6 +2376,8 @@ class FLLBuilder(object):
                 continue
             if dir.endswith('isolinux') and f.find('isolinux.bin') >= 0:
                 continue
+            if f.find('grub_eltorito') >= 0:
+                continue
             if f.find('iso_uuid') >= 0:
                 continue
 

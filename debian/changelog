@@ -53,6 +53,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * distro.postinst: stop now obsolete displaymanager dance.
   * drop vbetool from hwsupport-extra.
   * fix up lamp package selection.
+  * exclude grub_eltorito from md5sum generation, it's modified after the
+    fact.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
