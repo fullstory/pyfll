@@ -75,7 +75,7 @@ EOF
 					cat << EOF > ${memdisk_dir}/boot/grub/grub.cfg
 set from=fromhd
 export from
-search --file --set=root /boot/grub/${efitype}/${iso_uuid}
+search --file --set=root /boot/grub/${iso_uuid}
 set prefix=(\${root})/boot/grub
 source \$prefix/grub.cfg
 EOF

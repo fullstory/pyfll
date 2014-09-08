@@ -1953,7 +1953,7 @@ class FLLBuilder(object):
                     uuid_dir = os.path.join(chroot, 'tmp/uuid')
                     ufiles = [os.path.join(uuid_dir, f) for f in os.listdir(uuid_dir)]
                     for file in ufiles:
-                        shutil.copy(file, grub_dir)
+                        shutil.copy(file, os.path.join(boot_dir, 'grub'))
                 except IOError:
                     self.log.exception('failed to create efi.img')
                     raise FllError
