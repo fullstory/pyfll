@@ -77,7 +77,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * TEMP? drop isolinux and switch to grub (automatic fromhd broken)
   * drop bluez-pcmcia-support (gone with bluez 5.x)
   * add efibootmgr for i386.
-  * add firmware menuentry to grub.cfg
   * same bootloader (grub-* and efibootmgr) packages for i386 and amd64
   * set and export pager by default in grub.cfg
   * add i386-efi to kernel command line when booted under it

@@ -2139,7 +2139,6 @@ class FLLBuilder(object):
         
         self.log.debug('writing variable.cfg for live media')
         grubcfg = open(os.path.join(grub_dir, 'variable.cfg'), 'w')
-        grubcfg.write('imagedir=%s\n' % self.conf['distro']['FLL_IMAGE_DIR'])
         grubcfg.close()
 
     def _writeYabootCfg(self, stage_dir, boot_dir, ppc_dir, kvers,
