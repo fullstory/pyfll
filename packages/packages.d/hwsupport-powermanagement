@@ -5,6 +5,5 @@ desc = """
 
 packages = """
 	acpi-support-base
-	pm-utils
 	powermgmt-base
 """

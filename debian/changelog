@@ -55,6 +55,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * fix up lamp package selection.
   * exclude grub_eltorito from md5sum generation, it's modified after the
     fact.
+  * hwsupport-powermanagement: drop pm-utils
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
