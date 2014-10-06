@@ -13,10 +13,3 @@ packages = """
 	udev-config-aptosid
 """
 
-i386 = """
-	gfxboot-theme-aptosid
-"""
-
-amd64 = """
-	gfxboot-theme-aptosid
-"""
