@@ -8,14 +8,27 @@ do_postinst() {
 	say 'Disabling selected initscripts which should not start in live mode'
 
 	# remember keep service blacklists in sync with fll-installer!
+	ENABLED_SERVICES="systemd-networkd systemd-resolved systemd-timesyncd"
 	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single"
 	REMOVED_SERVICES=""
 	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
 
+	# enable services wanted on the live CD
+	for service in ${ENABLED_SERVICES}; do
+		if [ -x "/etc/init.d/${service}" ]; then
+			update-rc.d "${service}" enable
+		elif [ -f "/lib/systemd/system/${service}.service" ]; then
+			systemctl enable "${service}.service"
+		fi
+	done
+
 	# disable services not wanted on the live CD
 	for service in ${DISABLED_SERVICES} ${SERVICE_BLACKLIST}; do
-		[ -x "/etc/init.d/${service}" ] || continue
-		update-rc.d "${service}" disable
+		if [ -x "/etc/init.d/${service}" ]; then
+			update-rc.d "${service}" disable
+		elif [ -f "/lib/systemd/system/${service}.service" ]; then
+			systemctl disable "${service}.service"
+		fi
 	done
 
 	# remove particularly nasty services, don't use!

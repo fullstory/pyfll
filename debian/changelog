@@ -84,6 +84,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * add grub2-fll-portable-efi to extras
   * add part_gpt to built in modules for cd efi loader (for detect efi anyway)
   * create /disks to reflect changed fstab_generator
+  * enable networkd, resolved, timesyncd (drop ntpdate and resolvconf)
+    - setup symlink for resolved and stop it having any fallback DNS servers
 
   [ Roland Engert ]
   * add initial razorqt profile 

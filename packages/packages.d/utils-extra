@@ -20,7 +20,6 @@ packages = """
 	memtest86+
 	mlocate
 	module-assistant
-	ntpdate
 	ntfs-3g
 	nmap
 	openssh-client

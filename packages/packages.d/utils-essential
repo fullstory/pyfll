@@ -20,7 +20,6 @@ packages = """
 	logrotate
 	mbr
 	netbase
-	resolvconf
 	rsync
 	rsyslog
 	sudo
