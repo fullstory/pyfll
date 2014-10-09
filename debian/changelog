@@ -56,6 +56,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * exclude grub_eltorito from md5sum generation, it's modified after the
     fact.
   * hwsupport-powermanagement: drop pm-utils
+  * s/kbattleship/knavalbattle/
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

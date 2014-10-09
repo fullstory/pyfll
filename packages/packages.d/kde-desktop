@@ -9,7 +9,6 @@ packages = """
 	hplip-gui
 	fonts-vlgothic
 	kate
-	kbattleship
 	kcharselect
 	kdeadmin
 	kdepim-kresources
@@ -21,6 +20,7 @@ packages = """
 	kipi-plugins
 	kmahjongg
 	kmail
+	knavalbattle
 	konq-plugins
 	kopete
 	kpat
