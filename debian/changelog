@@ -57,6 +57,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     fact.
   * hwsupport-powermanagement: drop pm-utils
   * s/kbattleship/knavalbattle/
+  * don't modify lvm.conf anymore, it's been a no-op for a while already.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
