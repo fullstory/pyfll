@@ -94,6 +94,10 @@ pyfll (2013.02) UNRELEASED; urgency=low
     - drop to single set of efis as in efi.img
     - detect fromhd in grub itself
     - handle uuid creation in pyfll itself not grub
+  * grub menu
+    - start hotkeys and classes
+    - make more editor friendly
+    - add local kernel command line option menu(s)
 
   [ Roland Engert ]
   * add initial razorqt profile 

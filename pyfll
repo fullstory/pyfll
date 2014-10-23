@@ -2095,15 +2095,17 @@ class FLLBuilder(object):
             if cpu[0:3] == 'amd':
               grubcfg.write('if cpuid -l; then\n')
             grubcfg.write('havekernel="Y"\n')
-            grubcfg.write('\nmenuentry \"%s %s (%s) $kopts\" {\n' % (distro, cpu, vmlinuz.partition('vmlinuz-')[2]))
-            grubcfg.write('	linux /boot/%s boot=fll quiet systemd.show_status=1 $kopts %s\n' % (vmlinuz_r, cmdline))
-            grubcfg.write('	initrd /boot/%s\n' % initrd_r)
+            grubcfg.write('title=""\n')
+            grubcfg.write('for kopt in %s $kopts %s boot=fll quiet systemd.show_status=1; do\n if [ -n "$title" ] ; then\n  title="$title $kopt";\n else title="$kopt";\n fi;\ndone' % (vmlinuz_r, cmdline))
+            grubcfg.write('\nmenuentry --class=%s.%s \"$title\" {' % (distro, cpu))
+            grubcfg.write('linux /boot/$@\n')
+            grubcfg.write('initrd /boot/%s\n' % initrd_r)
             grubcfg.write('}\n')
             if cpu[0:3] == 'amd':
               grubcfg.write('fi\n')
             kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
         grubcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
-        grubcfg.write('  menuentry "NO SUITABLE KERNELS AVAILABLE" {\n')
+        grubcfg.write('  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {echo $@')
         grubcfg.write('  echo "There are no kernels suitable for this machine available."\n')
         grubcfg.write('  echo ""\n')
         grubcfg.write('  if ! cpuid -l; then\n')
@@ -2127,8 +2129,8 @@ class FLLBuilder(object):
 
         if os.path.isfile(os.path.join(boot_dir, 'memtest')):
             grubcfg.write('if ! is_efi ; then\n')
-            grubcfg.write('  menuentry \"Memory test (memtest86+)\" {\n')
-            grubcfg.write('    linux16 /boot/memtest\n')
+            grubcfg.write('  menuentry --class-memtest \"Memory test (memtest86+)\" {')
+            grubcfg.write('linux16 /boot/memtest\n')
             grubcfg.write('  }\n')
             grubcfg.write('fi\n')
 
