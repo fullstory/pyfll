@@ -180,8 +180,6 @@ class FLLBuilder(object):
                '/usr/sbin/update-grub',
                '/usr/sbin/update-initramfs']
 
-    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M')
-
 
     def __init__(self, options):
         '''Accept options dict, setup logging.'''
@@ -193,7 +191,8 @@ class FLLBuilder(object):
         self.log.setLevel(logging.DEBUG)
 
         self.time = datetime.datetime.utcnow()
-
+        self.uuid = self.time.strftime('%Y-%m-%d-%H-%M-%S-00')
+        self.timestamp = self.time.strftime('%Y%m%d%H%M')
 
     def __filterList(self, list, dup_warn = True):
         '''Return a list containing no duplicate items given a list that
@@ -1204,6 +1203,8 @@ class FLLBuilder(object):
                 f.write('#!/bin/sh\n')
                 f.write('echo "$0 denied action: \`$1 $2\'" >&2\n')
                 f.write('exit 101\n')
+            elif file == '/tmp/iso_uuid':
+                f.write(self.uuid)
         except IOError:
             self.log.exception('failed to open file for writing: %s' % file)
             raise FllError
@@ -1219,18 +1220,13 @@ class FLLBuilder(object):
         self._writeFile(arch, '/etc/fstab')
         self._writeFile(arch, '/etc/hostname')
         self._writeFile(arch, '/etc/network/interfaces')
+        self._writeFile(arch, '/tmp/iso_uuid')
 
 
     def _distroDefaultEtc(self, arch):
         '''Write the /etc/default/distro file.'''
         self._writeFile(arch, '/etc/default/distro')
 
-
-    def _uuid(self, arch):
-        '''Copy iso_uuid into chroot if we have one'''
-        chroot = os.path.join(self.temp, arch)
-        if os.path.isfile(os.path.join(self.temp, 'staging', 'iso_uuid')):
-            shutil.copy(os.path.join(self.temp, 'staging', 'iso_uuid'), os.path.join(chroot, 'tmp', 'iso_uuid'))
 
     def _finalEtc(self, arch):
         '''Final editing of conffiles in chroot.'''
@@ -1899,7 +1895,6 @@ class FLLBuilder(object):
                           if f.endswith('.mod') or f.endswith('.img')
                           or f.endswith('.lst')]
                 gfiles.append(os.path.join(chroot, 'tmp/grub_eltorito'))
-                gfiles.append(os.path.join(chroot, 'tmp/grub_embed'))
             else:
                 gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
                           if f.startswith('stage2') or f.startswith('iso9660')]
@@ -2529,7 +2524,7 @@ class FLLBuilder(object):
         elif os.path.isdir(os.path.join(stage, 'boot/grub')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
             if os.path.isfile(os.path.join(stage, 'boot/grub/i386-pc/grub_eltorito')):
-                cmd += ' -b boot/grub/i386-pc/grub_eltorito -no-emul-boot -boot-info-table --embedded-boot %s' % os.path.join(stage,'boot/grub/i386-pc/grub_embed')
+                cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info --grub2-mbr %s' % os.path.join(stage, 'boot/grub/i386-pc/boot_hybrid.img')
             else:
                 self.log.critical('failed to find grub El Torito image file')
                 raise FllError
@@ -2543,19 +2538,9 @@ class FLLBuilder(object):
             # (4.7*10^9)*(1/1024)
             cmd += ' -hfs-parms MAX_XTCSIZE=18287938'
 
+        cmd += ' --modification-date=%s' % self.uuid.replace("-","")
         if os.path.isfile(os.path.join(stage, 'efi.img')):
-            uuid_file = None
-            uuid = None
-            try:
-                uuid_file = open(os.path.join(stage, 'iso_uuid'), 'r')
-                uuid = uuid_file.read()
-            except IOError:
-                self.log.exception('failed to read iso_uuid file')
-                raise FllError
-            finally:
-                if uuid_file:
-                    uuid_file.close()
-            cmd += ' --modification-date=%s --efi-boot efi.img' % uuid
+            cmd += ' --efi-boot efi.img -efi-boot-part --efi-boot-image'
 
         cmd += ' --protective-msdos-label -V %s' % distro_name[:32]
         if os.path.isdir(os.path.join(stage, 'boot')):
@@ -2626,7 +2611,6 @@ class FLLBuilder(object):
             self._dpkgAddDivert(arch)
             self._defaultEtc(arch)
             self._distroDefaultEtc(arch)
-            self._uuid(arch)
             self._preseedDebconf(arch)
             self._primeApt(arch)
             self._installPkgs(arch, codename)

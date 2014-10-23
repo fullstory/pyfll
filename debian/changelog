@@ -88,6 +88,12 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * create /disks to reflect changed fstab_generator
   * enable networkd, resolved, timesyncd (drop ntpdate and resolvconf)
     - setup symlink for resolved and stop it having any fallback DNS servers
+  * use xorriso newer grub2 boot handling and simplify things
+    - drop our grub_eltorito hackery and just build a grub2 eltorito image
+    - drop grub_embed hackery and use existing grub_hybrid.img
+    - drop to single set of efis as in efi.img
+    - detect fromhd in grub itself
+    - handle uuid creation in pyfll itself not grub
 
   [ Roland Engert ]
   * add initial razorqt profile 
