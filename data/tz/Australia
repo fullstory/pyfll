@@ -1,5 +1,5 @@
 for tz in Sydney; do
-  menuentry "Australia/${tz}" {
+  menuentry --class=tz.Australia.${tz} "Australia/${tz}" {
     timezone="tz=${1}"
     def_timezone="${1}"
     menu_reload
