@@ -58,6 +58,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * hwsupport-powermanagement: drop pm-utils, acpi-support-base
   * s/kbattleship/knavalbattle/
   * don't modify lvm.conf anymore, it's been a no-op for a while already.
+  * fix memtest86+ entry for live grub.cfg.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
