@@ -99,6 +99,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     - make more editor friendly
     - add local kernel command line option menu(s)
     - clock always at start, lang before default (kernel)
+  * add internal gpthybrid
 
   [ Roland Engert ]
   * add initial razorqt profile 

@@ -1205,6 +1205,7 @@ class FLLBuilder(object):
                 f.write('exit 101\n')
             elif file == '/tmp/iso_uuid':
                 f.write(self.uuid)
+                self.conf['distro']['FLL_UUID'] = self.uuid
         except IOError:
             self.log.exception('failed to open file for writing: %s' % file)
             raise FllError
@@ -2525,8 +2526,12 @@ class FLLBuilder(object):
 
         elif os.path.isdir(os.path.join(stage, 'boot/grub')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
+            cmd2 = '%s -l %s -i %s' % (os.path.join(self.opts.s, 'gpthybrid'), self.uuid, iso_file)
             if os.path.isfile(os.path.join(stage, 'boot/grub/i386-pc/grub_eltorito')):
                 cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info --grub2-mbr %s' % os.path.join(stage, 'boot/grub/i386-pc/boot_hybrid.img')
+                for arch in self.conf['archs'].keys():
+                    if os.path.isfile(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], self._getDistroImageFile(arch))):
+                        cmd2 += " %s" % os.path.join(self.conf['distro']['FLL_IMAGE_DIR'], self._getDistroImageFile(arch))
             else:
                 self.log.critical('failed to find grub El Torito image file')
                 raise FllError

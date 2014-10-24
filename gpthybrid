@@ -1,0 +1,127 @@
+#!/usr/bin/python -tt
+# -*- coding: utf-8 -*-
+
+from subprocess import *
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-l", "--label", dest="l", default="", help="set the partlabel stem for rootfs partitions")
+parser.add_option("-i", "--iso", dest="i", help="name of the iso to gpthybridise")
+(options, args) = parser.parse_args()
+
+iso_file = options.i
+label = options.l
+
+gdisks = Popen(["/sbin/gdisk","-l",iso_file],stdout=PIPE).communicate()[0]
+
+last = 0
+end = 0
+i = 0
+for old_part in gdisks.split("\n"):
+	if old_part.startswith('   1'):
+		last = int(old_part.split()[1])-1
+	if old_part.startswith('   '):
+		end = int(old_part.split()[2])
+		i += 1
+
+parts = list()
+
+osirrox=list(["/usr/bin/osirrox", "-pkt_output", "on",
+		 "-indev", iso_file,
+		 '-logfile', '.', '-',
+		 '-find', '/efi.img', '-exec', 'report_lba', '--'])
+for file in args:
+	osirrox.extend(['-find', file, '-exec', 'report_lba', '--'])
+
+for line in check_output(osirrox).split("\n"):
+	if line[:22] == 'R:1: File data lba:  0':
+		(t, s, b, f, n) = line.split(',')
+		s = int(s.split()[0])*4
+		b = int(b.split()[0])*4
+		n = n.split()[0].split("'")[1]
+		done = 0
+		pre = list()
+		post = list()
+		for part in (parts):
+			if s < int(part.split()[0]):
+				if done == 0:
+					post.append("%s %s %s" % (s, s+b, n))
+					done = 1
+				post.append(part)
+			else:
+				post.append(part)
+		if done == 0:
+			post.append("%s %s %s" % (s, s+b, n))
+		parts = post
+
+cmddel = ""
+while (i>1):
+	cmddel += """d
+%i
+""" % i
+	i -= 1
+cmddel += "d\n"
+
+gap = 1
+pnum = 1
+cmdpart = ""
+for part in parts:
+	(s, e, n) = part.split()
+	t = '0700'
+	l=''
+	if len(n) > 5 and ( n[-6:] == '.amd64' or n[-5:] == '.i386' ):
+		t = '8300'
+		if len(label)==0:
+			l = '%s' % n
+		else:
+			l = '%s.%s' % (label, n[n.rfind('.')+1:])
+	elif len(n) > 6 and n[-7:] == 'efi.img':
+		t = 'ef00'
+	elif len(n) >12 and n[-13:] == 'grub_eltorito':
+		t = 'ef02'
+	# if the last partition ended more then 3 less then this starts
+	if int(s)-last >= 4:
+		# create gap from end of last+1 to start-1
+		cmdpart += """n
+%i
+%i
+%i
+0700
+c
+""" % (pnum, last+1, int(s)-1)
+		if pnum > 1:
+			cmdpart += "%s\n" % str(pnum)
+		cmdpart += "Gap%i\n" % (gap)
+		pnum += 1
+		gap += 1
+	cmdpart += """n
+%i
+%s
+%s
+%s
+""" % (pnum, s, e, t)
+	if len(l) > 0:
+		cmdpart += """c
+%i
+%s
+""" % (pnum, l)
+	pnum += 1
+	last = int(e)
+
+# create a gap from end of last partition and end of last gap if needed
+if (end-last>3):
+	cmdpart += """n
+%i
+%s
+
+0700
+c
+%i
+Gap%i
+""" % (pnum,last+1, pnum, gap)
+
+cmdend = """w
+Y
+"""
+
+gdisks = Popen(["/sbin/gdisk",iso_file],stdin=PIPE).communicate(input="%s\n%s\n%s" % (cmddel, cmdpart, cmdend))
