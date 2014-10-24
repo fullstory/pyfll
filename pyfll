@@ -2128,13 +2128,6 @@ class FLLBuilder(object):
         grubcfg.write('  }\n')
         grubcfg.write('fi\n')
 
-        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
-            grubcfg.write('if ! is_efi ; then\n')
-            grubcfg.write('  menuentry --class=memtest \"Memory test (memtest86+)\" {')
-            grubcfg.write('linux16 /boot/memtest\n')
-            grubcfg.write('  }\n')
-            grubcfg.write('fi\n')
-
         grubcfg.close()
         
         self.log.debug('writing loopback.cfg for live media')
