@@ -12,8 +12,8 @@ parser.add_option("-i", "--iso", dest="i", help="name of the iso to gpthybridise
 iso_file = options.i
 label = options.l
 
+# extract start and end of space to partition from existing gpt
 gdisks = Popen(["/sbin/gdisk","-l",iso_file],stdout=PIPE).communicate()[0]
-
 last = 0
 end = 0
 i = 0
@@ -24,47 +24,57 @@ for old_part in gdisks.split("\n"):
 		end = int(old_part.split()[2])
 		i += 1
 
+# get the lba addresses of the files using osirrox
 parts = list()
-
 osirrox=list(["/usr/bin/osirrox", "-pkt_output", "on",
 		 "-indev", iso_file,
 		 '-logfile', '.', '-',
 		 '-find', '/efi.img', '-exec', 'report_lba', '--'])
 for file in args:
 	osirrox.extend(['-find', file, '-exec', 'report_lba', '--'])
-
 for line in check_output(osirrox).split("\n"):
 	if line[:22] == 'R:1: File data lba:  0':
+		# extract the fields
 		(t, s, b, f, n) = line.split(',')
+		# osirrox talks in 2048b sectors so *4
 		s = int(s.split()[0])*4
 		b = int(b.split()[0])*4
+		# drop the quotes around the name
 		n = n.split()[0].split("'")[1]
+		# rebuild list in post in order
 		done = 0
 		pre = list()
 		post = list()
 		for part in (parts):
 			if s < int(part.split()[0]):
+				# we start before this part
 				if done == 0:
+					# add ourselves if not done
 					post.append("%s %s %s" % (s, s+b, n))
 					done = 1
-				post.append(part)
-			else:
-				post.append(part)
+			post.append(part)
 		if done == 0:
+			# no parts for us to go before so add to the end
 			post.append("%s %s %s" % (s, s+b, n))
 		parts = post
 
+# gdisk commands to delete the existing partitions
 cmddel = ""
+# all > 1 need the number
 while (i>1):
 	cmddel += """d
 %i
 """ % i
 	i -= 1
+# the first partition needs no number
 if i==1:
 	cmddel += "d\n"
 
+# gdisk commands to create the partitions
+# gap and pnum just count
 gap = 1
 pnum = 1
+# set to 4 sector alignment (2048b iso sector size) for partition creation
 cmdpart = """x
 l
 4
@@ -72,17 +82,19 @@ m
 """
 for part in parts:
 	(s, e, n) = part.split()
+	# default to ms basic partition and no custom label
 	t = '0700'
 	l=''
-	if len(n) > 5 and ( n[-6:] == '.amd64' or n[-4:] == '.686' ):
+	if len(n) > 4 and ( n[-6:] == '.amd64' or n[-4:] == '.686' ):
 		t = '8300'
+		# use label.arch or just the filename as the partlabel
 		if len(label)==0:
 			l = '%s' % n
 		else:
 			l = '%s.%s' % (label, n[n.rfind('.')+1:])
 	elif len(n) > 6 and n[-7:] == 'efi.img':
 		t = 'ef00'
-	elif len(n) >12 and n[-13:] == 'grub_eltorito':
+	elif len(n) >5 and n[-5:] == '.ef02':
 		t = 'ef02'
 	# if the last partition ended more then 3 less then this starts
 	if int(s)-last >= 4:
@@ -99,6 +111,7 @@ c
 		cmdpart += "Gap%i\n" % (gap)
 		pnum += 1
 		gap += 1
+	# create the partition itself
 	cmdpart += """n
 %i
 %s
@@ -125,8 +138,18 @@ c
 Gap%i
 """ % (pnum,last+1, pnum, gap)
 
+# set back to 2048 sector alignment for new partitions
+cmdpart += """x
+l
+2048
+m
+"""
+
+# confirm writing the partition table
 cmdend = """w
 Y
 """
 
+# run our commands through gdisk
 gdisks = Popen(["/sbin/gdisk",iso_file],stdin=PIPE).communicate(input="%s\n%s\n%s" % (cmddel, cmdpart, cmdend))
+
