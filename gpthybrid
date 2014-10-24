@@ -60,16 +60,21 @@ while (i>1):
 %i
 """ % i
 	i -= 1
-cmddel += "d\n"
+if i==1:
+	cmddel += "d\n"
 
 gap = 1
 pnum = 1
-cmdpart = ""
+cmdpart = """x
+l
+4
+m
+"""
 for part in parts:
 	(s, e, n) = part.split()
 	t = '0700'
 	l=''
-	if len(n) > 5 and ( n[-6:] == '.amd64' or n[-5:] == '.i386' ):
+	if len(n) > 5 and ( n[-6:] == '.amd64' or n[-4:] == '.686' ):
 		t = '8300'
 		if len(label)==0:
 			l = '%s' % n
