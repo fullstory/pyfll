@@ -1534,7 +1534,7 @@ class FLLBuilder(object):
                 self._aptGetInstall(arch, archextra,
                                     download_only = True)
             # Generate a basic reprepro conf/distributions.
-            extras = os.path.join(self.temp, 'staging', 'extras')
+            extras = os.path.join(self.temp, arch, 'fll', 'extras')
             extras_conf = os.path.join(extras, 'conf')
             if not os.path.isdir(extras_conf):
                 os.makedirs(extras_conf)
