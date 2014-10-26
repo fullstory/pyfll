@@ -59,6 +59,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/kbattleship/knavalbattle/
   * don't modify lvm.conf anymore, it's been a no-op for a while already.
   * fix memtest86+ entry for live grub.cfg.
+  * drop obsolete packages.d/bootchart.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
