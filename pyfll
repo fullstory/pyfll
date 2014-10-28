@@ -1681,127 +1681,6 @@ class FLLBuilder(object):
         os.path.walk(os.path.join(chroot, 'var/log'), self._zerologs, arch)
 
 
-    def _chrootImageFS(self, arch):
-        '''Make filesystem image of chroot.'''
-        chroot = os.path.join(self.temp, arch)
-
-        # exclusion file needed even if imaging isn't
-        # TODO rename away from sqfs
-        exclude_file = os.path.join(self.opts.s, 'data', 'fll_sqfs_exclusion')
-        shutil.copy(exclude_file, os.path.join(chroot, 'tmp'))
-
-        # no imagefs for aufs/unionfs
-        if 'FLL_UNION_MODULE' in self.conf['distro'] and len(self.conf['distro']['FLL_UNION_MODULE']) and self.conf['distro']['FLL_UNION_MODULE'] != "dmsetup":
-            return
-
-        # rsync needs absolute paths in exclude-file
-        exclusion_file = os.path.join(chroot, 'tmp', 'fll_sqfs_exclusion')
-        try:
-            exclusion_handle = open(exclusion_file, 'r')
-            exclusion_data = exclusion_handle.read()
-            exclusion_handle.close()
-            exclusion_handle = open(exclusion_file, 'w')
-            for line in exclusion_data.splitlines():
-                exclusion_handle.write('/%s\n' % line)
-        except IOError:
-            self.log.exception('error rewriting squashfs exclusion file')
-            raise FllError
-        finally:
-            if exclusion_handle:
-                exclusion_handle.close()
-
-        image_fs = 'ext4'
-        if ( 'FLL_IMAGE_FS' in self.conf['distro'] and len(self.conf['distro']['FLL_IMAGE_FS'])):
-            image_fs = self.conf['distro']['FLL_IMAGE_FS']
-
-        self.log.info('creating %s filesystem of %s chroot...' % (image_fs, arch))
-        image_file = self._getDistroImageFile(arch)
-
-        # create a dir for the image
-        cmd = ['mkdir', 'squash']
-        self._execInChroot(arch, cmd)
-
-        # Dummy build, just touch the image_file and return
-        if self.opts.D:
-            cmd = ['touch', os.path.join('squash', image_file)]
-            self._execInChroot(arch, cmd)
-            return
-
-        # 16G default is abitrary and large
-        image_size = 16 * 1024
-        if ( 'FLL_IMAGE_MB' in self.conf['distro'] and len(self.conf['distro']['FLL_IMAGE_MB'])):
-            image_size = int(self.conf['distro']['FLL_IMAGE_MB'])
-        
-        # create the fs image
-        # makes a sparse file which has to be bigger then target fs
-        cmd = ['dd', 'if=/dev/zero', 'of=%s' % os.path.join(chroot, 'squash', image_file), 'bs=1K', 'seek=%s' % (image_size*1024-1), 'count=1']
-        self._execCmd(cmd)
-
-        # Get free loop device
-        try:
-            retv = Popen(['losetup', '-f'],bufsize=1024, stdout=PIPE,
-                         stderr=STDOUT, preexec_fn=restore_sigpipe,
-                         close_fds = True)
-            rest = retv.communicate()
-            if rest[1] != None or rest[0] == None :
-                self.log.critical('failed to find a loop device: %s' % rest[1])
-            fsloop = rest[0][:-1]
-        except IOError:
-            self.log.exception('failed to retrieve free loop device from losetup')
-            raise FllError
-
-        # setup the loop device on the image file
-        cmd = ['losetup', fsloop, os.path.join(chroot, 'squash', image_file)]
-        self._execCmd(cmd)
-
-        # create the fs in the loop device
-        cmd = ['mkfs.%s' % image_fs]
-        if image_fs == 'ext3' or image_fs == 'ext4' :
-            cmd.append('-O')
-            cmd.append('^has_journal')
-        elif image_fs == 'jfs' :
-            cmd.append('-f')
-        elif image_fs == 'reiserfs' :
-            cmd.append('-f')
-        cmd.append(fsloop)
-        self._execCmd(cmd)
-        # we don't want fsck running on the live image
-        if image_fs[:3] == 'ext' :
-            cmd = ['tune2fs', '-c', '0', fsloop]
-            self._execCmd(cmd)
-
-        # drop the manual loop device
-        # XXX: work around "losetup -d" breakage
-        cmd = ['losetup', '-d', fsloop]
-        for i in range(0, 59):
-            try:
-                self._execCmd(cmd)
-            except:
-                self.log.info('Loop device still busy (%i seconds)!' % (i + 1))
-                time.sleep(1)
-                continue
-            finally:
-                self.log.info('successfully detached loop device: %s' % fsloop)
-                break
-            self.log.critical('failed to drop loop device: %s' % fsloop)
-            raise FllError
-       
-        # create a dir, loop mount squash/image_file on it and rsync in chroot
-        fs_image_mnt='%s.mnt' % image_file
-        cmd = ['mkdir', fs_image_mnt]
-        self._execInChroot(arch, cmd)
-        cmd = ['mount', '-t', image_fs, '-o', 'loop', os.path.join(chroot, 'squash', image_file), os.path.join(chroot, fs_image_mnt)]
-        # execCmd to leave it mounted, next execInChroot will umount it
-        self._execCmd(cmd)
-        # copy in to the loop with rsync using the "squashfs" exclusion list
-        # also exclude the squash dir itself
-        # TODO rename away from sqfs
-        self.log.info('rsync: move chroot into loop image.')
-        cmd = ['rsync', '-a', '--exclude=squash', '--exclude=%s' % fs_image_mnt, '--exclude-from=/tmp/fll_sqfs_exclusion', '.', fs_image_mnt]
-        self._execInChroot(arch, cmd)
-        # get rid of the mount point
-        self._nuke(os.path.join(chroot, fs_image_mnt))
-
     def _chrootSquashfs(self, arch):
         '''Make squashfs filesystem image of chroot.'''
         self.log.info('creating squashfs filesystem of %s chroot...' % arch)
@@ -1813,10 +1692,11 @@ class FLLBuilder(object):
             self._execInChroot(arch, cmd)
             return
 
-        if os.path.isfile(os.path.join(chroot, 'squash', '%s' % image_file)):
-            cmd = ['mksquashfs', 'squash', image_file, '-noappend']
-        else:
-            cmd = ['mksquashfs', '.', image_file, '-noappend']
+        cmd = ['mksquashfs', '.', image_file, '-noappend']
+
+        exclude_file = os.path.join(self.opts.s, 'data', 'fll_sqfs_exclusion')
+        shutil.copy(exclude_file, os.path.join(chroot, 'tmp'))
+        cmd.extend(['-wildcards', '-ef', '/tmp/fll_sqfs_exclusion'])
 
         # set compression algorithm for squashfs-tools >= 4.1
         squashfs_comp = self.conf['options'].get('squashfs_comp')
@@ -1829,9 +1709,6 @@ class FLLBuilder(object):
                 elif arch == 'powerpc' or arch == 'ppc64':
                     cmd.extend(['-Xbcj', 'powerpc'])
         
-        if not os.path.isfile(os.path.join(chroot, 'squash', '%s' % image_file)):
-            cmd.extend(['-wildcards', '-ef', '/tmp/fll_sqfs_exclusion', '-e', image_file])
-
         if self.opts.l or self.opts.q:
             cmd.append('-no-progress')
 
@@ -2620,7 +2497,6 @@ class FLLBuilder(object):
             self._dpkgUnDivert(arch)
             self._makeInitramfs(arch)
             self._cleanChroot(arch)
-            self._chrootImageFS(arch)
             self._chrootSquashfs(arch)
             self._stageArch(arch)
             self._nukeChroot(arch)
