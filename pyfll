@@ -1974,7 +1974,7 @@ class FLLBuilder(object):
               grubcfg.write('if cpuid -l; then\n')
             grubcfg.write('havekernel="Y"\n')
             grubcfg.write('title=""\n')
-            grubcfg.write('for kopt in %s $kopts %s boot=fll quiet systemd.show_status=1; do\n if [ -n "$title" ] ; then\n  title="$title $kopt";\n else title="$kopt";\n fi;\ndone' % (vmlinuz_r, cmdline))
+            grubcfg.write('for kopt in %s $kopts %s boot=fll quiet systemd.show_status=1 splash; do\n if [ -n "$title" ] ; then\n  title="$title $kopt";\n else title="$kopt";\n fi;\ndone' % (vmlinuz_r, cmdline))
             grubcfg.write('\nmenuentry --class=%s.%s \"$title\" {' % (distro, cpu))
             grubcfg.write('linux /boot/$@\n')
             grubcfg.write('initrd /boot/%s\n' % initrd_r)
@@ -2187,7 +2187,7 @@ class FLLBuilder(object):
 
         cmdline =  self.conf['options'].get('boot_cmdline')
         if not cmdline:
-            cmdline = 'quiet systemd.show_status=1'
+            cmdline = 'quiet systemd.show_status=1 splash'
 
         self._writeYabootCfg(stage_dir, boot_dir, ppc_dir, kvers,
                                timeout, cmdline)

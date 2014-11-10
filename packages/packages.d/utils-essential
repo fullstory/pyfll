@@ -6,7 +6,6 @@ packages = """
 	anacron
 	bzip2
 	console-data
-	console-common
 	cron
 	debsums
 	dosfstools
@@ -20,6 +19,7 @@ packages = """
 	logrotate
 	mbr
 	netbase
+	plymouth
 	rsync
 	rsyslog
 	sudo

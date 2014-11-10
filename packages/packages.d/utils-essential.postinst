@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if [ -x /usr/sbin/plymouth-set-default-theme ]; then
+		say 'select plymouth theme: details.'
+		plymouth-set-default-theme details
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
