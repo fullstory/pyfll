@@ -63,7 +63,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * remove support for dmsetup based rootfs.
   * drop obsolete FLL_UNION_MODULE definitions.
   * switch to plymouth ("details" theme) for console multiplexing.
-  * improve grub2 preseeding for the installed systemd.
+  * improve grub2 preseeding for the installed system.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
