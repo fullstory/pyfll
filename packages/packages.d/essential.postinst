@@ -50,12 +50,31 @@ EOF
 		fi
 	fi
 
-	# disable recovery modes for grub2
+	# preseed linux_cmdline_default
+	say 'preseed linux_cmdline_default for grub2'
+	echo grub-pc grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
+	echo grub-efi-ia32 grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
+	echo grub-efi-amd64 grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
+
+	# preconfigure grub2
 	if [ -w /etc/default/grub ]; then
+		# set linux_cmdline_default
+		if grep -q ^GRUB_CMDLINE_LINUX_DEFAULT\= /etc/default/grub; then
+			sed -i "s/^\(GRUB_CMDLINE_LINUX_DEFAULT=\).*/\1\"quiet systemd.show_status=1 splash\"/" /etc/default/grub
+		else
+			sed -i "s/^\#\(GRUB_CMDLINE_LINUX_DEFAULT=\).*/\1\"quiet systemd.show_status=1 splash\"/" /etc/default/grub
+		fi
+
+		# disable recovery modes for grub2
 		if grep -q ^GRUB_DISABLE_RECOVERY\= /etc/default/grub; then
 			sed -i "s/^\(GRUB_DISABLE_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
 		else
 			sed -i "s/^\#\(GRUB_DISABLE_RECOVERY=\).*/\1\"true\"/" /etc/default/grub
+		fi
+
+		# disable grub2 submenus and use plain menu structures instead
+		if grep -v ^GRUB_DISABLE_SUBMENU /etc/default/grub; then
+			printf "\nGRUB_DISABLE_SUBMENU=y\n" >> /etc/default/grub
 		fi
 	fi
 
