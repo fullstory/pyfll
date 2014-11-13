@@ -64,6 +64,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop obsolete FLL_UNION_MODULE definitions.
   * switch to plymouth ("details" theme) for console multiplexing.
   * improve grub2 preseeding for the installed system.
+  * drop unused FLL_DISTRO_URL variable.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
