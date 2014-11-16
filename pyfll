@@ -1764,6 +1764,9 @@ class FLLBuilder(object):
               shutil.copy(os.path.join(chroot, 'usr/share/grub/unicode.pf2'), grub_dir)
               shutil.copytree(os.path.join(self.opts.s, 'data/locales'), os.path.join(grub_dir, 'locales'))
               shutil.copytree(os.path.join(self.opts.s, 'data/tz'), os.path.join(grub_dir, 'tz'))
+              theme_dir = 'themes/%s' % self.conf['distro']['FLL_GFXBOOT_THEME']
+              if os.path.isfile(os.path.join(chroot, 'usr/share/grub/%s/theme.txt' % theme_dir)):
+                  shutil.copytree(os.path.join(chroot, 'usr/share/grub/%s' % theme_dir), os.path.join(grub_dir, theme_dir))
 
             gfile_dir = glob.glob(os.path.join(chroot, 'usr/lib/grub/*-pc'))[0]
 
@@ -2020,6 +2023,9 @@ class FLLBuilder(object):
         
         self.log.debug('writing variable.cfg for live media')
         grubcfg = open(os.path.join(grub_dir, 'variable.cfg'), 'w')
+        grub_theme = 'grub/themes/%s/theme.txt' % self.conf['distro']['FLL_GFXBOOT_THEME']
+        if os.path.isfile(os.path.join(boot_dir, grub_theme)):
+            grubcfg.write('grub_theme=/boot/%s\n' % grub_theme)
         grubcfg.write('timeout=%s\n' % timeout)
         grubcfg.close()
 
