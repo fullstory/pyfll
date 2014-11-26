@@ -2153,7 +2153,7 @@ class FLLBuilder(object):
     def _configBootTimeout(self):
         timeout = self.conf['options'].get('boot_timeout')
         if not timeout:
-            timeout = '30'
+            timeout = '-1'
         return timeout
 
     def _configBootCmdline(self):
@@ -2188,18 +2188,10 @@ class FLLBuilder(object):
         if not os.path.isdir(ppc_dir):
             return
         self.log.debug('writing yaboot config for live media')
-        kvers = self._detectLinuxVersion(stage_dir)
-        if len(kvers) < 1:
-            self.log.critical('failed to find vmlinux to include in grub conf')
-            raise FllError
 
-        timeout = self.conf['options'].get('boot_timeout')
-        if not timeout:
-            timeout = '30'
-
-        cmdline =  self.conf['options'].get('boot_cmdline')
-        if not cmdline:
-            cmdline = 'quiet systemd.show_status=1 splash'
+        kvers = self._configBootKvers(stage_dir)
+        timeout = self._configBootTimeout()
+        cmdline =  self._configBootCmdline()
 
         self._writeYabootCfg(stage_dir, boot_dir, ppc_dir, kvers,
                                timeout, cmdline)
