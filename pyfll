@@ -1985,6 +1985,7 @@ class FLLBuilder(object):
             grubcfg.write(' fi;\n')
             grubcfg.write('done\n')
             grubcfg.write('menuentry --class=%s.%s \"$title\" {' % (distro, cpu))
+            grubcfg.write('# set arguments above with the editor\n')
             grubcfg.write('linux /boot/$@\n')
             grubcfg.write('initrd /boot/%s\n' % initrd_r)
             grubcfg.write('}\n')
