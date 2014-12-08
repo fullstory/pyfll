@@ -107,6 +107,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     - add local kernel command line option menu(s)
     - clock always at start, lang before default (kernel)
   * add internal gpthybrid
+  * add secondary squashfs
 
   [ Roland Engert ]
   * add initial razorqt profile 

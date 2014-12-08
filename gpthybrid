@@ -12,6 +12,11 @@ parser.add_option("-i", "--iso", dest="i", help="name of the iso to gpthybridise
 iso_file = options.i
 label = options.l
 
+buffout = "gpthybridising iso %s" % iso_file
+if len(label):
+	buffout = "%s with label %s" % (buffout, label)
+print buffout
+
 # extract start and end of space to partition from existing gpt
 gdisks = Popen(["/sbin/gdisk","-l",iso_file],stdout=PIPE).communicate()[0]
 last = 0
@@ -20,8 +25,10 @@ i = 0
 for old_part in gdisks.split("\n"):
 	if old_part.startswith('   1'):
 		last = int(old_part.split()[1])-1
+		print "first partition sets last to %i" % last
 	if old_part.startswith('   '):
 		end = int(old_part.split()[2])
+		print "got partition ending: %i" % end
 		i += 1
 
 # get the lba addresses of the files using osirrox
@@ -32,6 +39,7 @@ osirrox=list(["/usr/bin/osirrox", "-pkt_output", "on",
 		 '-find', '/efi.img', '-exec', 'report_lba', '--'])
 for file in args:
 	osirrox.extend(['-find', file, '-exec', 'report_lba', '--'])
+print "running: %s" % " ".join(osirrox)
 for line in check_output(osirrox).split("\n"):
 	if line[:22] == 'R:1: File data lba:  0':
 		# extract the fields
@@ -43,19 +51,18 @@ for line in check_output(osirrox).split("\n"):
 		n = n.split()[0].split("'")[1]
 		# rebuild list in post in order
 		done = 0
-		pre = list()
 		post = list()
 		for part in (parts):
 			if s < int(part.split()[0]):
 				# we start before this part
 				if done == 0:
 					# add ourselves if not done
-					post.append("%s %s %s" % (s, s+b, n))
+					post.append("%s %s %s" % (s, s+b-1, n))
 					done = 1
 			post.append(part)
 		if done == 0:
 			# no parts for us to go before so add to the end
-			post.append("%s %s %s" % (s, s+b, n))
+			post.append("%s %s %s" % (s, s+b-1, n))
 		parts = post
 
 # gdisk commands to delete the existing partitions
@@ -85,9 +92,9 @@ for part in parts:
 	# default to ms basic partition and no custom label
 	t = '0700'
 	l=''
-	if len(n) > 4 and ( n[-6:] == '.amd64' or n[-4:] == '.686' ):
+	if len(n) > 4 and ( n[-6:] == '.amd64' or n[-4:] == '.686' or n[-2:] == '.2' ):
 		t = '8300'
-		# use label.arch or just the filename as the partlabel
+		# use label.extension or just the filename as the partlabel
 		if len(label)==0:
 			l = '%s' % n
 		else:
@@ -125,6 +132,8 @@ c
 """ % (pnum, l)
 	pnum += 1
 	last = int(e)
+	cmdpart += """p
+"""
 
 # create a gap from end of last partition and end of last gap if needed
 if (end-last>3):
@@ -136,6 +145,7 @@ if (end-last>3):
 c
 %i
 Gap%i
+p
 """ % (pnum,last+1, pnum, gap)
 
 # set back to 2048 sector alignment for new partitions
@@ -151,5 +161,7 @@ Y
 """
 
 # run our commands through gdisk
-gdisks = Popen(["/sbin/gdisk",iso_file],stdin=PIPE).communicate(input="%s\n%s\n%s" % (cmddel, cmdpart, cmdend))
+cmd = "%s\n%s\n%s" % (cmddel, cmdpart, cmdend)
+print "gdisk stdin: %s" % cmd.replace("\n", " ")
+gdisks = Popen(["/sbin/gdisk",iso_file],stdin=PIPE).communicate(input=cmd)
 

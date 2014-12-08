@@ -1715,6 +1715,50 @@ class FLLBuilder(object):
         self._execInChroot(arch, cmd)
 
 
+    def secondSquashfs(self):
+        '''Make squashfs filesystem image of non chroot other material.'''
+        if self.opts.D:
+            return
+        self.log.info('creating secondary squashfs filesystem')
+        stage = os.path.join(self.temp, 'staging')
+        sqfs_file = os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], '%s.2' % self.conf['distro']['FLL_IMAGE_FILE'])
+        excl_file = os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], '%s.2.excl' % self.conf['distro']['FLL_IMAGE_FILE'])
+        excl = open(excl_file, 'w')
+        excl.write('autorun.inf\n')
+        excl.write('boot\n')
+        excl.write('boot/*\n')
+        excl.write('boot.catalog\n')
+        excl.write('cdrom.ico\n')
+        excl.write('efi\n')
+        excl.write('efi/*\n')
+        excl.write('efi.img\n')
+        excl.write('iso_uuid\n')
+        excl.write('%s\n' % self.conf['distro']['FLL_IMAGE_DIR'])
+        excl.write('%s/*\n' % self.conf['distro']['FLL_IMAGE_DIR'])
+        excl.close()
+        cmd = ['mksquashfs', stage, sqfs_file, '-noappend']
+        cmd.extend(['-wildcards', '-ef', excl_file])
+
+        # set compression algorithm for squashfs-tools >= 4.1
+        squashfs_comp = self.conf['options'].get('squashfs_comp')
+        if squashfs_comp in ['gzip', 'lzo', 'xz']:
+            self.log.info('using squashfs(%s)...' % squashfs_comp)
+            cmd.extend(['-comp', '%s' % squashfs_comp])
+            if squashfs_comp == 'xz':
+                if arch == 'amd64' or arch == 'i386':
+                    cmd.extend(['-Xbcj', 'x86'])
+                elif arch == 'powerpc' or arch == 'ppc64':
+                    cmd.extend(['-Xbcj', 'powerpc'])
+        
+        if self.opts.l or self.opts.q:
+            cmd.append('-no-progress')
+
+        self._execCmd(cmd)
+        self._nuke(os.path.join(stage,'extras'))
+        self._nuke(os.path.join(stage,'i18n'))
+        os.unlink(excl_file)
+
+
     def _stageArch(self, arch):
         '''Stage files for an arch for final genisofs.'''
         self.log.info('staging live %s media...' % arch)
@@ -2407,6 +2451,8 @@ class FLLBuilder(object):
                 for arch in self.conf['archs'].keys():
                     if os.path.isfile(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], self._getDistroImageFile(arch))):
                         cmd2 += " %s" % os.path.join(self.conf['distro']['FLL_IMAGE_DIR'], self._getDistroImageFile(arch))
+                if os.path.isfile(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], '%s.2' % self.conf['distro']['FLL_IMAGE_FILE'])):
+                    cmd2 += " %s" % os.path.join(self.conf['distro']['FLL_IMAGE_DIR'], '%s.2' % self.conf['distro']['FLL_IMAGE_FILE'])
             else:
                 self.log.critical('failed to find grub El Torito image file')
                 raise FllError
@@ -2518,6 +2564,7 @@ class FLLBuilder(object):
             sys.exit(0)
 
         self.buildChroots()
+        self.secondSquashfs()
         self.writeBootldr()
         self.writeMd5Sums()
         self.genLiveMedia()
