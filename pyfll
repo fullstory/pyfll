@@ -1745,6 +1745,7 @@ class FLLBuilder(object):
             self.log.info('using squashfs(%s)...' % squashfs_comp)
             cmd.extend(['-comp', '%s' % squashfs_comp])
             if squashfs_comp == 'xz':
+                arch = self.conf['archs'].keys()[0]
                 if arch == 'amd64' or arch == 'i386':
                     cmd.extend(['-Xbcj', 'x86'])
                 elif arch == 'powerpc' or arch == 'ppc64':
