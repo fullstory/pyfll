@@ -2015,14 +2015,11 @@ class FLLBuilder(object):
                     self.log.critical('%s was not found in %s' % (f, boot_dir))
                     raise FllError
 
-            vmlinuz_r = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
-            initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
-
             if cpu[0:3] == 'amd':
               grubcfg.write('if cpuid -l; then\n')
             grubcfg.write('havekernel="Y"\n')
             grubcfg.write('title=""\n')
-            grubcfg.write('for kopt in %s $kopts %s boot=fll quiet systemd.show_status=1 splash; do\n' % (vmlinuz_r, cmdline))
+            grubcfg.write('for kopt in %s $kopts %s boot=fll quiet systemd.show_status=1 splash; do\n' % (vmlinuz[8:], cmdline))
             grubcfg.write(' if [ -n "$title" ] ; then\n')
             grubcfg.write('  title="$title $kopt";\n')
             grubcfg.write(' else\n')
@@ -2031,8 +2028,8 @@ class FLLBuilder(object):
             grubcfg.write('done\n')
             grubcfg.write('menuentry --class=%s.%s \"$title\" {' % (distro, cpu))
             grubcfg.write('# set arguments above with the editor\n')
-            grubcfg.write('linux /boot/$@\n')
-            grubcfg.write('initrd /boot/%s\n' % initrd_r)
+            grubcfg.write('linux /boot/vmlinuz-$@\n')
+            grubcfg.write('initrd /boot/%s\n' % initrd)
             grubcfg.write('}\n')
             if cpu[0:3] == 'amd':
               grubcfg.write('fi\n')
@@ -2253,30 +2250,6 @@ class FLLBuilder(object):
             self._writeYabootWrap()
         if self.opts.D:
             return
-        stage_dir = os.path.join(self.temp, 'staging')
-        boot_dir = os.path.join(stage_dir, 'boot')
-        kcount = { '686': 0, 'amd': 0, 'pae': 0, '486': 0, 'ppc': 0 }
-        kvers = self._detectLinuxVersion(stage_dir)
-        for k in kvers:
-            cpu = k[k.rfind('-') + 1:]
-            initrd = os.path.join(boot_dir, 'initrd.img-' + k)
-            if os.path.isfile(initrd):
-                initrdsafe = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
-                self.log.debug('renaming %s to %s' % (initrd, initrdsafe))
-                os.rename(initrd, os.path.join(boot_dir, initrdsafe))
-            else:
-                self.log.critical('could not find initramfs image to rename.')
-                raise FllError
-            
-            images = glob.glob(os.path.join(boot_dir, 'vmlinu*-' + k))
-            if len(images) == 1:
-                vmlinuzsafe = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
-                self.log.debug('renaming %s to %s' % (images[0], vmlinuzsafe))
-                os.rename(images[0], os.path.join(boot_dir, vmlinuzsafe))
-            else:
-                self.log.critical('could not find linux kernel image to rename.')
-                raise FllError
-            kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
 
 
     def __md5sum(self, filename):
