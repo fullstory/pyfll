@@ -65,6 +65,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * switch to plymouth ("details" theme) for console multiplexing.
   * improve grub2 preseeding for the installed system.
   * drop unused FLL_DISTRO_URL variable.
+  * drop ntpdate, systemd-timedated takes over the common cases - tlsdate is a
+    better choice for the uncommon ones.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

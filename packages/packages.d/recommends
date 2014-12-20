@@ -15,7 +15,6 @@ packages = """
 	kontact
 	kopete
 	netbase
-	ntpdate
 	python-dbus
 	qemu-system-x86
 	seahorse-daemon
