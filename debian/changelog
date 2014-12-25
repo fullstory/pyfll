@@ -67,6 +67,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop unused FLL_DISTRO_URL variable.
   * drop ntpdate, systemd-timedated takes over the common cases - tlsdate is a
     better choice for the uncommon ones.
+  * switch to http.debian.net as GeoMirror.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
