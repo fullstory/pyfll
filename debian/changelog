@@ -68,6 +68,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop ntpdate, systemd-timedated takes over the common cases - tlsdate is a
     better choice for the uncommon ones.
   * switch to http.debian.net as GeoMirror.
+  * convert to machine readable copyright.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
