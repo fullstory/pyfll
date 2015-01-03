@@ -33,7 +33,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * elinks-lite no longer exists, use full elinks instead.
   * exclude (empty) bootstrap.log.
   * disable flegita for the time being, it's not installable.
-  * bump standards version to 3.9.5, no changes necessary.
+  * bump standards version to 3.9.6, no changes necessary.
   * debian/control: switch Vcs tags to github.
   * don't pull in alsa-base.
   * update README (depend on isolinux, syslinux-utils and reprepro).
