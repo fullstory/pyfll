@@ -93,7 +93,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * add efibootmgr for i386.
   * same bootloader (grub-* and efibootmgr) packages for i386 and amd64
   * set and export pager by default in grub.cfg
-  * add i386-efi to kernel command line when booted under it
   * add grub2-fll-portable-efi to extras
   * add part_gpt to built in modules for cd efi loader (for detect efi anyway)
   * create /disks to reflect changed fstab_generator
