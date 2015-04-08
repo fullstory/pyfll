@@ -7,10 +7,25 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-l", "--label", dest="l", default="", help="set the partlabel stem for rootfs partitions")
 parser.add_option("-i", "--iso", dest="i", help="name of the iso to gpthybridise")
+parser.add_option("-s", "--sector", dest="s", default=4, help="size of sectors to use in resulting partition table")
 (options, args) = parser.parse_args()
 
 iso_file = options.i
 label = options.l
+sectors = options.s
+
+def modup(number,mod,target):
+	if (number % mod != target):
+		number = number + target - number % mod
+	return number
+def moddown(number,mod,target):
+	if (number % mod != target):
+		adjust = number % mod - target
+		if (adjust > 0):
+			number -= adjust
+		else:
+			number -= mod + adjust
+	return number
 
 buffout = "gpthybridising iso %s" % iso_file
 if len(label):
@@ -24,21 +39,31 @@ end = 0
 i = 0
 for old_part in gdisks.split("\n"):
 	if old_part.startswith('   1'):
+		# below we want last as "end" of space before 1st partiion
 		last = int(old_part.split()[1])-1
-		print "first partition sets last to %i" % last
+		# min 63 and round up to %sectors==sectors-1 (so 63 means next starts on 64)
+		if last<63:
+			last=63
+		last = modup(last,sectors,sectors-1)
+		print "first partition set last to %i" % last
 	if old_part.startswith('   '):
-		end = int(old_part.split()[2])
-		print "got partition ending: %i" % end
+		# end should be the last used sector
+		testend = int(old_part.split()[2])
+		if (testend > end):
+			end = modup(testend,sectors,sectors-1)
+			print "got partition ending: %i" % end
 		i += 1
 
 # get the lba addresses of the files using osirrox
 parts = list()
 osirrox=list(["/usr/bin/osirrox", "-pkt_output", "on",
 		 "-indev", iso_file,
-		 '-logfile', '.', '-',
-		 '-find', '/efi.img', '-exec', 'report_lba', '--'])
+		 '-logfile', '.', '-',])
+		 #'-find', '/efi.img', '-exec', 'report_lba', '--'])
+
 for file in args:
 	osirrox.extend(['-find', file, '-exec', 'report_lba', '--'])
+
 print "running: %s" % " ".join(osirrox)
 for line in check_output(osirrox).split("\n"):
 	if line[:22] == 'R:1: File data lba:  0':
@@ -57,12 +82,12 @@ for line in check_output(osirrox).split("\n"):
 				# we start before this part
 				if done == 0:
 					# add ourselves if not done
-					post.append("%s %s %s" % (s, s+b-1, n))
+					post.append("%s %s %s" % (moddown(s,sectors,0), modup(s+b-1,sectors,3), n))
 					done = 1
 			post.append(part)
 		if done == 0:
 			# no parts for us to go before so add to the end
-			post.append("%s %s %s" % (s, s+b-1, n))
+			post.append("%s %s %s" % (moddown(s,sectors,0), modup(s+b-1,sectors,3), n))
 		parts = post
 
 # gdisk commands to delete the existing partitions
@@ -81,12 +106,12 @@ if i==1:
 # gap and pnum just count
 gap = 1
 pnum = 1
-# set to 4 sector alignment (2048b iso sector size) for partition creation
+# set sectors alignment (2048b iso sector size by default) for partition creation
 cmdpart = """x
 l
-4
+%i
 m
-"""
+""" % sectors
 for part in parts:
 	(s, e, n) = part.split()
 	# default to ms basic partition and no custom label
@@ -103,16 +128,15 @@ for part in parts:
 		t = 'ef00'
 	elif len(n) >5 and n[-5:] == '.ef02':
 		t = 'ef02'
-	# if the last partition ended more then 3 less then this starts
-	if int(s)-last >= 4:
-		# create gap from end of last+1 to start-1
+	# if the last partition ended more then sectors less then this starts
+	if int(s)-last >= sectors:
 		cmdpart += """n
 %i
 %i
 %i
 0700
 c
-""" % (pnum, last+1, int(s)-1)
+""" % (pnum, modup(last+1,sectors,0), moddown(int(s)-1,sectors,3))
 		if pnum > 1:
 			cmdpart += "%s\n" % str(pnum)
 		cmdpart += "Gap%i\n" % (gap)
@@ -136,7 +160,7 @@ c
 """
 
 # create a gap from end of last partition and end of last gap if needed
-if (end-last>3):
+if (end-last>sectors-1):
 	cmdpart += """n
 %i
 %s
@@ -146,9 +170,9 @@ c
 %i
 Gap%i
 p
-""" % (pnum,last+1, pnum, gap)
+""" % (pnum,modup(last+1,sectors,0), pnum, gap)
 
-# set back to 2048 sector alignment for new partitions
+# set back to normal 2048 sector alignment for new partitions
 cmdpart += """x
 l
 2048
@@ -162,6 +186,7 @@ Y
 
 # run our commands through gdisk
 cmd = "%s\n%s\n%s" % (cmddel, cmdpart, cmdend)
-print "gdisk stdin: %s" % cmd.replace("\n", " ")
+print "gdisk stdin: %s" % cmd.replace("\n", "\\n")
 gdisks = Popen(["/sbin/gdisk",iso_file],stdin=PIPE).communicate(input=cmd)
 
+# TODO read gdisk result and verify or throw big warning/error
