@@ -17,10 +17,11 @@ Vcs-Browser: https://github.com/fullstory/pyfll
 #         python-apt,
 #         python-configobj,
 #         debootstrap | cdebootstrap,
-#         isolinux,
 #         xorriso,
 #         reprepro,
 #         squashfs-tools,
+#Recommends: gdisk
+#Suggests: isolinux,
 #         syslinux,
 #         syslinux-utils
 #Description: FULLSTORY live linux media mastering utility
