@@ -69,6 +69,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     better choice for the uncommon ones.
   * switch to http.debian.net as GeoMirror.
   * convert to machine readable copyright.
+  * add kio-mtp to kde-basic (kde-lite/ kde-full).
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
