@@ -73,7 +73,7 @@ EOF
 		fi
 
 		# disable grub2 submenus and use plain menu structures instead
-		if grep -v ^GRUB_DISABLE_SUBMENU /etc/default/grub; then
+		if grep -qv ^GRUB_DISABLE_SUBMENU /etc/default/grub; then
 			printf "\nGRUB_DISABLE_SUBMENU=y\n" >> /etc/default/grub
 		fi
 	fi
