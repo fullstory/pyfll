@@ -71,6 +71,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * convert to machine readable copyright.
   * add kio-mtp to kde-basic (kde-lite/ kde-full).
   * silence grepping /etc/default/grub.
+  * drop acpid, it's no longer needed with systemd.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

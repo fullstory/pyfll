@@ -19,11 +19,3 @@ packages = """
 	udev
 	usbutils
 """
-
-i386 = """
-	acpid
-"""
-
-amd64 = """
-	acpid
-"""
