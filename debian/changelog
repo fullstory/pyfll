@@ -115,12 +115,13 @@ pyfll (2013.02) UNRELEASED; urgency=low
     - clock always at start, lang before default (kernel)
   * add internal gpthybrid
   * add secondary squashfs
+  * comment nbd-client out, needed love anyway and is causing ordering issues
 
   [ Roland Engert ]
   * add initial razorqt profile 
   * add qupzilla, qpdfview
 
- -- Niall Walsh <niallwalsh@celtux.org>  Fri, 05 Sep 2014 02:39:12 +0100
+ -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
 pyfll (2013.01) hesperides; urgency=low
 
