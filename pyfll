@@ -2443,6 +2443,7 @@ class FLLBuilder(object):
         cmd += ' --modification-date=%s' % self.uuid.replace("-","")
         if os.path.isfile(os.path.join(stage, 'efi.img')):
             cmd += ' --efi-boot efi.img -efi-boot-part --efi-boot-image'
+            cmd2 += ' efi.img'
 
         cmd += ' --protective-msdos-label -V %s' % distro_name[:32]
         if os.path.isdir(os.path.join(stage, 'boot')):
