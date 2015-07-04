@@ -9,7 +9,7 @@ packages = """
 	kaffeine
 	kde-plasma-desktop
 	kde-workspace-bin
-	kdm
 	konversation
 	phonon-backend-gstreamer
+	sddm
 """

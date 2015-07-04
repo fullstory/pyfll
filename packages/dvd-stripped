@@ -28,10 +28,10 @@ packages = """
 	gtk2-engines-xfce
 	kaffeine
 	kde-core
-	kdm
 	konversation
 	kpowersave
 	libnotify-bin
+	sddm
 	shared-mime-info
 	thunar
 	thunar-archive-plugin
