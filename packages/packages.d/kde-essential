@@ -7,9 +7,8 @@ packages = """
 	akonadi-backend-sqlite
 	ca-certificates
 	kaffeine
-	kde-plasma-desktop
-	kde-workspace-bin
 	konversation
+	plasma-desktop
 	phonon-backend-gstreamer
 	sddm
 """

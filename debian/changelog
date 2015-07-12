@@ -74,6 +74,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop acpid, it's no longer needed with systemd.
   * switch to httpredir.debian.org as official GeoMirror.
   * switch default to sddm.
+  * inital update for KDE5.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
