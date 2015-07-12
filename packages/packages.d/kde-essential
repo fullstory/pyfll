@@ -11,6 +11,21 @@ packages = """
 	kio
 	konversation
 	plasma-desktop
+		# plasma-desktop recommends are stil fscked
+		fonts-oxygen
+		kde-config-gtk-style
+		kde-config-sddm
+		kde-style-oxygen-qt5
+		khelpcenter
+		khotkeys
+		kinfocenter
+		kio-extras
+		kmenuedit
+		kscreen
+		ksshaskpass
+		ksysguard
+		kwrited
+		systemsettings
 	plasma-workspace
 	phonon-backend-gstreamer
 	sddm

@@ -77,6 +77,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * inital update for KDE5.
   * kde-essential: add plasma-workspace, kde-baseapps and kio.
   * kde-basic: kio-extras
+  * work around broken kde-desktop recommends.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
