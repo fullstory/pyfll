@@ -75,6 +75,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * switch to httpredir.debian.org as official GeoMirror.
   * switch default to sddm.
   * inital update for KDE5.
+  * kde-essential: add plasma-workspace and kde-baseapps.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
