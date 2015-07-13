@@ -78,6 +78,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * kde-essential: add plasma-workspace, kde-baseapps, kio and kwin-x11.
   * kde-basic: kio-extras
   * work around broken kde-desktop recommends.
+  * drop fluxbox from non-fluxbox profiles.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

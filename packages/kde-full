@@ -8,7 +8,6 @@ deps = """
 	distro-kde
 	distro-tools
 	distro-tools-x
-	fluxbox
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-powermanagement
