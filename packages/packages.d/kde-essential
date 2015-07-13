@@ -10,6 +10,7 @@ packages = """
 	kde-baseapps
 	kio
 	konversation
+	kwin-x11
 	plasma-desktop
 		# plasma-desktop recommends are stil fscked
 		fonts-oxygen
