@@ -8,7 +8,7 @@ packages = """
 	kcalc
 	khelpcenter4
 	kio-extras
-	#kio-mtp
+	kio-mtp
 	kmenuedit
 	kmix
 	knemo
