@@ -12,7 +12,7 @@ packages = """
 	konversation
 	kwin-x11
 	plasma-desktop
-		# plasma-desktop recommends are stil fscked
+		# plasma-desktop recommends are still fscked
 		fonts-oxygen
 		kde-config-gtk-style
 		kde-config-sddm
@@ -30,4 +30,16 @@ packages = """
 	plasma-workspace
 	phonon-backend-gstreamer
 	sddm
+	# missing dependencies
+		libkf5config-bin
+		libkf5dbusaddons-bin
+		libkf5emoticons-bin
+		libkf5filemetadata-bin
+		libkf5iconthemes-bin
+		libkf5kdelibs4support5-bin
+		libkf5khtml-bin
+		libkf5parts-plugins
+		libkf5su-bin
+		libkf5wallet-bin
+		libkf5xmlgui-bin
 """

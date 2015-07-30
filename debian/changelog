@@ -80,6 +80,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * work around broken kde-desktop recommends.
   * drop fluxbox from non-fluxbox profiles.
   * disable kio-mtp for the time being.
+  * add missing dependencies for KDE5.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
