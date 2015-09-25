@@ -82,6 +82,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * disable kio-mtp for the time being.
   * add missing dependencies for KDE5.
   * packages.d/kde-basic: drop knemo, it's no longer in Debian.
+  * s/gstreamer0.10/gstreamer1.0/.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
