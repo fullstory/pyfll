@@ -8,7 +8,6 @@ packages = """
 	kcalc
 	khelpcenter4
 	kio-extras
-	kio-mtp
 	kmenuedit
 	kmix
 	kppp
