@@ -85,6 +85,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/gstreamer0.10/gstreamer1.0/.
   * drop kio-mtp, it's no longer necessary with KDE5/ dolphin 15.08.x
     (kio-extras taking over that aspect for KDE5 based applications).
+  * kde-desktop: add plasma-systray-legacy to help hplip-gui staying legacy.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
