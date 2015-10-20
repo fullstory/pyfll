@@ -24,7 +24,6 @@ deps = """
 
 packages = """
 	dnsutils
-	iceweasel
 	qemu-system
 	myspell-en-us
 	libreoffice-gnome

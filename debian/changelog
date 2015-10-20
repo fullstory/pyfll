@@ -86,6 +86,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop kio-mtp, it's no longer necessary with KDE5/ dolphin 15.08.x
     (kio-extras taking over that aspect for KDE5 based applications).
   * kde-desktop: add plasma-systray-legacy to help hplip-gui staying legacy.
+  * move iceweasel to utils-x, in order to get it pulled into all
+    profiles >= lite, as konqueror can't really be considered to be an option
+    anymore; kde-stripped keeps excluding it.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

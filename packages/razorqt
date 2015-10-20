@@ -19,6 +19,5 @@ deps = """
 """
 
 packages = """
-	iceweasel
 	qpdfview
 """

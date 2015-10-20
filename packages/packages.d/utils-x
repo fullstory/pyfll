@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	iceweasel
 	libxine2-xvdr
 	xsane
 	zenity

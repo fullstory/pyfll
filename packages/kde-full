@@ -24,7 +24,6 @@ deps = """
 
 packages = """
 	dnsutils
-	iceweasel
 	myspell-en-us
 	libreoffice-kde
 	spice-vdagent
