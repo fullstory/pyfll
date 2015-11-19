@@ -12,7 +12,7 @@ packages = """
 	lightdm
 	mousepad
 	mpg321
-	myspell-en-us
+	hunspell-en-us
 	shared-mime-info
 	thunar-archive-plugin
 	thunar-media-tags-plugin

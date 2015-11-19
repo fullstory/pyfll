@@ -24,7 +24,7 @@ deps = """
 
 packages = """
 	dnsutils
-	myspell-en-us
+	hunspell-en-us
 	libreoffice-kde
 	spice-vdagent
 	spice-client-gtk

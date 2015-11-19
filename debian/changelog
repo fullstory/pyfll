@@ -90,6 +90,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     profiles >= lite, as konqueror can't really be considered to be an option
     anymore; kde-stripped keeps excluding it.
   * packages.d/firmware: update to recent package reshuffling.
+  * s/myspell/hunspell/.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min

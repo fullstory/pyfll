@@ -25,7 +25,7 @@ deps = """
 packages = """
 	dnsutils
 	qemu-system
-	myspell-en-us
+	hunspell-en-us
 	libreoffice-gnome
 	spice-vdagent
 	spice-client-gtk
