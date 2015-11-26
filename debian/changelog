@@ -93,6 +93,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/myspell/hunspell/.
   * packages.d/kde-desktop: disable digikam and kipi-plugins for the time
     being, as they haven't been fixed for KDE4 for several months.
+  * disable xfce4-volumed, it's no longer available.
 
   [ Joaquim Boura ]
   * cleaned up xfce4-desktop-min
