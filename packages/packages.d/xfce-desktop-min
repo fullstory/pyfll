@@ -12,6 +12,7 @@ packages = """
 	lightdm
 	mousepad
 	mpg321
+	hexchat
 	hunspell-en-us
 	shared-mime-info
 	thunar-archive-plugin
@@ -20,7 +21,6 @@ packages = """
 	trayer
 	xarchiver
 	xbitmaps
-	xchat
 	xfce4
 	xfce4-artwork
 	xfce4-dev-tools

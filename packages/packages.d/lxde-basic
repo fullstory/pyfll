@@ -8,9 +8,9 @@ packages = """
 #	gksu
 	gvfs-backends
 	gvfs-fuse
+	hexchat
 	lxde
 	lxmusic
 	lxlauncher
 	lxtask
-	xchat
 """

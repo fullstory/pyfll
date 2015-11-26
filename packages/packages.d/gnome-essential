@@ -9,7 +9,7 @@ packages = """
 	gnome-keyring
 	gnome-session
 	gnome-terminal
+	hexchat
 	metacity
 	nautilus
-	xchat
 """
