@@ -11,4 +11,5 @@ packages = """
 	lxqt
 		lxqt-common
 	openbox
+		obconf-qt
 """
