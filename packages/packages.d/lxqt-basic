@@ -9,5 +9,5 @@ packages = """
 	qasmixer
 	qlipper
 	qpdfview
-	screengrab
+	#screengrab
 """
