@@ -3,9 +3,9 @@ desc = """
 """
 
 packages = """
-	#Audio-Video-Player
 	ca-certificates
 	dbus-x11
+	gxineplugin
 	hexchat
 	lightdm
 	lxqt
