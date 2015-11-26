@@ -10,7 +10,6 @@ deps = """
 	distro-xfce
 	hwsupport-essential
 	hwsupport-extra
-	hwsupport-powermanagement
 	hwsupport-printscan
 	utils-essential
 	utils-extra

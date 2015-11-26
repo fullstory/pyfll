@@ -9,7 +9,6 @@ deps = """
 	distro-tools
 	distro-tools-x
 	hwsupport-essential
-	hwsupport-powermanagement
 	hwsupport-extra
 	hwsupport-printscan
 	kde-essential

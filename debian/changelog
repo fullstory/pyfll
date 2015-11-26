@@ -102,7 +102,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * fix up lamp package selection.
   * exclude grub_eltorito from md5sum generation, it's modified after the
     fact.
-  * hwsupport-powermanagement: drop pm-utils, acpi-support-base
+  * drop hwsupport-powermanagement sub-profile, it's been replaced by systemd
+    and related higher level powermanagement integration.
   * s/kbattleship/knavalbattle/
   * don't modify lvm.conf anymore, it's been a no-op for a while already.
   * fix memtest86+ entry for live grub.cfg.

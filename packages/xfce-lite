@@ -9,7 +9,6 @@ deps = """
 	distro-tools-x
 	distro-xfce
 	hwsupport-essential
-	hwsupport-powermanagement
 	utils-essential
 	utils-extra
 	utils-x
