@@ -5,7 +5,7 @@ desc = """
 packages = """
 	akregator
 	bluedevil
-	digikam
+	#digikam
 	hplip-gui
 		plasma-systray-legacy
 	fonts-vlgothic
@@ -18,7 +18,7 @@ packages = """
 	kget
 	kgpg
 	kio-audiocd
-	kipi-plugins
+	#kipi-plugins
 	kmahjongg
 	kmail
 	knavalbattle
