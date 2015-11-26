@@ -17,5 +17,6 @@ deps = """
 packages = """
 	cdebootstrap
 	qupzilla
+	zenity
 """
 
