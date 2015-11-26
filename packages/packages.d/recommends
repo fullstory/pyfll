@@ -17,6 +17,7 @@ packages = """
 	netbase
 	python-dbus
 	qemu-system-x86
+	qpdfview
 	seahorse-daemon
 	upower
 	xfce4-session

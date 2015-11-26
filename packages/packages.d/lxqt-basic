@@ -1,0 +1,13 @@
+desc = """
+	Lite LXQt desktop Applications
+"""
+
+packages = """
+	gvfs-backends
+	gvfs-fuse
+	gucharmap
+	qasmixer
+	qlipper
+	qpdfview
+	screengrab
+"""

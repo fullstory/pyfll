@@ -12,6 +12,7 @@ deps = """
 	hwsupport-extra
 	hwsupport-printscan
 	lxqt-essential
+	lxqt-basic
 	utils-essential
 	utils-extra
 	utils-x
