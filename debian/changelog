@@ -2,6 +2,53 @@ pyfll (2013.02) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
 
+  [ Joaquim Boura ]
+  * cleaned up xfce4-desktop-min
+
+  [ Niall Walsh ]
+  * grub >=2 fixups:
+    - do not append grub arch in $prefix
+    - postpone rename of kernel/initrd to 8.3 until after bootloader configs
+    - drop grub-legacy support
+    - stage non-efi files under i386-pc
+  * major overhaul of live grub.cfg
+  * added locales2grub to use fll-live-initsripts locales.csv to produce
+    data/locales/ll_CC data/tz/$region and data/locales/keyboards
+  * change kernel sorting to use apt_pkg and reverse
+  * re-kill display of memtest on UEFI where it fails
+  * fix sources generation by recreating and restarting SourceRecords for
+    each package.
+  * generate efi images for ia32 on x86 and add grub debs to extras for it
+  * adapt for syslinux v6.
+  * TEMP? drop isolinux and switch to grub (automatic fromhd broken)
+  * drop bluez-pcmcia-support (gone with bluez 5.x)
+  * add efibootmgr for i386.
+  * same bootloader (grub-* and efibootmgr) packages for i386 and amd64
+  * set and export pager by default in grub.cfg
+  * add grub2-fll-portable-efi to extras
+  * add part_gpt to built in modules for cd efi loader (for detect efi anyway)
+  * create /disks to reflect changed fstab_generator
+  * enable networkd, resolved, timesyncd (drop ntpdate and resolvconf)
+    - setup symlink for resolved and stop it having any fallback DNS servers
+  * use xorriso newer grub2 boot handling and simplify things
+    - drop our grub_eltorito hackery and just build a grub2 eltorito image
+    - drop grub_embed hackery and use existing grub_hybrid.img
+    - drop to single set of efis as in efi.img
+    - detect fromhd in grub itself
+    - handle uuid creation in pyfll itself not grub
+  * grub menu
+    - start hotkeys and classes
+    - make more editor friendly
+    - add local kernel command line option menu(s)
+    - clock always at start, lang before default (kernel)
+  * add internal gpthybrid
+  * add secondary squashfs
+  * comment nbd-client out, needed love anyway and is causing ordering issues
+
+  [ Roland Engert ]
+  * add initial razorqt profile 
+  * add qupzilla, qpdfview
+
   [ Stefan Lippers-Hollmann ]
   * drop explicit dependency on xserver-xorg-input-vmmouse, it's covered by
     xserver-xorg-input-all for jessie.
@@ -94,53 +141,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * packages.d/kde-desktop: disable digikam and kipi-plugins for the time
     being, as they haven't been fixed for KDE4 for several months.
   * disable xfce4-volumed, it's no longer available.
-
-  [ Joaquim Boura ]
-  * cleaned up xfce4-desktop-min
-
-  [ Niall Walsh ]
-  * grub >=2 fixups:
-    - do not append grub arch in $prefix
-    - postpone rename of kernel/initrd to 8.3 until after bootloader configs
-    - drop grub-legacy support
-    - stage non-efi files under i386-pc
-  * major overhaul of live grub.cfg
-  * added locales2grub to use fll-live-initsripts locales.csv to produce
-    data/locales/ll_CC data/tz/$region and data/locales/keyboards
-  * change kernel sorting to use apt_pkg and reverse
-  * re-kill display of memtest on UEFI where it fails
-  * fix sources generation by recreating and restarting SourceRecords for
-    each package.
-  * generate efi images for ia32 on x86 and add grub debs to extras for it
-  * adapt for syslinux v6.
-  * TEMP? drop isolinux and switch to grub (automatic fromhd broken)
-  * drop bluez-pcmcia-support (gone with bluez 5.x)
-  * add efibootmgr for i386.
-  * same bootloader (grub-* and efibootmgr) packages for i386 and amd64
-  * set and export pager by default in grub.cfg
-  * add grub2-fll-portable-efi to extras
-  * add part_gpt to built in modules for cd efi loader (for detect efi anyway)
-  * create /disks to reflect changed fstab_generator
-  * enable networkd, resolved, timesyncd (drop ntpdate and resolvconf)
-    - setup symlink for resolved and stop it having any fallback DNS servers
-  * use xorriso newer grub2 boot handling and simplify things
-    - drop our grub_eltorito hackery and just build a grub2 eltorito image
-    - drop grub_embed hackery and use existing grub_hybrid.img
-    - drop to single set of efis as in efi.img
-    - detect fromhd in grub itself
-    - handle uuid creation in pyfll itself not grub
-  * grub menu
-    - start hotkeys and classes
-    - make more editor friendly
-    - add local kernel command line option menu(s)
-    - clock always at start, lang before default (kernel)
-  * add internal gpthybrid
-  * add secondary squashfs
-  * comment nbd-client out, needed love anyway and is causing ordering issues
-
-  [ Roland Engert ]
-  * add initial razorqt profile 
-  * add qupzilla, qpdfview
+  * add initial lxqt-stripped and lxqt-lite profiles.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

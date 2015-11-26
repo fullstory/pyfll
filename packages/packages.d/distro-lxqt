@@ -1,0 +1,9 @@
+desc = """
+	Distro specific LXQt packages.
+"""
+
+packages = """
+	#desktop-defaults-lxqt
+	aptosid-art-wallpaper
+	gparted
+"""

@@ -1,0 +1,14 @@
+desc = """
+	Minimal LXQt desktop apps.
+"""
+
+packages = """
+	#Audio-Video-Player
+	ca-certificates
+	dbus-x11
+	hexchat
+	lightdm
+	lxqt
+		lxqt-common
+	openbox
+"""

@@ -13,6 +13,7 @@ packages = """
 	k3b
 	kontact
 	kopete
+	lxqt-common
 	netbase
 	python-dbus
 	qemu-system-x86
