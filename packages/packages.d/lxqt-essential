@@ -7,7 +7,7 @@ packages = """
 	dbus-x11
 	gxineplugin
 	hexchat
-	lxdm
+	lightdm
 	lxqt
 		lxqt-common
 	openbox

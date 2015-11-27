@@ -144,7 +144,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * disable xfce4-volumed, it's no longer available.
   * add initial lxqt-stripped and lxqt-lite profiles.
   * s/xchat/hexchat/.
-  * lxqt/lxde: use lxdm as display-manager.
+  * lxqt/lxde: use lightdm as display-manager.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
