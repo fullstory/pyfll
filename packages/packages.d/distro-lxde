@@ -5,8 +5,7 @@ desc = """
 packages = """
 	desktop-defaults-lxde
 	gksu
-	lightdm
-#	lxdm
+	lxdm
 #	aptosid-art-lxde
 	aptosid-art-wallpaper
 	gparted
