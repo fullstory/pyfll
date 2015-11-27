@@ -12,4 +12,5 @@ packages = """
 		lxqt-common
 	openbox
 		obconf-qt
+	udisks2
 """

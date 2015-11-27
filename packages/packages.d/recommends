@@ -19,6 +19,7 @@ packages = """
 	qemu-system-x86
 	qpdfview
 	seahorse-daemon
+	udisks2
 	upower
 	xfce4-session
 """
