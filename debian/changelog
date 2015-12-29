@@ -146,6 +146,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/xchat/hexchat/.
   * lxqt/lxde: use lightdm as display-manager.
   * prevent gnupg v1 from getting pulled into the ISO.
+  * work around a packaging bug in lxqt/ qt5, which no longer pulls in
+    libqt5xcbqpa5.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
