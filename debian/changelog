@@ -139,7 +139,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
     anymore; kde-stripped keeps excluding it.
   * packages.d/firmware: update to recent package reshuffling.
   * s/myspell/hunspell/.
-  * packages.d/kde-desktop: disable digikam and kipi-plugins for the time
     being, as they haven't been fixed for KDE4 for several months.
   * disable xfce4-volumed, it's no longer available.
   * add initial lxqt-stripped and lxqt-lite profiles.
