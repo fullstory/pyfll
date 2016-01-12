@@ -4,10 +4,10 @@ desc = """
 
 packages = """
 	liferea
-	epiphany-extensions
+#	epiphany-extensions
 #	flegita
 	gnome-bluetooth
-	f-spot
+#	f-spot
 	hplip-gui
 	fonts-vlgothic
 	gedit

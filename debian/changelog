@@ -147,6 +147,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * prevent gnupg v1 from getting pulled into the ISO.
   * work around a packaging bug in KDE5/ lxqt/ qt5, which no longer pulls in
     libqt5xcbqpa5; this is really getting ridiculous.
+  * gnome-desktop: disable f-spot and epiphany-extensions.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
