@@ -145,8 +145,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/xchat/hexchat/.
   * lxqt/lxde: use lightdm as display-manager.
   * prevent gnupg v1 from getting pulled into the ISO.
-  * work around a packaging bug in KDE5/ lxqt/ qt5, which no longer pulls in
-    libqt5xcbqpa5; this is really getting ridiculous.
   * gnome-desktop: disable f-spot and epiphany-extensions.
   * add apt-transport-https.
 
