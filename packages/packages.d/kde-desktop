@@ -14,7 +14,7 @@ packages = """
 	kdeadmin
 	kdepim-kresources
 	kdf
-	kgamma
+	kgamma5
 	kget
 	kgpg
 	kio-audiocd
