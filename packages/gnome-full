@@ -1,5 +1,5 @@
 desc = """
-	Complete GNOME desktop environment with OpenOffice and IceWeasel.
+	Complete GNOME desktop environment with OpenOffice and Firefox.
 """
 
 deps = """

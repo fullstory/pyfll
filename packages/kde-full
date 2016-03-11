@@ -1,5 +1,5 @@
 desc = """
-	Complete KDE desktop environment with LibreOffice and IceWeasel.
+	Complete KDE desktop environment with LibreOffice and Firefox.
 """
 
 deps = """
