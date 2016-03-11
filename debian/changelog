@@ -148,6 +148,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * gnome-desktop: disable f-spot and epiphany-extensions.
   * add apt-transport-https.
   * s/kgamma/kgamma5/.
+  * s/iceweasel/firefox/, prefer the non-ESR variants.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
