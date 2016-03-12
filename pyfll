@@ -1200,12 +1200,6 @@ class FLLBuilder(object):
                 f.write('ff02::1 ip6-allnodes\n')
                 f.write('ff02::2 ip6-allrouters\n')
                 f.write('ff02::3 ip6-allhosts\n')
-            elif file == '/etc/network/interfaces':
-                f.write('# /etc/network/interfaces - ')
-                f.write('configuration file for ifup(8), ifdown(8)\n\n')
-                f.write('# The loopback interface\n')
-                f.write('auto lo\n')
-                f.write('iface lo inet loopback\n')
             elif file == '/usr/sbin/policy-rc.d':
                 f.write('#!/bin/sh\n')
                 f.write('echo "$0 denied action: \`$1 $2\'" >&2\n')
@@ -1227,7 +1221,6 @@ class FLLBuilder(object):
         '''Initial creation of conffiles required in chroot.'''
         self._writeFile(arch, '/etc/fstab')
         self._writeFile(arch, '/etc/hostname')
-        self._writeFile(arch, '/etc/network/interfaces')
         self._writeFile(arch, '/tmp/iso_uuid')
 
 

@@ -155,6 +155,10 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * add thermald, which improves the cpufreq scaling on pstate enabled CPUs.
   * ensure that the target directory exists, before trying to write a file
     from pyfll.
+  * no longer clobber /etc/network/interfaces, ifupdown >= 0.7.50 takes care
+    of creating a loopback interface in the absence of an explicit
+    configuration stanza for lo and the default template is sufficient for
+    Ceni.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
