@@ -15,7 +15,14 @@ packages = """
 	openfwwf
 	pcmciautils
 	pciutils
-	thermald
 	udev
 	usbutils
+"""
+
+amd64 = """
+	thermald
+"""
+
+i386 = """
+	thermald
 """
