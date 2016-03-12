@@ -13,6 +13,4 @@ packages = """
 	openbox
 		obconf-qt
 	udisks2
-	# XXX: packaging bug, this must be pulled in as a hard dependency
-		libqt5xcbqpa5
 """
