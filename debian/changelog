@@ -152,6 +152,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop nbd support for the time being.
   * fix F.U.L.L.S.T.O.R.Y. homepage URL.
   * s/epdfview/mupdf/.
+  * add thermald, which improves the cpufreq scaling on pstate enabled CPUs.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

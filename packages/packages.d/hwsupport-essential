@@ -15,6 +15,7 @@ packages = """
 	openfwwf
 	pcmciautils
 	pciutils
+	thermald
 	udev
 	usbutils
 """
