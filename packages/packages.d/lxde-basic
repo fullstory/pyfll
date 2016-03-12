@@ -4,7 +4,6 @@ desc = """
 
 packages = """
 	blueman
-	epdfview
 #	gksu
 	gvfs-backends
 	gvfs-fuse
@@ -13,4 +12,5 @@ packages = """
 	lxmusic
 	lxlauncher
 	lxtask
+	mupdf
 """
