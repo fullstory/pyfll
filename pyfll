@@ -1158,6 +1158,12 @@ class FLLBuilder(object):
             fn = os.path.join(chroot, file.lstrip('/'))
             if os.path.isfile(fn):
                 mode = None
+            if not os.path.exists(os.path.dirname(fn)):
+                try:
+                    os.makedirs(os.path.dirname(fn))
+                except OSError as exc:
+                    if exc.errno != errno.EEXIST:
+                        raise
             f = open(fn, 'w')
             self.log.debug('writing file: %s' % file)
             if file == '/etc/default/distro':

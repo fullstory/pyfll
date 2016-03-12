@@ -153,6 +153,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * fix F.U.L.L.S.T.O.R.Y. homepage URL.
   * s/epdfview/mupdf/.
   * add thermald, which improves the cpufreq scaling on pstate enabled CPUs.
+  * ensure that the target directory exists, before trying to write a file
+    from pyfll.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
