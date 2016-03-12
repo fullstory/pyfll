@@ -22,6 +22,7 @@ packages = """
 	xserver-xorg
 	xserver-xorg-input-all
 	xserver-xorg-video-all
+		xserver-xorg-video-modesetting
 	xinit
 	xutils
 """

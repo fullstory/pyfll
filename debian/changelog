@@ -161,6 +161,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     Ceni.
   * fluxbox: add a simple x-terminal-emulator, rxvt-unicode-lite.
   * minimal-x: add slim as display manager.
+  * xserver: xserver-xorg-video-modesetting.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
