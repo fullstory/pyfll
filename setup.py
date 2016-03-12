@@ -15,7 +15,7 @@ setup(
     author_email='kel@otaku42.de',
     license='GPL-2',
     description='FULLSTORY live linux media mastering utility',
-    url='http://developer.berlios.de/projects/fullstory/',
+    url='https://github.com/fullstory/',
     scripts=['fll'],
     data_files=[
         ('/usr/share/fll/', fll_prog),

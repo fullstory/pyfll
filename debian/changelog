@@ -150,6 +150,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/kgamma/kgamma5/.
   * s/iceweasel/firefox/, prefer the non-ESR variants.
   * drop nbd support for the time being.
+  * fix F.U.L.L.S.T.O.R.Y. homepage URL.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
