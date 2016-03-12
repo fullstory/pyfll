@@ -12,7 +12,6 @@ packages = """
 	firmware-linux-free
 	lvm2
 	mdadm
-	#nbd-client
 	openfwwf
 	pcmciautils
 	pciutils

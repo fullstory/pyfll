@@ -37,12 +37,6 @@ do_postinst() {
 		update-rc.d -f "${service}" remove
 	done
 
-	# Quite hacky, but /etc/nbd-client default conf
-	# leaves a broken partial /dev/nbd0 config
-	#if [ -w /etc/nbd-client ]; then
-	#	sed -i 's|/dev/nbd0||' /etc/nbd-client
-	#fi
-
 	# Hacking gettys for passwordless login
 	if [ -r /usr/share/sysvinit/inittab ]; then
 		say 'sysvinit: Hacking /etc/inittab for passwordless login'
