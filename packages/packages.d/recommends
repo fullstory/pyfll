@@ -22,4 +22,6 @@ packages = """
 	udisks2
 	upower
 	xfce4-session
+	xserver-xorg-input-all
+	xserver-xorg-video-all
 """
