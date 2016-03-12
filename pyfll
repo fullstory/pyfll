@@ -1160,7 +1160,7 @@ class FLLBuilder(object):
                 mode = None
             if not os.path.exists(os.path.dirname(fn)):
                 try:
-                    os.makedirs(os.path.dirname(fn))
+                    os.makedirs(os.path.dirname(fn), 0755)
                 except OSError as exc:
                     if exc.errno != errno.EEXIST:
                         raise
