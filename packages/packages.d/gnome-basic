@@ -5,7 +5,7 @@ desc = """
 packages = """
 	eog
 	brasero
-	gcalctool
+	gnome-calculator
 	yelp
 	gnome-alsamixer
 	gnome-applets

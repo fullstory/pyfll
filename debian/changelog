@@ -165,6 +165,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     recommends handling.
   * hwsupport-extra: drop libc6-686, it has been merged into the generic libc6
     package with Debian having started to become 686+ based.
+  * s/gcalctool/gnome-calculator/.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

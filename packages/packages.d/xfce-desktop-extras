@@ -8,7 +8,7 @@ packages = """
 	brasero
 	evince-gtk
 	fonts-vlgothic
-	gcalctool
+	gnome-calculator
 	gnumeric
 	gpicview
 	gstreamer1.0-fluendo-mp3
