@@ -1410,12 +1410,15 @@ class FLLBuilder(object):
         file, index = version.file_list.pop(0)
         records.lookup((file, index))
 
+        srcpkg = pkg.name
+        srcver = version.ver_str
         if records.source_pkg != "":
             srcpkg = records.source_pkg
-        else:
-            srcpkg = pkg.name
-        return srcpkg
 
+        if records.source_ver != "":
+            srcver = records.source_ver
+
+        return [srcpkg,srcver]
 
     def _collectManifest(self, arch):
         '''Collect package and source package URI information from each
@@ -1456,7 +1459,9 @@ class FLLBuilder(object):
             if p.startswith('cdebootstrap-helper'):
                 continue
 
-            srcpkg = self.__getSourcePkg(cache[p], depcache, records)
+            srcpv = self.__getSourcePkg(cache[p], depcache, records)
+            srcpkg=srcpv[0]
+            srcver=srcpv[1]
             if not srcpkg:
                 self.log.critical('failed to lookup srcpkg name for %s' % p)
                 raise FllError
@@ -1472,8 +1477,9 @@ class FLLBuilder(object):
             sources = apt_pkg.SourceRecords()
             sources.restart()
             while sources.lookup(srcpkg):
-                u.extend([sources.index.archive_uri(sources.files[f][2])
-                          for f in range(len(sources.files))])
+                if sources.version == srcver:
+                    u.extend([sources.index.archive_uri(sources.files[f][2])
+                              for f in range(len(sources.files))])
             if len(u) > 0:
                 self.log.debug(u)
                 uris.extend(u)

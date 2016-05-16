@@ -45,6 +45,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * add secondary squashfs
   * comment nbd-client out, needed love anyway and is causing ordering issues
   * ensure mksquashfs -e option is last
+  * only include relevant source versions in manifest
 
   [ Roland Engert ]
   * add initial razorqt profile 
