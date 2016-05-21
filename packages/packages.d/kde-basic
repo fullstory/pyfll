@@ -11,6 +11,5 @@ packages = """
 	kio-extras
 	kmenuedit
 	kmix
-	kppp
 	okular
 """
