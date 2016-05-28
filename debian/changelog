@@ -201,6 +201,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     potentially required additional archive-keyrings, thanks to DonKult for
     the help.
   * drop kppp, removed from Debian.
+  * drop khelpcenter4, removed from Debian.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
