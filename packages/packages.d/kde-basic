@@ -7,7 +7,6 @@ packages = """
 	k3b
 	kde-spectacle
 	kcalc
-	khelpcenter4
 	kio-extras
 	kmenuedit
 	kmix
