@@ -1390,11 +1390,20 @@ class FLLBuilder(object):
             depends = current.depends_list
             list = depends.get('Recommends', [])
             for dependency in list:
-                name = dependency[0].target_pkg.name
-                dep = cache[name]
-                if dep.current_ver:
-                    continue
-                rec_list.append(dep.name)
+                depdone = 0
+                for deppart in dependency:
+                    if depdone > 0:
+                        continue
+                    name = deppart.target_pkg.name
+                    if name in wanted.keys():
+                        depdone = 1
+                        continue
+                if depdone == 0:
+                    name = dependency[0].target_pkg.name
+                    dep = cache[name]
+                    if dep.current_ver:
+                        continue
+                    rec_list.append(dep.name)
 
         self.log.debug('rec_list:')
         self.log.debug(rec_list)
