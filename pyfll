@@ -1509,25 +1509,47 @@ class FLLBuilder(object):
             self.log.info('installPkgs cache has %s' % cache.ver_file_count)
 
         i18n_list = self.__lines2list(self.conf['packages']['i18n'])
-        pkgs_want = self._getPackageList(arch)
         pkgs_base = [p.name for p in cache.packages if p.current_ver]
-        pkgs_dict = dict([(p, True) for p in pkgs_base + pkgs_want])
-
-        pkgs_want.extend(self._detectLocalePkgs(i18n_list, pkgs_dict, cache))
-        pkgs_want.extend(self._detectRecommendedPkgs(pkgs_dict, cache))
-
-        self.log.info('installing packages in %s chroot...' % arch)
-        self._aptGetInstall(arch, self.__filterList(pkgs_want),
-                            download_only = self.opts.D)
+        pkgs_want = self.__filterList(pkgs_base + self._getPackageList(arch))
+        pkgs_dict = dict([(p, True) for p in pkgs_want])
+        pkgs_want = self.__filterList(pkgs_dict.keys()
+                                      + self._detectLocalePkgs(i18n_list, pkgs_dict, cache)
+                                      + self._detectRecommendedPkgs(pkgs_dict, cache))
+        pkgs_had = list()
 
         if self.opts.D:
+            self.pkgs[arch]['install'] = dict()
+
+        self.log.info('downloading packages in %s chroot...' % arch)
+        # re-runs detect*Pkgs using what will now be installed
+        # repeat until nothing was added
+        while len(pkgs_want) > len(pkgs_had):
+            self.log.debug('%i new in package list for this run'
+                          % (len(pkgs_want)-len(pkgs_had)))
+            pkgs_had = list()
+            pkgs_had.extend(pkgs_want)
+            self._aptGetInstall(arch, self.__filterList(pkgs_want),
+                                download_only = True)
+
             chroot = os.path.join(self.temp, arch)
             aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
-            self.pkgs[arch]['install'] = dict()
             for debfile in glob.glob(aptcache):
-                # create dict with package name = version to extend manifest
                 pkg, vers, extra = debfile.split('/')[-1].split('_')
-                self.pkgs[arch]['install'][pkg] = vers.replace('%3a', ':')
+                # big dict given below to detect*Pkgs
+                pkgs_dict[pkg] = True
+                if self.opts.D:
+                    # create dict with package name = version to extend manifest
+                    self.pkgs[arch]['install'][pkg] = vers.replace('%3a', ':')
+
+            for pkg in ( self._detectLocalePkgs(i18n_list, pkgs_dict, cache) 
+                       + self._detectRecommendedPkgs(pkgs_dict, cache) ):
+                if pkg not in pkgs_want:
+                    pkgs_want.append(pkg)
+                    self.log.debug('%s now added to wanted packages had %i now %i' % (pkg,len(pkgs_had),len(pkgs_want)))
+
+        if not self.opts.D:
+            self.log.info('installing packages in %s chroot...' % arch)
+            self._aptGetInstall(arch, pkgs_want)
 
         # Fetch extra debs if appropriate and reprepro them
         extras = []
