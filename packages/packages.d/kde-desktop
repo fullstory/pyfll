@@ -7,7 +7,6 @@ packages = """
 	bluedevil
 	digikam
 	hplip-gui
-		plasma-systray-legacy
 	fonts-vlgothic
 	kate
 	kcharselect
