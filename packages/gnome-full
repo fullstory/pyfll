@@ -23,9 +23,19 @@ deps = """
 
 packages = """
 	dnsutils
-	qemu-system
 	hunspell-en-us
 	libreoffice-gnome
 	spice-vdagent
 	spice-client-gtk
 """
+
+amd64 = """
+	qemu-system-x86
+		ovmf
+"""
+
+i386 = """
+	qemu-system-x86
+		ovmf
+"""
+
