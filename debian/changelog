@@ -171,6 +171,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * xfce-desktop-min: drop no longer existing xfce4-artwork
   * drop plasma-systray-legacy, no longer necessary for KDE5.
   * kde-essential: add plasma-integration.
+  * drop konq-plugins, konqueror has become unsuitable as a webbrower, so
+    adding lipstick via even more broken plugins won't make a difference.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
