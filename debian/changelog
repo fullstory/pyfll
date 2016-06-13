@@ -174,6 +174,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop konq-plugins, konqueror has become unsuitable as a webbrower, so
     adding lipstick via even more broken plugins won't make a difference.
   * kde-stripped: add qupzilla to supersede konqueror.
+  * distro-lxqt: add desktop-defaults-lxqt.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
