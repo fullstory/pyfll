@@ -176,6 +176,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * kde-stripped: add qupzilla to supersede konqueror.
   * distro-lxqt: add desktop-defaults-lxqt.
   * distro-gnome: add desktop-defaults-gnome.
+  * drop support for razorqt, upstream merged into LXQt.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
