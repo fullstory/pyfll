@@ -3,7 +3,7 @@ desc = """
 """
 
 packages = """
-	desktop-defaults-lxde
+	desktop-defaults
 	gksu
 	lightdm
 #	aptosid-art-lxde

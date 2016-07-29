@@ -179,6 +179,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop support for razorqt, upstream merged into LXQt.
   * ovmf has finally been liberated, add it to qemu shipping profiles.
   * drop kdepim-kresources.
+  * there's only one desktop-defaults (left).
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

@@ -3,7 +3,7 @@ desc = """
 """
 
 packages = """
-	desktop-defaults-lxqt
+	desktop-defaults
 	aptosid-art-wallpaper
 	gparted
 """

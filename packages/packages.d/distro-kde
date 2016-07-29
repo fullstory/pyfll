@@ -3,7 +3,7 @@ desc = """
 """
 
 packages = """
-	desktop-defaults-kde
+	desktop-defaults
 	aptosid-art-kde
 	skanlite
 	gparted

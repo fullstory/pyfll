@@ -3,7 +3,7 @@ desc = """
 """
 
 packages = """
-	desktop-defaults-gnome
+	desktop-defaults
 	## aptosid-art-gnome
 	gparted
 """

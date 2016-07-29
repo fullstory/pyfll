@@ -3,7 +3,7 @@ desc = """
 """
 
 packages = """
-	desktop-defaults-xfce
+	desktop-defaults
 	gksu
 	aptosid-art-xfce
 	gparted
