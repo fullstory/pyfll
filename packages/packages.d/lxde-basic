@@ -9,6 +9,7 @@ packages = """
 	gvfs-fuse
 	hexchat
 	lxde
+		lxde-common
 	lxmusic
 	lxlauncher
 	lxtask
