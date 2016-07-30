@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	aptosid-settings-xfce
 	desktop-defaults
 	gksu
 	aptosid-art-xfce

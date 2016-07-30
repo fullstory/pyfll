@@ -180,6 +180,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * ovmf has finally been liberated, add it to qemu shipping profiles.
   * drop kdepim-kresources.
   * there's only one desktop-defaults (left).
+  * add dependencies lost in prior desktop-defaults refactoring explicitly.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

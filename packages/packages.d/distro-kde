@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	aptosid-settings-kde
 	desktop-defaults
 	aptosid-art-kde
 	skanlite
