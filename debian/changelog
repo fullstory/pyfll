@@ -182,6 +182,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * there's only one desktop-defaults (left).
   * add dependencies lost in prior desktop-defaults refactoring explicitly.
   * lxde-basic: add lxde-common as explicit dependency.
+  * gnupg 2.1.14-5 switched over to gpg2, adapt pyfll accordingly.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

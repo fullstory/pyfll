@@ -928,8 +928,7 @@ class FLLBuilder(object):
     def __cdebBootStrap(self, arch, dir, mirror, codename):
         '''Bootstrap a debian system with cdebootstrap.'''
         cmd = ['cdebootstrap', '--arch=%s' % arch,
-               '--include=apt-utils,bzip2,gnupg2,xz-utils',
-               '--exclude=gnupg',
+               '--include=apt-utils,bzip2,gnupg,xz-utils',
                '--flavour=minimal', codename, dir, mirror]
 
         if self.opts.d:
@@ -945,7 +944,7 @@ class FLLBuilder(object):
 
     def __debBootStrap(self, arch, dir, mirror, codename):
         '''Bootstrap a debian system with debootstrap.'''
-        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils,gnupg2,bzip2,xz-utils',
+        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils,gnupg,bzip2,xz-utils',
                '--variant=minbase', codename, dir, mirror]
 
         if self.opts.d or self.opts.v:
@@ -1089,23 +1088,23 @@ class FLLBuilder(object):
                 gpgkeys.append(r['gpgkey'])
 
                 if r['gpgkey'].startswith('http'):
-                    cmd = 'gpg2 --fetch-keys ' + r['gpgkey']
+                    cmd = 'gpg --fetch-keys ' + r['gpgkey']
                     self._execInChroot(arch, cmd.split())
                 elif os.path.isfile(r['gpgkey']):
                     dest = os.path.join(self.temp, arch, 'root')
                     file = os.path.basename(r['gpgkey'])
                     shutil.copy(r['gpgkey'], dest)
-                    cmd = 'gpg2 --import /root/' + file
+                    cmd = 'gpg --import /root/' + file
                     self._execInChroot(arch, cmd.split(),
                                        check_returncode = False)
                 else:
-                    cmd = 'gpg2 --keyserver wwwkeys.pgp.net '
+                    cmd = 'gpg --keyserver wwwkeys.pgp.net '
                     cmd += '--recv-keys ' + r['gpgkey']
                     self._execInChroot(arch, cmd.split(),
                                        check_returncode = False)
 
         if len(gpgkeys) > 0:
-            cmd = 'gpg2 --armor --export -o /etc/apt/trusted.gpg.d/fullstory-repo-keys.gpg'
+            cmd = 'gpg --armor --export -o /etc/apt/trusted.gpg.d/fullstory-repo-keys.gpg'
             self._execInChroot(arch, cmd.split())
 
         self._execInChroot(arch, 'apt-get -o Acquire::Languages=none update'.split())
@@ -2341,7 +2340,7 @@ class FLLBuilder(object):
         '''Sign a file with hashkey if available.'''
         if self.opts.k:
             self.log.info('Signing file %s...' % file)
-            cmd = ['gpg2', '-s', '--default-key']
+            cmd = ['gpg', '-s', '--default-key']
             cmd.append(self.opts.k)
             cmd.append(file)
             self._execCmd(cmd)
