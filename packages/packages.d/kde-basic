@@ -5,12 +5,12 @@ desc = """
 packages = """
 	gwenview
 	k3b
+	kde-spectacle
 	kcalc
 	khelpcenter4
 	kio-extras
 	kmenuedit
 	kmix
 	kppp
-	ksnapshot
 	okular
 """
