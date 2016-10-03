@@ -12,8 +12,11 @@ do_postinst() {
 syntax on
 set autoindent
 set background=light
-set showmatch
+set encoding=utf-8
+set fileencoding=utf-8
 set pastetoggle=<F10>
+set showmatch
+let g:skip_defaults_vim=1
 EOF
 	fi
 

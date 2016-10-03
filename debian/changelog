@@ -184,6 +184,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * lxde-basic: add lxde-common as explicit dependency.
   * gnupg 2.1.14-5 switched over to gpg2, adapt pyfll accordingly.
   * s/ksnapshot/kde-spectacle/.
+  * vimrc.local: update and ignore new upstream defaults.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
