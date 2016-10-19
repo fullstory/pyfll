@@ -16,7 +16,7 @@ do_postinst() {
 	# create grub2 ElTorito support
 	if which grub-mkimage >/dev/null; then
 		say 'Creating grub2 El Torito image file'
-		grub-mkimage -d /usr/lib/grub/i386-pc/ --format=i386-pc-eltorito -o /tmp/grub_eltorito biosdisk iso9660
+		grub-mkimage -d /usr/lib/grub/i386-pc/ --prefix='/boot/grub' --format=i386-pc-eltorito -o /tmp/grub_eltorito biosdisk iso9660
 		efitypes="x86_64-efi i386-efi"
 		doefi=""
 		for efitype in $efitypes ; do
