@@ -186,6 +186,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/ksnapshot/kde-spectacle/.
   * vimrc.local: update and ignore new upstream defaults.
   * lxqt-essential: add qterminal.
+  * distro-tools-x: add crudini, a simple python based tool to modify ini-style
+    configuration files.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
