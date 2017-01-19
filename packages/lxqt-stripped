@@ -16,7 +16,7 @@ deps = """
 
 packages = """
 	cdebootstrap
-	qupzilla
+	firefox
 	zenity
 """
 

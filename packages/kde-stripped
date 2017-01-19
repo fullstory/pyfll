@@ -16,5 +16,5 @@ deps = """
 
 packages = """
 	cdebootstrap
-	qupzilla
+	firefox
 """
