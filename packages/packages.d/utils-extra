@@ -12,6 +12,7 @@ packages = """
 	debhelper
 	dvb-apps
 	ethtool
+	f2fs-tools
 	ftp-ssl
 	iproute2
 	jfsutils
