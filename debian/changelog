@@ -191,6 +191,12 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/qupzilla/firefox/, qupzilla hasn't only now become the 400 MB gorilla in
     the operating room, it's also still just as bad as before.
   * include f2fs-tools.
+  * lxqt-essential: no longer include the lxqt metapackage. lxqt 15 introduces
+    a hard dependency on cmst/ connman, whose installation terminates and
+    breaks existing network connections. The new hard dependency on pulseaudio
+    is likewise an unwarranted addition.
+  * temporarily disable foomatic-db-gutenprint (ongoing transition conflicting
+    with iijs)
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

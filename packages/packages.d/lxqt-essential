@@ -8,10 +8,22 @@ packages = """
 	gxineplugin
 	hexchat
 	lightdm
-	lxqt
+	lxqt-core
+		lximage-qt
+		lxqt-about
+		lxqt-admin
 		lxqt-common
+		lxqt-config
+		lxqt-globalkeys
+		lxqt-notificationd
+		lxqt-openssh-askpass
+		lxqt-policykit
+		lxqt-powermanagement
+		lxqt-qtplugin
+		lxqt-runner
+		qps
+		qterminal
 	openbox
 		obconf-qt
-	qterminal
 	udisks2
 """
