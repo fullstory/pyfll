@@ -197,6 +197,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
     is likewise an unwarranted addition.
   * temporarily disable foomatic-db-gutenprint (ongoing transition conflicting
     with iijs)
+  * invoke apt-get update with --allow-insecure-repositories when fetching
+    potentially required additional archive-keyrings, thanks to DonKult for
+    the help.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
