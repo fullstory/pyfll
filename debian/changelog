@@ -204,6 +204,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop khelpcenter4, removed from Debian.
   * drop apt-transport-https, removed from Debian (feature integrated into
     apt).
+  * drop lxqt-common, removed from Debian.
+  * update copyright info
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
