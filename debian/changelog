@@ -206,6 +206,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     apt).
   * drop lxqt-common, removed from Debian.
   * update copyright info
+  * evince-gtk no longer exists, switch to evince.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

@@ -6,7 +6,7 @@ desc = """
 packages = """
 	abiword
 	brasero
-	evince-gtk
+	evince
 	fonts-vlgothic
 	gnome-calculator
 	gnumeric
