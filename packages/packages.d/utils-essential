@@ -19,6 +19,7 @@ packages = """
 	logrotate
 	mbr
 	netbase
+	nvme-cli
 	plymouth
 	rsync
 	rsyslog
