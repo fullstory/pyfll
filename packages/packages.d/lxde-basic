@@ -4,7 +4,6 @@ desc = """
 
 packages = """
 	blueman
-#	gksu
 	gvfs-backends
 	gvfs-fuse
 	hexchat

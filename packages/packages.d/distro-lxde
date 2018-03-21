@@ -4,7 +4,6 @@ desc = """
 
 packages = """
 	desktop-defaults
-	gksu
 	lightdm
 #	aptosid-art-lxde
 	aptosid-art-wallpaper
