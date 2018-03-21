@@ -208,6 +208,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * update copyright info
   * evince-gtk no longer exists, switch to evince.
   * add nvme-cli, to give further management capabilities for NVME drives.
+  * drop gksu, removed from Debian.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
