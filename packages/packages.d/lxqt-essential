@@ -5,7 +5,6 @@ desc = """
 packages = """
 	ca-certificates
 	dbus-x11
-	gxineplugin
 	hexchat
 	lightdm
 	lxqt-core
