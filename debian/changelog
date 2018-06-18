@@ -211,6 +211,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop gksu, removed from Debian.
   * drop gxineplugin, removed from Debian.
   * drop xfce4-screenshooter-plugin, removed from Debian.
+  * drop gnome-alsamixer, removed from Debian.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
