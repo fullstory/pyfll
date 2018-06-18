@@ -7,7 +7,6 @@ packages = """
 	brasero
 	gnome-calculator
 	yelp
-	gnome-alsamixer
 	gnome-applets
 	evince
 	epiphany
