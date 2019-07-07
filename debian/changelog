@@ -215,6 +215,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop gstreamer1.0-fluendo-mp3, removed from Debian.
   * drop xfce4-quicklauncher-plugin, removed from Debian.
   * drop ceni, it's now (not-)maintained in Debian.
+  * drop libreoffice-kde, removed from Debian.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
