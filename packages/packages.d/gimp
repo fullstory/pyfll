@@ -7,6 +7,5 @@ packages = """
 	gimp-plugin-registry
 	gimp-data-extras
 	gimp-texturize
-	gimp-ufraw
 """
 
