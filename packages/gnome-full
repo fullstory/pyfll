@@ -22,7 +22,7 @@ deps = """
 """
 
 packages = """
-	dnsutils
+	bind9-dnsutils
 	hunspell-en-us
 	libreoffice-gnome
 	spice-vdagent
