@@ -23,7 +23,6 @@ packages = """
 	kopete
 	kpat
 	krdc
-	kremotecontrol
 	kreversi
 	krusader
 	ktorrent
