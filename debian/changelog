@@ -219,6 +219,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop gimp-ufraw, removed from Debian.
   * dnsutils has been renamed to bind9-dnsutils.
   * drop kremotecontrol, removed from Debian.
+  * drop phonon-backend-gstreamer, removed from Debian (now using the vlc
+    backend).
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
