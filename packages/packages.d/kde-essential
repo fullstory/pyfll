@@ -29,7 +29,6 @@ packages = """
 		plasma-integration
 		systemsettings
 	plasma-workspace
-	phonon-backend-gstreamer
 	sddm
 	# missing dependencies
 		libkf5config-bin
