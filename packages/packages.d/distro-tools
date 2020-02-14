@@ -4,8 +4,5 @@ desc = """
 
 packages = """
 	infobash
-	pppconfig
-	pppoeconf
 	sshstart
-	wvdial
 """

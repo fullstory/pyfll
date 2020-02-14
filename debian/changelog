@@ -221,6 +221,13 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop kremotecontrol, removed from Debian.
   * drop phonon-backend-gstreamer, removed from Debian (now using the vlc
     backend).
+  * drop dial-up specific packages, routers have really become the norm these
+    days, with PPP/ PPPoE connections and ADSL/ ATM support on x86 being a
+    fringe use case:
+    - br2684ctl
+    - pppconfig
+    - pppoeconf
+    - wvdial
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
