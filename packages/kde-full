@@ -31,9 +31,11 @@ packages = """
 amd64 = """
 	qemu-system-x86
 		ovmf
+		qemu-system-gui
 """
 
 i386 = """
 	qemu-system-x86
 		ovmf
+		qemu-system-gui
 """
