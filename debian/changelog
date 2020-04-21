@@ -228,6 +228,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     - pppconfig
     - pppoeconf
     - wvdial
+  * install qemu-system-gui for x86 in the -full desktop profiles.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
