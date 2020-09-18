@@ -12,7 +12,6 @@ packages = """
 	lvm2
 	mdadm
 	openfwwf
-	pcmciautils
 	pciutils
 	udev
 	usbutils
