@@ -231,6 +231,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * install qemu-system-gui for x86 in the -full desktop profiles.
   * drop pcmciautils, while still relevant, the hardware for it has gone with
     the sands of time.
+  * Debian switched from mlocate to plocate, follow suit.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
