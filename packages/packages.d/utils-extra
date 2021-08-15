@@ -19,11 +19,11 @@ packages = """
 	man-db
 	manpages
 	memtest86+
-	mlocate
 	module-assistant
 	ntfs-3g
 	nmap
 	openssh-client
+	plocate
 	pwgen
 	reiserfsprogs
 	sshfs
