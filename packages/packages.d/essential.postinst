@@ -76,6 +76,11 @@ EOF
 		if grep -qv ^GRUB_DISABLE_SUBMENU /etc/default/grub; then
 			printf "\nGRUB_DISABLE_SUBMENU=y\n" >> /etc/default/grub
 		fi
+
+		# enable os-prober
+		if grep -qv ^GRUB_DISABLE_OS_PROBER /etc/default/grub; then
+			printf "\nGRUB_DISABLE_OS_PROBER=n\n" >>/etc/default/grub
+		fi
 	fi
 
 	# initscripts defers creating the mtab symlink to the first boot,

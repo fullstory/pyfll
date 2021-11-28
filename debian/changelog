@@ -232,6 +232,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop pcmciautils, while still relevant, the hardware for it has gone with
     the sands of time.
   * Debian switched from mlocate to plocate, follow suit.
+  * Debian's grub packages are no longer defaulting to using os-prober,
+    re-enable it by default for aptosid.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
