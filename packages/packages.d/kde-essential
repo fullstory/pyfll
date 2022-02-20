@@ -24,7 +24,6 @@ packages = """
 		kmenuedit
 		kscreen
 		ksshaskpass
-		ksysguard
 		kwrited
 		plasma-integration
 		systemsettings
