@@ -237,6 +237,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop crda, removed from Debian - pull in wireless-regdb instead (the kernel
     is now verifying the regdb signatures itself (upstream and Debian keys).
   * drop ksysguard, removed from Debian.
+  * add wayland support for KDE.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
