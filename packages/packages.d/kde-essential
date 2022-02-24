@@ -11,6 +11,7 @@ packages = """
 	kio
 	konversation
 	kwin-x11
+	kwin-wayland
 	plasma-desktop
 		# plasma-desktop recommends are still fscked
 		fonts-oxygen
@@ -28,6 +29,7 @@ packages = """
 		plasma-integration
 		systemsettings
 	plasma-workspace
+	plasma-workspace-wayland
 	sddm
 	# missing dependencies
 		libkf5config-bin
