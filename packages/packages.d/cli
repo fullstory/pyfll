@@ -8,6 +8,8 @@ packages = """
 	gpm
 	htop
 	info
+	iotop
+	lsscsi
 	mc
 	most
 	screen

@@ -5,6 +5,7 @@ desc = """
 packages = """
 	alsa-utils
 	cpufrequtils
+	hdparm
 	irqbalance
 	laptop-detect
 	firmware-linux-free

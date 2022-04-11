@@ -27,5 +27,6 @@ packages = """
 	wget
 	wireless-tools
 	wpasupplicant
+	zstd
 """
 
