@@ -1263,11 +1263,17 @@ class FLLBuilder(object):
             # networkd+resolved so setup symlink and disable fallback DNS
             try:
                 os.unlink(os.path.join(chroot, 'etc/resolv.conf'))
-                os.symlink('/run/systemd/resolve/resolv.conf', os.path.join(chroot, 'etc/resolv.conf'))
+                os.symlink('../run/systemd/resolve/stub-resolv.conf', os.path.join(chroot, 'etc/resolv.conf'))
                 with open(os.path.join(chroot, 'etc/systemd/resolved.conf'), 'a') as f:
                     f.write('DNS=\n')
             except IOError:
                 self.log.exception('failed to setup resolv.conf and resolved.conf')
+
+        if os.path.isfile(os.path.join(chroot, 'etc/.resolv.conf.systemd-resolved.bak')):
+            try:
+                os.unlink(os.path.join(chroot, 'etc/.resolv.conf.systemd-resolved.bak'))
+            except IOError:
+                self.log.exception('failed to delete .resolv.conf.systemd-resolved.bak')
 
 
     def _makeInitramfs(self, arch):
@@ -1551,6 +1557,10 @@ class FLLBuilder(object):
         if not self.opts.D:
             self.log.info('installing packages in %s chroot...' % arch)
             self._aptGetInstall(arch, pkgs_want)
+
+        # reset /etc/resolv.conf (systemd-resolved clobbered our settings)
+	os.unlink(os.path.join(chroot, 'etc/resolv.conf'))
+        shutil.copy('/etc/resolv.conf', os.path.join(chroot, 'etc'))
 
         # Fetch extra debs if appropriate and reprepro them
         extras = []
