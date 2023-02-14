@@ -12,7 +12,6 @@ packages = """
 	libgl1-mesa-dri
 	menu
 	mesa-utils
-#	sux
 	xauth
 	xfonts-base
 	xfonts-75dpi

@@ -246,6 +246,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * add systemd-resolved, it has been split out of the main systemd package and
     deal with its intrusive maintainerscripts clobbering /etc/resolv.conf and
     thereby breaking pyfll.
+  * drop (long-) commented out packages from packages.d/.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

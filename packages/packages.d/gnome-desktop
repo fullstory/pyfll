@@ -4,10 +4,7 @@ desc = """
 
 packages = """
 	liferea
-#	epiphany-extensions
-#	flegita
 	gnome-bluetooth
-#	f-spot
 	hplip-gui
 	fonts-vlgothic
 	gedit
@@ -18,7 +15,6 @@ packages = """
 	seahorse-daemon
 	evolution
 	transmission-gtk
-#	system-config-printer-kde
 	# wpagui
 	guake
 """

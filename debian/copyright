@@ -5,7 +5,7 @@ Source: git://github.com/fullstory/pyfll.git
 
 Files: *
 Copyright: 2008-2013, Kel Modderman <kel@otaku42.de>
-           2008-2022, Stefan Lippers-Hollmann <s.l-h@gmx.de>
+           2008-2023, Stefan Lippers-Hollmann <s.l-h@gmx.de>
            2008-2016, Niall Walsh <niallwalsh@celtux.org>
            2008-2012, Joaquim Boura <x-un-i@sapo.pt>
 License: GPL-2.0
