@@ -18,6 +18,5 @@ packages = """
 	printer-driver-splix
 	sane
 	sane-utils
-	libsane-extras
 	system-config-printer-udev
 """
