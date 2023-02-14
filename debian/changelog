@@ -247,6 +247,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
     deal with its intrusive maintainerscripts clobbering /etc/resolv.conf and
     thereby breaking pyfll.
   * drop (long-) commented out packages from packages.d/.
+  * drop libsane-extras, removed from Debian.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
