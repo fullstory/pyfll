@@ -1557,7 +1557,7 @@ class FLLBuilder(object):
             self._aptGetInstall(arch, pkgs_want)
 
         # reset /etc/resolv.conf (systemd-resolved clobbered our settings)
-	os.unlink(os.path.join(chroot, 'etc/resolv.conf'))
+        os.unlink(os.path.join(chroot, 'etc/resolv.conf'))
         shutil.copy('/etc/resolv.conf', os.path.join(chroot, 'etc'))
 
         # Fetch extra debs if appropriate and reprepro them
