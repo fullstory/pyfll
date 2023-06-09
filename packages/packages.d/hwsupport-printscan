@@ -8,7 +8,6 @@ packages = """
 	cups-bsd
 	foomatic-db
 	foomatic-db-engine
-	ghostscript-x
 	hplip
 	openprinting-ppds
 	printer-driver-foo2zjs

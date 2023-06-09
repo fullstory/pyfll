@@ -16,6 +16,7 @@ packages = """
 		# plasma-desktop recommends are still fscked
 		fonts-oxygen
 		kde-config-gtk-style
+		kde-config-screenlocker
 		kde-config-sddm
 		kde-style-oxygen-qt5
 		khelpcenter
@@ -30,6 +31,7 @@ packages = """
 		systemsettings
 	plasma-workspace
 	plasma-workspace-wayland
+	powerdevil
 	sddm
 	# missing dependencies
 		libkf5config-bin

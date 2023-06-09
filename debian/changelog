@@ -248,6 +248,11 @@ pyfll (2013.02) UNRELEASED; urgency=low
     thereby breaking pyfll.
   * drop (long-) commented out packages from packages.d/.
   * drop libsane-extras, removed from Debian.
+  * drop ghostscript-x, it's now just a transitional package.
+  * add kde-config-screenlocker for all KDE flavours, as it's necessary to
+    configure auto-lock timeouts and similar basic bahviour.
+  * add deborphan to essential.
+  * install powerdevil for KDE.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
