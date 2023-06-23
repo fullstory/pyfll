@@ -25,7 +25,6 @@ packages = """
 	rsyslog
 	sudo
 	wget
-	wireless-tools
 	wpasupplicant
 	zstd
 """
