@@ -45,4 +45,5 @@ packages = """
 		libkf5su-bin
 		libkf5wallet-bin
 		libkf5xmlgui-bin
+		qml-module-qt-labs-platform
 """
