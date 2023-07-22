@@ -20,7 +20,7 @@ packages = """
 	kmahjongg
 	kmail
 	knavalbattle
-	kopete
+#	kopete
 	kpat
 	krdc
 	kreversi
