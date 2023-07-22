@@ -255,6 +255,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * install powerdevil for KDE.
   * drop wireless-tools, it's far from (utils.)essential these days.
   * pull in qml-module-qt-labs-platform for KDE.
+  * comment out kopete from kde-desktop (experimental-only).
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
