@@ -4,6 +4,7 @@ desc = """
 
 packages = """
 	aspell
+	bcachefs-tools
 	build-essential
 	cdebootstrap
 	cifs-utils
@@ -15,7 +16,6 @@ packages = """
 	f2fs-tools
 	ftp-ssl
 	iproute2
-	jfsutils
 	man-db
 	manpages
 	memtest86+
@@ -25,7 +25,6 @@ packages = """
 	openssh-client
 	plocate
 	pwgen
-	reiserfsprogs
 	sshfs
 	smbclient
 	strace
