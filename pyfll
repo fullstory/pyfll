@@ -177,8 +177,8 @@ class FLLBuilder(object):
            'DEBCONF_NOWARNINGS': 'yes'}
 
     diverts = ['/usr/sbin/policy-rc.d',
-               '/sbin/modprobe',
-               '/sbin/insmod',
+               '/usr/sbin/modprobe',
+               '/usr/sbin/insmod',
                '/usr/sbin/update-grub',
                '/usr/sbin/update-initramfs']
 
