@@ -10,7 +10,6 @@ packages = """
 	fonts-dejavu-extra
 	fonts-liberation
 	libgl1-mesa-dri
-	menu
 	mesa-utils
 	xauth
 	xfonts-base
