@@ -258,6 +258,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * comment out kopete from kde-desktop (experimental-only).
   * drop reiserfsprogs/ jfsutils (obsolete).
   * add bcachefs-tools.
+  * drop menu.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
