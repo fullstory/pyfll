@@ -30,6 +30,7 @@ packages = """
 		firmware-ivtv
 		firmware-iwlwifi
 		firmware-libertas
+		firmware-mediatek
 		firmware-misc-nonfree
 		firmware-myricom
 		firmware-netxen
