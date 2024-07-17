@@ -22,15 +22,19 @@ packages = """
 		firmware-bnx2x
 		firmware-brcm80211
 		firmware-cavium
+		firmware-intel-graphics
+		firmware-intel-misc
 		#firmware-intelwimax
 		firmware-intel-sound
 		firmware-ipw2x00
 		firmware-ivtv
 		firmware-iwlwifi
 		firmware-libertas
+		firmware-mediatek
 		firmware-misc-nonfree
 		firmware-myricom
 		firmware-netxen
+		firmware-nvidia-graphics
 		firmware-qlogic
 		firmware-realtek
 		#firmware-samsung
