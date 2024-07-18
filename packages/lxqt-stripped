@@ -17,6 +17,7 @@ deps = """
 packages = """
 	cdebootstrap
 	firefox
+	fll-live-initscripts-networkd-dummy
 	zenity
 """
 

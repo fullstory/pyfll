@@ -8,3 +8,6 @@ deps = """
 	utils-essential
 """
 
+packages = """
+	fll-live-initscripts-networkd-dummy
+"""
