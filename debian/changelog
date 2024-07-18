@@ -262,6 +262,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop cpufrequtils, no longer available (in favour of cpupowerutils).
   * drop deborphan, no longer available.
   * drop gconf2, no longer available.
+  * depend on fll-live-initscripts-networkd-dummy where applicable.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

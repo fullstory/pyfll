@@ -23,6 +23,7 @@ deps = """
 
 packages = """
 	bind9-dnsutils
+	fll-live-initscripts-networkd-dummy
 	hunspell-en-us
 	spice-vdagent
 	spice-client-gtk

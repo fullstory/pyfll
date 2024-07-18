@@ -12,6 +12,7 @@ deps = """
 """
 
 packages = """
+	fll-live-initscripts-networkd-dummy
 	slim
 """
 
