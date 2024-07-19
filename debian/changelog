@@ -259,7 +259,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop reiserfsprogs/ jfsutils (obsolete).
   * add bcachefs-tools.
   * drop menu.
-  * drop cpufrequtils, no longer available (in favour of cpupowerutils).
+  * drop cpufrequtils, no longer available.
+  * add linux-cpupower to hwsupport-extra.
   * drop deborphan, no longer available.
   * drop gconf2, no longer available.
   * depend on fll-live-initscripts-networkd-dummy where applicable.
