@@ -266,6 +266,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * depend on fll-live-initscripts-networkd-dummy where applicable.
   * grub menu: add boot into UEFI firmware.
   * add support for lz4, lzo and zsdt compression.
+  * add support for mmdebstrap.
+  * don't add bzip2 while bootstrapping (it remains part of utils-essential).
+  * add zstd in the bootstrapping phase.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

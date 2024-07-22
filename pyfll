@@ -930,7 +930,7 @@ class FLLBuilder(object):
     def __cdebBootStrap(self, arch, dir, mirror, codename):
         '''Bootstrap a debian system with cdebootstrap.'''
         cmd = ['cdebootstrap', '--arch=%s' % arch,
-               '--include=apt-utils,bzip2,gnupg,xz-utils',
+               '--include=apt-utils,gnupg,xz-utils,zstd',
                '--flavour=minimal', codename, dir, mirror]
 
         if self.opts.d:
@@ -946,8 +946,20 @@ class FLLBuilder(object):
 
     def __debBootStrap(self, arch, dir, mirror, codename):
         '''Bootstrap a debian system with debootstrap.'''
-        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils,gnupg,bzip2,xz-utils',
-               '--variant=minbase', codename, dir, mirror]
+        cmd = ['debootstrap', '--arch=%s' % arch, '--include=apt-utils,gnupg,xz-utils,zstd',
+               '--variant=minbase', '--merged-usr', codename, dir, mirror]
+
+        if self.opts.d or self.opts.v:
+            cmd.insert(1, '--verbose')
+
+        self._execCmd(cmd)
+
+
+    def __mmdebBootStrap(self, arch, dir, mirror, codename):
+        '''Bootstrap a debian system with mmdebstrap.'''
+        cmd = ['mmdebstrap', '--architectures=%s' % arch, '--include=apt-utils,gnupg,xz-utils,zstd',
+               '--variant=minbase', '--mode=root', '--format=directory',
+               '--hook-dir=/usr/share/mmdebstrap/hooks/merged-usr', codename, dir, mirror]
 
         if self.opts.d or self.opts.v:
             cmd.insert(1, '--verbose')
@@ -970,7 +982,9 @@ class FLLBuilder(object):
         self.log.info('bootstrapping %s %s %s...' % (distro,codename,arch))
 
         bootstrapper = self.conf['options'].get('bootstrapper')
-        if bootstrapper == 'debootstrap':
+        if bootstrapper == 'mmdebstrap':
+            self.__mmdebBootStrap(arch, dir, mirror, codename)
+        elif bootstrapper == 'debootstrap':
             self.__debBootStrap(arch, dir, mirror, codename)
         else:
             self.__cdebBootStrap(arch, dir, mirror, codename)
