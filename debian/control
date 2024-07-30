@@ -16,7 +16,7 @@ Vcs-Browser: https://github.com/fullstory/pyfll
 #         ${python:Depends},
 #         python-apt,
 #         python-configobj,
-#         debootstrap | cdebootstrap,
+#         debootstrap | cdebootstrap | mmdebstrap,
 #         xorriso,
 #         reprepro,
 #         squashfs-tools,
