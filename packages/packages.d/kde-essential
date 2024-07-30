@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	aha
 	ark
 	akonadi-backend-sqlite
 	ca-certificates
