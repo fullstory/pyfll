@@ -257,7 +257,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * pull in qml-module-qt-labs-platform for KDE.
   * comment out kopete from kde-desktop (experimental-only).
   * drop reiserfsprogs/ jfsutils (obsolete).
-  * add bcachefs-tools.
   * drop menu.
   * drop cpufrequtils, no longer available.
   * add linux-cpupower to hwsupport-extra.
