@@ -1738,7 +1738,8 @@ class FLLBuilder(object):
         self._execInChroot(arch, 'apt-get clean'.split())
         self._execInChroot(arch, 'dpkg --clear-avail'.split())
 
-        os.path.walk(os.path.join(chroot, 'var/log'), self._zerologs, arch)
+        for dirpath, dirnames, files in os.walk(os.path.join(chroot, 'var/log')):
+            self._zerologs(arch, dirpath, files)
 
 
     def _chrootSquashfs(self, arch):
@@ -2325,17 +2326,17 @@ class FLLBuilder(object):
         return apt_pkg.sha256sum(file(filename))
 
 
-    def _md5sums(self, base, dir, fnames):
+    def _md5sums(self, base, dirpath, fnames):
         '''Function given to os.path.walk of self.writeMd5Sums().'''
         for f in fnames:
-            file = os.path.join(dir, f)
-            filename = file.partition(base)[2].lstrip('/')
+            filepath = os.path.join(dirpath, f)
+            filename = filepath.partition(base)[2].lstrip('/')
 
-            if not os.path.isfile(file) or f == 'md5sums':
+            if not os.path.isfile(filepath) or f == 'md5sums':
                 continue
-            if dir.endswith('grub') and f.find('stage') >= 0:
+            if dirpath.endswith('grub') and f.find('stage') >= 0:
                 continue
-            if dir.endswith('isolinux') and f.find('isolinux.bin') >= 0:
+            if dirpath.endswith('isolinux') and f.find('isolinux.bin') >= 0:
                 continue
             if f.find('grub_eltorito') >= 0:
                 continue
@@ -2345,7 +2346,7 @@ class FLLBuilder(object):
             md5sums = None
             try:
                 md5sums = open(os.path.join(base, 'md5sums'), 'a')
-                md5sums.write("%s *%s\n" % (self.__md5sum(file), filename))
+                md5sums.write("%s *%s\n" % (self.__md5sum(filepath), filename))
             except IOError:
                 self.log.exception('failed to write md5sums file')
                 raise FllError
@@ -2358,7 +2359,8 @@ class FLLBuilder(object):
         '''Calculate md5sums of major release contents.'''
         self.log.info('calculating md5sums of live media...')
         stage = os.path.join(self.temp, 'staging')
-        os.path.walk(stage, self._md5sums, stage)
+        for dirpath, dirnames, files in os.walk(stage):
+            self._md5sums(stage, dirpath, files)
 
     def _signFile(self, file):
         '''Sign a file with hashkey if available.'''
