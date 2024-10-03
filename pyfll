@@ -6,6 +6,7 @@ __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
 __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
+from io import open
 from subprocess import *
 import apt_pkg
 import apt
@@ -2318,12 +2319,12 @@ class FLLBuilder(object):
 
     def __md5sum(self, filename):
         '''Calculate md5sum of a file and return it.'''
-        return apt_pkg.md5sum(file(filename))
+        return apt_pkg.md5sum(open(filename, 'rb'))
 
 
     def __sha256sum(self, filename):
         '''Calculate sha256sum of a file and return it.'''
-        return apt_pkg.sha256sum(file(filename))
+        return apt_pkg.sha256sum(open(filename, 'rb'))
 
 
     def _md5sums(self, base, dirpath, fnames):
