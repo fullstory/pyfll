@@ -1203,7 +1203,7 @@ class FLLBuilder(object):
                 f.write('ff02::3 ip6-allhosts\n')
             elif file == '/usr/sbin/policy-rc.d':
                 f.write('#!/bin/sh\n')
-                f.write('echo "$0 denied action: \`$1 $2\'" >&2\n')
+                f.write('echo "$0 denied action: `$1 $2\'" >&2\n')
                 f.write('exit 101\n')
             elif file == '/tmp/iso_uuid':
                 f.write(self.uuid)
@@ -2127,7 +2127,7 @@ class FLLBuilder(object):
         bootinfo.write('<chrp-boot>\n')
         bootinfo.write('<description>%s Live Linux on powerpc</description>\n' % distro)
         bootinfo.write('<os-name>%s</os-name>\n' % distro)
-        bootinfo.write('<boot-script>boot &device;:\\boot\yaboot</boot-script>\n')
+        bootinfo.write('<boot-script>boot &device;:\\\\boot\\yaboot</boot-script>\n')
         bootinfo.write('</chrp-boot>\n')
         bootinfo.close()
 
