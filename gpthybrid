@@ -1,4 +1,4 @@
-#!/usr/bin/python -tt
+#!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
 from subprocess import *
@@ -30,28 +30,28 @@ def moddown(number,mod,target):
 buffout = "gpthybridising iso %s" % iso_file
 if len(label):
 	buffout = "%s with label %s" % (buffout, label)
-print buffout
+print(buffout)
 
 # extract start and end of space to partition from existing gpt
 gdisks = Popen(["/sbin/gdisk","-l",iso_file],stdout=PIPE).communicate()[0]
 last = 0
 end = 0
 i = 0
-for old_part in gdisks.split("\n"):
-	if old_part.startswith('   1'):
+for old_part in gdisks.split(b"\n"):
+	if old_part.startswith(b'   1'):
 		# below we want last as "end" of space before 1st partiion
 		last = int(old_part.split()[1])-1
 		# min 63 and round up to %sectors==sectors-1 (so 63 means next starts on 64)
 		if last<63:
 			last=63
 		last = modup(last,sectors,sectors-1)
-		print "first partition set last to %i" % last
-	if old_part.startswith('   '):
+		print("first partition set last to %i" % last)
+	if old_part.startswith(b'   '):
 		# end should be the last used sector
 		testend = int(old_part.split()[2])
 		if (testend > end):
 			end = modup(testend,sectors,sectors-1)
-			print "got partition ending: %i" % end
+			print("got partition ending: %i" % end)
 		i += 1
 
 # get the lba addresses of the files using osirrox
@@ -64,16 +64,16 @@ osirrox=list(["/usr/bin/osirrox", "-pkt_output", "on",
 for file in args:
 	osirrox.extend(['-find', file, '-exec', 'report_lba', '--'])
 
-print "running: %s" % " ".join(osirrox)
-for line in check_output(osirrox).split("\n"):
-	if line[:22] == 'R:1: File data lba:  0':
+print("running: %s" % " ".join(osirrox))
+for line in check_output(osirrox).split(b"\n"):
+	if line[:22] == b'R:1: File data lba:  0':
 		# extract the fields
-		(t, s, b, f, n) = line.split(',')
+		(t, s, b, f, n) = line.split(b',')
 		# osirrox talks in 2048b sectors so *4
 		s = int(s.split()[0])*4
 		b = int(b.split()[0])*4
 		# drop the quotes around the name
-		n = n.split()[0].split("'")[1]
+		n = n.split()[0].split(b"'")[1]
 		# rebuild list in post in order
 		done = 0
 		post = list()
@@ -186,7 +186,7 @@ Y
 
 # run our commands through gdisk
 cmd = "%s\n%s\n%s" % (cmddel, cmdpart, cmdend)
-print "gdisk stdin: %s" % cmd.replace("\n", "\\n")
-gdisks = Popen(["/sbin/gdisk",iso_file],stdin=PIPE).communicate(input=cmd)
+print("gdisk stdin: %s" % cmd.replace("\n", "\\n"))
+gdisks = Popen(["/sbin/gdisk",iso_file],stdin=PIPE,text=True).communicate(input=cmd)
 
 # TODO read gdisk result and verify or throw big warning/error
