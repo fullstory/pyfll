@@ -192,7 +192,7 @@ class FLLBuilder(object):
         self.log = logging.getLogger('log')
         self.log.setLevel(logging.DEBUG)
 
-        self.time = datetime.datetime.utcnow()
+        self.time = datetime.datetime.now(datetime.UTC)
         self.uuid = self.time.strftime('%Y-%m-%d-%H-%M-%S-00')
         self.timestamp = self.time.strftime('%Y%m%d%H%M')
 
@@ -2585,7 +2585,7 @@ class FLLBuilder(object):
         self.writeMd5Sums()
         self.genLiveMedia()
 
-        duration = datetime.datetime.utcnow() - self.time
+        duration = datetime.datetime.now(datetime.UTC) - self.time
         self.log.info('build duration was %d minutes and %d seconds' %
                       divmod(duration.seconds, 60))
 
