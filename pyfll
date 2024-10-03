@@ -1,15 +1,15 @@
 #!/usr/bin/python -tt
 # -*- coding: utf-8 -*-
 
-from builtins import range
-from builtins import object
 __author__    = 'Kel Modderman'
 __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
 __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
 from subprocess import *
-
+from builtins import range
+from builtins import object
+import functools
 import apt_pkg
 import apt
 import atexit
@@ -196,21 +196,21 @@ class FLLBuilder(object):
         self.uuid = self.time.strftime('%Y-%m-%d-%H-%M-%S-00')
         self.timestamp = self.time.strftime('%Y%m%d%H%M')
 
-    def __filterList(self, list, dup_warn = True):
+    def __filterList(self, alist, dup_warn = True):
         '''Return a list containing no duplicate items given a list that
         may have duplicate items.'''
 
         d = dict()
-        for l in list:
+        for l in alist:
             if l in d and dup_warn:
                 self.log.debug('duplicate: %s' % l)
             else:
                 d[l] = True
 
-        list = list(d.keys())
-        list.sort()
+        blist = list(d.keys())
+        blist.sort()
 
-        return list
+        return blist
 
 
     def __lines2list(self, lines):
@@ -983,7 +983,7 @@ class FLLBuilder(object):
     def _writeAptLists(self, arch, cached = False, src_uri = False):
         '''Write apt source lists to /etc/apt/sources.list.d/*.'''
         chroot = os.path.join(self.temp, arch)
-        for repo in list(self.conf['repos'].keys()):
+        for repo in self.conf['repos'].keys():
             r = self.conf['repos'][repo]
             file = os.path.join(chroot, 'etc/apt/sources.list.d',
                                 r['label'] + '.list')
@@ -1071,7 +1071,7 @@ class FLLBuilder(object):
         self._writeAptLists(arch, cached = True, src_uri = True)
 
         keyrings = []
-        for repo in list(self.conf['repos'].keys()):
+        for repo in self.conf['repos'].keys():
             r = self.conf['repos'][repo]
             if 'keyring' in r and r['keyring']:
                 keyrings.append(r['keyring'])
@@ -1083,7 +1083,7 @@ class FLLBuilder(object):
             self._execInChroot(arch, cmd)
 
         gpgkeys = []
-        for repo in list(self.conf['repos'].keys()):
+        for repo in self.conf['repos'].keys():
             r = self.conf['repos'][repo]
             if 'gpgkey' in r:
                 self.log.debug('importing gpg key for %s' % r['label'])
@@ -1322,7 +1322,7 @@ class FLLBuilder(object):
                      if f.startswith('linux-image-')]
 
         if len(kvers) > 0:
-            kvers.sort(cmp=apt_pkg.version_compare)
+            kvers.sort(key=functools.cmp_to_key(apt_pkg.version_compare))
             kvers.reverse()
             return kvers
 
@@ -1372,7 +1372,7 @@ class FLLBuilder(object):
         self.log.debug(rec_dict)
 
         rec_list = []
-        for p in list(wanted.keys()):
+        for p in wanted.keys():
             if not p in rec_dict:
                 continue
             package = cache[p]
@@ -1396,7 +1396,7 @@ class FLLBuilder(object):
                     if depdone > 0:
                         continue
                     name = deppart.target_pkg.name
-                    if name in list(wanted.keys()):
+                    if name in wanted.keys():
                         depdone = 1
                         continue
                 if depdone == 0:
