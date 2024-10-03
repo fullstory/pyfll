@@ -7,14 +7,12 @@ __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
 from subprocess import *
-from builtins import range
-from builtins import object
-import functools
 import apt_pkg
 import apt
 import atexit
 import datetime
 import fileinput
+import functools
 import glob
 import logging
 import optparse
