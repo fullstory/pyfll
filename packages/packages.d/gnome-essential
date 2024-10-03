@@ -11,4 +11,5 @@ packages = """
 	hexchat
 	metacity
 	nautilus
+	network-manager-gnome
 """

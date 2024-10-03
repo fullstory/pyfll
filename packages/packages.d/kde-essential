@@ -30,6 +30,7 @@ packages = """
 		kwrited
 		plasma-integration
 		systemsettings
+	plasma-nm
 	plasma-workspace
 	plasma-workspace-wayland
 	powerdevil
