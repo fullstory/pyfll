@@ -1,6 +1,8 @@
 #!/usr/bin/python -tt
 # -*- coding: utf-8 -*-
 
+from builtins import range
+from builtins import object
 __author__    = 'Kel Modderman'
 __copyright__ = '(C) 2008 Kel Modderman <kel@otaku42.de>'
 __license__   = 'GPLv2 or any later version'
@@ -75,7 +77,7 @@ class FllLocales(object):
                 continue
             if pkg.name not in packages:
                 continue
-            for loc_pkg in map.keys():
+            for loc_pkg in list(map.keys()):
                 if pkg.name == loc_pkg:
                     loc_pkg_prefix_list = map.get(loc_pkg)
                     for loc_pkg_prefix in loc_pkg_prefix_list:
@@ -106,7 +108,7 @@ class FllLocales(object):
         loc_suf_list = list()
         try:
             ll, cc = locale.lower().split('_')
-        except ValueError, e:
+        except ValueError as e:
             raise FllLocalesError(e)
         loc_suf_list.append(ll + '-' + cc)
         loc_suf_list.append(ll + cc)
@@ -116,7 +118,7 @@ class FllLocales(object):
         if default and default != locale:
             try:
                 ll, cc = default.lower().split('_')
-            except ValueError, e:
+            except ValueError as e:
                 raise FllLocalesError(e)
             loc_suf_list.append(ll + '-' + cc)
             loc_suf_list.append(ll + cc)
@@ -205,7 +207,7 @@ class FLLBuilder(object):
             else:
                 d[l] = True
 
-        list = d.keys()
+        list = list(d.keys())
         list.sort()
 
         return list
@@ -395,7 +397,7 @@ class FLLBuilder(object):
 
             name += '-%s' % self.conf['packages']['profile']
 
-        name += '-' + '-'.join(self.conf['archs'].keys())
+        name += '-' + '-'.join(list(self.conf['archs'].keys()))
         name += '-%s' % self.timestamp
 
         self.log.debug('name: %s' % name)
@@ -413,14 +415,14 @@ class FLLBuilder(object):
 
         if len(arch):
             self.log.debug('arch: %s' % arch)
-            if arch not in self.conf['archs'].keys():
+            if arch not in list(self.conf['archs'].keys()):
                 self.conf['archs'] = {arch: dict()}
             else:
-                for arch2 in self.conf['archs'].keys():
+                for arch2 in list(self.conf['archs'].keys()):
                     if arch != arch2:
                         del self.conf['archs'][arch2]
 
-        for arch in self.conf['archs'].keys():
+        for arch in list(self.conf['archs'].keys()):
             if 'linux' not in self.conf['archs'][arch]:
                 if arch == 'i386':
                     cpu = '486'
@@ -442,7 +444,7 @@ class FLLBuilder(object):
                 self.log.debug("linux (%s): %s" %
                                (arch, self.conf['archs'][arch]['linux']))
 
-        if len(self.conf['repos'].keys()) < 1:
+        if len(list(self.conf['repos'].keys())) < 1:
             self.log.critical('no apt repos were specified in build config')
             raise FllError
 
@@ -462,7 +464,7 @@ class FLLBuilder(object):
             self.log.critical('%s repo not configured in build config' % self.opts.N)
             raise FllError
 
-        for repo in self.conf['repos'].keys():
+        for repo in list(self.conf['repos'].keys()):
             if self.conf['repos'][repo].get('trivial'):
                 words = ['label', 'uri']
             else:
@@ -486,12 +488,12 @@ class FLLBuilder(object):
         i18n = self.__lines2list(self.conf['packages']['i18n'])
         self.log.debug('i18n: %s' % ' '.join(i18n))
 
-	if 'hashkey' not in self.conf['options']:
-	    self.log.info('No key for signing ISO hashes!')
-	    self.opts.k = None
-	else:
-	    self.opts.k = self.conf['options'].get('hashkey')
-	    self.log.debug('Using key %s for signing.' % self.opts.k)
+        if 'hashkey' not in self.conf['options']:
+            self.log.info('No key for signing ISO hashes!')
+            self.opts.k = None
+        else:
+            self.opts.k = self.conf['options'].get('hashkey')
+            self.log.debug('Using key %s for signing.' % self.opts.k)
 
         if not 'options' in self.conf:
             self.conf['options'] = dict()
@@ -530,7 +532,7 @@ class FLLBuilder(object):
         if 'distro' in self.conf:
                 self._processDefaults(self.conf['distro'])
                 self.log.debug('distro-defaults:')
-                for k, v in self.conf['distro'].items():
+                for k, v in list(self.conf['distro'].items()):
                     self.log.debug('%s="%s"' % (k, v))
                 self.log.debug('testing stamp/name:')
                 self._getDistroStamp()
@@ -683,7 +685,7 @@ class FLLBuilder(object):
             raise FllError
 
         self.pkgs = dict()
-        for arch in self.conf['archs'].keys():
+        for arch in list(self.conf['archs'].keys()):
             self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
             try:
                 self.pkgs[arch]['packages'] += \
@@ -761,7 +763,7 @@ class FLLBuilder(object):
         '''Mount virtual filesystems in a chroot.'''
         virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
 
-        for v in virtfs.items():
+        for v in list(virtfs.items()):
             cmd = ['mount', '-t', v[0], 'fll-' + v[0],
                    os.path.join(chroot, v[1])]
 
@@ -820,7 +822,7 @@ class FLLBuilder(object):
         have been taken care of.'''
         self.log.info('cleaning up...')
 
-        for arch in self.conf['archs'].keys():
+        for arch in list(self.conf['archs'].keys()):
             dir = os.path.join(self.temp, arch)
             if os.path.isdir(dir):
                 self.log.debug('cleaning up %s chroot...' % arch)
@@ -975,13 +977,13 @@ class FLLBuilder(object):
 
         shutil.copy('/etc/hosts', os.path.join(dir, 'etc'))
         shutil.copy('/etc/resolv.conf', os.path.join(dir, 'etc'))
-        os.mkdir(os.path.join(dir, 'disks'), 0755)
+        os.mkdir(os.path.join(dir, 'disks'), 0o755)
 
 
     def _writeAptLists(self, arch, cached = False, src_uri = False):
         '''Write apt source lists to /etc/apt/sources.list.d/*.'''
         chroot = os.path.join(self.temp, arch)
-        for repo in self.conf['repos'].keys():
+        for repo in list(self.conf['repos'].keys()):
             r = self.conf['repos'][repo]
             file = os.path.join(chroot, 'etc/apt/sources.list.d',
                                 r['label'] + '.list')
@@ -1069,7 +1071,7 @@ class FLLBuilder(object):
         self._writeAptLists(arch, cached = True, src_uri = True)
 
         keyrings = []
-        for repo in self.conf['repos'].keys():
+        for repo in list(self.conf['repos'].keys()):
             r = self.conf['repos'][repo]
             if 'keyring' in r and r['keyring']:
                 keyrings.append(r['keyring'])
@@ -1081,7 +1083,7 @@ class FLLBuilder(object):
             self._execInChroot(arch, cmd)
 
         gpgkeys = []
-        for repo in self.conf['repos'].keys():
+        for repo in list(self.conf['repos'].keys()):
             r = self.conf['repos'][repo]
             if 'gpgkey' in r:
                 self.log.debug('importing gpg key for %s' % r['label'])
@@ -1130,7 +1132,7 @@ class FLLBuilder(object):
 
             if d == '/usr/sbin/policy-rc.d':
                 self._writeFile(arch, d)
-                os.chmod(os.path.join(chroot, d.lstrip('/')), 0755)
+                os.chmod(os.path.join(chroot, d.lstrip('/')), 0o755)
             else:
                 os.symlink('/bin/true', os.path.join(chroot, d.lstrip('/')))
 
@@ -1152,21 +1154,21 @@ class FLLBuilder(object):
 
         f = None
         fn = None
-        mode = 0644
+        mode = 0o644
         try:
             fn = os.path.join(chroot, file.lstrip('/'))
             if os.path.isfile(fn):
                 mode = None
             if not os.path.exists(os.path.dirname(fn)):
                 try:
-                    os.makedirs(os.path.dirname(fn), 0755)
+                    os.makedirs(os.path.dirname(fn), 0o755)
                 except OSError as exc:
                     if exc.errno != errno.EEXIST:
                         raise
             f = open(fn, 'w')
             self.log.debug('writing file: %s' % file)
             if file == '/etc/default/distro':
-                d = self.conf['distro'].keys()
+                d = list(self.conf['distro'].keys())
                 d.sort()
                 for k in d:
                     if k.startswith('FLL_DISTRO_CODENAME'):
@@ -1248,7 +1250,7 @@ class FLLBuilder(object):
         finally:
             if f:
                 f.close()
-                os.chmod(distro_version, 0444)
+                os.chmod(distro_version, 0o444)
 
         self._writeFile(arch, '/etc/hosts')
         self._writeFile(arch, '/etc/motd.tail')
@@ -1370,7 +1372,7 @@ class FLLBuilder(object):
         self.log.debug(rec_dict)
 
         rec_list = []
-        for p in wanted.keys():
+        for p in list(wanted.keys()):
             if not p in rec_dict:
                 continue
             package = cache[p]
@@ -1394,7 +1396,7 @@ class FLLBuilder(object):
                     if depdone > 0:
                         continue
                     name = deppart.target_pkg.name
-                    if name in wanted.keys():
+                    if name in list(wanted.keys()):
                         depdone = 1
                         continue
                 if depdone == 0:
@@ -1454,7 +1456,7 @@ class FLLBuilder(object):
 
         self.log.info('querying source package URIs for %s...' % arch)
 
-        packages = manifest.keys()
+        packages = list(manifest.keys())
         packages.sort()
         srcpkg_seen = dict()
         uris = []
@@ -1511,7 +1513,7 @@ class FLLBuilder(object):
         pkgs_base = [p.name for p in cache.packages if p.current_ver]
         pkgs_want = self.__filterList(pkgs_base + self._getPackageList(arch))
         pkgs_dict = dict([(p, True) for p in pkgs_want])
-        pkgs_want = self.__filterList(pkgs_dict.keys()
+        pkgs_want = self.__filterList(list(pkgs_dict.keys())
                                       + self._detectLocalePkgs(i18n_list, pkgs_dict, cache)
                                       + self._detectRecommendedPkgs(pkgs_dict, cache))
         pkgs_had = list()
@@ -1554,7 +1556,7 @@ class FLLBuilder(object):
         extras = []
         commextra = []
         efitypes = { 'x86_64-efi':'amd64','i386-efi':'ia32' }
-        for efitype in (efitypes.keys()):
+        for efitype in (list(efitypes.keys())):
             archextra = []
             if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/%s' % efitype)):
                 commextra.append('grub-efi')
@@ -1580,7 +1582,7 @@ class FLLBuilder(object):
                     rconf = open(extras_dist, "w")
                     rconf.write('Codename: %s\n' % codename)
                     rconf.write('Architectures: ')
-                    for a in self.conf['archs'].keys():
+                    for a in list(self.conf['archs'].keys()):
                         rconf.write(''.join([a,' ']))
                     rconf.write('\n')
                     rconf.write('Components: main\n')
@@ -1646,7 +1648,7 @@ class FLLBuilder(object):
                     rconf = open(i18n_dist, "w")
                     rconf.write('Codename: %s\n' % codename)
                     rconf.write('Architectures: ')
-                    for a in self.conf['archs'].keys():
+                    for a in list(self.conf['archs'].keys()):
                         rconf.write(''.join([a,' ']))
                     rconf.write('\n')
                     rconf.write('Components: main\n')
@@ -1682,7 +1684,7 @@ class FLLBuilder(object):
             sname = os.path.basename(script)
             try:
                 shutil.copy(script, os.path.join(chroot, 'tmp'))
-                os.chmod(os.path.join(chroot, 'tmp', sname), 0755)
+                os.chmod(os.path.join(chroot, 'tmp', sname), 0o755)
             except:
                 self.log.exception('error preparing postinst script: %s' %
                                    sname)
@@ -1784,7 +1786,7 @@ class FLLBuilder(object):
             self.log.info('using squashfs(%s)...' % squashfs_comp)
             cmd.extend(['-comp', '%s' % squashfs_comp])
             if squashfs_comp == 'xz':
-                arch = self.conf['archs'].keys()[0]
+                arch = list(self.conf['archs'].keys())[0]
                 if arch == 'amd64' or arch == 'i386':
                     cmd.extend(['-Xbcj', 'x86'])
                 elif arch == 'powerpc' or arch == 'ppc64':
@@ -1809,7 +1811,7 @@ class FLLBuilder(object):
         image_dir = os.path.join(self.temp, 'staging',
                                  self.conf['distro']['FLL_IMAGE_DIR'])
         try:
-            os.chmod(image_file, 0644)
+            os.chmod(image_file, 0o644)
             shutil.move(image_file, image_dir)
         except IOError:
             self.log.exception('failed to move squashfs image to staging dir')
@@ -1842,7 +1844,7 @@ class FLLBuilder(object):
             data_dir = os.path.join(self.opts.s, 'data')
             grub_dir = os.path.join(boot_dir, 'grub')
             if not os.path.isdir(grub_dir):
-                os.makedirs(grub_dir, 0755)
+                os.makedirs(grub_dir, 0o755)
             if not os.path.isfile(os.path.join(grub_dir, 'grub.cfg')):
               shutil.copy(os.path.join(self.opts.s, 'data/grub.cfg'), grub_dir)
               shutil.copy(os.path.join(chroot, 'usr/share/grub/unicode.pf2'), grub_dir)
@@ -1868,7 +1870,7 @@ class FLLBuilder(object):
                 self.log.debug('copying grub stage files to boot dir')
                 grub_dir = os.path.join(boot_dir, 'grub', 'i386-pc')
                 if not os.path.isdir(grub_dir):
-                    os.makedirs(grub_dir, 0755)
+                    os.makedirs(grub_dir, 0o755)
             else:
                 self.log.exception('grub stage files not found')
                 raise FllError
@@ -1883,7 +1885,7 @@ class FLLBuilder(object):
             # efi
             efitypes = { 'x86_64-efi':'bootx64','i386-efi':'bootia32' }
             have_efi = ""
-            for efitype in (efitypes.keys()):
+            for efitype in (list(efitypes.keys())):
                 gfile_dir = os.path.join(chroot, 'usr/lib/grub/%s' % efitype)
                 if os.path.isdir(gfile_dir):
                     have_efi = "true"
@@ -1894,7 +1896,7 @@ class FLLBuilder(object):
                         self.log.debug('copying grub %s stage files to boot dir' % efitype)
                         grub_dir = os.path.join(boot_dir, 'grub', efitype)
                         if not os.path.isdir(grub_dir):
-                            os.makedirs(grub_dir, 0755)
+                            os.makedirs(grub_dir, 0o755)
                     for file in gfiles:
                         try:
                             shutil.copy(file, grub_dir)
@@ -1903,7 +1905,7 @@ class FLLBuilder(object):
                             raise FllError
                     efi_dir = os.path.join(self.temp, 'staging/efi/boot')
                     if not os.path.isdir(efi_dir):
-                        os.makedirs(efi_dir, 0755)
+                        os.makedirs(efi_dir, 0o755)
                     try:
                         shutil.copy(os.path.join(chroot, 'tmp/efi/boot/%s.efi' % efitypes[efitype]), efi_dir)
                     except IOError:
@@ -1931,7 +1933,7 @@ class FLLBuilder(object):
                stage_dir = os.path.join(self.temp, 'staging')
                syslinux_dir = os.path.join(stage_dir, 'boot/isolinux')
                if not os.path.isdir(syslinux_dir):
-                   os.mkdir(syslinux_dir, 0755)
+                   os.mkdir(syslinux_dir, 0o755)
                shutil.copy(isolinux, syslinux_dir)
                isolinux_path = os.path.join(chroot, 'usr/lib/syslinux/modules/bios')
                # list(set([ uniquifys the list so each line can have the deps
@@ -2281,7 +2283,7 @@ class FLLBuilder(object):
     def writeBootldr(self):
         '''Choose which bootloader to configure based on archs, and
         call the appropriate method to do that.'''
-        archs = self.conf['archs'].keys()
+        archs = list(self.conf['archs'].keys())
 
         self._writeGrubWrap()
         self._writeIsolinuxWrap()
@@ -2349,7 +2351,7 @@ class FLLBuilder(object):
 
     def __archManifest(self, arch):
         '''Write manifest information to file.'''
-        pkgs = self.pkgs[arch]['manifest'].keys()
+        pkgs = list(self.pkgs[arch]['manifest'].keys())
         pkgs.sort(key=len)
         l = len(pkgs[-1])
         pkgs.sort()
@@ -2360,7 +2362,7 @@ class FLLBuilder(object):
 
     def _writeManifests(self, file):
         '''Write package manifest lists.'''
-        archs = self.conf['archs'].keys()
+        archs = list(self.conf['archs'].keys())
         for arch in archs:
             manifest_name = '%s.%s.manifest' % (file, arch)
 
@@ -2382,7 +2384,7 @@ class FLLBuilder(object):
     def _writeSources(self, file):
         '''Write source URI lists.'''
         sources_list = []
-        archs = self.conf['archs'].keys()
+        archs = list(self.conf['archs'].keys())
         for arch in archs:
             sources_list.extend(self.pkgs[arch]['source'])
         sources_list = self.__filterList(sources_list, dup_warn = False)
@@ -2409,7 +2411,7 @@ class FLLBuilder(object):
                 uri = self.conf['repos'][r]['uri']
                 cached[cached_uri.rstrip('/')] = uri.rstrip('/')
 
-        if len(cached.keys()) > 0:
+        if len(list(cached.keys())) > 0:
             os.rename(sources_file, sources_file + '-cached')
         else:
             return
@@ -2418,7 +2420,7 @@ class FLLBuilder(object):
         try:
             sources = open(sources_file, 'w')
             for s in sources_list:
-                for c in cached.keys():
+                for c in list(cached.keys()):
                     if s.startswith(c):
                         s = s.replace(c, cached[c], 1)
                         break
@@ -2461,7 +2463,7 @@ class FLLBuilder(object):
             cmd2 = '%s -l %s -i %s' % (os.path.join(self.opts.s, 'gpthybrid'), self.uuid, iso_file)
             if os.path.isfile(os.path.join(stage, 'boot/grub/i386-pc/grub_eltorito')):
                 cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info --grub2-mbr %s' % os.path.join(stage, 'boot/grub/i386-pc/boot_hybrid.img')
-                for arch in self.conf['archs'].keys():
+                for arch in list(self.conf['archs'].keys()):
                     if os.path.isfile(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], self._getDistroImageFile(arch))):
                         cmd2 += " %s" % os.path.join(self.conf['distro']['FLL_IMAGE_DIR'], self._getDistroImageFile(arch))
                 if os.path.isfile(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], '%s.2' % self.conf['distro']['FLL_IMAGE_FILE'])):
@@ -2546,8 +2548,8 @@ class FLLBuilder(object):
 
     def buildChroots(self):
         '''Main loop to call all chroot building functions.'''
-        archs = self.conf['archs'].keys()
-	codename = self.opts.C
+        archs = list(self.conf['archs'].keys())
+        codename = self.opts.C
         for arch in archs:
             self._bootStrap(arch)
             self._dpkgAddDivert(arch)
