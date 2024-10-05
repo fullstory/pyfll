@@ -33,12 +33,12 @@ if len(label):
 print(buffout)
 
 # extract start and end of space to partition from existing gpt
-gdisks = Popen(["/sbin/gdisk","-l",iso_file],stdout=PIPE).communicate()[0]
+gdisks = Popen(["/sbin/gdisk","-l",iso_file],stdout=PIPE).communicate()[0].decode()
 last = 0
 end = 0
 i = 0
-for old_part in gdisks.split(b"\n"):
-	if old_part.startswith(b'   1'):
+for old_part in gdisks.split("\n"):
+	if old_part.startswith('   1'):
 		# below we want last as "end" of space before 1st partiion
 		last = int(old_part.split()[1])-1
 		# min 63 and round up to %sectors==sectors-1 (so 63 means next starts on 64)
@@ -46,7 +46,7 @@ for old_part in gdisks.split(b"\n"):
 			last=63
 		last = modup(last,sectors,sectors-1)
 		print("first partition set last to %i" % last)
-	if old_part.startswith(b'   '):
+	if old_part.startswith('   '):
 		# end should be the last used sector
 		testend = int(old_part.split()[2])
 		if (testend > end):
@@ -65,15 +65,15 @@ for file in args:
 	osirrox.extend(['-find', file, '-exec', 'report_lba', '--'])
 
 print("running: %s" % " ".join(osirrox))
-for line in check_output(osirrox).split(b"\n"):
-	if line[:22] == b'R:1: File data lba:  0':
+for line in check_output(osirrox).decode().split("\n"):
+	if line[:22] == 'R:1: File data lba:  0':
 		# extract the fields
-		(t, s, b, f, n) = line.split(b',')
+		(t, s, b, f, n) = line.split(',')
 		# osirrox talks in 2048b sectors so *4
 		s = int(s.split()[0])*4
 		b = int(b.split()[0])*4
 		# drop the quotes around the name
-		n = n.split()[0].split(b"'")[1]
+		n = n.split()[0].split("'")[1]
 		# rebuild list in post in order
 		done = 0
 		post = list()

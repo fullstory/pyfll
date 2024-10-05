@@ -410,7 +410,7 @@ class FLLBuilder(object):
             arch = self.opts.a
         elif not self.conf.get('archs'):
             arch = Popen(['dpkg', '--print-architecture'], preexec_fn=restore_sigpipe,
-                              stdout=PIPE).communicate()[0].rstrip()
+                              stdout=PIPE).communicate()[0].decode().rstrip()
 
         if len(arch):
             self.log.debug('arch: %s' % arch)
