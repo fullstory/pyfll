@@ -6,12 +6,11 @@ Example Usage:
   2) ./fll -c ../fll.conf -b /tmp/fll/ -o /tmp/fll/
 
 Dependencies:
-  python (>= 2.5)
+  python (>= 3.5)
   python-apt
   python-configobj
-  cdebootstrap | debootstrap
+  cdebootstrap | debootstrap | mmdebstrap
   xorriso
-  python-fll
   squashfs-tools
   reprepro (for liveapt functionality and extras (uefi))
 Recommends:
