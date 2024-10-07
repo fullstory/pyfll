@@ -2322,9 +2322,10 @@ class FLLBuilder(object):
         return apt_pkg.Hashes(open(filename, 'rb')).hashes.find('MD5Sum').hashvalue
 
     def __hashsums(self, filename):
-        '''Calculate sha256sum of a file and return it.'''
+        '''Calculate hashsums of a file and return it.'''
         hashsums = apt_pkg.Hashes(open(filename, 'rb')).hashes
-        return hashsums.find('MD5Sum').hashvalue, hashsums.find('SHA256').hashvalue
+        return hashsums.find('MD5Sum').hashvalue, hashsums.find('SHA256').hashvalue, \
+            hashsums.find('SHA512').hashvalue
 
 
     def _md5sums(self, base, dirpath, fnames):
@@ -2470,6 +2471,7 @@ class FLLBuilder(object):
         iso_file = os.path.join(self.opts.o, iso_name)
         md5_file = iso_file + '.md5'
         sha256_file = iso_file + '.sha256'
+        sha512_file = iso_file + '.sha512'
 
         cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
 
@@ -2530,12 +2532,15 @@ class FLLBuilder(object):
         self.log.info('calculating hashsums of live media iso image...')
         md5 = None
         sha256 = None
+        sha512 = None
         try:
             md5 = open(md5_file, 'w')
             sha256 = open(sha256_file, 'w')
-            md5sum, sha256sum = self.__hashsums(iso_file)
+            sha512 = open(sha512_file, 'w')
+            md5sum, sha256sum, sha512sum = self.__hashsums(iso_file)
             md5.write("%s *%s\n" % (md5sum, os.path.basename(iso_file)))
             sha256.write("%s *%s\n" % (sha256sum, os.path.basename(iso_file)))
+            sha512.write("%s *%s\n" % (sha512sum, os.path.basename(iso_file)))
         except IOError:
             self.log.exception('failed to write hashsums files')
             raise FllError
@@ -2554,6 +2559,13 @@ class FLLBuilder(object):
                     self.log.info('signing sha256 hash...')
                     self._signFile(sha256_file)
                     os.chown(sha256_file + '.gpg', self.opts.u, self.opts.g)
+            if sha512:
+                sha512.close()
+                os.chown(sha512_file, self.opts.u, self.opts.g)
+                if self.opts.k:
+                    self.log.info('signing sha512 hash...')
+                    self._signFile(sha512_file)
+                    os.chown(sha512_file + '.gpg', self.opts.u, self.opts.g)
 
         self._writeManifests(os.path.splitext(iso_file)[0])
         if not self.opts.B:
