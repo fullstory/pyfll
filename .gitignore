@@ -1,3 +1,5 @@
-fll.aptosid.conf
+fll.*.conf
 aptosid-*
 fullstory-*
+packages/*.local
+packages/packages.d/*.local
