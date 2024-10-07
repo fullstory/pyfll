@@ -2,8 +2,10 @@ Usage:
   See ./fll --help
 
 Example Usage:
-  1) cp fll.conf ..; edit ../fll.conf
-  2) ./fll -c ../fll.conf -b /tmp/fll/ -o /tmp/fll/
+  1) sudo apt install python3-configobj gdisk xorriso squashfs-tools \
+  	cdebootstrap reprepro python3-apt
+  2) cp fll.conf fll.local.conf; edit ../fll.local.conf
+  2) ./fll -c ../fll.local.conf -b /tmp/fll/ -o /tmp/fll/
 
 Dependencies:
   python (>= 3.5)
