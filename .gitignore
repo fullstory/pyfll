@@ -3,3 +3,4 @@ aptosid-*
 fullstory-*
 packages/*.local
 packages/packages.d/*.local
+packages/packages.d/*.local.*
