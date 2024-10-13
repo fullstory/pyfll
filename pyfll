@@ -2574,6 +2574,9 @@ class FLLBuilder(object):
         for f in glob.glob('%s*' % os.path.splitext(iso_file)[0]):
             self.log.info(f)
 
+        if self.__isexecutable("/etc/grub.d/60_fll-fromiso"):
+            self._execCmd("update-grub")
+
 
     def buildChroots(self):
         '''Main loop to call all chroot building functions.'''
