@@ -972,8 +972,8 @@ class FLLBuilder(object):
     def _writeAptLists(self, arch, cached = False, src_uri = False):
         '''Write apt source lists to /etc/apt/sources.list.d/*.'''
         chroot = os.path.join(self.temp, arch)
-        for repo in self.conf['repos'].keys():
-            r = self.conf['repos'][repo]
+        for r in self.conf['repos'].keys():
+            repo = self.conf['repos'][r]
             sources_list = os.path.join(chroot, 'etc/apt/sources.list.d',
                                         r['label'] + '.list')
 
@@ -992,16 +992,16 @@ class FLLBuilder(object):
             self.log.debug("creating %s" % sources_list)
 
             line = []
-            if cached and r.get('cached'):
-                line.append(r['cached'])
+            if cached and repo.get('cached'):
+                line.append(repo['cached'])
             else:
-                line.append(r['uri'])
+                line.append(repo['uri'])
 
-            if r.get('trivial'):
+            if repo.get('trivial'):
                 line.append('./')
             else:
-                line.append(r['suite'])
-                line.append(r['components'])
+                line.append(repo['suite'])
+                line.append(repo['components'])
 
             line.append("\n")
 
@@ -1022,18 +1022,6 @@ class FLLBuilder(object):
             finally:
                 if sources_list_fh:
                     sources_list_fh.close()
-
-        if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
-            s = None
-            try:
-                s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
-                s.write('# ' * 39 + '#\n')
-            except IOError:
-                self.log.exception('failed to open /etc/apt/sources.list')
-                raise FllError
-            finally:
-                if s:
-                    s.close()
 
 
     def _primeApt(self, arch):
