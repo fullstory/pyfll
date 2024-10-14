@@ -974,14 +974,14 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
         for repo in self.conf['repos'].keys():
             r = self.conf['repos'][repo]
-            file = os.path.join(chroot, 'etc/apt/sources.list.d',
-                                r['label'] + '.list')
+            sources_list = os.path.join(chroot, 'etc/apt/sources.list.d',
+                                        r['label'] + '.list')
 
             if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
                 s = None
                 try:
                     s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
-                    s.write('#   %-74s#\n' % file.partition(chroot)[2])
+                    s.write('#   %-74s#\n' % sources_list.partition(chroot)[2])
                 except IOError:
                     self.log.exception('failed to open /etc/apt/sources.list')
                     raise FllError
@@ -989,7 +989,7 @@ class FLLBuilder(object):
                     if s:
                         s.close()
 
-            self.log.debug("creating %s" % file)
+            self.log.debug("creating %s" % sources_list)
 
             line = []
             if cached and r.get('cached'):
@@ -1008,20 +1008,20 @@ class FLLBuilder(object):
             l = ' '.join(line)
             self.log.debug('%s: %s', repo, l.rstrip())
 
-            list = None
+            sources_list_fh = None
             try:
-                list = open(file, 'w')
-                list.write('deb ' + l)
+                sources_list_fh = open(sources_list, 'w')
+                sources_list_fh.write('deb ' + l)
                 if not src_uri or self.opts.B:
-                    list.write('#deb-src ' + l)
+                    sources_list_fh.write('#deb-src ' + l)
                 else:
-                    list.write('deb-src ' + l)
+                    sources_list_fh.write('deb-src ' + l)
             except IOError:
-                self.log.exception('failed to open %s' % file)
+                self.log.exception('failed to open %s' % sources_list)
                 raise FllError
             finally:
-                if list:
-                    list.close()
+                if sources_list_fh:
+                    sources_list_fh.close()
 
         if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
             s = None
@@ -1029,7 +1029,7 @@ class FLLBuilder(object):
                 s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
                 s.write('# ' * 39 + '#\n')
             except IOError:
-                self.log.exception('failed to open %s' % file)
+                self.log.exception('failed to open /etc/apt/sources.list')
                 raise FllError
             finally:
                 if s:
