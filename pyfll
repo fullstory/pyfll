@@ -1060,10 +1060,10 @@ class FLLBuilder(object):
         self._writeAptLists(arch, cached = True, src_uri = True)
 
         keyrings = []
-        for repo in self.conf['repos'].keys():
-            r = self.conf['repos'][repo]
-            if 'keyring' in r and r['keyring']:
-                keyrings.append(r['keyring'])
+        for r in self.conf['repos'].keys():
+            repo = self.conf['repos'][r]
+            if 'keyring' in r and repo['keyring']:
+                keyrings.append(repo['keyring'])
 
         if len(keyrings) > 0:
             self._execInChroot(arch, 'apt-get -o Acquire::Languages=none --allow-insecure-repositories update'.split())
