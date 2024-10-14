@@ -4,9 +4,7 @@
 # License:   GPLv2 or any later version
 
 # By default we execute this as root user
-if [ -z "${ROOTEXEC}" ]; then
-	ROOTEXEC="sudo"
-fi
+ROOTEXEC=yes
 
 # Locate directory we are called from
 THIS_DIR=$(dirname $(readlink -f ${0}))
@@ -29,19 +27,20 @@ USER_GID=$(getent passwd ${USER} | cut -d\: -f4)
 for arg in "${@}"; do
 	case "${arg}" in
 		-h*|--help|-n*|--non-root)
-			ROOTEXEC="sudo"
+			ROOTEXEC=no
 			break
 			;;
 	esac
 done
 
-if [ "${ROOTEXEC}" = "sudo" ]; then
+if [ "${ROOTEXEC}" = yes ]; then
 	echo "Requires root!"
-	sudo /usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}
-elif [ "${ROOTEXEC}" = "su" ]; then
-	echo "Requires root!"
-	ROOT_CMD="/usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
-	exec su root --command "${ROOT_CMD}"
+	if groups | grep -wq sudo; then
+		exec sudo /usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}
+	else
+		ROOT_CMD="/usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
+		exec su root --command "${ROOT_CMD}"
+	fi
 else
 	exec /usr/bin/python3 ${FLL} ${@}
 fi
