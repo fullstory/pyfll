@@ -1725,8 +1725,6 @@ class FLLBuilder(object):
             if squashfs_comp == 'xz':
                 if arch == 'amd64' or arch == 'i386':
                     cmd.extend(['-Xbcj', 'x86'])
-                elif arch == 'powerpc' or arch == 'ppc64':
-                    cmd.extend(['-Xbcj', 'powerpc'])
         
         if self.opts.l or self.opts.q:
             cmd.append('-no-progress')
@@ -1774,8 +1772,6 @@ class FLLBuilder(object):
                 arch = list(self.conf['archs'].keys())[0]
                 if arch == 'amd64' or arch == 'i386':
                     cmd.extend(['-Xbcj', 'x86'])
-                elif arch == 'powerpc' or arch == 'ppc64':
-                    cmd.extend(['-Xbcj', 'powerpc'])
         
         if self.opts.l or self.opts.q:
             cmd.append('-no-progress')
@@ -1912,119 +1908,11 @@ class FLLBuilder(object):
                     self.log.exception('failed to create efi.img')
                     raise FllError
 
-        isolinux = os.path.join(chroot, 'usr/lib/ISOLINUX/isolinux.bin')
-        if os.path.isfile(isolinux):
-            try:
-               stage_dir = os.path.join(self.temp, 'staging')
-               syslinux_dir = os.path.join(stage_dir, 'boot/isolinux')
-               if not os.path.isdir(syslinux_dir):
-                   os.mkdir(syslinux_dir, 0o755)
-               shutil.copy(isolinux, syslinux_dir)
-               isolinux_path = os.path.join(chroot, 'usr/lib/syslinux/modules/bios')
-               # list(set([ uniquifys the list so each line can have the deps
-                   #'advdump',
-                   #'complex', 'libcom32', 'libmenu', 'libutil',
-                   #'display', 'libmenu', 'libutil', 'libcom32'
-                   #'entrydump',
-                   #'fancyhello', 'libutil',
-                   #'hello',
-                   #'keytest', 'libutil',
-                   #'localboot', 'libcom32',
-                   #'resolv',
-                   #'serialinfo',
-                   #'simple', 'libmenu', 'libutil', 'libcom32',
-                   #'test', 'libmenu', 'libutil', 'libcom32',
-                   #'test2', 'libmenu', 'libutil', 'libcom32',
-               for syslinux_file in list(set([
-                   'cat',
-                   'chain', 'libutil', 'libcom32',
-                   'cmd', 'libcom32',
-                   'config','libcom32',
-                   'cptime','libutil',
-                   'cpuid',
-                   'cpuidtest', 'libgpl',
-                   'debug',
-                   'disk', 'libgpl',
-                   'dmitest', 'libgpl',
-                   'elf', 'libcom32',
-                   'ethersel', 'libcom32',
-                   'gfxboot', 'libcom32',
-                   'gpxecmd', 'libcom32',
-                   'hdt', 'libutil', 'libgpl', 'libcom32', 'libmenu',
-                   'hexdump', 'libcom32',
-                   'host', 'libcom32',
-                   'ifcpu', 'libutil', 'libgpl', 'libcom32',
-                   'ifcpu64', 'libcom32',
-                   'ifmemdsk', 'libcom32',
-                   'ifplop', 'libcom32',
-                   'kbdmap', 'libcom32',
-                   'kontron_wdt', 'libcom32',
-                   'ldlinux',
-                   'libcom32',
-                   'libgpl',
-                   'liblua',
-                   'libmenu', 'libutil', 'libcom32',
-                   'libutil',
-                   'linux', 'libcom32',
-                   'ls',
-                   'lua', 'liblua', 'libgpl', 'libcom32',
-                   'mboot', 'libcom32',
-                   'meminfo',
-                   'menu', 'libutil',
-                   'pcitest', 'libcom32',
-                   'pmload', 'libcom32',
-                   'poweroff',
-                   'prdhcp', 'libutil', 'libcom32',
-                   'pwd',
-                   'pxechn', 'libutil', 'libcom32',
-                   'reboot', 'libcom32',
-                   'rosh', 'libutil', 'libcom32',
-                   'sanboot', 'libcom32',
-                   'sdi', 'libcom32',
-                   'sysdump', 'libcom32',
-                   'vesainfo',
-                   'vesamenu', 'libutil', 'libcom32',
-                   'vpdtest', 'libgpl',
-                   'whichsys', 'libcom32',
-                   'zzjson', 'libgpl' ])):
-                   shutil.copy(os.path.join(isolinux_path, '%s.c32' % syslinux_file), syslinux_dir)
-               bootlogo_dir = os.path.join(chroot, 'etc', 'bootsplash', 'themes', self.conf['distro']['FLL_GFXBOOT_THEME'], 'cdrom')
-               bootlogo = glob.glob(os.path.join(bootlogo_dir, '*'))
-               for file in bootlogo:
-                   shutil.copy(file, syslinux_dir)
-            except IOError:
-                    self.log.exception('failed to copy isolinux files')
-                    raise FllError
-
-        yaboot = os.path.join(chroot, 'usr/lib/yaboot/yaboot')
-        if os.path.isfile(yaboot):
-            try:
-                shutil.copy(yaboot, boot_dir)
-                ppc_dir = os.path.join(self.temp, 'staging', 'ppc')
-                if not os.path.isdir(ppc_dir):
-                    os.mkdir(ppc_dir)
-                chrp_dir = os.path.join(ppc_dir, 'chrp')
-                if not os.path.isdir(chrp_dir):
-                    os.mkdir(chrp_dir)
-            except IOError:
-                    self.log.exception('failed to copy yaboot file and make ppc dir')
-                    raise FllError
-
-        memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
-        memtest_out = os.path.join(boot_dir, 'memtest')
-        if os.path.isfile(memtest):
-            self.log.debug('copying memtest86+ to boot dir')
-            try:
-                shutil.copy(memtest, memtest_out)
-            except IOError:
-                self.log.exception('failed to copy memtest86+ to staging dir')
-                raise FllError
-
 
     def _writeGrubCfg(self, stage_dir, boot_dir, grub_dir, kvers,
                       timeout, cmdline):
         '''Write grub.cfg for live media.'''
-        self.log.debug('writing grub.cfg for live media')
+        self.log.info('writing grub.cfg for live media')
 
         grubcfg = open(os.path.join(grub_dir, 'kernels.cfg'), 'w')
 
@@ -2098,119 +1986,6 @@ class FLLBuilder(object):
         grubcfg.write('timeout=%s\n' % timeout)
         grubcfg.close()
 
-    def _writeYabootCfg(self, stage_dir, boot_dir, ppc_dir, kvers,
-                      timeout, cmdline):
-        '''Write yaboot setup for live media.'''
-        if not os.path.isfile(os.path.join(boot_dir, 'yaboot')):
-            return
-
-        self.log.debug('writing yaboot files for live media')
-
-        distro = self.conf['distro']['FLL_DISTRO_NAME']
-
-        bootinfo = open(os.path.join(ppc_dir, 'bootinfo.txt'), 'w')
-        bootinfo.write('<chrp-boot>\n')
-        bootinfo.write('<description>%s Live Linux on powerpc</description>\n' % distro)
-        bootinfo.write('<os-name>%s</os-name>\n' % distro)
-        bootinfo.write('<boot-script>boot &device;:\\\\boot\\yaboot</boot-script>\n')
-        bootinfo.write('</chrp-boot>\n')
-        bootinfo.close()
-
-        etc_dir = os.path.join(stage_dir,'etc');
-        if not os.path.isdir(etc_dir):
-            os.mkdir(etc_dir)
-
-        yaboot = open(os.path.join(etc_dir, 'yaboot.conf'), 'w')
-        yaboot.write('init-message="Welcome to %s"\n' % distro)
-        #yaboot.write('message=/boot/yaboot.message')
-        yaboot.write('timeout=%d\n' % int(int(timeout)*10))
-
-        for k in kvers:
-            cpu = k[k.rfind('-') + 1:]
-            vmlinux = 'vmlinux-%s' % k
-            initrd = 'initrd.img-%s' % k
-
-            for f in [vmlinux, initrd]:
-                if not os.path.isfile(os.path.join(boot_dir, f)):
-                    self.log.critical('%s was not found in %s' % (f, boot_dir))
-                    raise FllError
-
-            yaboot.write('\n')
-            yaboot.write('image=/boot/%s\n' % (vmlinux))
-            yaboot.write('\tlabel=%s-%s-%s\n' % (distro, cpu, k))
-            yaboot.write('\tappend="boot=fll %s"\n' % (cmdline))
-            yaboot.write('\tinitrd=/boot/%s\n' % initrd)
-            yaboot.write('\n')
-
-        yaboot.close()
-        # yaboot.conf, hfs.map and ofboot.b in hfs-blessed /boot
-        # ofboot and hfs.map from debian-cd (ofboot has path changed)
-        shutil.copy(os.path.join(etc_dir, 'yaboot.conf'), boot_dir)
-        shutil.copy(os.path.join(self.opts.s, 'data', 'hfs.map'), boot_dir)
-        shutil.copy(os.path.join(self.opts.s, 'data', 'ofboot.b'), boot_dir)
-
-    def _writeIsolinuxWrap(self):
-        stage_dir = os.path.join(self.temp, 'staging')
-        boot_dir = os.path.join(stage_dir, 'boot')
-        syslinux_dir = os.path.join(boot_dir, 'isolinux')
-        isolinux = os.path.join(syslinux_dir, 'isolinux.bin');
-        if not os.path.isfile(isolinux):
-            return
-
-        self.log.debug('writing isolinux config for live media')
-
-        kvers = self._configBootKvers(stage_dir)
-        timeout = self._configBootTimeout()
-        cmdline =  self._configBootCmdline()
-
-        distro = self.conf['distro']['FLL_DISTRO_NAME']
-
-        isolinuxcfg = open(os.path.join(syslinux_dir, 'isolinux.cfg'), 'w')
-        isolinuxcfg.write('display isolinux.msg\n')
-        isolinuxcfg.write('ui gfxboot bootlogo isolinux.msg\n')
-        isolinuxmsg = open(os.path.join(syslinux_dir, 'isolinux.msg'), 'w')
-        isolinuxmsg.write('\nWelcome!\n')
-        isolinuxmsg.write('\nTo start the system, type one of the label names below and press [enter]:\n\n')
-
-        kcount = { '686': 0, 'amd': 0, 'pae': 0, '486': 0, 'ppc': 0 }
-        for k in kvers:
-            cpu = k[k.rfind('-') + 1:]
-            vmlinuz = 'vmlinuz-%s' % k
-            initrd = 'initrd.img-%s' % k
-
-            for f in [vmlinuz, initrd]:
-                if not os.path.isfile(os.path.join(boot_dir, f)):
-                    self.log.critical('%s was not found in %s' % (f, boot_dir))
-                    raise FllError
-
-            vmlinuz_r = 'vmlinuz%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
-            initrd_r = 'initrd%s.%s' % (kcount[cpu[0:3]], cpu[0:3])
-
-            isolinuxcfg.write('\n')
-            isolinuxcfg.write('label %s_%s_(%s)\n' % (distro, cpu, k))
-            isolinuxcfg.write('\tkernel /boot/%s\n' % (vmlinuz_r))
-            isolinuxcfg.write('\tappend initrd=/boot/%s boot=fll %s\n' % (initrd_r, cmdline))
-            isolinuxcfg.write('\n')
-            isolinuxmsg.write('%s_%s_(%s)\n' % (distro, cpu, k))
-            kcount[cpu[0:3]] = kcount[cpu[0:3]] + 1
-
-        isolinuxcfg.write('label Boot_from_Hard_Disk\n')
-        isolinuxcfg.write('\tlocalboot 0x80\n')
-        isolinuxcfg.write('\n')
-        isolinuxmsg.write('Boot_from_Hard_Disk\n')
-
-        if os.path.isfile(os.path.join(boot_dir, 'memtest')):
-            isolinuxcfg.write('label Memory_test_(memtest86+)\n')
-            isolinuxcfg.write('\tkernel /boot/memtest\n')
-            isolinuxcfg.write('\n')
-            isolinuxmsg.write('Memory_test_(memtest86+)\n')
-
-        isolinuxcfg.close()
-        shutil.copy(os.path.join(syslinux_dir, 'isolinux.cfg'),os.path.join(syslinux_dir, 'syslinux.cfg'))
-
-        isolinuxmsg.write('\nHave a lot of fun...\n\n')
-        isolinuxmsg.close()
-        shutil.copy(os.path.join(syslinux_dir, 'isolinux.msg'),os.path.join(syslinux_dir, 'syslinux.msg'))
 
     def _configBootKvers(self,stage_dir):
         kvers = self._detectLinuxVersion(stage_dir)
@@ -2231,7 +2006,7 @@ class FLLBuilder(object):
             cmdline = ''
         return cmdline
 
-    def _writeGrubWrap(self):
+    def configureGrub(self):
         '''Write final GRUB configuration for live media.'''
         stage_dir = os.path.join(self.temp, 'staging')
         boot_dir = os.path.join(stage_dir, 'boot')
@@ -2247,35 +2022,6 @@ class FLLBuilder(object):
 
         self._writeGrubCfg(stage_dir, boot_dir, grub_dir, kvers,
                            timeout, cmdline)
-
-    def _writeYabootWrap(self):
-        '''Write final yaboot configuration for live media.'''
-        stage_dir = os.path.join(self.temp, 'staging')
-        boot_dir = os.path.join(stage_dir, 'boot')
-        ppc_dir = os.path.join(stage_dir, 'ppc')
-
-        if not os.path.isdir(ppc_dir):
-            return
-        self.log.debug('writing yaboot config for live media')
-
-        kvers = self._configBootKvers(stage_dir)
-        timeout = self._configBootTimeout()
-        cmdline =  self._configBootCmdline()
-
-        self._writeYabootCfg(stage_dir, boot_dir, ppc_dir, kvers,
-                               timeout, cmdline)
-
-    def writeBootldr(self):
-        '''Choose which bootloader to configure based on archs, and
-        call the appropriate method to do that.'''
-        archs = list(self.conf['archs'].keys())
-
-        self._writeGrubWrap()
-        self._writeIsolinuxWrap()
-        if 'powerpc' in archs or 'ppc64' in archs:
-            self._writeYabootWrap()
-        if self.opts.D:
-            return
 
 
     def __md5sum(self, filename):
@@ -2298,8 +2044,6 @@ class FLLBuilder(object):
             if not os.path.isfile(filepath) or f == 'md5sums':
                 continue
             if dirpath.endswith('grub') and f.find('stage') >= 0:
-                continue
-            if dirpath.endswith('isolinux') and f.find('isolinux.bin') >= 0:
                 continue
             if f.find('grub_eltorito') >= 0:
                 continue
@@ -2443,12 +2187,7 @@ class FLLBuilder(object):
         cmd += ' -pad -l'
         cmd2 = ''
 
-        if os.path.isfile(os.path.join(stage, 'boot/isolinux/isolinux.bin')):
-            cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
-            cmd += ' -b boot/isolinux/isolinux.bin -c boot/isolinux/isolinux.cat'
-            cmd2 = 'isohybrid -h 255 -s 63 %s' % iso_file
-
-        elif os.path.isdir(os.path.join(stage, 'boot/grub')):
+        if os.path.isdir(os.path.join(stage, 'boot/grub')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
             cmd2 = '%s -l %s -i %s' % (os.path.join(self.opts.s, 'gpthybrid'),
                                        self.uuid, iso_file)
@@ -2469,15 +2208,9 @@ class FLLBuilder(object):
             else:
                 self.log.critical('failed to find grub El Torito image file')
                 raise FllError
-        elif os.path.isdir(os.path.join(stage, 'ppc')):
-            cmd += ' -chrp-boot -T -netatalk -hfs -probe'
-            cmd += ' -map %s/boot/hfs.map' % stage
-            cmd += ' -part -no-desktop -hfs-bless %s/boot' % stage
-            cmd += ' -hfs-volid %s --iso-level 2 --chrp-boot' % distro_name[:32]
-            # 4M/1G reserved for hfs recommended
-            # This limits to a full 4.7GB DVD
-            # (4.7*10^9)*(1/1024)
-            cmd += ' -hfs-parms MAX_XTCSIZE=18287938'
+        else:
+            self.log.critical('grub is required to boot live media')
+            raise FllError
 
         cmd += ' --modification-date=%s' % self.uuid.replace("-","")
         if os.path.isfile(os.path.join(stage, 'efi.img')):
@@ -2584,7 +2317,7 @@ class FLLBuilder(object):
 
         self.buildChroots()
         self.secondSquashfs()
-        self.writeBootldr()
+        self.configureGrub()
         self.writeMd5Sums()
         self.genLiveMedia()
 
