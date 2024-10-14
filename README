@@ -17,6 +17,7 @@ Dependencies:
   reprepro (for liveapt functionality and extras (uefi))
 Recommends:
   gdisk (for gpthybrid used with grub, not needed if using isolinux)
+  wget (for deb822-style apt data file fetching)
 Suggests:
   isolinux (and the following syslinux* if you want to use isolinux)
   syslinux
