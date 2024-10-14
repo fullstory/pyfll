@@ -2426,6 +2426,8 @@ class FLLBuilder(object):
         stage = os.path.join(self.temp, 'staging')
 
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
+        fll_image_dir = self.conf['distro']['FLL_IMAGE_DIR']
+        fll_image_file = self.conf['distro']['FLL_IMAGE_FILE']
 
         iso_name = self._getDistroMediaName() + '.iso'
 
@@ -2448,14 +2450,22 @@ class FLLBuilder(object):
 
         elif os.path.isdir(os.path.join(stage, 'boot/grub')):
             cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
-            cmd2 = '%s -l %s -i %s' % (os.path.join(self.opts.s, 'gpthybrid'), self.uuid, iso_file)
-            if os.path.isfile(os.path.join(stage, 'boot/grub/i386-pc/grub_eltorito')):
-                cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info --grub2-mbr %s' % os.path.join(stage, 'boot/grub/i386-pc/boot_hybrid.img')
+            cmd2 = '%s -l %s -i %s' % (os.path.join(self.opts.s, 'gpthybrid'),
+                                       self.uuid, iso_file)
+            if os.path.isfile(os.path.join(stage,
+                                           'boot/grub/i386-pc/grub_eltorito')):
+                cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info'
+                cmd += ' --grub2-mbr %s' % \
+                    os.path.join(stage, 'boot/grub/i386-pc/boot_hybrid.img')
                 for arch in list(self.conf['archs'].keys()):
-                    if os.path.isfile(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], self._getDistroImageFile(arch))):
-                        cmd2 += " %s" % os.path.join(self.conf['distro']['FLL_IMAGE_DIR'], self._getDistroImageFile(arch))
-                if os.path.isfile(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], '%s.2' % self.conf['distro']['FLL_IMAGE_FILE'])):
-                    cmd2 += " %s" % os.path.join(self.conf['distro']['FLL_IMAGE_DIR'], '%s.2' % self.conf['distro']['FLL_IMAGE_FILE'])
+                    if os.path.isfile(os.path.join(stage, fll_image_dir,
+                                                   self._getDistroImageFile(arch))):
+                        cmd2 += " %s" % os.path.join(fll_image_dir,
+                                                     self._getDistroImageFile(arch))
+                if os.path.isfile(os.path.join(stage, fll_image_dir,
+                                               '%s.2' % fll_image_file)):
+                    cmd2 += " %s" % os.path.join(fll_image_dir,
+                                                 '%s.2' % fll_image_file)
             else:
                 self.log.critical('failed to find grub El Torito image file')
                 raise FllError
