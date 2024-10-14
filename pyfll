@@ -1071,33 +1071,6 @@ class FLLBuilder(object):
             cmd.extend(keyrings)
             self._execInChroot(arch, cmd)
 
-        gpgkeys = []
-        for repo in self.conf['repos'].keys():
-            r = self.conf['repos'][repo]
-            if 'gpgkey' in r:
-                self.log.debug('importing gpg key for %s' % r['label'])
-                gpgkeys.append(r['gpgkey'])
-
-                if r['gpgkey'].startswith('http'):
-                    cmd = 'gpg --fetch-keys ' + r['gpgkey']
-                    self._execInChroot(arch, cmd.split())
-                elif os.path.isfile(r['gpgkey']):
-                    dest = os.path.join(self.temp, arch, 'root')
-                    file = os.path.basename(r['gpgkey'])
-                    shutil.copy(r['gpgkey'], dest)
-                    cmd = 'gpg --import /root/' + file
-                    self._execInChroot(arch, cmd.split(),
-                                       check_returncode = False)
-                else:
-                    cmd = 'gpg --keyserver wwwkeys.pgp.net '
-                    cmd += '--recv-keys ' + r['gpgkey']
-                    self._execInChroot(arch, cmd.split(),
-                                       check_returncode = False)
-
-        if len(gpgkeys) > 0:
-            cmd = 'gpg --armor --export -o /etc/apt/trusted.gpg.d/fullstory-repo-keys.gpg'
-            self._execInChroot(arch, cmd.split())
-
         self._execInChroot(arch, 'apt-get -o Acquire::Languages=none update'.split())
         # Upgrade any essential packages from sources not available
         # during bootstrap phase.
