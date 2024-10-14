@@ -985,7 +985,7 @@ class FLLBuilder(object):
                 continue
 
             sources_list = os.path.join(chroot, 'etc/apt/sources.list.d',
-                                        r['label'] + '.list')
+                                        repo['label'] + '.list')
 
             if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
                 s = None
