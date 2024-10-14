@@ -35,7 +35,12 @@ done
 
 if [ "${ROOTEXEC}" = yes ]; then
 	echo "Requires root!"
-	sudo /usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}
+	if groups | grep -wq sudo; then
+		exec sudo /usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}
+	else
+		ROOT_CMD="/usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
+		exec su root --command "${ROOT_CMD}"
+	fi
 else
 	exec /usr/bin/python3 ${FLL} ${@}
 fi
