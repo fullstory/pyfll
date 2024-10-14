@@ -2550,7 +2550,7 @@ class FLLBuilder(object):
         for f in glob.glob('%s*' % os.path.splitext(iso_file)[0]):
             self.log.info(f)
 
-        if self.__isexecutable("/etc/grub.d/60_fll-fromiso"):
+        if self.opts.U:
             self._execCmd("update-grub")
 
 
@@ -2669,6 +2669,9 @@ if __name__ == '__main__':
     p.add_option('-u', '--uid', dest = 'u', action = 'store',
                  type = 'int', metavar = '<user id>',
                  help = optparse.SUPPRESS_HELP)
+
+    p.add_option('-U', '--update-grub', dest = 'U', action = 'store_true',
+                 help = 'Execute update-grub after generating iso media.')
 
     p.add_option('-v', '--verbose', dest = 'v', action = 'store_true',
                  help = 'Enable verbose mode. All messages will be ' +
