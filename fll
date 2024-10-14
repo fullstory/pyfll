@@ -35,8 +35,7 @@ done
 
 if [ "${ROOTEXEC}" = yes ]; then
 	echo "Requires root!"
-	ROOT_CMD="/usr/bin/python ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
-	exec su root --command "${ROOT_CMD}"
+	sudo /usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}
 else
-	exec /usr/bin/python ${FLL} ${@}
+	exec /usr/bin/python3 ${FLL} ${@}
 fi
