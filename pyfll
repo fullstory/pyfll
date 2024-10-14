@@ -708,6 +708,30 @@ class FLLBuilder(object):
         return self.pkgs[arch]['postinst']
 
 
+    def _stageMedia(self, point, dir, fnames):
+        '''Copy content from a directory to live media staging area.'''
+        orig, dest = point
+        dirname = dir.partition(orig)[2].lstrip('/')
+
+        remove = []
+        for f in fnames:
+            if f.startswith('.') or f.endswith('~'):
+                remove.append(f)
+            elif os.path.isdir(os.path.join(dir, f)) and \
+                 f == 'boot':
+                remove.append(f)
+            elif os.path.isdir(os.path.join(dir, f)):
+                if not os.path.isdir(os.path.join(dest, dirname, f)):
+                    os.mkdir(os.path.join(dest, dirname, f))
+            else:
+                if not os.path.isfile(os.path.join(dest, dirname, f)):
+                    shutil.copy(os.path.join(dir, f),
+                                os.path.join(dest, dirname))
+
+        for r in remove:
+            fnames.remove(r)
+
+
     def stageBuildArea(self):
         '''Prepare temporary directory for chroots and result staging area.'''
         self.log.debug('preparing build area...')
@@ -726,8 +750,8 @@ class FLLBuilder(object):
             media_include = self.conf['options']['media_include']
             if os.path.isdir(media_include):
                 try:
-                    target_dirpath = os.path.join(stage, os.path.basename(media_include))
-                    shutil.copytree(media_include, target_dirpath)
+                    os.path.walk(media_include, self._stageMedia,
+                                 (media_include, stage))
                 except:
                     self.log.exception('problem copying media_include ' +
                                        'contents to staging dir')
@@ -2550,7 +2574,7 @@ class FLLBuilder(object):
         for f in glob.glob('%s*' % os.path.splitext(iso_file)[0]):
             self.log.info(f)
 
-        if self.opts.U:
+        if self.__isexecutable("/etc/grub.d/60_fll-fromiso"):
             self._execCmd("update-grub")
 
 
@@ -2669,9 +2693,6 @@ if __name__ == '__main__':
     p.add_option('-u', '--uid', dest = 'u', action = 'store',
                  type = 'int', metavar = '<user id>',
                  help = optparse.SUPPRESS_HELP)
-
-    p.add_option('-U', '--update-grub', dest = 'U', action = 'store_true',
-                 help = 'Execute update-grub after generating iso media.')
 
     p.add_option('-v', '--verbose', dest = 'v', action = 'store_true',
                  help = 'Enable verbose mode. All messages will be ' +
