@@ -1353,7 +1353,7 @@ class FLLBuilder(object):
                 version = versions[0]
                 for other_version in versions:
                     if apt_pkg.version_compare(version.ver_str,
-                                              other_version.ver_str) < 0:
+                                               other_version.ver_str) < 0:
                         version = other_version
                 current = version
 
@@ -1736,8 +1736,12 @@ class FLLBuilder(object):
             return
         self.log.info('creating secondary squashfs filesystem')
         stage = os.path.join(self.temp, 'staging')
-        sqfs_file = os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], '%s.2' % self.conf['distro']['FLL_IMAGE_FILE'])
-        excl_file = os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR'], '%s.2.excl' % self.conf['distro']['FLL_IMAGE_FILE'])
+        fll_image_dir = self.conf['distro'].get('FLL_IMAGE_DIR')
+        fll_image_file = self.conf['distro'].get('FLL_IMAGE_FILE')
+        sqfs_file = os.path.join(stage, fll_image_dir,
+                                 '%s.2' % fll_image_file)
+        excl_file = os.path.join(stage, fll_image_dir,
+                                 '%s.2.excl' % fll_image_file)
         excl = open(excl_file, 'w')
         excl.write('autorun.inf\n')
         excl.write('boot\n')
@@ -1748,8 +1752,8 @@ class FLLBuilder(object):
         excl.write('efi/*\n')
         excl.write('efi.img\n')
         excl.write('iso_uuid\n')
-        excl.write('%s\n' % self.conf['distro']['FLL_IMAGE_DIR'])
-        excl.write('%s/*\n' % self.conf['distro']['FLL_IMAGE_DIR'])
+        excl.write('%s\n' % fll_image_dir)
+        excl.write('%s/*\n' % fll_image_dir)
         excl.close()
         cmd = ['mksquashfs', stage, sqfs_file, '-noappend']
         cmd.extend(['-wildcards', '-ef', excl_file])
