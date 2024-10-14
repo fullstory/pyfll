@@ -466,6 +466,8 @@ class FLLBuilder(object):
         for repo in list(self.conf['repos'].keys()):
             if self.conf['repos'][repo].get('trivial'):
                 words = ['label', 'uri']
+            elif self.conf['repos'][repo].get('sources_uri'):
+                words = []
             else:
                 words = ['label', 'uri', 'suite', 'components']
 
@@ -974,6 +976,14 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
         for r in self.conf['repos'].keys():
             repo = self.conf['repos'][r]
+            sources_uri = repo.get('sources_uri')
+            if sources_uri:
+                cmd = ['wget', '--quiet', sources_uri, '-O']
+                cmd.append(os.path.join(chroot, 'etc/apt/sources.list.d',
+                                        os.path.basename(sources_uri)))
+                self._execCmd(cmd)
+                continue
+
             sources_list = os.path.join(chroot, 'etc/apt/sources.list.d',
                                         r['label'] + '.list')
 
