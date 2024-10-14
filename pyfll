@@ -1053,17 +1053,18 @@ class FLLBuilder(object):
                 raise FllError
 
         self.log.debug('removing sources.list from %s chroot' % arch)
-        list = os.path.join(chroot, 'etc/apt/sources.list')
-        if os.path.isfile(list):
-            os.unlink(list)
+        sources_list = os.path.join(chroot, 'etc/apt/sources.list')
+        if os.path.isfile(sources_list):
+            os.unlink(sources_list)
 
         self._writeAptLists(arch, cached = True, src_uri = True)
 
-        keyrings = []
+        keyrings = list()
         for r in self.conf['repos'].keys():
             repo = self.conf['repos'][r]
-            if 'keyring' in r and repo['keyring']:
-                keyrings.append(repo['keyring'])
+            keyring = repo.get('keyring')
+            if keyring:
+                keyrings.append(keyring)
 
         if len(keyrings) > 0:
             self._execInChroot(arch, 'apt-get -o Acquire::Languages=none --allow-insecure-repositories update'.split())
