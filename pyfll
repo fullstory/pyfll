@@ -984,6 +984,13 @@ class FLLBuilder(object):
                 cmd.append(os.path.join(chroot, 'etc/apt/sources.list.d',
                                         os.path.basename(sources_uri)))
                 self._execCmd(cmd)
+
+                cached_uri = repo.get('cached_uri')
+                if cached and cached_uri:
+                    cmd = ['sed', '-i', 's#^URIs: .*#URIs: %s#' % cached_uri]
+                    cmd.append(os.path.join(chroot, 'etc/apt/sources.list.d',
+                                            os.path.basename(sources_uri)))
+                    self._execCmd(cmd)
                 continue
 
             sources_list = os.path.join(chroot, 'etc/apt/sources.list.d',
