@@ -1908,6 +1908,16 @@ class FLLBuilder(object):
                     self.log.exception('failed to create efi.img')
                     raise FllError
 
+        memtest = os.path.join(chroot, 'boot', 'memtest86+.bin')
+        memtest_out = os.path.join(boot_dir, 'memtest')
+        if os.path.isfile(memtest):
+            self.log.debug('copying memtest86+ to boot dir')
+            try:
+                shutil.copy(memtest, memtest_out)
+            except IOError:
+                self.log.exception('failed to copy memtest86+ to staging dir')
+                raise FllError
+
 
     def _writeGrubCfg(self, stage_dir, boot_dir, grub_dir, kvers,
                       timeout, cmdline):
