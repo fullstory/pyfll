@@ -12,7 +12,7 @@ fll_pkgs_d = glob('packages/packages.d/*')
 setup(
     name='pyfll',
     author='Kelvin Modderman',
-    author_email='kel@otaku42.de',
+    author_email='kelvmod@gmail.com',
     license='GPL-2',
     description='FULLSTORY live linux media mastering utility',
     url='https://github.com/fullstory/',

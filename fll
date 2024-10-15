@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-# Copyright: (C) 2008 Kel Modderman <kel@otaku42.de>
+# Copyright: (C) 2008-2024 Kel Modderman <kelvmod@gmail.com>
 # License:   GPLv2 or any later version
 
 # By default we execute this as root user
