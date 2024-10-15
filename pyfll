@@ -724,16 +724,16 @@ class FLLBuilder(object):
         os.mkdir(os.path.join(stage, 'boot'))
         os.mkdir(os.path.join(stage, self.conf['distro']['FLL_IMAGE_DIR']))
 
-        if self.conf['options']['media_include']:
-            media_include = self.conf['options']['media_include']
-            if os.path.isdir(media_include):
-                try:
-                    target_dirpath = os.path.join(stage, os.path.basename(media_include))
-                    shutil.copytree(media_include, target_dirpath)
-                except:
-                    self.log.exception('problem copying media_include ' +
-                                       'contents to staging dir')
-                    raise FllError
+        media_include = self.conf['options'].get('media_include')
+        if media_include and os.path.isdir(media_include):
+            try:
+                target_dirpath = os.path.join(stage, os.path.basename(media_include))
+                shutil.copytree(media_include, target_dirpath,
+                                ignore=shutil.ignore_patterns('.git*'))
+            except:
+                self.log.exception('problem copying media_include ' +
+                                    'contents to staging dir')
+                raise FllError
 
 
     def _mount(self, chroot):
