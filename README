@@ -8,7 +8,7 @@ Example Usage:
   2) ./fll -c ../fll.local.conf -b /tmp/fll/ -o /tmp/fll/
 
 Dependencies:
-  python (>= 3.5)
+  python (>= 3.8)
   python-apt
   python-configobj
   cdebootstrap | debootstrap | mmdebstrap

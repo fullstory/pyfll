@@ -728,7 +728,7 @@ class FLLBuilder(object):
         if media_include and os.path.isdir(media_include):
             try:
                 target_dirpath = os.path.join(stage, os.path.basename(media_include))
-                shutil.copytree(media_include, target_dirpath,
+                shutil.copytree(media_include, target_dirpath, dirs_exist_ok=True,
                                 ignore=shutil.ignore_patterns('.git*'))
             except:
                 self.log.exception('problem copying media_include ' +
