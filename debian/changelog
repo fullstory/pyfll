@@ -272,6 +272,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * reduce generated locales.
   * kde/ gnome: use network-manager instead of
     fll-live-initscripts-networkd-dummy.
+  * make gutenprint amd64-only, it's no longer built on 32 bit architectures.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 

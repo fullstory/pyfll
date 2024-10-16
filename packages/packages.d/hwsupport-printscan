@@ -11,11 +11,14 @@ packages = """
 	hplip
 	openprinting-ppds
 	printer-driver-foo2zjs
-	printer-driver-gutenprint
 	printer-driver-min12xxw
 	printer-driver-pnm2ppa
 	printer-driver-splix
 	sane
 	sane-utils
 	system-config-printer-udev
+"""
+
+amd64 = """
+	printer-driver-gutenprint
 """
