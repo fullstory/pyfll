@@ -5,6 +5,6 @@ desc = """
 packages = """
 	fluxbox
 	feh
-	rxvt-unicode-lite
+	zutty
 """
 
