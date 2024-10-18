@@ -1,0 +1,55 @@
+desc = """
+	Complete GNOME desktop environment with OpenOffice and Firefox.
+"""
+
+deps = """
+	cli
+	distro
+	distro-tools
+	distro-tools-x
+	essential
+	hwsupport-essential
+	hwsupport-extra
+	hwsupport-printscan
+	libreoffice-suite
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+	blueman
+	brasero
+	cinnamon-desktop-environment
+	firefox
+	gdebi
+	gnome-characters
+	gnome-disk-utility
+	gnome-font-viewer
+	gnome-games
+	gnome-logs
+	gnome-software
+	gnome-sound-recorder
+	gnome-system-monitor
+	gnote
+	gstreamer1.0-libav
+	gstreamer1.0-plugins-ugly
+	hexchat
+	hunspell-en-us
+	libreoffice-gnome
+	orca
+	remmina
+	rhythmbox
+	rhythmbox-plugin-cdrecorder
+	rhythmbox-plugins
+	seahorse
+	shotwell
+	simple-scan
+	sound-juicer
+	system-config-printer
+	thunderbird
+	transmission-gtk
+	zenity
+"""
+
