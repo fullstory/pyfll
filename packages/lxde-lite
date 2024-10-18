@@ -8,6 +8,7 @@ deps = """
 	distro-lxde
 	distro-tools
 	distro-tools-x
+	essential
 	hwsupport-essential
 	lxde-basic
 	utils-essential

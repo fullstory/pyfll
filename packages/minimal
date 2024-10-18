@@ -4,6 +4,7 @@ desc = """
 
 deps = """
 	distro
+	essential
 	hwsupport-essential
 	utils-essential
 """

@@ -8,6 +8,7 @@ deps = """
 	distro-kde
 	distro-tools
 	distro-tools-x
+	essential
 	hwsupport-essential
 	kde-essential
 	utils-essential

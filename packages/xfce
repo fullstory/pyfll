@@ -8,6 +8,7 @@ deps = """
 	distro-tools
 	distro-tools-x
 	distro-xfce
+	essential
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan

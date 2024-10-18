@@ -5,6 +5,7 @@ desc = """
 
 deps = """
 	distro
+	essential
 	fluxbox
 	hwsupport-essential
 	utils-essential
