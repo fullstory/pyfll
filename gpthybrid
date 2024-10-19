@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-from subprocess import *
+import subprocess
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -33,10 +33,10 @@ if len(label):
 print(buffout)
 
 # extract start and end of space to partition from existing gpt
-gdisks = Popen(["/sbin/gdisk","-l",iso_file],stdout=PIPE).communicate()[0].decode()
+gdisks = subprocess.Popen(["/usr/sbin/gdisk","-l",iso_file],stdout=subprocess.PIPE).communicate()[0].decode()
 last = 0
 end = 0
-i = 0
+partitions = 0
 for old_part in gdisks.split("\n"):
 	if old_part.startswith('   1'):
 		# below we want last as "end" of space before 1st partiion
@@ -52,20 +52,18 @@ for old_part in gdisks.split("\n"):
 		if (testend > end):
 			end = modup(testend,sectors,sectors-1)
 			print("got partition ending: %i" % end)
-		i += 1
+		partitions += 1
 
 # get the lba addresses of the files using osirrox
 parts = list()
-osirrox=list(["/usr/bin/osirrox", "-pkt_output", "on",
-		 "-indev", iso_file,
-		 '-logfile', '.', '-',])
-		 #'-find', '/efi.img', '-exec', 'report_lba', '--'])
+osirrox = ['/usr/bin/osirrox', '-pkt_output', 'on',
+           '-indev', iso_file, '-logfile', '.', '-']
 
-for file in args:
-	osirrox.extend(['-find', file, '-exec', 'report_lba', '--'])
+for arg in args:
+    osirrox.extend(['-find', arg, '-exec', 'report_lba', '--'])
 
 print("running: %s" % " ".join(osirrox))
-for line in check_output(osirrox).decode().split("\n"):
+for line in subprocess.check_output(osirrox).decode().split("\n"):
 	if line[:22] == 'R:1: File data lba:  0':
 		# extract the fields
 		(t, s, b, f, n) = line.split(',')
@@ -90,103 +88,57 @@ for line in check_output(osirrox).decode().split("\n"):
 			post.append("%s %s %s" % (moddown(s,sectors,0), modup(s+b-1,sectors,3), n))
 		parts = post
 
-# gdisk commands to delete the existing partitions
-cmddel = ""
-# all > 1 need the number
-while (i>1):
-	cmddel += """d
-%i
-""" % i
-	i -= 1
-# the first partition needs no number
-if i==1:
-	cmddel += "d\n"
+# delete the existing partitions
+cmd = ['/usr/sbin/sgdisk']
+for part in range(partitions, 0, -1):
+    cmd.append('--delete=%i' % part)
 
 # gdisk commands to create the partitions
+# set sectors alignment (2048b iso sector size by default) for partition creation
+cmd.append('--set-alignment=%i' % sectors)
 # gap and pnum just count
 gap = 1
 pnum = 1
-# set sectors alignment (2048b iso sector size by default) for partition creation
-cmdpart = """x
-l
-%i
-m
-""" % sectors
 for part in parts:
-	(s, e, n) = part.split()
-	# default to ms basic partition and no custom label
-	t = '0700'
-	l=''
-	if len(n) > 4 and ( n[-6:] == '.amd64' or n[-4:] == '.686' or n[-2:] == '.2' ):
-		t = '8300'
-		# use label.extension or just the filename as the partlabel
-		if len(label)==0:
-			l = '%s' % n
-		else:
-			l = '%s.%s' % (label, n[n.rfind('.')+1:])
-	elif len(n) > 6 and n[-7:] == 'efi.img':
-		t = 'ef00'
-	elif len(n) >5 and n[-5:] == '.ef02':
-		t = 'ef02'
-	# if the last partition ended more then sectors less then this starts
-	if int(s)-last >= sectors:
-		cmdpart += """n
-%i
-%i
-%i
-0700
-c
-""" % (pnum, modup(last+1,sectors,0), moddown(int(s)-1,sectors,3))
-		if pnum > 1:
-			cmdpart += "%s\n" % str(pnum)
-		cmdpart += "Gap%i\n" % (gap)
-		pnum += 1
-		gap += 1
-	# create the partition itself
-	cmdpart += """n
-%i
-%s
-%s
-%s
-""" % (pnum, s, e, t)
-	if len(l) > 0:
-		cmdpart += """c
-%i
-%s
-""" % (pnum, l)
-	pnum += 1
-	last = int(e)
-	cmdpart += """p
-"""
+    (start, end, name) = part.split()
+    # default to ms basic partition and no custom partname
+    typecode = '0700'
+    pname=''
+    if len(name) > 4 and (name[-6:] == '.amd64' or name[-4:] == '.686' or name[-2:] == '.2'):
+        typecode = '8300'
+        # use label.extension or just the filename as the partlabel
+        if len(label)==0:
+            pname = '%s' % name
+        else:
+            pname = '%s.%s' % (label, name[name.rfind('.')+1:])
+    elif len(name) > 6 and name[-7:] == 'efi.img':
+        typecode = 'ef00'
+        pname = 'EFI system partition'
+    elif len(name) >5 and name[-5:] == '.ef02':
+        typecode = 'ef02'
+        pname = 'BIOS Boot Partition'
+    # if the last partition ended more then sectors less then this starts
+    if int(start)-last >= sectors:
+        cmd.append('--new=%i:%i:%i' % (pnum, modup(last+1, sectors, 0), moddown(int(start)-1, sectors, 3)))
+        cmd.append('--typecode=%i:0700' % pnum)
+        cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
+        pnum += 1
+        gap += 1
+    # create the partition itself
+    cmd.append('--new=%i:%i:%i' % (pnum, int(start), int(end)))
+    cmd.append('--typecode=%i:%s' % (pnum, typecode))
+    if len(pname) > 0:
+        cmd.append('--change-name=%i:%s' % (pnum, pname))
+    pnum += 1
+    last = int(end)
 
 # create a gap from end of last partition and end of last gap if needed
-if (end-last>sectors-1):
-	cmdpart += """n
-%i
-%s
+if (int(end)-last > sectors-1):
+    cmd.append('--new=%i:%i:0' % (pnum, modup(last+1, sectors, 0)))
+    cmd.append('--typecode=%i:0700' % pnum)
+    cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
 
-0700
-c
-%i
-Gap%i
-p
-""" % (pnum,modup(last+1,sectors,0), pnum, gap)
-
-# set back to normal 2048 sector alignment for new partitions
-cmdpart += """x
-l
-2048
-m
-"""
-
-# confirm writing the partition table
-cmdend = """w
-Y
-"""
-
-# run our commands through gdisk
-cmd = "%s\n%s\n%s" % (cmddel, cmdpart, cmdend)
-print("gdisk stdin: %s" % cmd.replace("\n", "\\n"))
-gdisks = Popen(["/sbin/gdisk",iso_file],stdin=PIPE,text=True).communicate(input=cmd)
-
-# TODO read gdisk result and verify or throw big warning/error
+cmd.append(iso_file)
+print(' '.join(cmd))
+sgdisk = subprocess.run(cmd, check=True, capture_output=True)
+print(sgdisk.stdout.decode())
