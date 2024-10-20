@@ -2190,31 +2190,31 @@ class FLLBuilder(object):
         sha256_file = iso_file + '.sha256'
         sha512_file = iso_file + '.sha512'
 
-        cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
+        xorriso_cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
 
         if self.opts.v:
-            cmd += ' -v'
-        cmd += ' -pad -l'
-        cmd2 = ''
+            xorriso_cmd += ' -v'
+        xorriso_cmd += ' -pad -l'
+        gpthybrid_cmd = ''
 
         if os.path.isdir(os.path.join(stage, 'boot/grub')):
-            cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
-            cmd2 = '%s -l %s -i %s' % (os.path.join(self.opts.s, 'gpthybrid'),
-                                       self.uuid, iso_file)
+            xorriso_cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
+            gpthybrid_cmd = '%s -l %s -i %s' % (os.path.join(self.opts.s, 'gpthybrid'),
+                                                self.uuid, iso_file)
             if os.path.isfile(os.path.join(stage,
                                            'boot/grub/i386-pc/grub_eltorito')):
-                cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info'
-                cmd += ' --grub2-mbr %s' % \
+                xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info'
+                xorriso_cmd += ' --grub2-mbr %s' % \
                     os.path.join(stage, 'boot/grub/i386-pc/boot_hybrid.img')
                 for arch in list(self.conf['archs'].keys()):
                     if os.path.isfile(os.path.join(stage, fll_image_dir,
                                                    self._getDistroImageFile(arch))):
-                        cmd2 += " %s" % os.path.join(fll_image_dir,
-                                                     self._getDistroImageFile(arch))
+                        gpthybrid_cmd += " %s" % os.path.join(fll_image_dir,
+                                                              self._getDistroImageFile(arch))
                 if os.path.isfile(os.path.join(stage, fll_image_dir,
                                                '%s.2' % fll_image_file)):
-                    cmd2 += " %s" % os.path.join(fll_image_dir,
-                                                 '%s.2' % fll_image_file)
+                    gpthybrid_cmd += " %s" % os.path.join(fll_image_dir,
+                                                          '%s.2' % fll_image_file)
             else:
                 self.log.critical('failed to find grub El Torito image file')
                 raise FllError
@@ -2222,24 +2222,24 @@ class FLLBuilder(object):
             self.log.critical('grub is required to boot live media')
             raise FllError
 
-        cmd += ' --modification-date=%s' % self.uuid.replace("-","")
+        xorriso_cmd += ' --modification-date=%s' % self.uuid.replace("-","")
         if os.path.isfile(os.path.join(stage, 'efi.img')):
-            cmd += ' --efi-boot efi.img -efi-boot-part --efi-boot-image'
-            cmd2 += ' efi.img'
+            xorriso_cmd += ' --efi-boot efi.img -efi-boot-part --efi-boot-image'
+            gpthybrid_cmd += ' efi.img'
 
-        cmd += ' --protective-msdos-label -V %s' % distro_name[:32]
+        xorriso_cmd += ' --protective-msdos-label -V %s' % distro_name[:32]
         if os.path.isdir(os.path.join(stage, 'boot')):
-            cmd += ' --sort-weight 0 / --sort-weight 1 /boot'
+            xorriso_cmd += ' --sort-weight 0 / --sort-weight 1 /boot'
             if os.path.isdir(os.path.join(stage, 'boot/grub')):
-                cmd += ' --sort-weight 2 /boot/grub'
-        cmd += ' -x iso_uuid -x genisoimage.sort'
-        cmd += ' -o %s %s' % (iso_file, stage)
+                xorriso_cmd += ' --sort-weight 2 /boot/grub'
+        xorriso_cmd += ' -x iso_uuid -x genisoimage.sort'
+        xorriso_cmd += ' -o %s %s' % (iso_file, stage)
 
         self.log.info('generating iso image of live media...')
-        self._execCmd(cmd.split())
-        if len(cmd2):
+        self._execCmd(xorriso_cmd.split())
+        if len(gpthybrid_cmd):
             self.log.info('converting to hybrid iso...')
-            self._execCmd(cmd2.split())
+            self._execCmd(gpthybrid_cmd.split())
 
         os.chown(iso_file, self.opts.u, self.opts.g)
 
