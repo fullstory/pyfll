@@ -2198,7 +2198,7 @@ class FLLBuilder(object):
 
         if os.path.isdir(os.path.join(stage, 'boot/grub')):
             xorriso_cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
-            gpthybrid_cmd = ' --label %s --iso %s' % (self.uuid, iso_file)
+            gpthybrid_cmd += ' --label %s --iso %s' % (self.uuid, iso_file)
             if os.path.isfile(os.path.join(stage,
                                            'boot/grub/i386-pc/grub_eltorito')):
                 xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info'
