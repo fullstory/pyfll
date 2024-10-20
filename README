@@ -14,7 +14,6 @@ Dependencies:
   cdebootstrap | debootstrap | mmdebstrap
   xorriso
   squashfs-tools
-  reprepro (for liveapt functionality and extras (uefi))
-Recommends:
-  gdisk (for gpthybrid used with grub, not needed if using isolinux)
+  reprepro (for liveapt functionality and extras e.g. uefi)
+  gdisk (for gpthybrid used with grub)
   wget (for deb822-style apt data file fetching)

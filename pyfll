@@ -2191,16 +2191,15 @@ class FLLBuilder(object):
         sha512_file = iso_file + '.sha512'
 
         xorriso_cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
+        gpthybrid_cmd = os.path.join(self.opts.s, 'gpthybrid')
 
         if self.opts.v:
             xorriso_cmd += ' -v'
         xorriso_cmd += ' -pad -l'
-        gpthybrid_cmd = ''
 
         if os.path.isdir(os.path.join(stage, 'boot/grub')):
             xorriso_cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
-            gpthybrid_cmd = '%s --label %s --iso %s' % \
-                (os.path.join(self.opts.s, 'gpthybrid'), self.uuid, iso_file)
+            gpthybrid_cmd = ' --label %s --iso %s' % (self.uuid, iso_file)
             if os.path.isfile(os.path.join(stage,
                                            'boot/grub/i386-pc/grub_eltorito')):
                 xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info'
@@ -2237,9 +2236,9 @@ class FLLBuilder(object):
 
         self.log.info('generating iso image of live media...')
         self._execCmd(xorriso_cmd.split())
-        if len(gpthybrid_cmd):
-            self.log.info('converting to hybrid iso...')
-            self._execCmd(gpthybrid_cmd.split())
+
+        self.log.info('converting to hybrid iso...')
+        self._execCmd(gpthybrid_cmd.split())
 
         os.chown(iso_file, self.opts.u, self.opts.g)
 
