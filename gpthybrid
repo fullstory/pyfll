@@ -185,4 +185,15 @@ if __name__ == '__main__':
         print('E: gpthybrid failed to hybridise %s' % iso_file)
     finally:
         print(sgdisk.stdout.decode())
-        sys.exit(sgdisk.returncode)
+
+    try:
+        gdisk = subprocess.run(['/usr/sbin/gdisk', '-l', iso_file],
+                               check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        print('E: gdisk failed to process %s' % iso_file)
+        sys.exit(gdisk.returncode)
+    finally:
+        if verbose:
+            print(gdisk.stdout.decode())
+
+    sys.exit(sgdisk.returncode)
