@@ -61,7 +61,7 @@ if __name__ == '__main__':
             # below we want last as 'end' of space before 1st partiion
             last = int(old_part.split()[1]) - 1
             # min 63 and round up to %sectors==sectors-1 (so 63 means next starts on 64)
-            if last<63:
+            if last < 63:
                 last=63
             last = modup(last, sectors, sectors - 1)
             if verbose:
@@ -98,28 +98,30 @@ if __name__ == '__main__':
     for line in osirrox.stdout.decode().split('\n'):
         if line[:22] == 'R:1: File data lba:  0':
             # extract the fields
-            (t, s, b, f, n) = line.split(',')
+            (xt, startlba, blocks, filesize, name) = line.split(',')
             # osirrox talks in 2048b sectors so *4
-            s = int(s.split()[0])*4
-            b = int(b.split()[0])*4
+            startlba = int(startlba.split()[0]) * 4
+            blocks = int(blocks.split()[0]) * 4
             # drop the quotes around the name
-            n = n.split()[0].split("'")[1]
+            name = name.split()[0].split("'")[1]
             # rebuild list in post in order
             done = 0
             post = list()
             for part in (parts):
-                if s < int(part.split()[0]):
+                if startlba < int(part.split()[0]):
                     # we start before this part
                     if done == 0:
                         # add ourselves if not done
-                        post.append('%s %s %s' % (moddown(s, sectors, 0),
-                                                  modup(s + b - 1,sectors, 3), n))
+                        post.append('%s %s %s' % (moddown(startlba, sectors, 0),
+                                                  modup(startlba + blocks - 1,
+                                                        sectors, 3), name))
                         done = 1
                 post.append(part)
             if done == 0:
                 # no parts for us to go before so add to the end
-                post.append('%s %s %s' % (moddown(s, sectors, 0),
-                                          modup(s + b - 1, sectors, 3), n))
+                post.append('%s %s %s' % (moddown(startlba, sectors, 0),
+                                          modup(startlba + blocks - 1,
+                                                sectors, 3), name))
             parts = post
 
     # delete the existing partitions
