@@ -191,7 +191,7 @@ if __name__ == '__main__':
     finally:
         print(sgdisk.stdout.decode())
 
-    if verobose:
+    if verbose:
         try:
             gdisk = subprocess.run(['/usr/sbin/gdisk', '-l', iso_file],
                                 check=True, capture_output=True)
