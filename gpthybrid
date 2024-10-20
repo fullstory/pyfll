@@ -124,6 +124,8 @@ if __name__ == '__main__':
                                                 sectors, 3), name))
             parts = post
 
+    hybrid_cmd = ['/usr/sbin/sgdisk', '--hybrid=']
+
     # delete the existing partitions
     sgdisk_cmd = ['/usr/sbin/sgdisk']
     for part in range(partitions, 0, -1):
@@ -168,6 +170,7 @@ if __name__ == '__main__':
         sgdisk_cmd.append('--typecode=%i:%s' % (pnum, typecode))
         if len(pname) > 0:
             sgdisk_cmd.append('--change-name=%i:%s' % (pnum, pname))
+        hybrid_cmd[1] += '%i:' % pnum
         pnum += 1
         last = int(end)
 
@@ -184,6 +187,7 @@ if __name__ == '__main__':
         sgdisk = subprocess.run(sgdisk_cmd, check=True, capture_output=True)
     except subprocess.CalledProcessError:
         print('E: gpthybrid failed to hybridise %s' % iso_file)
+        sys.exit(sgdisk.returncode)
     finally:
         print(sgdisk.stdout.decode())
 
@@ -197,4 +201,24 @@ if __name__ == '__main__':
         if verbose:
             print(gdisk.stdout.decode())
 
-    sys.exit(sgdisk.returncode)
+    hybrid_cmd[1] = hybrid_cmd[1].rstrip(':')
+    hybrid_cmd.append(iso_file)
+    if verbose:
+        print('I: gpthybrid: %s' % ' '.join(hybrid_cmd))
+    try:
+        hybrid = subprocess.run(hybrid_cmd, check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        print('E: gpthybrid failed to hybridise %s' % iso_file)
+        sys.exit(hybrid.returncode)
+    finally:
+        print(hybrid.stdout.decode())
+
+    try:
+        gdisk = subprocess.run(['/usr/sbin/gdisk', '-l', iso_file],
+                               check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        print('E: gdisk failed to process %s' % iso_file)
+        sys.exit(gdisk.returncode)
+    finally:
+        if verbose:
+            print(gdisk.stdout.decode())
