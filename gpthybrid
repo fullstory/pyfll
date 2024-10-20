@@ -169,11 +169,10 @@ if __name__ == '__main__':
         pnum += 1
         last = int(end)
 
-    # create a gap from end of last partition and end of last gap if needed
-    if (int(end)-last > sectors-1):
-        sgdisk_cmd.append('--new=%i:%i:0' % (pnum, modup(last+1, sectors, 0)))
-        sgdisk_cmd.append('--typecode=%i:0700' % pnum)
-        sgdisk_cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
+    # create a gap from end of last partition to fill the remaining free space
+    sgdisk_cmd.append('--new=%i:%i:0' % (pnum, modup(last + 1, sectors, 0)))
+    sgdisk_cmd.append('--typecode=%i:0700' % pnum)
+    sgdisk_cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
 
     sgdisk_cmd.append(iso_file)
     if verbose:
