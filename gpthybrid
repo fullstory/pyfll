@@ -27,11 +27,15 @@ if __name__ == '__main__':
                       help='name of the iso to gpthybridise')
     parser.add_option('-s', '--sector', dest='s', default=4,
                       help='size of sectors to use in resulting partition table')
+    parser.add_option('-v', '--verbose', dest='v', default=False,
+                      action='store_true',
+                      help='show process output and extra informational data')
     (options, args) = parser.parse_args()
 
     iso_file = options.i
     label = options.l
     sectors = options.s
+    verbose = options.v
 
     buffout = 'I: gpthybrid: manipulating iso %s' % iso_file
     if len(label):
@@ -39,12 +43,20 @@ if __name__ == '__main__':
     print(buffout)
 
     # extract start and end of space to partition from existing gpt
-    gdisks = subprocess.Popen(['/usr/sbin/gdisk', '-l', iso_file],
-                              stdout=subprocess.PIPE).communicate()[0].decode()
+    try:
+        gdisk = subprocess.run(['/usr/sbin/gdisk', '-l', iso_file],
+                               check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        print('E: gdisk failed to process %s' % iso_file)
+        sys.exit(gdisk.returncode)
+    finally:
+        if verbose:
+            print(gdisk.stdout.decode())
+
     last = 0
     end = 0
     partitions = 0
-    for old_part in gdisks.split('\n'):
+    for old_part in gdisk.stdout.decode().split('\n'):
         if old_part.startswith('   1'):
             # below we want last as 'end' of space before 1st partiion
             last = int(old_part.split()[1]) - 1
@@ -52,25 +64,38 @@ if __name__ == '__main__':
             if last<63:
                 last=63
             last = modup(last, sectors, sectors - 1)
-            print('I: gpthybrid: first partition set last to %i' % last)
+            if verbose:
+                print('I: gpthybrid: first partition set last to %i' % last)
         if old_part.startswith('   '):
             # end should be the last used sector
             testend = int(old_part.split()[2])
             if (testend > end):
                 end = modup(testend,sectors,sectors - 1)
-                print('I: gpthybrid: got partition ending: %i' % end)
+                if verbose:
+                    print('I: gpthybrid: got partition ending: %i' % end)
             partitions += 1
 
     # get the lba addresses of the files using osirrox
     parts = list()
-    osirrox = ['/usr/bin/osirrox', '-pkt_output', 'on',
-               '-indev', iso_file, '-logfile', '.', '-']
+    osirrox_cmd = ['/usr/bin/osirrox', '-pkt_output', 'on',
+                   '-indev', iso_file, '-logfile', '.', '-']
 
     for arg in args:
-        osirrox.extend(['-find', arg, '-exec', 'report_lba', '--'])
+        osirrox_cmd.extend(['-find', arg, '-exec', 'report_lba', '--'])
 
-    print('I: gpthybrid: %s' % ' '.join(osirrox))
-    for line in subprocess.check_output(osirrox).decode().split('\n'):
+    if verbose:
+        print('I: gpthybrid: %s' % ' '.join(osirrox_cmd))
+
+    try:
+        osirrox = subprocess.run(osirrox_cmd, check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        print('E: osirrox failed to process %s' % iso_file)
+        sys.exit(osirrox.returncode)
+    finally:
+        if verbose:
+            print(osirrox.stdout.decode())
+
+    for line in osirrox.stdout.decode().split('\n'):
         if line[:22] == 'R:1: File data lba:  0':
             # extract the fields
             (t, s, b, f, n) = line.split(',')
@@ -98,13 +123,13 @@ if __name__ == '__main__':
             parts = post
 
     # delete the existing partitions
-    cmd = ['/usr/sbin/sgdisk']
+    sgdisk_cmd = ['/usr/sbin/sgdisk']
     for part in range(partitions, 0, -1):
-        cmd.append('--delete=%i' % part)
+        sgdisk_cmd.append('--delete=%i' % part)
 
     # gdisk commands to create the partitions
     # set sectors alignment (2048b iso sector size by default) for partition creation
-    cmd.append('--set-alignment=%i' % sectors)
+    sgdisk_cmd.append('--set-alignment=%i' % sectors)
     # gap and pnum just count
     gap = 1
     pnum = 1
@@ -129,30 +154,33 @@ if __name__ == '__main__':
             pname = 'BIOS Boot Partition'
         # if the last partition ended more then sectors less then this starts
         if int(start)-last >= sectors:
-            cmd.append('--new=%i:%i:%i' % (pnum, modup(last + 1, sectors, 0),
-                                           moddown(int(start)-1, sectors, 3)))
-            cmd.append('--typecode=%i:0700' % pnum)
-            cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
+            sgdisk_cmd.append('--new=%i:%i:%i' % \
+                (pnum, modup(last + 1, sectors, 0),
+                 moddown(int(start)-1, sectors, 3)))
+            sgdisk_cmd.append('--typecode=%i:0700' % pnum)
+            sgdisk_cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
             pnum += 1
             gap += 1
         # create the partition itself
-        cmd.append('--new=%i:%i:%i' % (pnum, int(start), int(end)))
-        cmd.append('--typecode=%i:%s' % (pnum, typecode))
+        sgdisk_cmd.append('--new=%i:%i:%i' % (pnum, int(start), int(end)))
+        sgdisk_cmd.append('--typecode=%i:%s' % (pnum, typecode))
         if len(pname) > 0:
-            cmd.append('--change-name=%i:%s' % (pnum, pname))
+            sgdisk_cmd.append('--change-name=%i:%s' % (pnum, pname))
         pnum += 1
         last = int(end)
 
     # create a gap from end of last partition and end of last gap if needed
     if (int(end)-last > sectors-1):
-        cmd.append('--new=%i:%i:0' % (pnum, modup(last+1, sectors, 0)))
-        cmd.append('--typecode=%i:0700' % pnum)
-        cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
+        sgdisk_cmd.append('--new=%i:%i:0' % (pnum, modup(last+1, sectors, 0)))
+        sgdisk_cmd.append('--typecode=%i:0700' % pnum)
+        sgdisk_cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
 
-    cmd.append(iso_file)
-    print('I: gpthybrid: %s' % ' '.join(cmd))
+    sgdisk_cmd.append(iso_file)
+    if verbose:
+        print('I: gpthybrid: %s' % ' '.join(sgdisk_cmd))
+
     try:
-        sgdisk = subprocess.run(cmd, check=True, capture_output=True)
+        sgdisk = subprocess.run(sgdisk_cmd, check=True, capture_output=True)
     except subprocess.CalledProcessError:
         print('E: gpthybrid failed to hybridise %s' % iso_file)
     finally:

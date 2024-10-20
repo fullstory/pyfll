@@ -2195,6 +2195,7 @@ class FLLBuilder(object):
 
         if self.opts.v:
             xorriso_cmd += ' -v'
+            gpthybrid_cmd += ' --verbose'
 
         if os.path.isdir(os.path.join(stage, 'boot/grub')):
             xorriso_cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
