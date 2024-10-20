@@ -131,7 +131,7 @@ if __name__ == '__main__':
     # set sectors alignment (2048b iso sector size by default) for partition creation
     sgdisk_cmd.append('--set-alignment=%i' % sectors)
     # gap and pnum just count
-    gap = 1
+    gap = 0
     pnum = 1
     for part in parts:
         (start, end, name) = part.split()
