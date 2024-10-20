@@ -2190,12 +2190,11 @@ class FLLBuilder(object):
         sha256_file = iso_file + '.sha256'
         sha512_file = iso_file + '.sha512'
 
-        xorriso_cmd = 'xorriso -report_about HINT -as mkisofs -graft-points'
+        xorriso_cmd = 'xorriso -report_about HINT -as mkisofs -graft-points  -pad -l'
         gpthybrid_cmd = os.path.join(self.opts.s, 'gpthybrid')
 
         if self.opts.v:
             xorriso_cmd += ' -v'
-        xorriso_cmd += ' -pad -l'
 
         if os.path.isdir(os.path.join(stage, 'boot/grub')):
             xorriso_cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
@@ -2208,7 +2207,7 @@ class FLLBuilder(object):
                 for arch in list(self.conf['archs'].keys()):
                     if os.path.isfile(os.path.join(stage, fll_image_dir,
                                                    self._getDistroImageFile(arch))):
-                        gpthybrid_cmd += " %s" % os.path.join(fll_image_dir,
+                        gpthybrid_cmd += ' %s' % os.path.join(fll_image_dir,
                                                               self._getDistroImageFile(arch))
                 if os.path.isfile(os.path.join(stage, fll_image_dir,
                                                '%s.2' % fll_image_file)):
