@@ -221,9 +221,9 @@ if __name__ == '__main__':
             print(gdisk.stdout.decode())
 
         try:
-            fdisk = subprocess.run(['/usr/sbin/fdisk', '-t', 'dos',
-                                    '-l', iso_file],
-                                   check=True, capture_output=True)
+            fdisk_cmd = ['/usr/sbin/fdisk', '-t', 'dos', '-l', iso_file]
+            print('I: gpthybrid: %s' % ' '.join(fdisk_cmd))
+            fdisk = subprocess.run(fdisk_cmd, check=True, capture_output=True)
         except subprocess.CalledProcessError:
             print('E: fdisk failed to process %s' % iso_file)
             sys.exit(fdisk.returncode)
