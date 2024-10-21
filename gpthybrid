@@ -37,15 +37,12 @@ if __name__ == '__main__':
     sectors = options.s
     verbose = options.v
 
-    buffout = 'I: gpthybrid: manipulating iso %s' % iso_file
-    if len(label):
-        buffout = '%s with label %s' % (buffout, label)
-    print(buffout)
-
     # extract start and end of space to partition from existing gpt
+    gdisk_cmd = ['/usr/sbin/gdisk', '-l', iso_file]
+    if verbose:
+        print('I: gpthybrid: %s' % ' '.join(gdisk_cmd))
     try:
-        gdisk = subprocess.run(['/usr/sbin/gdisk', '-l', iso_file],
-                               check=True, capture_output=True)
+        gdisk = subprocess.run(gdisk_cmd, check=True, capture_output=True)
     except subprocess.CalledProcessError:
         print('E: gdisk failed to process %s' % iso_file)
         sys.exit(gdisk.returncode)
@@ -180,8 +177,7 @@ if __name__ == '__main__':
     sgdisk_cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
 
     sgdisk_cmd.append(iso_file)
-    if verbose:
-        print('I: gpthybrid: %s' % ' '.join(sgdisk_cmd))
+    print('I: gpthybrid: %s' % ' '.join(sgdisk_cmd))
 
     try:
         sgdisk = subprocess.run(sgdisk_cmd, check=True, capture_output=True)
@@ -192,9 +188,10 @@ if __name__ == '__main__':
         print(sgdisk.stdout.decode())
 
     if verbose:
+        gdisk_cmd = ['/usr/sbin/gdisk', '-l', iso_file]
+        print('I: gpthybrid: %s' % ' '.join(gdisk_cmd))
         try:
-            gdisk = subprocess.run(['/usr/sbin/gdisk', '-l', iso_file],
-                                check=True, capture_output=True)
+            gdisk = subprocess.run(gdisk_cmd, check=True, capture_output=True)
         except subprocess.CalledProcessError:
             print('E: gdisk failed to process %s' % iso_file)
             sys.exit(gdisk.returncode)
@@ -203,8 +200,7 @@ if __name__ == '__main__':
 
     hybrid_cmd[1] = hybrid_cmd[1].rstrip(':')
     hybrid_cmd.append(iso_file)
-    if verbose:
-        print('I: gpthybrid: %s' % ' '.join(hybrid_cmd))
+    print('I: gpthybrid: %s' % ' '.join(hybrid_cmd))
     try:
         hybrid = subprocess.run(hybrid_cmd, check=True, capture_output=True)
     except subprocess.CalledProcessError:
@@ -214,9 +210,10 @@ if __name__ == '__main__':
         print(hybrid.stdout.decode())
 
     if verbose:
+        gdisk_cmd = ['/usr/sbin/gdisk', '-l', iso_file]
+        print('I: gpthybrid: %s' % ' '.join(gdisk_cmd))
         try:
-            gdisk = subprocess.run(['/usr/sbin/gdisk', '-l', iso_file],
-                                   check=True, capture_output=True)
+            gdisk = subprocess.run(gdisk_cmd, check=True, capture_output=True)
         except subprocess.CalledProcessError:
             print('E: gdisk failed to process %s' % iso_file)
             sys.exit(gdisk.returncode)
