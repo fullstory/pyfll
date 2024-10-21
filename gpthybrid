@@ -149,10 +149,10 @@ if __name__ == '__main__':
                 pname = '%s.%s' % (label, name[name.rfind('.') + 1:])
         elif len(name) > 6 and name[-7:] == 'efi.img':
             typecode = 'ef00'
-            pname = 'EFI system partition'
+            pname = 'EFI boot partition'
         elif len(name) >5 and name[-5:] == '.ef02':
             typecode = 'ef02'
-            pname = 'BIOS Boot Partition'
+            pname = 'BIOS boot partition'
         # if the last partition ended more then sectors less then this starts
         if int(start)-last >= sectors:
             sgdisk_cmd.append('--new=%i:%i:%i' % \
