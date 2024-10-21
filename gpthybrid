@@ -1,5 +1,14 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
+#
+# https://www.rodsbooks.com/gdisk/hybrid.html
+#
+__copyright__ = """
+(C) 2014-2015 Niall Walsh <niallwalsh@celtux.org>
+(C) 2024 Kel Modderman <kelvmod@gmail.com>
+"""
+__license__   = 'GPLv2 or any later version'
+
 
 import subprocess
 import sys
