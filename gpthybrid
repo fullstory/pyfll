@@ -216,9 +216,19 @@ if __name__ == '__main__':
     if verbose:
         try:
             gdisk = subprocess.run(['/usr/sbin/gdisk', '-l', iso_file],
-                                check=True, capture_output=True)
+                                   check=True, capture_output=True)
         except subprocess.CalledProcessError:
             print('E: gdisk failed to process %s' % iso_file)
             sys.exit(gdisk.returncode)
         finally:
             print(gdisk.stdout.decode())
+
+        try:
+            fdisk = subprocess.run(['/usr/sbin/fdisk', '-t', 'dos',
+                                    '-l', iso_file],
+                                   check=True, capture_output=True)
+        except subprocess.CalledProcessError:
+            print('E: fdisk failed to process %s' % iso_file)
+            sys.exit(fdisk.returncode)
+        finally:
+            print(fdisk.stdout.decode())
