@@ -1601,6 +1601,8 @@ class FLLBuilder(object):
             return
 
         lang_list = self.__lines2list(self.conf['packages']['lang'])
+        if len(lang_list) == 0:
+            return
         lang_full = pkgs_want
         i18n = os.path.join(self.temp, 'staging', 'i18n')
         for lang in lang_list:
