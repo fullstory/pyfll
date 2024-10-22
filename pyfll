@@ -696,7 +696,17 @@ class FLLBuilder(object):
 
 
     def _getDebconfList(self, arch):
-        '''Return debconf list for arch.'''
+        '''Return debconf list for arch. Dynamically generate locales
+        debconf configuration based on i18n configuration in flk.conf.'''
+        i18n_list = self.__lines2list(self.conf['packages']['i18n'])
+        if len(i18n_list) == 0:
+            i18n_list = 'en_US'
+        i18n_debconf = 'locales locales/locales_to_be_generated multiselect'
+        for i18n in i18n_list:
+            i18n_debconf += ' %s.UTF-8 UTF-8,' % i18n
+        i18n_debconf = i18n_debconf.rstrip(',')
+        self.pkgs[arch]['debconf'].append(i18n_debconf)
+
         return self.pkgs[arch]['debconf']
 
 

@@ -5,7 +5,6 @@ desc = """
 """
 
 debconf = """
-	locales locales/locales_to_be_generated multiselect de_DE.UTF-8 UTF-8, en_AU.UTF-8 UTF-8, en_IE.UTF-8 UTF-8, en_US.UTF-8 UTF-8, ga_IE.UTF-8 UTF-8, pt_PT.UTF-8 UTF-8
 """
 
 packages = """
