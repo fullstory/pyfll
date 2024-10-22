@@ -203,14 +203,3 @@ if __name__ == '__main__':
             sys.exit(gdisk.returncode)
         finally:
             print(gdisk.stdout.decode())
-
-    if verbose:
-        gdisk_cmd = ['/usr/sbin/gdisk', '-l', iso_file]
-        print('I: gpthybrid: %s' % ' '.join(gdisk_cmd))
-        try:
-            gdisk = subprocess.run(gdisk_cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError:
-            print('E: gdisk failed to process %s' % iso_file)
-            sys.exit(gdisk.returncode)
-        finally:
-            print(gdisk.stdout.decode())
