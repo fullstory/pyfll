@@ -18,7 +18,6 @@ deps = """
 packages = """
 	cdebootstrap
 	firefox
-	nm-tray
 	zenity
 """
 

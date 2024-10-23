@@ -17,5 +17,4 @@ deps = """
 """
 
 packages = """
-	network-manager-gnome
 """

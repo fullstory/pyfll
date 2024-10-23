@@ -13,4 +13,5 @@ packages = """
 	lxlauncher
 	lxtask
 	mupdf
+	network-manager-gnome
 """

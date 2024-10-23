@@ -23,5 +23,6 @@ packages = """
 		qterminal
 	openbox
 		obconf-qt
+	nm-tray
 	udisks2
 """

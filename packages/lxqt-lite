@@ -21,6 +21,5 @@ deps = """
 """
 
 packages = """
-	nm-tray
 """
 
