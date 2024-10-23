@@ -273,6 +273,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * kde/ gnome: use network-manager instead of
     fll-live-initscripts-networkd-dummy.
   * make gutenprint amd64-only, it's no longer built on 32 bit architectures.
+  * lxde-*: switch to network-manager-gnome.
   * lxqt-*: switch to nm-tray/ network-manager.
   * xfce-*: switch to network-manager-gnome.
 
