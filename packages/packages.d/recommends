@@ -14,6 +14,7 @@ packages = """
 	kontact
 	kopete
 	netbase
+	nm-tray
 	python-dbus
 	qemu-system-x86
 	qpdfview
