@@ -8,6 +8,5 @@ packages = """
 	configure-cups
 	install-gui
 	kernel-remover
-	setpassword
 	xdg-browser-launcher
 """

@@ -4,5 +4,6 @@ desc = """
 
 packages = """
 	infobash
+	setpassword
 	sshstart
 """
