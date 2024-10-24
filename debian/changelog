@@ -186,8 +186,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * s/ksnapshot/kde-spectacle/.
   * vimrc.local: update and ignore new upstream defaults.
   * lxqt-essential: add qterminal.
-  * distro-tools-x: add crudini, a simple python based tool to modify ini-style
-    configuration files.
   * s/qupzilla/firefox/, qupzilla hasn't only now become the 400 MB gorilla in
     the operating room, it's also still just as bad as before.
   * include f2fs-tools.
