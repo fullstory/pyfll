@@ -14,16 +14,14 @@ Vcs-Browser: https://github.com/fullstory/pyfll
 #Architecture: all
 #Depends: ${misc:Depends},
 #         ${python:Depends},
-#         python-apt,
-#         python-configobj,
+#         gdisk,
+#         python3-apt,
+#         python3-configobj,
 #         debootstrap | cdebootstrap | mmdebstrap,
 #         xorriso,
 #         reprepro,
 #         squashfs-tools,
-#Recommends: gdisk
-#Suggests: isolinux,
-#         syslinux,
-#         syslinux-utils
+#         wget
 #Description: FULLSTORY live linux media mastering utility
 # Live linux media mastering utility using an easily replicatable "cleanroom"
 # process

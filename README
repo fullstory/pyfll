@@ -9,8 +9,8 @@ Example Usage:
 
 Dependencies:
   python (>= 3.8)
-  python-apt
-  python-configobj
+  python3-apt
+  python3-configobj
   cdebootstrap | debootstrap | mmdebstrap
   xorriso
   squashfs-tools
