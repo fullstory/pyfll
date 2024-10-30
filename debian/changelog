@@ -275,6 +275,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * lxqt-*: switch to nm-tray/ network-manager.
   * xfce-*: switch to network-manager-gnome.
   * switch from install-gui to calamares.
+  * utils-essential: bzip2 is no longer essential, just drop it.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
