@@ -5,8 +5,8 @@ desc = """
 packages = """
 	aptosid-irc
 	aptosid-manual-en
+	calamares-settings-aptosid
 	configure-cups
-	install-gui
 	kernel-remover
 	xdg-browser-launcher
 """
