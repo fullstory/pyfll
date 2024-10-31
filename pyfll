@@ -1543,23 +1543,23 @@ class FLLBuilder(object):
         shutil.copy('/etc/resolv.conf', os.path.join(chroot, 'etc'))
 
         # Fetch extra debs if appropriate and reprepro them
-        extras = ['cryptsetup-initramfs', 'cryptsetup', 'keyutils']
+        extra_pkgs = ['cryptsetup-initramfs', 'cryptsetup', 'keyutils']
         efitypes = { 'x86_64-efi':'amd64','i386-efi':'ia32' }
         for efitype in (list(efitypes.keys())):
             if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/%s' % efitype)):
-                extras.append('grub-efi-%s' % efitypes[efitype])
-        extras.append('grub2-fll-portable-efi')
+                extra_pkgs.append('grub-efi-%s' % efitypes[efitype])
+        extra_pkgs.append('grub2-fll-portable-efi')
 
         self.pkgs[arch]['extras'] = dict()
         self._execInChroot(arch, ['apt-get', 'clean'])
-        for pkg in extras:
-            self._aptGetInstall(arch, pkg, download_only = True)
+        for pkg in extra_pkgs:
+            self._aptGetInstall(arch, [pkg], download_only = True)
         # Generate a basic reprepro conf/distributions.
-        extras = os.path.join(self.temp, arch, 'fll', 'extras')
-        extras_conf = os.path.join(extras, 'conf')
+        extras_path = os.path.join(self.temp, arch, 'fll', 'extras')
+        extras_conf = os.path.join(extras_path, 'conf')
         if not os.path.isdir(extras_conf):
             os.makedirs(extras_conf)
-            extras_dist = os.path.join(extras, 'conf', 'distributions')
+            extras_dist = os.path.join(extras_path, 'conf', 'distributions')
             rconf = None
             try:
                 rconf = open(extras_dist, "w")
@@ -1582,7 +1582,7 @@ class FLLBuilder(object):
         aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
         for debfile in glob.glob(aptcache):
             if not self.opts.D:
-                self._execCmd(['reprepro', '-Vb', extras, 'includedeb', codename,
+                self._execCmd(['reprepro', '-Vb', extras_path, 'includedeb', codename,
                                 debfile])
             # create dict with package name = version to extend manifest
             pkg, vers, extra = debfile.split('/')[-1].split('_')
