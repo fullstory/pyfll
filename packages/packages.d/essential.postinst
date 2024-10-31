@@ -45,18 +45,6 @@ do_postinst() {
 		update-rc.d -f "${service}" remove
 	done
 
-	# Hacking gettys for passwordless login
-	if [ -r /usr/share/sysvinit/inittab ]; then
-		say 'sysvinit: Hacking /etc/inittab for passwordless login'
-		# We also set default runlevel to 5
-		sed -e 's#^id:[0-6]:initdefault:#id:5:initdefault:#' \
-		    -e 's#:/sbin/getty#:/sbin/getty -n -i -l /usr/bin/fll_login#' \
-		    -e 's#^\([0-6]\):23:#\1:2345:#' \
-		    -e "s/^\([1]\:[0-6]*\:respawn\:\\/sbin\\/getty.*\) --noclear\(.*$\)/\1\2/" \
-		    -e "s/^[1]\:[0-6]*\:respawn\:\\/sbin\\/getty.*$/& --noclear/" \
-			/usr/share/sysvinit/inittab > /etc/inittab
-	fi
-
 	# truncate systemd machine-id to zero byte
 	if [ -r /etc/machine-id ]; then
 		say 'systemd: truncate /etc/machine-id'
