@@ -1543,57 +1543,50 @@ class FLLBuilder(object):
         shutil.copy('/etc/resolv.conf', os.path.join(chroot, 'etc'))
 
         # Fetch extra debs if appropriate and reprepro them
-        extras = []
-        commextra = []
+        extras = ['cryptsetup-initramfs', 'cryptsetup', 'keyutils']
         efitypes = { 'x86_64-efi':'amd64','i386-efi':'ia32' }
         for efitype in (list(efitypes.keys())):
-            archextra = []
             if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/%s' % efitype)):
-                commextra.append('grub-efi')
-                archextra.append('grub-efi-%s' % efitypes[efitype])
-                extras.append(archextra)
-                
-        if len(extras):
-            commextra.append('grub2-fll-portable-efi')
-            extras.append(commextra)
-            self.pkgs[arch]['extras'] = dict()
-            self._execInChroot(arch, ['apt-get', 'clean'])
-            for archextra in extras:
-                self._aptGetInstall(arch, archextra,
-                                    download_only = True)
-            # Generate a basic reprepro conf/distributions.
-            extras = os.path.join(self.temp, arch, 'fll', 'extras')
-            extras_conf = os.path.join(extras, 'conf')
-            if not os.path.isdir(extras_conf):
-                os.makedirs(extras_conf)
-                extras_dist = os.path.join(extras, 'conf', 'distributions')
-                rconf = None
-                try:
-                    rconf = open(extras_dist, "w")
-                    rconf.write('Codename: %s\n' % codename)
-                    rconf.write('Architectures: ')
-                    for a in list(self.conf['archs'].keys()):
-                        rconf.write(''.join([a,' ']))
-                    rconf.write('\n')
-                    rconf.write('Components: main\n')
-                    rconf.write('Description: extra packages\n')
-                except IOError:
-                    self.log.exception('error preparing reprepro for extras')
-                    raise FllError
-                finally:
-                    if rconf:
-                        rconf.close()
+                extras.append('grub-efi-%s' % efitypes[efitype])
+        extras.append('grub2-fll-portable-efi')
 
-            # Find all the debs and includedeb them.
-            chroot = os.path.join(self.temp, arch)
-            aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
-            for debfile in glob.glob(aptcache):
-                if not self.opts.D:
-                    self._execCmd(['reprepro', '-Vb', extras, 'includedeb', codename,
-                                  debfile])
-                # create dict with package name = version to extend manifest
-                pkg, vers, extra = debfile.split('/')[-1].split('_')
-                self.pkgs[arch]['extras'][pkg] = vers.replace('%3a', ':')
+        self.pkgs[arch]['extras'] = dict()
+        self._execInChroot(arch, ['apt-get', 'clean'])
+        for pkg in extras:
+            self._aptGetInstall(arch, pkg, download_only = True)
+        # Generate a basic reprepro conf/distributions.
+        extras = os.path.join(self.temp, arch, 'fll', 'extras')
+        extras_conf = os.path.join(extras, 'conf')
+        if not os.path.isdir(extras_conf):
+            os.makedirs(extras_conf)
+            extras_dist = os.path.join(extras, 'conf', 'distributions')
+            rconf = None
+            try:
+                rconf = open(extras_dist, "w")
+                rconf.write('Codename: %s\n' % codename)
+                rconf.write('Architectures: ')
+                for a in list(self.conf['archs'].keys()):
+                    rconf.write(''.join([a,' ']))
+                rconf.write('\n')
+                rconf.write('Components: main\n')
+                rconf.write('Description: extra packages\n')
+            except IOError:
+                self.log.exception('error preparing reprepro for extras')
+                raise FllError
+            finally:
+                if rconf:
+                    rconf.close()
+
+        # Find all the debs and includedeb them.
+        chroot = os.path.join(self.temp, arch)
+        aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
+        for debfile in glob.glob(aptcache):
+            if not self.opts.D:
+                self._execCmd(['reprepro', '-Vb', extras, 'includedeb', codename,
+                                debfile])
+            # create dict with package name = version to extend manifest
+            pkg, vers, extra = debfile.split('/')[-1].split('_')
+            self.pkgs[arch]['extras'][pkg] = vers.replace('%3a', ':')
 
         # Calculate packages for each language.
         self.pkgs[arch]['langpack'] = dict()
