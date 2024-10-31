@@ -1543,12 +1543,11 @@ class FLLBuilder(object):
         shutil.copy('/etc/resolv.conf', os.path.join(chroot, 'etc'))
 
         # Fetch extra debs if appropriate and reprepro them
-        extra_pkgs = ['cryptsetup-initramfs', 'cryptsetup', 'keyutils']
+        extra_pkgs = ['grub2-fll-portable-efi']
         efitypes = { 'x86_64-efi':'amd64','i386-efi':'ia32' }
         for efitype in (list(efitypes.keys())):
             if os.path.isdir(os.path.join(self.temp, arch, 'usr/lib/grub/%s' % efitype)):
                 extra_pkgs.append('grub-efi-%s' % efitypes[efitype])
-        extra_pkgs.append('grub2-fll-portable-efi')
 
         self.pkgs[arch]['extras'] = dict()
         self._execInChroot(arch, ['apt-get', 'clean'])
