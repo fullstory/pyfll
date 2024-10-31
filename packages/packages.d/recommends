@@ -5,6 +5,7 @@ desc = """
 
 packages = """
 	bash
+	calamares-settings-aptosid
 	fll-live-initscripts
 	gnome-keyring
 	gnome-session
