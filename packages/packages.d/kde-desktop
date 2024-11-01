@@ -20,15 +20,12 @@ packages = """
 	kmahjongg
 	kmail
 	knavalbattle
-#	kopete
 	kpat
 	krdc
 	kreversi
 	krusader
 	ktorrent
 	kwalletmanager
-#	packagesearch
 	skanlite
-	wpagui
 	yakuake
 """
