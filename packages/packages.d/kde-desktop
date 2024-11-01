@@ -28,6 +28,7 @@ packages = """
 	ktorrent
 	kwalletmanager
 #	packagesearch
+	skanlite
 	wpagui
 	yakuake
 """
