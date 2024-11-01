@@ -3,9 +3,7 @@ desc = """
 """
 
 packages = """
-	desktop-defaults
 	lightdm
 #	aptosid-art-lxde
 	aptosid-art-wallpaper
-	gparted
 """
