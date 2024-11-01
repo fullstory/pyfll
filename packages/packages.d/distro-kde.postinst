@@ -1,0 +1,30 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if which flatpak >/dev/null; then
+		say "Adding fluthub repository to flatpak"
+		flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+	fi
+
+	say "Apending to kscreenlockerrc"
+	cat <<EOF >> /etc/xdg/kscreenlockerrc
+[Daemon]
+Autolock=false
+LockOnResume=false
+EOF
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
