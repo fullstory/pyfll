@@ -1,0 +1,25 @@
+desc = """
+	Minimal KDE desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-kde
+	distro-tools
+	distro-tools-x
+	essential
+	hwsupport-essential
+	kde-essential
+	utils-essential
+	xserver
+"""
+
+packages = """
+	cdebootstrap
+	plasma-discover-backend-flatpak
+	libpackagekitqt6-1
+	plasma-sdk
+	plasma-welcome-
+	firefox
+"""
