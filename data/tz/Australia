@@ -1,4 +1,4 @@
-for tz in Sydney; do
+for tz in Sydney Brisbane Melbourne Perth Hobart Adelaide Canberra; do
   menuentry --class=tz.Australia.${tz} "Australia/${tz}" {
     timezone="tz=${1}"
     def_timezone="${1}"

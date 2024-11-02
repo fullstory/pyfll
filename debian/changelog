@@ -276,6 +276,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * xfce-*: switch to network-manager-gnome.
   * switch from install-gui to calamares.
   * utils-essential: bzip2 is no longer essential, just drop it.
+  * live-grub: add a wider selection of timezones for Australia.
 
  -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
 
