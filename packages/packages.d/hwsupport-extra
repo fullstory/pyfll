@@ -9,7 +9,10 @@ packages = """
 	dmsetup
 	libmtp-runtime
 	linux-cpupower
+	pipewire
 	rfkill
+	udisks2
+	upower
 	usb-modeswitch
 """
 
