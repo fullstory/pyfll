@@ -10,6 +10,7 @@ packages = """
 	kaffeine
 	kde-baseapps
 	kio
+	kmix
 	konversation
 	kwin-x11
 	kwin-wayland

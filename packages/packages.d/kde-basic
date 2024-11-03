@@ -9,6 +9,5 @@ packages = """
 	kcalc
 	kio-extras
 	kmenuedit
-	kmix
 	okular
 """
