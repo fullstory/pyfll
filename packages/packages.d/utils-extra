@@ -13,6 +13,7 @@ packages = """
 	dvb-apps
 	ethtool
 	f2fs-tools
+	firewalld
 	ftp-ssl
 	iproute2
 	man-db

@@ -5,6 +5,7 @@ desc = """
 
 packages = """
 	bluetooth
+	cups-browsed
 	dmidecode
 	dmsetup
 	libmtp-runtime
