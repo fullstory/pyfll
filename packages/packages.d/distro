@@ -11,6 +11,5 @@ packages = """
 	aptosid-archive-keyring
 	aptosid-art-grub2
 	aptosid-scripts
-	udev-config-aptosid
 """
 
