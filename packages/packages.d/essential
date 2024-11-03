@@ -20,5 +20,6 @@ packages = """
 	grub-efi-amd64-bin
 	efibootmgr
 	mtools
+	pkexec
 	systemd-resolved
 """
