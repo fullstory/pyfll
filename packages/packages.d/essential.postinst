@@ -143,14 +143,14 @@ EOF
 
 	if [ -n "${FLL_GFXBOOT_THEME}" ] && \
 	[ -r "/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt" ]; then
-		if grep -q ^GRUB_THEME\= "${CHROOT}/etc/default/grub" >/dev/null 2>&1; then
+		if grep -q ^GRUB_THEME\= /etc/default/grub >/dev/null 2>&1; then
 				sed -i "s|\(GRUB_THEME=\).*|\1/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt|" \
-					"${CHROOT}/etc/default/grub"
+					/etc/default/grub
 		else
 			printf "\n# Set theme defined by FLL_GFXBOOT_THEME in /etc/default/distro\n" \
-				>>${CHROOT}/etc/default/grub
+				>>/etc/default/grub
 			printf "GRUB_THEME=\"/usr/share/grub/themes/${FLL_GFXBOOT_THEME}/theme.txt\"\n" \
-				>>${CHROOT}/etc/default/grub
+				>>/etc/default/grub
 		fi
 	fi
 
