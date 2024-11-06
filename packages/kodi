@@ -1,5 +1,7 @@
 desc = """
-	Minimal Gnome desktop environment.
+	Open Source Home Theatre.
+
+	FLL_LIVE_USER_GROUPS must contain input render groups.
 """
 
 deps = """
