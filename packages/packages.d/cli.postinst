@@ -20,9 +20,10 @@ let g:skip_defaults_vim=1
 EOF
 	fi
 
-	if which most >/dev/null; then
-		say "Setting default pager to ${most}"
-		update-alternatives --set pager $(which most) >/dev/null
+	most=$(which most)
+	if [ -x "$most" ]; then
+		say "Setting default pager to $most"
+		update-alternatives --set pager $most >/dev/null
 	fi
 }
 
