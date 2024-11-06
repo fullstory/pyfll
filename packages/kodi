@@ -1,7 +1,8 @@
 desc = """
 	Open Source Home Theatre.
 
-	FLL_LIVE_USER_GROUPS must contain input render groups.
+	FLL_LIVE_USER_GROUPS must contain input & render groups for
+	kodi-gbm xsession to function.
 """
 
 deps = """
