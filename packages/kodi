@@ -1,0 +1,21 @@
+desc = """
+	Minimal Gnome desktop environment.
+"""
+
+deps = """
+	essential
+	hwsupport-essential
+	utils-essential
+	xserver
+"""
+
+packages = """
+	kodi
+	kodi-repository-kodi
+	kodi-visualization-spectrum-
+	sddm
+	network-manager
+	pipewire
+	udisks2
+	upower
+"""
