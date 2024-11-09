@@ -13,8 +13,6 @@ get_efitarget() {
 }
 
 do_postinst() {
-	say 'Disabling selected initscripts which should not start in live mode'
-
 	# remember keep service blacklists in sync with fll-installer!
 	ENABLED_SERVICES="systemd-networkd systemd-resolved systemd-timesyncd"
 	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single"
@@ -22,6 +20,8 @@ do_postinst() {
 	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
 
 	# enable services wanted on the live CD
+	[ -n "${ENABLED_SERVICES}" ] && \
+		say 'Enabling selected services which should not start in live mode'
 	for service in ${ENABLED_SERVICES}; do
 		if [ -x "/etc/init.d/${service}" ]; then
 			update-rc.d "${service}" enable
@@ -31,6 +31,9 @@ do_postinst() {
 	done
 
 	# disable services not wanted on the live CD
+	if [ -n "${DISABLED_SERVICES}" -o -n "${SERVICE_BLACKLIST}" ]; then
+		say 'Disabling selected services which should not start in live mode'
+	fi
 	for service in ${DISABLED_SERVICES} ${SERVICE_BLACKLIST}; do
 		if [ -x "/etc/init.d/${service}" ]; then
 			update-rc.d "${service}" disable
@@ -40,9 +43,14 @@ do_postinst() {
 	done
 
 	# remove particularly nasty services, don't use!
+	[ -n "${REMOVED_SERVICES}" ] && \
+		say 'Masking selected services which should not start in live mode'
 	for service in ${REMOVED_SERVICES}; do
-		[ -x "/etc/init.d/${service}" ] || continue
-		update-rc.d -f "${service}" remove
+		if [ -x "/etc/init.d/${service}" ]; then
+			update-rc.d -f "${service}" remove
+		elif [ -f "/lib/systemd/system/${service}.service" ]; then
+			systemctl mask "${service}.service"
+		fi
 	done
 
 	# truncate systemd machine-id to zero byte
@@ -51,29 +59,39 @@ do_postinst() {
 		:>/etc/machine-id
 	fi
 
-	# configure live getty configuration for systemd
-	if [ -r '/lib/systemd/system/getty@.service' ]; then
-		say 'systemd: Hacking /etc/systemd/system/getty@.service for passwordless login'
-		sed -e 's#^ExecStart=.*#ExecStart=-/sbin/agetty --noclear -n -i -l /usr/bin/fll_login %I 38400 linux#' \
-			'/lib/systemd/system/getty@.service' > '/etc/systemd/system/getty@.service'
-		ln -fs /etc/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
-		ln -fs getty@.service /etc/systemd/system/autovt@.service
-	fi
-
-	say 'Preseeding /etc/adduser.conf'
-	sed -i 's/^DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
-
 	. /etc/default/distro
 	unset GROUPS
 	for g in ${FLL_LIVE_USER_GROUPS}; do
 		if getent group ${g} >/dev/null; then
-			GROUPS="${GROUPS} ${g}"
+			[ -z "${GROUPS}" ] && GROUPS="${g}" || GROUPS="${GROUPS} ${g}"
+		else
+			say "Dropping group from FLL_LIVE_USER_GROUPS: ${g}"
 		fi
 	done
 
-	sed -i -e 's/^#\?\(EXTRA_GROUPS=\).*/\1"'"${GROUPS# }"'"/' \
-	       -e 's/^#\?\(ADD_EXTRA_GROUPS=\).*/\11/' \
-		/etc/adduser.conf
+	if [ -x /usr/bin/homectl ]; then
+		GROUPS=$(echo "${GROUPS}" | sed -e 's/\s/,/g')
+		sed -i "s#^FLL_LIVE_USER_GROUPS=.*#FLL_LIVE_USER_GROUPS=\"${GROUPS}\"#" \
+			/etc/default/distro
+	else
+		# configure live getty configuration for systemd
+		if [ -r '/lib/systemd/system/getty@.service' ]; then
+			say 'systemd: Hacking /etc/systemd/system/getty@.service for passwordless login'
+			sed -e 's#^ExecStart=.*#ExecStart=-/sbin/agetty --noclear -n -i -l /usr/bin/fll_login %I 38400 linux#' \
+				'/lib/systemd/system/getty@.service' > '/etc/systemd/system/getty@.service'
+			ln -fs /etc/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
+			ln -fs getty@.service /etc/systemd/system/autovt@.service
+		fi
+
+		say 'Preseeding /etc/adduser.conf'
+		sed -i 's/^DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
+
+		sed -i "s#^FLL_LIVE_USER_GROUPS=.*#FLL_LIVE_USER_GROUPS=\"${GROUPS}\"#" \
+			/etc/default/distro
+		sed -i -e 's/^#\?\(EXTRA_GROUPS=\).*/\1"'"${GROUPS# }"'"/' \
+			-e 's/^#\?\(ADD_EXTRA_GROUPS=\).*/\11/' \
+			/etc/adduser.conf
+	fi
 
 	# create grub2 ElTorito support
 	if which grub-mkimage >/dev/null; then
