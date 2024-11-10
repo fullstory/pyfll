@@ -5,17 +5,19 @@ say() {
 }
 
 do_postinst() {
-	if which flatpak >/dev/null; then
+	if [ -x "$(which flatpak)" ]; then
 		say "Adding fluthub repository to flatpak"
 		flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 	fi
 
-	say "Apending to kscreenlockerrc"
-	cat <<EOF >> /etc/xdg/kscreenlockerrc
+	if [ ! -x "$(which homectl)" ]; then
+		say "Apending to kscreenlockerrc"
+		cat <<EOF >> /etc/xdg/kscreenlockerrc
 [Daemon]
 Autolock=false
 LockOnResume=false
 EOF
+	fi
 }
 
 case "${1}" in
