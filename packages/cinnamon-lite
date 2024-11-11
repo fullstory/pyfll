@@ -1,0 +1,30 @@
+desc = """
+	Complete GNOME desktop environment with OpenOffice and Firefox.
+"""
+
+deps = """
+	cli
+	distro
+	distro-gnome
+	distro-tools
+	distro-tools-x
+	essential
+	hwsupport-essential
+	hwsupport-extra
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+	cinnamon-desktop-environment
+	gdebi
+	gnome-disk-utility
+	gnome-logs
+	gnome-software
+	gnome-system-monitor
+	system-config-printer
+	zenity
+"""
+

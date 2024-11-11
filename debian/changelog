@@ -286,6 +286,7 @@ pyfll (2013.02) hesperides; urgency=low
   * Remove gpm from cli package module.
   * Port from python 2to3.
   * Re-write gpthybrid using sgdisk rather than gdisk.
+  * Add cinnamon-lite profile.
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 
