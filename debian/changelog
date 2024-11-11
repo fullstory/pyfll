@@ -1,4 +1,4 @@
-pyfll (2013.02) UNRELEASED; urgency=low
+pyfll (2013.02) hesperides; urgency=low
 
   * NOT RELEASED YET
 
@@ -284,8 +284,10 @@ pyfll (2013.02) UNRELEASED; urgency=low
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.
+  * Port from python 2to3.
+  * Re-write gpthybrid using sgdisk rather than gdisk.
 
- -- Niall Walsh <niallwalsh@celtux.org>  Tue, 09 Jun 2015 18:49:51 +0100
+ -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 
 pyfll (2013.01) hesperides; urgency=low
 
