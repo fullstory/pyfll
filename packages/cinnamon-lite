@@ -24,6 +24,7 @@ packages = """
 	gnome-logs
 	gnome-software
 	gnome-system-monitor
+	hexchat
 	system-config-printer
 	zenity
 """
