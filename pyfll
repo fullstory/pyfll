@@ -1496,12 +1496,10 @@ class FLLBuilder(object):
             cache = apt_pkg.Cache(apt.progress.base.OpProgress())
             self.log.info('installPkgs cache has %s' % cache.ver_file_count)
 
-        i18n_list = self.__lines2list(self.conf['packages']['i18n'])
         pkgs_base = [p.name for p in cache.packages if p.current_ver]
         pkgs_want = self.__filterList(pkgs_base + self._getPackageList(arch))
         pkgs_dict = dict([(p, True) for p in pkgs_want])
         pkgs_want = self.__filterList(list(pkgs_dict.keys())
-                                      + self._detectLocalePkgs(i18n_list, pkgs_dict, cache)
                                       + self._detectRecommendedPkgs(pkgs_dict, cache))
         pkgs_had = list()
 
@@ -1529,11 +1527,11 @@ class FLLBuilder(object):
                     # create dict with package name = version to extend manifest
                     self.pkgs[arch]['install'][pkg] = vers.replace('%3a', ':')
 
-            for pkg in ( self._detectLocalePkgs(i18n_list, pkgs_dict, cache) 
-                       + self._detectRecommendedPkgs(pkgs_dict, cache) ):
+            for pkg in (self._detectRecommendedPkgs(pkgs_dict, cache)):
                 if pkg not in pkgs_want:
                     pkgs_want.append(pkg)
-                    self.log.debug('%s now added to wanted packages had %i now %i' % (pkg,len(pkgs_had),len(pkgs_want)))
+                    self.log.debug('%s added to wanted packages %i -> %i' % \
+                                   (pkg, len(pkgs_had), len(pkgs_want)))
 
         if not self.opts.D:
             self.log.info('installing packages in %s chroot...' % arch)
@@ -1585,10 +1583,10 @@ class FLLBuilder(object):
 
         # Calculate packages for each language.
         self.pkgs[arch]['langpack'] = dict()
-        if 'lang' not in self.conf['packages']:
+        if 'i18n' not in self.conf['packages']:
             return
 
-        lang_list = self.__lines2list(self.conf['packages']['lang'])
+        lang_list = self.__lines2list(self.conf['packages']['i18n'])
         if len(lang_list) == 0:
             return
         lang_full = pkgs_want

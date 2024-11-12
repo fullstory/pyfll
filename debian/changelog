@@ -293,6 +293,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * Import missing locales-pkg-map and make pyfll independent of python-
     fll.
   * Execute subprocesses with TZ=UTC in env.
+  * Merge i18n and lang fll.conf options: all language specific packages
+    detected at boot time and staged in a repository on the live media
+    will now be installed during live boot.
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 
