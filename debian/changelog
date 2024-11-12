@@ -290,6 +290,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * Port from python 2to3.
   * Re-write gpthybrid using sgdisk rather than gdisk.
   * Add cinnamon-lite profile.
+  * Import missing locales-pkg-map and make pyfll independent of python-
+    fll.
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 

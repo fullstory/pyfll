@@ -1320,11 +1320,12 @@ class FLLBuilder(object):
         '''Provide automated detection for extra i18n packages.'''
         self.log.info('detecting i18n packages for %s...' % ' '.join(i18n))
 
-        i18n_module = ConfigObj('/usr/share/fll/data/locales-pkg-map')
-        self.log.debug('i18n_module:')
-        self.log.debug(i18n_module)
+        locales_pkg_map_file = os.path.join(self.opts.s, 'data', 'locales-pkg-map')
+        locales_pkg_map = ConfigObj(locales_pkg_map_file)
+        self.log.debug('locales_pkg_map:')
+        self.log.debug(locales_pkg_map)
 
-        fll_locales = FllLocales(cache, wanted, i18n_module)
+        fll_locales = FllLocales(cache, wanted, locales_pkg_map)
         i18n_list = []
         for locale in sorted(i18n):
             try:
