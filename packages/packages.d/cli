@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	bash-completion
 	dialog
 	elinks
 	htop
