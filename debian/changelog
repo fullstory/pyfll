@@ -292,6 +292,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * Add cinnamon-lite profile.
   * Import missing locales-pkg-map and make pyfll independent of python-
     fll.
+  * Execute subprocesses with TZ=UTC in env.
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 
