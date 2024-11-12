@@ -1,4 +1,4 @@
-pyfll (2013.02) hesperides; urgency=low
+pyfll (2013.02) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
 
@@ -281,6 +281,7 @@ pyfll (2013.02) hesperides; urgency=low
   * drop udev-config-aptosid, it's obsolete.
   * comment out the manual for now.
   * drop bareftp, it's no longer available.
+  * rsyslog is no longer required, omit it for now in favour of journald.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.

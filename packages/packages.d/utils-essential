@@ -21,7 +21,6 @@ packages = """
 	nvme-cli
 	plymouth
 	rsync
-	rsyslog
 	sudo
 	wget
 	wpasupplicant
