@@ -3,12 +3,11 @@ desc = """
 """
 
 packages = """
+	bash-completion
 	dialog
-	elinks
 	htop
 	info
 	iotop
-	lsscsi
 	mc
 	most
 	screen
