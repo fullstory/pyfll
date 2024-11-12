@@ -8,12 +8,6 @@ gcompris = gcompris-sound,
 
 gimp = gimp-help,
 
-iceape = iceape-locale,
-
-icedove = icedove-locale,
-
-iceowl = iceowl-l10n,
-
 k3b = k3b-i18n,
 
 koffice = koffice-l10n,
