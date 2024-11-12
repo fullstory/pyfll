@@ -10,6 +10,7 @@ packages = """
 	dmsetup
 	libmtp-runtime
 	linux-cpupower
+	lsscsi
 	pipewire
 	rfkill
 	udisks2
