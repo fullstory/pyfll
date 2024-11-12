@@ -282,6 +282,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * comment out the manual for now.
   * drop bareftp, it's no longer available.
   * rsyslog is no longer required, omit it for now in favour of journald.
+  * disable systemd-networkd-wait-online.service, it's broken by design and
+    breaks depending services.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.
