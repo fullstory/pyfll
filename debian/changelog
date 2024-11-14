@@ -296,6 +296,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * Merge i18n and lang fll.conf options: all language specific packages
     detected at boot time and staged in a repository on the live media
     will now be installed during live boot.
+  * No longer create reprepro repositories and place i18n and grub2-
+    portable-efi debs in /fll/apt. We will use apt's --with-source
+    feature in fll-liveinitscripts and calamares-settings-aptosid.
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 

@@ -1432,10 +1432,10 @@ class FLLBuilder(object):
                          and not p.name.startswith('cdebootstrap-helper')])
         if 'install' in self.pkgs[arch]:
             manifest.update(self.pkgs[arch]['install'])
-        if 'langpack' in self.pkgs[arch]:
-            manifest.update(self.pkgs[arch]['langpack'])
-        if 'extras' in self.pkgs[arch]:
-            manifest.update(self.pkgs[arch]['extras'])
+        if 'i18n' in self.pkgs[arch]:
+            manifest.update(self.pkgs[arch]['i18n'])
+        if 'apt' in self.pkgs[arch]:
+            manifest.update(self.pkgs[arch]['apt'])
         self.pkgs[arch]['manifest'] = manifest
 
         if self.opts.B:
@@ -1506,6 +1506,7 @@ class FLLBuilder(object):
         if self.opts.D:
             self.pkgs[arch]['install'] = dict()
 
+        chroot = os.path.join(self.temp, arch)
         self.log.info('downloading packages in %s chroot...' % arch)
         # re-runs detect*Pkgs using what will now be installed
         # repeat until nothing was added
@@ -1516,8 +1517,6 @@ class FLLBuilder(object):
             pkgs_had.extend(pkgs_want)
             self._aptGetInstall(arch, self.__filterList(pkgs_want),
                                 download_only = True)
-
-            chroot = os.path.join(self.temp, arch)
             aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
             for debfile in glob.glob(aptcache):
                 pkg, vers, extra = debfile.split('/')[-1].split('_')
@@ -1541,113 +1540,62 @@ class FLLBuilder(object):
         os.unlink(os.path.join(chroot, 'etc/resolv.conf'))
         shutil.copy('/etc/resolv.conf', os.path.join(chroot, 'etc'))
 
-        # Fetch extra debs if appropriate and reprepro them
+        # Fetch extra debs and save for live apt install during boot/install
+        apt_dir = os.path.join(chroot, 'fll', 'apt')
+        os.makedirs(apt_dir)
         extra_pkgs = ['grub2-fll-portable-efi']
-        self.pkgs[arch]['extras'] = dict()
+        self.pkgs[arch]['apt'] = dict()
         self._execInChroot(arch, ['apt-get', 'clean'])
         for pkg in extra_pkgs:
             self._aptGetInstall(arch, [pkg], download_only = True)
-        # Generate a basic reprepro conf/distributions.
-        extras_path = os.path.join(self.temp, arch, 'fll', 'extras')
-        extras_conf = os.path.join(extras_path, 'conf')
-        if not os.path.isdir(extras_conf):
-            os.makedirs(extras_conf)
-            extras_dist = os.path.join(extras_path, 'conf', 'distributions')
-            rconf = None
-            try:
-                rconf = open(extras_dist, "w")
-                rconf.write('Codename: %s\n' % codename)
-                rconf.write('Architectures: ')
-                for a in list(self.conf['archs'].keys()):
-                    rconf.write(''.join([a,' ']))
-                rconf.write('\n')
-                rconf.write('Components: main\n')
-                rconf.write('Description: extra packages\n')
-            except IOError:
-                self.log.exception('error preparing reprepro for extras')
-                raise FllError
-            finally:
-                if rconf:
-                    rconf.close()
-
-        # Find all the debs and includedeb them.
-        chroot = os.path.join(self.temp, arch)
         aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
         for debfile in glob.glob(aptcache):
-            if not self.opts.D:
-                self._execCmd(['reprepro', '-Vb', extras_path, 'includedeb', codename,
-                                debfile])
+            if self.opts.D:
+                break
+            shutil.copy(debfile, apt_dir)
             # create dict with package name = version to extend manifest
             pkg, vers, extra = debfile.split('/')[-1].split('_')
-            self.pkgs[arch]['extras'][pkg] = vers.replace('%3a', ':')
+            self.pkgs[arch]['apt'][pkg] = vers.replace('%3a', ':')
 
         # Calculate packages for each language.
-        self.pkgs[arch]['langpack'] = dict()
+        self.pkgs[arch]['i18n'] = dict()
         if 'i18n' not in self.conf['packages']:
             return
 
-        lang_list = self.__lines2list(self.conf['packages']['i18n'])
-        if len(lang_list) == 0:
+        i18n_list = self.__lines2list(self.conf['packages']['i18n'])
+        if len(i18n_list) == 0:
             return
-        lang_full = pkgs_want
-        i18n = os.path.join(self.temp, 'staging', 'i18n')
-        for lang in lang_list:
-            lang_pkgs = self._detectLocalePkgs([ lang ], pkgs_dict, cache)
-            i18n_arch = os.path.join(i18n, arch)
-            if not os.path.isdir(i18n_arch):
-                os.makedirs(i18n_arch)
-            i18n_lang = os.path.join(i18n, arch, lang)
-            i18nlist = None
+        i18n_full = pkgs_want
+        i18n_dir = os.path.join(chroot, 'fll', 'apt', 'i18n')
+        os.makedirs(i18n_dir)
+        for i18n in i18n_list:
+            i18n_pkgs = self._detectLocalePkgs([i18n], pkgs_dict, cache)
+            i18n_lang = os.path.join(i18n_dir, i18n)
+            i18n_list = None
             try:
-                i18nlist = open(i18n_lang, "w")
-                for pkg in lang_pkgs:
-                    i18nlist.write('%s ' % (pkg))
+                i18n_list = open(i18n_lang, "w")
+                for pkg in i18n_pkgs:
+                    i18n_list.write('%s ' % (pkg))
             except IOError:
-                    self.log.exception('error writing i18n file for lang: %s' %
-                                       lang)
+                    self.log.exception('error writing i18n file: %s' % i18n)
                     raise FllError
             finally:
-                if i18nlist:
-                    i18nlist.close()
-            lang_full.extend(lang_pkgs)
+                if i18n_list:
+                    i18n_list.close()
+            i18n_full.extend(i18n_pkgs)
 
-        # Fetch all extra lang packages and reprepro them.
-        if lang_pkgs:
+        if i18n_pkgs:
             self._execInChroot(arch, ['apt-get', 'clean'])
-            self._aptGetInstall(arch, self.__filterList(lang_full),
+            self._aptGetInstall(arch, self.__filterList(i18n_full),
                                 download_only = True)
-            # Generate a basic reprepro conf/distributions.
-            i18n_conf = os.path.join(i18n, 'conf')
-            if not os.path.isdir(i18n_conf):
-                os.mkdir(i18n_conf)
-                i18n_dist = os.path.join(i18n, 'conf', 'distributions')
-                rconf = None
-                try:
-                    rconf = open(i18n_dist, "w")
-                    rconf.write('Codename: %s\n' % codename)
-                    rconf.write('Architectures: ')
-                    for a in list(self.conf['archs'].keys()):
-                        rconf.write(''.join([a,' ']))
-                    rconf.write('\n')
-                    rconf.write('Components: main\n')
-                    rconf.write('Description: i18n packages\n')
-                except IOError:
-                    self.log.exception('error preparing reprepro')
-                    raise FllError
-                finally:
-                    if rconf:
-                        rconf.close()
-
-            # Find all the debs and includedeb them.
-            chroot = os.path.join(self.temp, arch)
             aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
             for debfile in glob.glob(aptcache):
-                if not self.opts.D:
-                    self._execCmd(['reprepro', '-Vb', i18n, 'includedeb', codename,
-                                  debfile])
+                if self.opts.D:
+                    break
+                shutil.copy(debfile, apt_dir)
                 # create dict with package name = version to extend manifest
                 pkg, vers, extra = debfile.split('/')[-1].split('_')
-                self.pkgs[arch]['langpack'][pkg] = vers.replace('%3a', ':')
+                self.pkgs[arch]['i18n'][pkg] = vers.replace('%3a', ':')
 
 
     def _postInst(self, arch):
@@ -1731,53 +1679,6 @@ class FLLBuilder(object):
         cmd.extend(['-e', image_file])
 
         self._execInChroot(arch, cmd)
-
-
-    def secondSquashfs(self):
-        '''Make squashfs filesystem image of non chroot other material.'''
-        if self.opts.D:
-            return
-        self.log.info('creating secondary squashfs filesystem')
-        stage = os.path.join(self.temp, 'staging')
-        fll_image_dir = self.conf['distro'].get('FLL_IMAGE_DIR')
-        fll_image_file = self.conf['distro'].get('FLL_IMAGE_FILE')
-        sqfs_file = os.path.join(stage, fll_image_dir,
-                                 '%s.2' % fll_image_file)
-        excl_file = os.path.join(stage, fll_image_dir,
-                                 '%s.2.excl' % fll_image_file)
-        excl = open(excl_file, 'w')
-        excl.write('autorun.inf\n')
-        excl.write('boot\n')
-        excl.write('boot/*\n')
-        excl.write('boot.catalog\n')
-        excl.write('cdrom.ico\n')
-        excl.write('efi\n')
-        excl.write('efi/*\n')
-        excl.write('efi.img\n')
-        excl.write('iso_uuid\n')
-        excl.write('%s\n' % fll_image_dir)
-        excl.write('%s/*\n' % fll_image_dir)
-        excl.close()
-        cmd = ['mksquashfs', stage, sqfs_file, '-noappend']
-        cmd.extend(['-wildcards', '-ef', excl_file])
-
-        # set compression algorithm for squashfs-tools >= 4.1
-        squashfs_comp = self.conf['options'].get('squashfs_comp')
-        if squashfs_comp in ['gzip', 'lzo', 'xz']:
-            self.log.info('using squashfs(%s)...' % squashfs_comp)
-            cmd.extend(['-comp', '%s' % squashfs_comp])
-            if squashfs_comp == 'xz':
-                arch = list(self.conf['archs'].keys())[0]
-                if arch == 'amd64' or arch == 'i386':
-                    cmd.extend(['-Xbcj', 'x86'])
-        
-        if self.opts.l or self.opts.q:
-            cmd.append('-no-progress')
-
-        self._execCmd(cmd)
-        self._nuke(os.path.join(stage,'extras'))
-        self._nuke(os.path.join(stage,'i18n'))
-        os.unlink(excl_file)
 
 
     def _stageArch(self, arch):
@@ -2323,7 +2224,6 @@ class FLLBuilder(object):
             sys.exit(0)
 
         self.buildChroots()
-        self.secondSquashfs()
         self.configureGrub()
         self.writeMd5Sums()
         self.genLiveMedia()
