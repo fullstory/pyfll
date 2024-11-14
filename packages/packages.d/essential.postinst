@@ -21,7 +21,7 @@ do_postinst() {
 
 	# enable services wanted on the live CD
 	[ -n "${ENABLED_SERVICES}" ] && \
-		say 'Enabling selected services which should not start in live mode'
+		say 'Enabling services'
 	for service in ${ENABLED_SERVICES}; do
 		if [ -x "/etc/init.d/${service}" ]; then
 			update-rc.d "${service}" enable
@@ -32,7 +32,7 @@ do_postinst() {
 
 	# disable services not wanted on the live CD
 	if [ -n "${DISABLED_SERVICES}" -o -n "${SERVICE_BLACKLIST}" ]; then
-		say 'Disabling selected services which should not start in live mode'
+		say 'Disabling services'
 	fi
 	for service in ${DISABLED_SERVICES} ${SERVICE_BLACKLIST}; do
 		if [ -x "/etc/init.d/${service}" ]; then
@@ -44,7 +44,7 @@ do_postinst() {
 
 	# remove particularly nasty services, don't use!
 	[ -n "${REMOVED_SERVICES}" ] && \
-		say 'Masking selected services which should not start in live mode'
+		say 'Masking services'
 	for service in ${REMOVED_SERVICES}; do
 		if [ -x "/etc/init.d/${service}" ]; then
 			update-rc.d -f "${service}" remove
