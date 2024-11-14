@@ -173,7 +173,7 @@ class FLLBuilder(object):
     env = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
            'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'SHELL': '/bin/bash',
            'DEBIAN_FRONTEND': 'noninteractive', 'DEBIAN_PRIORITY': 'critical',
-           'DEBCONF_NOWARNINGS': 'yes', 'TZ': 'UTC'}
+           'DEBCONF_NOWARNINGS': 'yes'}
 
     diverts = ['/usr/sbin/policy-rc.d',
                '/usr/sbin/modprobe',
