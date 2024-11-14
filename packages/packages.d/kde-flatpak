@@ -1,0 +1,8 @@
+desc = """
+	Plasma discover flatpak integration
+"""
+
+packages = """
+	plasma-discover-backend-flatpak
+		libpackagekitqt6-1
+"""

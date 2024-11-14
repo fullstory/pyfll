@@ -10,8 +10,6 @@ packages = """
 	kio-extras
 	kmenuedit
 	okular
-	plasma-discover-backend-flatpak
-		libpackagekitqt6-1
 	plasma-firewall
 	print-manager
 """
