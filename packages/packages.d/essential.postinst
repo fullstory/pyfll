@@ -15,7 +15,7 @@ get_efitarget() {
 do_postinst() {
 	# remember keep service blacklists in sync with fll-installer!
 	ENABLED_SERVICES="systemd-networkd systemd-resolved systemd-timesyncd"
-	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single systemd-networkd-wait-online"
+	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single systemd-networkd-wait-online NetworkManager-wait-online"
 	REMOVED_SERVICES=""
 	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
 
