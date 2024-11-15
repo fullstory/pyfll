@@ -23,4 +23,5 @@ packages = """
 	pkexec
 	#systemd-homed
 	systemd-resolved
+	systemd-timesyncd
 """
