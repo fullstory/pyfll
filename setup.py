@@ -4,7 +4,7 @@ from distutils.core import setup
 from glob import glob
 import os
 
-fll_prog = ['pyfll', 'fll.conf']
+fll_prog = ['pyfll', 'fll.conf', 'gpthybrid']
 fll_data = glob('data/*')
 fll_pkgs = [f for f in glob('packages/*') if os.path.isfile(f)]
 fll_pkgs_d = glob('packages/packages.d/*')
