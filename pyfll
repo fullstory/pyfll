@@ -1842,7 +1842,7 @@ class FLLBuilder(object):
               grubcfg.write('if cpuid -l; then\n')
             grubcfg.write('havekernel="Y"\n')
             grubcfg.write('title=""\n')
-            grubcfg.write('for kopt in %s $kopts %s boot=fll quiet systemd.show_status=1 splash; do\n' % (vmlinuz[8:], cmdline))
+            grubcfg.write('for kopt in %s $kopts boot=fll %s; do\n' % (vmlinuz[8:], cmdline))
             grubcfg.write(' if [ -n "$title" ] ; then\n')
             grubcfg.write('  title="$title $kopt";\n')
             grubcfg.write(' else\n')
@@ -1912,7 +1912,7 @@ class FLLBuilder(object):
     def _configBootCmdline(self):
         cmdline =  self.conf['options'].get('boot_cmdline')
         if not cmdline:
-            cmdline = ''
+            cmdline = 'systemd.show_status=1 quiet'
         return cmdline
 
     def configureGrub(self):
