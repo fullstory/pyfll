@@ -7,7 +7,6 @@ packages = """
 	k3b
 	kde-spectacle
 	kcalc
-	kio-extras
 	kmenuedit
 	okular
 	plasma-firewall

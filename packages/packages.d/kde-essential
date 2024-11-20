@@ -16,11 +16,9 @@ packages = """
 	kwin-wayland
 	plasma-desktop
 		# plasma-desktop recommends are still fscked
-		fonts-oxygen
 		kde-config-gtk-style
 		kde-config-screenlocker
 		kde-config-sddm
-		kde-style-oxygen-qt5
 		khelpcenter
 		khotkeys
 		kinfocenter
