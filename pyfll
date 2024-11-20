@@ -551,7 +551,7 @@ class FLLBuilder(object):
         self._processConf()
 
 
-    def _processPkgProfile(self, arch, profile, dir):
+    def _processPkgProfile(self, arch, profile, profile_dir):
         '''Return a dict, arch string as key and package, debconf and postinst
         lists.'''
         pkgs = {'debconf': [], 'packages': [], 'postinst': []}
@@ -619,7 +619,7 @@ class FLLBuilder(object):
         self.log.debug('---')
 
         for dep in deps:
-            depfile = os.path.join(dir, 'packages.d', dep)
+            depfile = os.path.join(profile_dir, 'deps', dep)
 
             if not os.path.isfile(depfile):
                 self.log.critical('no such dep file: %s' % depfile)
@@ -678,16 +678,16 @@ class FLLBuilder(object):
         self.log.info('processing package profile (%s)...' %
                       self.conf['packages']['profile'])
 
-        dir = os.path.join(self.opts.s, 'packages')
-        file = os.path.join(dir, self.conf['packages']['profile'])
+        profiles_dir = os.path.join(self.opts.s, 'profiles')
+        profile = os.path.join(profiles_dir, self.conf['packages']['profile'])
 
-        if not os.path.isfile(file):
-            self.log.critical('no such package profile file: %s' % file)
+        if not os.path.isfile(profile):
+            self.log.critical('no such package profile: %s' % profile)
             raise FllError
 
         self.pkgs = dict()
         for arch in list(self.conf['archs'].keys()):
-            self.pkgs[arch] = self._processPkgProfile(arch, file, dir)
+            self.pkgs[arch] = self._processPkgProfile(arch, profile, profiles_dir)
             try:
                 self.pkgs[arch]['packages'] += \
                     self.__lines2list(self.conf['packages'][arch])

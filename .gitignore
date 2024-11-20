@@ -1,7 +1,7 @@
 fll.*.conf
 aptosid-*
 fullstory-*
-packages/*.local
-packages/*.local.*
-packages/packages.d/*.local
-packages/packages.d/*.local.*
+profiles/*.local
+profiles/*.local.*
+profiles/deps/*.local
+profiles/deps/*.local.*
