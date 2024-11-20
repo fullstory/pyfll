@@ -284,6 +284,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * rsyslog is no longer required, omit it for now in favour of journald.
   * disable systemd-networkd-wait-online.service, it's broken by design and
     breaks depending services.
+  * lxqt-essential: add breeze-icon-theme (needed for the default icons on the
+    desktop).
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.
