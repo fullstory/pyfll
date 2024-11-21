@@ -13,6 +13,8 @@ packages = """
 	fll-live-initramfs
 	fll-live-initscripts
 	locales
+	btrfs-progs
+	e2fsprogs
 	squashfs-tools
 	initramfs-tools
 	grub-pc
