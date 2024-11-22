@@ -21,6 +21,7 @@ packages = """
 	grub-efi-ia32-bin
 	grub-efi-amd64-bin
 	efibootmgr
+	mtools
 	pkexec
 	#systemd-homed
 	systemd-resolved
