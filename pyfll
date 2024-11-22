@@ -1764,11 +1764,11 @@ class FLLBuilder(object):
 
             # efi
             efitypes = { 'x86_64-efi':'bootx64','i386-efi':'bootia32' }
-            have_efi = ""
+            have_efi = False
             for efitype in (list(efitypes.keys())):
                 gfile_dir = os.path.join(chroot, 'usr/lib/grub/%s' % efitype)
                 if os.path.isdir(gfile_dir):
-                    have_efi = "true"
+                    have_efi = True
                     gfiles = [os.path.join(gfile_dir, f) for f in os.listdir(gfile_dir)
                             if f.endswith('.mod') or f.endswith('.lst')]
                     gfiles.append(os.path.join(chroot,'/usr/share/grub/unicode.pf2'))
@@ -1791,7 +1791,7 @@ class FLLBuilder(object):
                     except IOError:
                         self.log.exception('failed to copy efi %s boot files to staging dir' % efitype)
                         raise FllError
-            if have_efi != "" and not os.path.isfile(os.path.join(self.temp, 'staging', 'efi.img')):
+            if have_efi and not os.path.isfile(os.path.join(self.temp, 'staging', 'efi.img')):
                 try:
                     cmd = [ 'mformat', '-C', '-f', '2880', '-L', '16', '-i', '/tmp/efi.img', '::' ]
                     self._execInChroot(arch, cmd)
