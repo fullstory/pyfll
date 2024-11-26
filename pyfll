@@ -1198,19 +1198,19 @@ class FLLBuilder(object):
                     os.chmod(fn, mode)
 
 
-    def _defaultEtc(self, arch):
+    def _defaultConffiles(self, arch):
         '''Initial creation of conffiles required in chroot.'''
         self._writeFile(arch, '/etc/fstab')
         self._writeFile(arch, '/etc/hostname')
         self._writeFile(arch, '/tmp/iso_uuid')
 
 
-    def _distroDefaultEtc(self, arch):
+    def _distroDefaults(self, arch):
         '''Write the /etc/default/distro file.'''
         self._writeFile(arch, '/etc/default/distro')
 
 
-    def _finalEtc(self, arch):
+    def _finalConffiles(self, arch):
         '''Final editing of conffiles in chroot.'''
         chroot = os.path.join(self.temp, arch)
 
@@ -2197,14 +2197,14 @@ class FLLBuilder(object):
         for arch in archs:
             self._bootStrap(arch)
             self._dpkgAddDivert(arch)
-            self._defaultEtc(arch)
-            self._distroDefaultEtc(arch)
+            self._defaultConffiles(arch)
+            self._distroDefaults(arch)
             self._preseedDebconf(arch)
             self._primeApt(arch)
             self._installPkgs(arch, codename)
             self._postInst(arch)
             self._collectManifest(arch)
-            self._finalEtc(arch)
+            self._finalConffiles(arch)
             self._dpkgUnDivert(arch)
             self._makeInitramfs(arch)
             self._cleanChroot(arch)
