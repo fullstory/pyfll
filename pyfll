@@ -1248,12 +1248,14 @@ class FLLBuilder(object):
                     f.write('DNS=\n')
             except IOError:
                 self.log.exception('failed to setup resolv.conf and resolved.conf')
+                raise FllError
 
         if os.path.isfile(os.path.join(chroot, 'etc/.resolv.conf.systemd-resolved.bak')):
             try:
                 os.unlink(os.path.join(chroot, 'etc/.resolv.conf.systemd-resolved.bak'))
             except IOError:
                 self.log.exception('failed to delete .resolv.conf.systemd-resolved.bak')
+                raise FllError
 
         if 'home' in self.conf:
             self.log.info('copying systemd-homed keys to %s chroot...' % arch)
