@@ -20,7 +20,6 @@ packages = """
 		kde-config-screenlocker
 		kde-config-sddm
 		khelpcenter
-		khotkeys
 		kinfocenter
 		kio-extras
 		kmenuedit
