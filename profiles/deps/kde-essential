@@ -33,4 +33,5 @@ packages = """
 	plasma-workspace
 	powerdevil
 	sddm
+	sddm-theme-breeze
 """
