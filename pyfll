@@ -1264,7 +1264,8 @@ class FLLBuilder(object):
                 pubkey = self.conf['home'].get('pubkey')
                 shutil.copy(pubkey, os.path.join(chroot, 'var/lib/systemd/home/'))
                 privkey = self.conf['home'].get('privkey')
-                shutil.copy(privkey, os.path.join(chroot, 'var/lib/systemd/home/'))
+                if privkey:
+                    shutil.copy(privkey, os.path.join(chroot, 'var/lib/systemd/home/'))
             except FileNotFoundError:
                 self.log.exception('home configuration invalid')
                 raise FllError
