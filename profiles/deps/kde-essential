@@ -31,28 +31,6 @@ packages = """
 		systemsettings
 	plasma-nm
 	plasma-workspace
-	plasma-workspace-wayland
 	powerdevil
 	sddm
-	# missing dependencies
-		libkf5config-bin
-		libkf6config-bin
-		libkf5dbusaddons-bin
-		libkf6dbusaddons-bin
-		libkf5emoticons-bin
-		libkf5filemetadata-bin
-		libkf6guiaddons-bin
-		libkf5iconthemes-bin
-		libkf6iconthemes-bin
-		libkf5kdelibs4support5-bin
-		libkf5khtml-bin
-		libkf5parts-plugins
-		libkf5su-bin
-		libkf5wallet-bin
-		libkf5xmlgui-bin
-		libqca-qt6-plugins
-		qml-module-qt-labs-platform
-		qml6-module-org-kde-purpose
-		qt6-qmltooling-plugins
-		qt6-wayland
 """

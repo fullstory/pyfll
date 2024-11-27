@@ -4,5 +4,4 @@ desc = """
 
 packages = """
 	plasma-discover-backend-flatpak
-		libpackagekitqt6-1
 """
