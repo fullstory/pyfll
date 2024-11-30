@@ -6,8 +6,13 @@ say() {
 
 do_postinst() {
 	if [ -x /usr/sbin/plymouth-set-default-theme ]; then
-		say 'select plymouth theme: details.'
-		plymouth-set-default-theme details
+		if plymouth-set-default-theme --list | grep -q breeze; then
+			say 'select plymouth theme: details.'
+			plymouth-set-default-theme breeze
+		else
+			say 'select plymouth theme: details.'
+			plymouth-set-default-theme details
+		fi
 	fi
 }
 
