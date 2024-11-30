@@ -33,6 +33,7 @@ packages = """
 	kpowersave
 	libnotify-bin
 	sddm
+		weston
 	shared-mime-info
 	thunar
 	thunar-archive-plugin

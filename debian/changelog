@@ -287,6 +287,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * lxqt-essential: add breeze-icon-theme (needed for the default icons on the
     desktop).
   * drop khotkeys, it's no longer installable.
+  * add weston to sddm based images, needed for running sddm in wayland mode.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.

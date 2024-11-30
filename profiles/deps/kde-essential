@@ -32,5 +32,6 @@ packages = """
 	plasma-workspace
 	powerdevil
 	sddm
+		weston
 	sddm-theme-breeze
 """

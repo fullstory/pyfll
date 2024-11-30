@@ -17,6 +17,7 @@ packages = """
 	kodi-repository-kodi
 	kodi-visualization-spectrum-
 	sddm
+		weston
 	network-manager
 	pipewire
 	udisks2
