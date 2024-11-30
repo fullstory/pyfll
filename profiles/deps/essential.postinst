@@ -70,15 +70,6 @@ do_postinst() {
 	done
 
 	if [ -w /etc/adduser.conf ]; then
-		# configure live getty configuration for systemd
-		if [ -r '/lib/systemd/system/getty@.service' ]; then
-			say 'systemd: Hacking /etc/systemd/system/getty@.service for passwordless login'
-			sed -e 's#^ExecStart=.*#ExecStart=-/sbin/agetty --noclear -n -i -l /usr/bin/fll_login %I 38400 linux#' \
-				'/lib/systemd/system/getty@.service' > '/etc/systemd/system/getty@.service'
-			ln -fs /etc/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
-			ln -fs getty@.service /etc/systemd/system/autovt@.service
-		fi
-
 		say 'Preseeding /etc/adduser.conf'
 		sed -i 's/^DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
 

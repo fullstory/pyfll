@@ -304,6 +304,10 @@ pyfll (2013.02) UNRELEASED; urgency=low
     feature in fll-liveinitscripts and calamares-settings-aptosid.
   * Support copying systemd-homed public and private keys into build
     chroot via home configuration section.
+  * Make systemd-homed essential and use for existing precreated live
+    users, fallback to adduser when no secure homes present.
+  * Remove getty hack and do it in early boot instead, to preserve
+    as close to pristine chroot (squashfs) as possible.
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 

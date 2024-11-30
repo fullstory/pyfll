@@ -23,7 +23,7 @@ packages = """
 	efibootmgr
 	mtools
 	pkexec
-	#systemd-homed
+	systemd-homed
 	systemd-resolved
 	systemd-timesyncd
 """
