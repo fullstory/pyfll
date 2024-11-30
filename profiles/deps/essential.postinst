@@ -69,11 +69,7 @@ do_postinst() {
 		fi
 	done
 
-	if [ -x /usr/bin/homectl ]; then
-		GROUPS=$(echo "${GROUPS}" | sed -e 's/\s/,/g')
-		sed -i "s#^FLL_LIVE_USER_GROUPS=.*#FLL_LIVE_USER_GROUPS=\"${GROUPS}\"#" \
-			/etc/default/distro
-	else
+	if [ -w /etc/adduser.conf ]; then
 		# configure live getty configuration for systemd
 		if [ -r '/lib/systemd/system/getty@.service' ]; then
 			say 'systemd: Hacking /etc/systemd/system/getty@.service for passwordless login'
