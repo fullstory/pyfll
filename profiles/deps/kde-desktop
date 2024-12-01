@@ -25,7 +25,6 @@ packages = """
 	kreversi
 	krusader
 	ktorrent
-	kwalletmanager
 	skanlite
 	yakuake
 """

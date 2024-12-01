@@ -12,6 +12,8 @@ packages = """
 	kio
 	kmix
 	konversation
+	kwalletmanager
+		libpam-kwallet-common
 	kwin-x11
 	kwin-wayland
 	plasma-desktop
