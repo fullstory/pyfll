@@ -1927,7 +1927,7 @@ class FLLBuilder(object):
     def _configBootCmdline(self):
         cmdline =  self.conf['options'].get('boot_cmdline')
         if not cmdline:
-            cmdline = 'systemd.show_status=1 quiet'
+            cmdline = 'systemd.show_status=1 quiet splash'
         return cmdline
 
     def configureGrub(self):
