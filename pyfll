@@ -1270,6 +1270,9 @@ class FLLBuilder(object):
                 self.log.exception('home configuration invalid')
                 raise FllError
 
+        boot_theme = self.conf['options'].get('boot_theme', 'details')
+        self._execInChroot(arch, [plymouth-set-default-theme boot_theme])
+
 
     def _makeInitramfs(self, arch):
         '''Generate the initramfs if update-initramfs was diverted'''
