@@ -1271,6 +1271,7 @@ class FLLBuilder(object):
                 raise FllError
 
         boot_theme = self.conf['options'].get('boot_theme', 'details')
+        self.log.info('setting plymouth theme to %s...' % boot_theme)
         self._execInChroot(arch, ['plymouth-set-default-theme', boot_theme])
 
 
