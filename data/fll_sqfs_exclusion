@@ -8,6 +8,7 @@ etc/adjtime
 etc/apt/*~
 etc/blkid.tab
 etc/console-setup/*.gz
+etc/fstab
 etc/localtime
 etc/lvm/archive
 etc/lvm/backup
