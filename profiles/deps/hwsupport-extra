@@ -16,5 +16,6 @@ packages = """
 	udisks2
 	upower
 	usb-modeswitch
+	wireplumber
 """
 
