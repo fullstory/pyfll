@@ -17,6 +17,8 @@ deps = """
 """
 
 packages = """
+	arc-theme
+	bibata-cursor-theme
 	budgie-app-launcher-applet
 	budgie-applications-menu-applet
 	budgie-appmenu-applet
@@ -56,5 +58,8 @@ packages = """
 	budgie-window-shuffler
 	budgie-workspace-stopwatch-applet
 	budgie-workspace-wallpaper-applet
+	gir1.2-budgie-1.0
+	gir1.2-budgieraven-1.0
 	lightdm
+	papirus-icon-theme
 """
