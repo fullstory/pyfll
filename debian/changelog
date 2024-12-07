@@ -205,7 +205,6 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * drop lxqt-common, removed from Debian.
   * update copyright info
   * evince-gtk no longer exists, switch to evince.
-  * add nvme-cli, to give further management capabilities for NVME drives.
   * drop gksu, removed from Debian.
   * drop gxineplugin, removed from Debian.
   * drop xfce4-screenshooter-plugin, removed from Debian.
