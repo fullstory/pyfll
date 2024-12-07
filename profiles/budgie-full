@@ -57,4 +57,4 @@ packages = """
 	budgie-workspace-stopwatch-applet
 	budgie-workspace-wallpaper-applet
 	lightdm
-""""
+"""
