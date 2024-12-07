@@ -62,4 +62,5 @@ packages = """
 	gir1.2-budgieraven-1.0
 	lightdm
 	papirus-icon-theme
+		librsvg2-common
 """
