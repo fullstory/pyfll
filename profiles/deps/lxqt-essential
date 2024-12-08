@@ -6,7 +6,6 @@ packages = """
 	breeze-icon-theme
 	ca-certificates
 	dbus-x11
-	hexchat
 	lightdm
 	lxqt-core
 		lximage-qt

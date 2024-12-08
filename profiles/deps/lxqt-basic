@@ -3,9 +3,11 @@ desc = """
 """
 
 packages = """
+	featherpad
 	gvfs-backends
 	gvfs-fuse
 	gucharmap
+	hexchat
 	qasmixer
 	qlipper
 	qpdfview
