@@ -10,6 +10,9 @@ packages = """
 	hexchat
 	qasmixer
 	qlipper
+	screengrab
+"""
+
+amd64 = """
 	qpdfview
-	#screengrab
 """

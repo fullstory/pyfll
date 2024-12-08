@@ -289,6 +289,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * add weston to sddm based images, needed for running sddm in wayland mode.
   * lxqt: move hexchat from essential to basic.
   * lxqt-basic: add featherpad (qt based text editor).
+  * lxqt: only install qpdfview on amd64 (not available on i386).
+  * lxqt: add screengrab.
+  * i386: install xserver-xorg-video-intel (again), it's needed on i945 (N270).
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.

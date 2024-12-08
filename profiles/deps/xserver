@@ -23,3 +23,7 @@ packages = """
 	xinit
 	xutils
 """
+
+i386 = """
+	xserver-xorg-video-intel
+"""
