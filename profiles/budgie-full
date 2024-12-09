@@ -10,6 +10,7 @@ deps = """
 	essential
 	hwsupport-essential
 	hwsupport-extra
+	libreoffice-suite
 	utils-essential
 	utils-extra
 	utils-x
@@ -64,7 +65,9 @@ packages = """
 	hexchat
 	lightdm
 	lightdm-settings
+	nomacs
 	papirus-icon-theme
 		librsvg2-common
 	slick-greeter
+	vlc
 """
