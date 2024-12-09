@@ -61,6 +61,7 @@ packages = """
 	budgie-workspace-stopwatch-applet
 	budgie-workspace-wallpaper-applet
 	evince
+	gedit
 	gir1.2-budgie-1.0
 	gir1.2-budgieraven-1.0
 	gnome-disk-utility
