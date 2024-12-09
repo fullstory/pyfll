@@ -60,11 +60,15 @@ packages = """
 	budgie-window-shuffler
 	budgie-workspace-stopwatch-applet
 	budgie-workspace-wallpaper-applet
+	evince
 	gir1.2-budgie-1.0
 	gir1.2-budgieraven-1.0
+	gnome-disk-utility
 	hexchat
 	lightdm
 	lightdm-settings
+	nemo
+	nemo-fileroller
 	nomacs
 	papirus-icon-theme
 		librsvg2-common
