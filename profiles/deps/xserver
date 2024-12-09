@@ -9,6 +9,7 @@ packages = """
 	fonts-dejavu-core
 	fonts-dejavu-extra
 	fonts-liberation
+	fonts-noto
 	libgl1-mesa-dri
 	mesa-utils
 	xauth

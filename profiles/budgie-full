@@ -17,6 +17,7 @@ deps = """
 """
 
 packages = """
+	aptosid-settings-budgie
 	arc-theme
 	bibata-cursor-theme
 	budgie-app-launcher-applet
