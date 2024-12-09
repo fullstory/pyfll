@@ -63,6 +63,8 @@ packages = """
 	gir1.2-budgieraven-1.0
 	hexchat
 	lightdm
+	lightdm-settings
 	papirus-icon-theme
 		librsvg2-common
+	slick-greeter
 """
