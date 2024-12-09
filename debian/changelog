@@ -292,6 +292,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * lxqt: only install qpdfview on amd64 (not available on i386).
   * lxqt: add screengrab.
   * i386: install xserver-xorg-video-intel (again), it's needed on i945 (N270).
+  * kde-essential: add qt6-svg-plugins, required to display svg icons.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.

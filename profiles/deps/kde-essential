@@ -29,6 +29,7 @@ packages = """
 		ksshaskpass
 		kwrited
 		plasma-integration
+		qt6-svg-plugins
 		systemsettings
 	plasma-nm
 	plasma-workspace
