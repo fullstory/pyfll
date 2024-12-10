@@ -1,0 +1,9 @@
+desc = """
+	Distro specific Budgie packages.
+"""
+
+packages = """
+	## aptosid-art-budgie
+	aptosid-art-wallpaper
+	aptosid-settings-budgie
+"""

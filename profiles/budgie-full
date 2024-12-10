@@ -5,6 +5,7 @@ desc = """
 deps = """
 	cli
 	distro
+	distro-budgie
 	distro-tools
 	distro-tools-x
 	essential
@@ -18,7 +19,6 @@ deps = """
 """
 
 packages = """
-	aptosid-settings-budgie
 	arc-theme
 	bibata-cursor-theme
 	budgie-app-launcher-applet
