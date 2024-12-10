@@ -5,4 +5,5 @@ desc = """
 packages = """
 	## aptosid-art-gnome
 	aptosid-art-wallpaper
+	aptosid-settings-gnome
 """
