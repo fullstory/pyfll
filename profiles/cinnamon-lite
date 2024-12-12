@@ -1,5 +1,5 @@
 desc = """
-	Complete GNOME desktop environment with OpenOffice and Firefox.
+	Lightweight Cinnamon desktop environment.
 """
 
 deps = """
