@@ -47,6 +47,7 @@ packages = """
 	seahorse
 	shotwell
 	simple-scan
+	slick-greeter
 	sound-juicer
 	system-config-printer
 	thunderbird
