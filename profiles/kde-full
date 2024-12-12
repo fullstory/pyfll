@@ -25,6 +25,8 @@ deps = """
 packages = """
 	bind9-dnsutils
 	hunspell-en-us
+	libreoffice-kf6
+	libreoffice-plasma
 	spice-vdagent
 	spice-client-gtk
 """
