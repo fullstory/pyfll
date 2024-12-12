@@ -39,6 +39,7 @@ packages = """
 	hexchat
 	hunspell-en-us
 	libreoffice-gnome
+	mint-y-icons
 	orca
 	remmina
 	rhythmbox

@@ -25,6 +25,7 @@ packages = """
 	gnome-software
 	gnome-system-monitor
 	hexchat
+	mint-y-icons
 	slick-greeter
 	system-config-printer
 	zenity

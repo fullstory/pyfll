@@ -71,7 +71,7 @@ packages = """
 	nemo
 	nemo-fileroller
 	nomacs
-	papirus-icon-theme
+	mint-y-icons
 		librsvg2-common
 	slick-greeter
 	vlc
