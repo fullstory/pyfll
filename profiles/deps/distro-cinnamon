@@ -1,0 +1,9 @@
+desc = """
+	Distro specific Cinnamon packages.
+"""
+
+packages = """
+	## aptosid-art-cinnamon
+	aptosid-art-wallpaper
+	aptosid-settings-cinnamon
+"""

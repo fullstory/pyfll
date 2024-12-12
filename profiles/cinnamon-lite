@@ -5,7 +5,7 @@ desc = """
 deps = """
 	cli
 	distro
-	distro-gnome
+	distro-cinnamon
 	distro-tools
 	distro-tools-x
 	essential
