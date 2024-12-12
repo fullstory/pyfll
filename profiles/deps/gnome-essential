@@ -5,6 +5,7 @@ desc = """
 packages = """
 	file-roller
 	gdm3
+	gedit
 	gnome-keyring
 	gnome-session
 	gnome-terminal
