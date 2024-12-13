@@ -14,6 +14,7 @@ packages = """
 	hexchat
 	hunspell-en-us
 	shared-mime-info
+	slick-greeter
 	thunar-archive-plugin
 	thunar-media-tags-plugin
 	thunar-volman
