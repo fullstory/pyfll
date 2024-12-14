@@ -20,6 +20,8 @@ deps = """
 """
 
 packages = """
+	arc-theme
+	bibata-cursor-theme
 	blueman
 	brasero
 	cinnamon-desktop-environment

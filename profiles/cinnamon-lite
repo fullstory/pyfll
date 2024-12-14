@@ -18,6 +18,8 @@ deps = """
 """
 
 packages = """
+	arc-theme
+	bibata-cursor-theme
 	cinnamon-desktop-environment
 	gdebi
 	gnome-disk-utility
