@@ -43,7 +43,6 @@ packages = """
 	libreoffice-gnome
 	mint-y-icons
 	orca
-	qt6-gtk-platformtheme
 	remmina
 	rhythmbox
 	rhythmbox-plugin-cdrecorder

@@ -28,11 +28,8 @@ packages = """
 	gnome-system-monitor
 	hexchat
 	mint-y-icons
-	nomacs
-	qt6-gtk-platformtheme
 	slick-greeter
 	system-config-printer
-	vlc
 	zenity
 """
 
