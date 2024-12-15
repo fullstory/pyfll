@@ -11,7 +11,6 @@ deps = """
 	essential
 	hwsupport-essential
 	hwsupport-extra
-	hwsupport-printscan
 	gnome-essential
 	gnome-basic
 	utils-essential
