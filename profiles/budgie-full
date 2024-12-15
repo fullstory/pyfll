@@ -66,13 +66,14 @@ packages = """
 	gir1.2-budgieraven-1.0
 	gnome-disk-utility
 	hexchat
+	librsvg2-common
 	lightdm
 	lightdm-settings
 	nemo
 	nemo-fileroller
 	nomacs
 	mint-y-icons
-		librsvg2-common
+	qt6-gtk-platformtheme
 	slick-greeter
 	vlc
 """
