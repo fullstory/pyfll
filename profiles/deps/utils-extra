@@ -10,7 +10,6 @@ packages = """
 	cryptsetup
 	debconf-utils
 	debhelper
-	dvb-apps
 	ethtool
 	f2fs-tools
 	firewalld
