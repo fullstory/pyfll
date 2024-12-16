@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	bibata-cursor-theme
 	file-roller
 	gdm3
 	gedit
@@ -15,4 +14,6 @@ packages = """
 	mint-y-icons
 	nautilus
 	network-manager-gnome
+	yaru-theme-gnome-shell
+	yaru-theme-gtk
 """
