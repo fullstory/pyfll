@@ -4,6 +4,7 @@ desc = """
 
 
 packages = """
+	arc-theme
 	desktop-file-utils
 	gnome-icon-theme
 	libnotify-bin
@@ -14,6 +15,7 @@ packages = """
 	hexchat
 	hunspell-en-us
 	libglib2.0-bin
+	mint-y-icons
 	shared-mime-info
 	slick-greeter
 	thunar-archive-plugin
