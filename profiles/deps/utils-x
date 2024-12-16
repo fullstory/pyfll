@@ -5,6 +5,5 @@ desc = """
 packages = """
 	firefox
 	libxine2-xvdr
-	xsane
 	zenity
 """
