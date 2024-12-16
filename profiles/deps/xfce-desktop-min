@@ -24,6 +24,7 @@ packages = """
 	xfce4
 	xfce4-dev-tools
 	xfce4-power-manager
+	xfce4-screensaver
 	xfce4-terminal
 	xtrlock
 """
