@@ -10,6 +10,7 @@ deps = """
 	distro-xfce
 	essential
 	hwsupport-essential
+	hwsupport-extra
 	utils-essential
 	utils-extra
 	utils-x
