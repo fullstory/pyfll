@@ -6,4 +6,5 @@ packages = """
 	## aptosid-art-cinnamon
 	aptosid-art-wallpaper
 	aptosid-settings-cinnamon
+	aptosid-settings-qt-gtk
 """

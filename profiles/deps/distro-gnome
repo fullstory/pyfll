@@ -6,4 +6,5 @@ packages = """
 	## aptosid-art-gnome
 	aptosid-art-wallpaper
 	aptosid-settings-gnome
+	aptosid-settings-qt-gtk
 """

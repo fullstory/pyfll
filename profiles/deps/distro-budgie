@@ -6,4 +6,5 @@ packages = """
 	## aptosid-art-budgie
 	aptosid-art-wallpaper
 	aptosid-settings-budgie
+	aptosid-settings-qt-gtk
 """
