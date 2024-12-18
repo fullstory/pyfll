@@ -19,6 +19,7 @@ packages = """
 	mbr
 	netbase
 	plymouth
+		plymouth-themes
 	rsync
 	sudo
 	wget

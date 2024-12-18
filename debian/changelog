@@ -293,6 +293,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * lxqt: add screengrab.
   * i386: install xserver-xorg-video-intel (again), it's needed on i945 (N270).
   * kde-essential: add qt6-svg-plugins, required to display svg icons.
+  * pull in plymouth-themes and default to bgrt for the time being, details is
+    broken with current systemd.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.

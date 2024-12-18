@@ -1270,7 +1270,7 @@ class FLLBuilder(object):
                 self.log.exception('home configuration invalid')
                 raise FllError
 
-        boot_theme = self.conf['options'].get('boot_theme', 'details')
+        boot_theme = self.conf['options'].get('boot_theme', 'bgrt')
         self.log.info('setting plymouth theme to %s...' % boot_theme)
         self._execInChroot(arch, ['plymouth-set-default-theme', boot_theme])
 
