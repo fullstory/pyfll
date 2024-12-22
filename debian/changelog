@@ -295,6 +295,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * kde-essential: add qt6-svg-plugins, required to display svg icons.
   * pull in plymouth-themes and default to bgrt for the time being, details is
     broken with current systemd.
+  * lxqt-essential: add qt6-svg-plugins, required to display svg icons.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.

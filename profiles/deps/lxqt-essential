@@ -21,6 +21,7 @@ packages = """
 		lxqt-runner
 		qps
 		qterminal
+		qt6-svg-plugins
 	openbox
 		obconf-qt
 	nm-tray
