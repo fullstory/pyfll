@@ -1,0 +1,24 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if [ -w /etc/xdg/openbox/rc.xml ]; then
+		say "Setting openbox font size defaults"
+		sed -i 's#<size>[[:alnum:]]</size>#<size>11</size>#' \
+			/etc/xdg/openbox/rc.xml
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

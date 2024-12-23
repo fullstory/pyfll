@@ -3,10 +3,8 @@ desc = """
 """
 
 packages = """
-	breeze-icon-theme
 	ca-certificates
 	dbus-x11
-	lightdm
 	lxqt-core
 		lximage-qt
 		lxqt-about
@@ -22,8 +20,15 @@ packages = """
 		qps
 		qterminal
 		qt6-svg-plugins
+	lxqt-wayland-session
+		labwc
+		qt6-wayland
+		gtklock
+	mint-y-icons
+	nm-tray
 	openbox
 		obconf-qt
-	nm-tray
+	sddm
 	udisks2
+	xscreensaver
 """
