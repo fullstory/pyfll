@@ -34,4 +34,5 @@ packages = """
 	sddm
 	udisks2
 	xscreensaver
+		xdg-utils
 """
