@@ -24,6 +24,7 @@ packages = """
 		labwc
 		qt6-wayland
 		gtklock
+			librsvg2-common
 	mint-y-icons
 	nm-tray
 	openbox
