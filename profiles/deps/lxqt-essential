@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	breeze-icon-theme
 	ca-certificates
 	dbus-x11
 	lxqt-core
