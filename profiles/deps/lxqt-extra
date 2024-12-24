@@ -1,0 +1,10 @@
+desc = """
+	LXQt desktop Applications
+"""
+
+packages = """
+	libreoffice-qt6
+	nomacs
+	transmission-qt
+	vlc
+"""
