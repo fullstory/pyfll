@@ -7,7 +7,6 @@ packages = """
 	arc-theme
 	bibata-cursor-theme
 	desktop-file-utils
-	engrampa
 	gnome-icon-theme
 	gnome-themes-extra
 	libnotify-bin
