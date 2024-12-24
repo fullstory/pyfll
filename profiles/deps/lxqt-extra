@@ -7,4 +7,5 @@ packages = """
 	nomacs
 	transmission-qt
 	vlc
+	wireshark
 """
