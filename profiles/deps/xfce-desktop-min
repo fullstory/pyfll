@@ -11,7 +11,6 @@ packages = """
 	libnotify-bin
 	lightdm
 	mousepad
-	mpg321
 	network-manager-gnome
 	hexchat
 	hunspell-en-us

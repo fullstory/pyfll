@@ -53,6 +53,5 @@ packages = """
 	system-config-printer
 	thunderbird
 	transmission-gtk
-	zenity
 """
 
