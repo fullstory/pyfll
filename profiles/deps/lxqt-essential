@@ -5,6 +5,7 @@ desc = """
 packages = """
 	ca-certificates
 	dbus-x11
+	gnome-themes-extra
 	lxqt-core
 		lximage-qt
 		lxqt-about
