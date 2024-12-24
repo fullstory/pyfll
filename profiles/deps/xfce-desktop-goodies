@@ -7,7 +7,8 @@ packages = """
 	atril
 	engrampa
 	gimp
-	libreoffice-gtk4
+	libreoffice-gtk3
+		gstreamer1.0-gtk3
 	mousepad
 	orage
 	parole

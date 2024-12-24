@@ -19,7 +19,6 @@ deps = """
 """
 
 packages = """
-	arc-theme
 	bibata-cursor-theme
 	budgie-app-launcher-applet
 	budgie-applications-menu-applet
@@ -66,6 +65,8 @@ packages = """
 	gir1.2-budgieraven-1.0
 	gnome-disk-utility
 	hexchat
+	libreoffice-gtk3
+		gstreamer1.0-gtk3
 	librsvg2-common
 	lightdm
 	lightdm-settings
@@ -73,7 +74,6 @@ packages = """
 	nemo-fileroller
 	nomacs
 	mint-y-icons
-	qt6-gtk-platformtheme
 	slick-greeter
 	vlc
 """
