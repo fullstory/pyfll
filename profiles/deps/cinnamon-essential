@@ -6,6 +6,7 @@ packages = """
 	bibata-cursor-theme
 	cinnamon-desktop-environment
 	gdebi
+	gedit
 	gnome-disk-utility
 	gnome-logs
 	gnome-software

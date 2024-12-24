@@ -20,7 +20,6 @@ deps = """
 """
 
 packages = """
-	abiword
 	blueman
 	brasero
 	dia
@@ -28,7 +27,6 @@ packages = """
 	evince
 	firefox
 	gimp
-	gnumeric
 	libreoffice-gtk3
 		gstreamer1.0-gtk3
 	orca
