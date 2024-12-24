@@ -13,6 +13,7 @@ packages = """
 	parole
 	qalculate-gtk
 	ristretto
+	thunderbird
 	transmission
 	xfce4-battery-plugin
 	xfce4-clipman-plugin

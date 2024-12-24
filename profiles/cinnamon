@@ -4,6 +4,7 @@ desc = """
 
 deps = """
 	cli
+	cinnamon-essential
 	distro
 	distro-cinnamon
 	distro-tools
@@ -19,27 +20,16 @@ deps = """
 """
 
 packages = """
-	bibata-cursor-theme
+	abiword
 	blueman
 	brasero
-	cinnamon-desktop-environment
+	dia
+	eog
+	evince
 	firefox
-	gdebi
-	gnome-characters
-	gnome-disk-utility
-	gnome-font-viewer
-	gnome-games
-	gnome-logs
-	gnome-software
-	gnome-sound-recorder
-	gnome-system-monitor
-	gnote
-	gstreamer1.0-libav
-	gstreamer1.0-plugins-ugly
-	hexchat
-	hunspell-en-us
+	gimp
+	gnumeric
 	libreoffice-gnome
-	mint-y-icons
 	orca
 	remmina
 	rhythmbox
@@ -47,10 +37,6 @@ packages = """
 	rhythmbox-plugins
 	seahorse
 	shotwell
-	simple-scan
-	slick-greeter
-	sound-juicer
-	system-config-printer
 	thunderbird
 	transmission-gtk
 """

@@ -4,6 +4,7 @@ desc = """
 
 deps = """
 	cli
+	cinnamon-essential
 	distro
 	distro-cinnamon
 	distro-tools
@@ -18,16 +19,5 @@ deps = """
 """
 
 packages = """
-	bibata-cursor-theme
-	cinnamon-desktop-environment
-	gdebi
-	gnome-disk-utility
-	gnome-logs
-	gnome-software
-	gnome-system-monitor
-	hexchat
-	mint-y-icons
-	slick-greeter
-	system-config-printer
 """
 

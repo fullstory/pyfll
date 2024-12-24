@@ -1,0 +1,20 @@
+desc = """
+	Essential Cinnamon desktop environment packages.
+"""
+
+packages = """
+	bibata-cursor-theme
+	cinnamon-desktop-environment
+	gdebi
+	gnome-disk-utility
+	gnome-logs
+	gnome-software
+	gnome-system-monitor
+	hexchat
+	nemo
+	nemo-fileroller
+	mint-y-icons
+	slick-greeter
+	system-config-printer
+"""
+
