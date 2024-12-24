@@ -8,7 +8,7 @@ packages = """
 	gvfs-fuse
 	gucharmap
 	hexchat
-	qasmixer
+	pavucontrol-qt
 	qlipper
 	screengrab
 """
