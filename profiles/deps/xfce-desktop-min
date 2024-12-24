@@ -4,7 +4,6 @@ desc = """
 
 
 packages = """
-	arc-theme
 	bibata-cursor-theme
 	desktop-file-utils
 	gnome-icon-theme
