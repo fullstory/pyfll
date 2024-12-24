@@ -12,12 +12,12 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	hwsupport-printscan
+	libreoffice-suite
 	utils-essential
 	utils-extra
 	utils-x
 	xfce-desktop-min
 	xfce-desktop-goodies
-	xfce-desktop-extras
 	xserver
 """
 

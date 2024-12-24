@@ -4,9 +4,16 @@ desc = """
 
 
 packages = """
+	atril
+	engrampa
+	gimp
+	libreoffice-gtk4
 	mousepad
+	orage
+	parole
+	qalculate-gtk
 	ristretto
-	# squeeze
+	transmission
 	xfce4-battery-plugin
 	xfce4-clipman-plugin
 	xfce4-cpufreq-plugin
