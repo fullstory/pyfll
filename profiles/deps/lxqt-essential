@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	arc-theme
 	ca-certificates
 	dbus-x11
 	lxqt-core
