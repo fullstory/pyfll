@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	aptosid-art-sddm-nemesis
 	aptosid-art-wallpaper
 	aptosid-settings-lxqt
 """
