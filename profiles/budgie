@@ -77,7 +77,6 @@ packages = """
 	lightdm
 	lightdm-settings
 	nemo
-	nemo-fileroller
 	mint-y-icons
 	rhythmbox
 	slick-greeter
