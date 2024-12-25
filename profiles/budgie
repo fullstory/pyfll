@@ -59,11 +59,16 @@ packages = """
 	budgie-window-shuffler
 	budgie-workspace-stopwatch-applet
 	budgie-workspace-wallpaper-applet
+	celluloid
+	engrampa
+	eom
 	evince
 	gedit
+	gimp
 	gir1.2-budgie-1.0
 	gir1.2-budgieraven-1.0
 	gnome-disk-utility
+	gnome-font-viewer
 	gnome-themes-extra
 	hexchat
 	libreoffice-gtk3
@@ -73,8 +78,8 @@ packages = """
 	lightdm-settings
 	nemo
 	nemo-fileroller
-	nomacs
 	mint-y-icons
+	rhythmbox
 	slick-greeter
-	vlc
+	thunderbird
 """
