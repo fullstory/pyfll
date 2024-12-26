@@ -19,8 +19,10 @@ deps = """
 """
 
 packages = """
+	atril
 	blueman
-	gedit
+	celluloid
+	eom
 	gimp
 	gnome-disk-utility
 	gnome-font-viewer
@@ -77,6 +79,7 @@ packages = """
 	mate-equake-applet
 	mate-power-manager
 	mate-tweak
+	parole
 	pluma
 	mint-y-icons
 	network-manager-gnome
