@@ -83,6 +83,7 @@ packages = """
 	pavucontrol
 		pipewire-pulse
 	pluma
+	qalculate-qtk
 	mint-y-icons
 	network-manager-gnome
 	slick-greeter
