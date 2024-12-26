@@ -80,6 +80,8 @@ packages = """
 	mate-power-manager
 	mate-tweak
 	parole
+	pavucontrol
+		pipewire-pulse
 	pluma
 	mint-y-icons
 	network-manager-gnome
