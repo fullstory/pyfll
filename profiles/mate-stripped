@@ -19,7 +19,6 @@ deps = """
 packages = """
 	gedit
 	gnome-disk-utility
-	gnome-font-viewer
 	gnome-themes-extra
 	hexchat
 	libreoffice-gtk3
