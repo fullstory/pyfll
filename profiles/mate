@@ -33,6 +33,51 @@ packages = """
 	lightdm-settings
 	mate-desktop-environment
 	mate-desktop-environment-extras
+	mate-applet-appmenu
+	mate-hud
+	mate-power-manager-common
+	mate-user-admin
+	mate-applet-brisk-menu
+	mate-indicator-applet
+	mate-screensaver
+	mate-user-guide
+	mate-applets
+	mate-indicator-applet-common
+	mate-screensaver-common
+	mate-user-share
+	mate-applets-common
+	mate-media
+	mate-sensors-applet
+	mate-user-share-common
+	mate-backgrounds
+	mate-media-common
+	mate-sensors-applet-common
+	mate-utils
+	mate-calc
+	mate-menu
+	mate-sensors-applet-nvidia
+	mate-utils-common
+	mate-calc-common
+	mate-window-applets-common
+	mate-common
+	mate-sntray-plugin
+	mate-window-buttons-applet
+	mate-core
+	mate-notification-daemon
+	mate-submodules-source
+	mate-window-menu-applet
+	mate-desktop-environment-extra
+	mate-notification-daemon-common
+	mate-system-monitor
+	mate-window-title-applet
+	mate-dock-applet
+	mate-polkit-bin
+	mate-system-monitor-common
+	mate-xapp-status-applet
+	mate-equake-applet
+	mate-power-manager
+	mate-tweak
+	pluma
 	mint-y-icons
 	network-manager-gnome
 	slick-greeter
