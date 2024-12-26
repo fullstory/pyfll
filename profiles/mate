@@ -1,0 +1,40 @@
+desc = """
+	MATE desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-mate
+	distro-tools
+	distro-tools-x
+	essential
+	hwsupport-essential
+	hwsupport-extra
+	libreoffice-suite
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+	blueman
+	gedit
+	gimp
+	gnome-disk-utility
+	gnome-font-viewer
+	gnome-themes-extra
+	hexchat
+	libreoffice-gtk3
+		gstreamer1.0-gtk3
+	librsvg2-common
+	lightdm
+	lightdm-settings
+	mate-desktop-environment
+	mate-desktop-environment-extras
+	mint-y-icons
+	network-manager-gnome
+	slick-greeter
+	thunderbird
+"""

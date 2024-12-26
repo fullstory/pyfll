@@ -1,0 +1,10 @@
+desc = """
+	Distro specific MATE packages.
+"""
+
+packages = """
+	## aptosid-art-mate
+	aptosid-art-wallpaper
+	aptosid-settings-mate
+	aptosid-settings-qt-gtk
+"""
