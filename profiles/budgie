@@ -20,6 +20,7 @@ deps = """
 
 packages = """
 	bibata-cursor-theme
+	brasero
 	budgie-app-launcher-applet
 	budgie-applications-menu-applet
 	budgie-appmenu-applet
@@ -79,6 +80,7 @@ packages = """
 	nemo-fileroller
 	mint-y-icons
 	rhythmbox
+	seahorse
 	slick-greeter
 	thunderbird
 """
