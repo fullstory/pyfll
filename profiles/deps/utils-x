@@ -4,6 +4,6 @@ desc = """
 
 packages = """
 	firefox
-	libxine2-xvdr
+	spice-vdagent
 	zenity
 """
