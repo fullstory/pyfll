@@ -5,10 +5,11 @@ desc = """
 packages = """
 	file-roller
 	gdm3
-	gedit
 	gnome-keyring
 	gnome-session
 	gnome-terminal
+	gnome-text-editor
+	gnome-themes-extra
 	hexchat
 	metacity
 	mint-y-icons

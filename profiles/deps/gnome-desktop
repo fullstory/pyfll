@@ -3,17 +3,22 @@ desc = """
 """
 
 packages = """
+	celluloid
+	eog
+	eog-plugins
+	evince
+	gimp
 	liferea
+	loupe
 	gnome-bluetooth
-	hplip-gui
-	fonts-vlgothic
-	gedit
 	gnome-commander
 	gnome-control-center
-	evolution-plugins
+	gnome-font-viewer
+	qalculate-gtk
+	rhythmbox
+	seahorse
 	seahorse-daemon
-	evolution
+	thunderbird
 	transmission-gtk
-	# wpagui
 	guake
 """
