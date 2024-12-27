@@ -82,7 +82,7 @@ packages = """
 	pavucontrol
 		pipewire-pulse
 	pluma
-	qalculate-qtk
+	qalculate-gtk
 	mint-y-icons
 	network-manager-gnome
 	seahorse
