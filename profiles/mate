@@ -85,6 +85,7 @@ packages = """
 	qalculate-qtk
 	mint-y-icons
 	network-manager-gnome
+	seahorse
 	slick-greeter
 	thunderbird
 """
