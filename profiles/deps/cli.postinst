@@ -25,6 +25,30 @@ EOF
 		say "Setting default pager to $most"
 		update-alternatives --set pager $most >/dev/null
 	fi
+
+	if which zoxide >/dev/null; then
+		say "Setting up zoxide"
+		cat >> /etc/skel/.bashrc <<EOF
+if which zoxide >/dev/null; then
+	eval "\$(zoxide init bash)"
+fi
+EOF
+	fi
+
+	if which batcat >/dev/null; then
+		say "Setting up batcat"
+		cat >> /etc/skel/.bash_aliases <<EOF
+alias cat=batcat
+EOF
+	fi
+
+	say "Setting up cli colors"
+	cat >> /etc/skel/.bash_aliases <<EOF
+alias ls="ls --color=auto"
+alias grep="grep --color=auto"
+alias diff="diff --color=auto"
+alias ip="ip -color=auto"
+EOF
 }
 
 case "${1}" in
