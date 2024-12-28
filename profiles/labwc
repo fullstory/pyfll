@@ -3,6 +3,7 @@ desc = """
 """
 
 deps = """
+	cli
 	distro
 	distro-labwc
 	essential
