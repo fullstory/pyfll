@@ -1,5 +1,6 @@
 desc = """
-	Compact system with wayland and labwc.
+	Experimental system with wayland, greetd, labwc, and a plethora
+	of wayland utilities.
 """
 
 deps = """
@@ -8,34 +9,57 @@ deps = """
 	distro-labwc
 	essential
 	hwsupport-essential
+	hwsupport-extra
 	utils-essential
 	xserver
 """
 
 packages = """
 	alacritty
+	azote
 	breeze-cursor-theme
+	cliphist
+	evremap
 	firefox
 	fonts-font-awesome
 	foot
+	foot-terminfo
+	foot-themes
+	freerdp3-wayland
 	fuzzel
+	gnome-themes-extra
 	greetd
+	gtklock
 	kanshi
 	labwc
 	librsvg2-common
 	mako-notifier
 	network-manager
 	network-manager-applet
+	nwg-clipman
+	nwg-displays
+	nwg-look
 	pavucontrol
-	pipewire-pulse
 	power-profiles-daemon
+	sfwbar
+	slurp
+	squeekboard
+	swappy
 	swaybg
 	swayidle
-	gtklock
+	tofi
 	tuigreet
+	waybar
+	wev
+	wlogout
 	wlopm
+	wlr-randr
+	wlrctl
+	wlsunset
+	wob
+	wofi
+	wshowkeys
+	wtype
 	xdg-browser-launcher
-	xfce4-battery-plugin
-	xfce4-panel
-	xfce4-pulseaudio-plugin
+	yambar
 """
