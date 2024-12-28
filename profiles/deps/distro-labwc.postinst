@@ -1,0 +1,26 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if [ -w /etc/xdg/foot/foot.ini ]; then
+		say "Setting foot font and defaults"
+		sed -i 's#\# font=monospace:size=[[:alnum:]]#font=Noto Mono:size=11#p' \
+			/etc/xdg/foot/foot.ini
+		sed -i 's#\# dpi-aware=no#dpi-aware=yes#p' \
+			/etc/xdg/foot/foot.ini
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
