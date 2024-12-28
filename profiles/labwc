@@ -22,9 +22,11 @@ packages = """
 	greetd
 	kanshi
 	labwc
+	librsvg2-common
 	mako-notifier
 	network-manager
 	nm-tray
+	qt6-svg-plugins
 	swaybg
 	swayidle
 	swaylock
