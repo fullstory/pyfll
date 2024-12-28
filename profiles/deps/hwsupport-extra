@@ -12,6 +12,7 @@ packages = """
 	linux-cpupower
 	lsscsi
 	pipewire
+	pipewire-pulse
 	rfkill
 	udisks2
 	upower
