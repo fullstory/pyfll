@@ -7,9 +7,9 @@ say() {
 do_postinst() {
 	if [ -w /etc/xdg/foot/foot.ini ]; then
 		say "Setting foot font and defaults"
-		sed -i 's#\# font=monospace:size=[[:alnum:]]#font=Noto Mono:size=11#p' \
+		sed -i 's#\# font=monospace:size=[[:alnum:]]#font=Noto Mono:size=8#' \
 			/etc/xdg/foot/foot.ini
-		sed -i 's#\# dpi-aware=no#dpi-aware=yes#p' \
+		sed -i 's#\# dpi-aware=no#dpi-aware=yes#' \
 			/etc/xdg/foot/foot.ini
 	fi
 }
