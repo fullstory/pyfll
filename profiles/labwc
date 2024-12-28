@@ -1,0 +1,34 @@
+desc = """
+	Compact system with wayland and labwc.
+"""
+
+deps = """
+	distro
+	distro-labwc
+	essential
+	hwsupport-essential
+	utils-essential
+	xserver
+"""
+
+packages = """
+	alacritty
+	breeze-cursor-theme
+	firefox
+	fonts-font-awesome
+	foot
+	fuzzel
+	greetd
+	kanshi
+	labwc
+	mako-notifier
+	network-manager
+	nm-tray
+	swaybg
+	swayidle
+	swaylock
+	tuigreet
+	waybar
+	wlopm
+	xdg-browser-launcher
+"""
