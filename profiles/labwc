@@ -10,6 +10,7 @@ deps = """
 	essential
 	hwsupport-essential
 	hwsupport-extra
+	libreoffice-suite
 	utils-essential
 	xserver
 """
@@ -17,6 +18,7 @@ deps = """
 packages = """
 	azote
 	breeze-cursor-theme
+	celluloid
 	cliphist
 	evremap
 	firefox
@@ -25,11 +27,16 @@ packages = """
 	foot-terminfo
 	foot-themes
 	freerdp3-wayland
+	geany
+	geany-plugins
+	gnome-icon-theme
 	gnome-themes-extra
 	greetd
 	gtklock
+	gvfs-backends
 	kanshi
 	labwc
+	libreoffice-gtk3
 	librsvg2-common
 	mako-notifier
 	network-manager
@@ -37,6 +44,7 @@ packages = """
 	nwg-clipman
 	nwg-look
 	pavucontrol
+	pcmanfm
 	power-profiles-daemon
 	sfwbar
 	slurp
@@ -56,4 +64,5 @@ packages = """
 	wshowkeys
 	wtype
 	xdg-browser-launcher
+	zathura
 """
