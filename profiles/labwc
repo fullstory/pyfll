@@ -24,12 +24,12 @@ packages = """
 	firefox
 	fonts-font-awesome
 	foot
-	foot-terminfo
-	foot-themes
 	freerdp3-wayland
 	geany
 	geany-plugins
 	gnome-icon-theme
+	gnome-keyring
+		libpam-gnome-keyring
 	gnome-themes-extra
 	greetd
 	gtklock
@@ -39,6 +39,8 @@ packages = """
 	libreoffice-gtk3
 	librsvg2-common
 	mako-notifier
+	mate-polkit-bin
+		libcanberra-gtk3-module
 	network-manager
 	network-manager-applet
 	nwg-clipman

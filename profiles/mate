@@ -73,6 +73,7 @@ packages = """
 	mate-window-title-applet
 	mate-dock-applet
 	mate-polkit-bin
+		libcanberra-gtk3-module
 	mate-system-monitor-common
 	mate-xapp-status-applet
 	mate-equake-applet
