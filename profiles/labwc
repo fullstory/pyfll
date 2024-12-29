@@ -37,7 +37,6 @@ packages = """
 	network-manager
 	network-manager-applet
 	nwg-clipman
-	nwg-displays
 	nwg-look
 	pavucontrol
 	power-profiles-daemon
