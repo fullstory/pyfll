@@ -7,6 +7,8 @@ deps = """
 	cli
 	distro
 	distro-labwc
+	distro-tools
+	distro-tools-x
 	essential
 	hwsupport-essential
 	hwsupport-extra

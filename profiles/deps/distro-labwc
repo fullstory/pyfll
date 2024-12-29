@@ -6,4 +6,5 @@ packages = """
 	aptosid-art-wallpaper
 	aptosid-settings-labwc
 	aptosid-settings-qt-gtk
+	aptosid-openbox-theme-kaunas
 """

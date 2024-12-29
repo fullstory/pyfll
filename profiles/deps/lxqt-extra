@@ -9,4 +9,6 @@ packages = """
 	transmission-qt
 	vlc
 	wireshark
+	wofi
+	wlogout
 """
