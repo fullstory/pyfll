@@ -10,7 +10,7 @@ do_postinst() {
 		/usr/share/icons/DMZ-White/cursor.theme
 
 	say "Setting wlogout defaults"
-	sed -i 's#loginctl lock-session#gtklock#' \
+	sed -i 's#loginctl lock-session#gtklock -i#' \
 		/etc/wlogout/layout
 
 	if [ -w /etc/xdg/foot/foot.ini ]; then
