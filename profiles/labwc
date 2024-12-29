@@ -18,11 +18,9 @@ deps = """
 """
 
 packages = """
-	azote
 	breeze-cursor-theme
 	celluloid
 	cliphist
-	evremap
 	firefox
 	fonts-font-awesome
 	foot
