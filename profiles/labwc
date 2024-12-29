@@ -15,7 +15,6 @@ deps = """
 """
 
 packages = """
-	alacritty
 	azote
 	breeze-cursor-theme
 	cliphist
@@ -26,7 +25,6 @@ packages = """
 	foot-terminfo
 	foot-themes
 	freerdp3-wayland
-	fuzzel
 	gnome-themes-extra
 	greetd
 	gtklock
@@ -46,20 +44,16 @@ packages = """
 	swappy
 	swaybg
 	swayidle
-	tofi
 	tuigreet
-	waybar
 	wev
 	wlogout
 	wlopm
 	wlr-randr
 	wlrctl
 	wlsunset
-	wmenu
 	wob
 	wofi
 	wshowkeys
 	wtype
 	xdg-browser-launcher
-	yambar
 """
