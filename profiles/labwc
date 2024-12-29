@@ -18,7 +18,8 @@ deps = """
 """
 
 packages = """
-	breeze-cursor-theme
+	blueman
+		libspa-0.2-bluetooth
 	celluloid
 	cliphist
 	firefox
