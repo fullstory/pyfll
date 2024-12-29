@@ -54,6 +54,7 @@ packages = """
 	swayidle
 	tuigreet
 	wev
+	wl-clipboard
 	wlogout
 	wlopm
 	wlr-randr
