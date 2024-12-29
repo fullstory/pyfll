@@ -5,6 +5,19 @@ say() {
 }
 
 do_postinst() {
+	say "Setting default cursor theme"
+	update-alternatives --set x-cursor-theme \
+		/usr/share/icons/DMZ-White/cursor.theme
+
+	say "Setting wlogout and gtklock defaults"
+	sed -i 's#loginctl lock-session#gtklock -i /etc/gtklock/config.ini#' \
+		/etc/wlogout/layout
+	mkdir -p /etc/gtklock
+	cat > /etc/gtklock/config.ini <<EOF
+[main]
+gtk-theme=Adwaita-dark
+EOF
+
 	if [ -w /etc/xdg/foot/foot.ini ]; then
 		say "Setting foot font and defaults"
 		sed -i 's#\# font=monospace:size=[[:alnum:]]#font=Noto Mono:size=8#' \
