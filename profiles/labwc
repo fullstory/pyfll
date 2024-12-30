@@ -14,11 +14,12 @@ deps = """
 	hwsupport-extra
 	libreoffice-suite
 	utils-essential
+	utils-extra
+	utils-x
 	xserver
 """
 
 packages = """
-	blueman
 	celluloid
 	cliphist
 	firefox
