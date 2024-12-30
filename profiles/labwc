@@ -29,6 +29,7 @@ packages = """
 		libpam-gnome-keyring
 	gnome-themes-extra
 	greetd
+	grim
 	gtklock
 	gvfs-backends
 	kanshi
