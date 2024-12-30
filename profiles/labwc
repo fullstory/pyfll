@@ -20,6 +20,8 @@ deps = """
 """
 
 packages = """
+	brightness-udev
+	brightnessctl
 	celluloid
 	cliphist
 	firefox
