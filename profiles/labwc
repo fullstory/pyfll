@@ -23,7 +23,6 @@ packages = """
 	cliphist
 	firefox
 	fonts-font-awesome
-	foot
 	freerdp3-wayland
 	gnome-keyring
 		libpam-gnome-keyring
@@ -33,6 +32,7 @@ packages = """
 	gtklock
 	gvfs-backends
 	kanshi
+	kitty
 	labwc
 	libreoffice-gtk3
 	librsvg2-common

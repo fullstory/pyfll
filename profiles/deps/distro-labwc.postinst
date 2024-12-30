@@ -12,14 +12,6 @@ do_postinst() {
 	say "Setting wlogout defaults"
 	sed -i 's#loginctl lock-session#gtklock -i#' \
 		/etc/wlogout/layout
-
-	if [ -w /etc/xdg/foot/foot.ini ]; then
-		say "Setting foot font and defaults"
-		sed -i 's#\# font=monospace:size=[[:alnum:]]#font=Noto Mono:size=8#' \
-			/etc/xdg/foot/foot.ini
-		sed -i 's#\# dpi-aware=no#dpi-aware=yes#' \
-			/etc/xdg/foot/foot.ini
-	fi
 }
 
 case "${1}" in
