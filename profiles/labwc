@@ -43,7 +43,7 @@ packages = """
 		libcanberra-gtk3-module
 	mint-y-icons
 	network-manager
-	network-manager-applet
+	nm-connection-editor
 	nwg-clipman
 	nwg-look
 	pavucontrol
