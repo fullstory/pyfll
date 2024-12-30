@@ -36,7 +36,6 @@ packages = """
 	grim
 	gtklock
 	gvfs-backends
-	hexchat
 	kanshi
 	kitty
 	labwc
@@ -48,7 +47,6 @@ packages = """
 	mint-y-icons
 	network-manager
 	nm-connection-editor
-	nwg-clipman
 	nwg-look
 	pavucontrol
 	pcmanfm

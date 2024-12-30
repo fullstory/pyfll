@@ -7,7 +7,6 @@ packages = """
 	bat
 	dialog
 	htop
-	info
 	iotop
 	mc
 	most
