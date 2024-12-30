@@ -48,6 +48,7 @@ packages = """
 	pluma
 	pluma-plugins
 	power-profiles-daemon
+	qt6-wayland
 	sfwbar
 	slurp
 	squeekboard
