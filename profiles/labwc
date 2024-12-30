@@ -19,7 +19,6 @@ deps = """
 
 packages = """
 	blueman
-		libspa-0.2-bluetooth
 	celluloid
 	cliphist
 	firefox
