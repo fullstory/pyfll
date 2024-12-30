@@ -26,8 +26,6 @@ packages = """
 	fonts-font-awesome
 	foot
 	freerdp3-wayland
-	gedit
-	gedit-plugins
 	gnome-keyring
 		libpam-gnome-keyring
 	gnome-themes-extra
@@ -48,6 +46,8 @@ packages = """
 	nwg-look
 	pavucontrol
 	pcmanfm
+	pluma
+	pluma-plugins
 	power-profiles-daemon
 	sfwbar
 	slurp
@@ -68,5 +68,7 @@ packages = """
 	wshowkeys
 	wtype
 	xdg-browser-launcher
+	xdg-desktop-portal-gtk
+	xdg-desktop-portal-wlr
 	zathura
 """
