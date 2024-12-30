@@ -24,6 +24,8 @@ packages = """
 	brightnessctl
 	celluloid
 	cliphist
+	engrampa
+	eom
 	firefox
 	fonts-font-awesome
 	freerdp3-wayland
@@ -34,6 +36,7 @@ packages = """
 	grim
 	gtklock
 	gvfs-backends
+	hexchat
 	kanshi
 	kitty
 	labwc
@@ -52,9 +55,11 @@ packages = """
 	pluma
 	pluma-plugins
 	power-profiles-daemon
+	qalculate-gtk
 	qt6-wayland
 		layer-shell-qt
 	qtwayland5
+	seahorse
 	sfwbar
 	slurp
 	squeekboard
