@@ -38,6 +38,7 @@ packages = """
 	gvfs-backends
 	kanshi
 	kitty
+	kooha
 	labwc
 	libreoffice-gtk3
 	librsvg2-common
@@ -67,6 +68,9 @@ packages = """
 	tuigreet
 	wev
 	wl-clipboard
+	wl-mirror
+	wl-present
+	wayout
 	wlogout
 	wlopm
 	wlr-randr
