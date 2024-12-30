@@ -26,9 +26,8 @@ packages = """
 	fonts-font-awesome
 	foot
 	freerdp3-wayland
-	geany
-	geany-plugins
-	gnome-icon-theme
+	gedit
+	gedit-plugins
 	gnome-keyring
 		libpam-gnome-keyring
 	gnome-themes-extra
@@ -42,6 +41,7 @@ packages = """
 	mako-notifier
 	mate-polkit-bin
 		libcanberra-gtk3-module
+	mint-y-icons
 	network-manager
 	network-manager-applet
 	nwg-clipman
