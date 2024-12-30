@@ -25,6 +25,7 @@ packages = """
 	lxqt-wayland-session
 		labwc
 		qt6-wayland
+			layer-shell-qt
 		gtklock
 			librsvg2-common
 	mint-y-icons

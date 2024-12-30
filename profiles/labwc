@@ -49,6 +49,7 @@ packages = """
 	pluma-plugins
 	power-profiles-daemon
 	qt6-wayland
+		layer-shell-qt
 	qtwayland5
 	sfwbar
 	slurp
