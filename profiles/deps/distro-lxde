@@ -3,7 +3,7 @@ desc = """
 """
 
 packages = """
-	lightdm
 #	aptosid-art-lxde
+	aptosid-settings-lxde
 	aptosid-art-wallpaper
 """

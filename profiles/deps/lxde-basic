@@ -4,14 +4,19 @@ desc = """
 
 packages = """
 	blueman
+	celluloid
+	gnome-themes-extra
 	gvfs-backends
 	gvfs-fuse
 	hexchat
+	lightdm
 	lxde
 		lxde-common
 	lxmusic
 	lxlauncher
 	lxtask
+	mint-y-icons
 	mupdf
 	network-manager-gnome
+	xscreensaver
 """
