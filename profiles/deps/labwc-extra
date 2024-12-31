@@ -8,7 +8,6 @@ packages = """
 	eom
 	firefox
 	gvfs-backends
-	kitty
 	mate-polkit-bin
 		libcanberra-gtk3-module
 	pcmanfm
