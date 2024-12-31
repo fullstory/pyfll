@@ -1,0 +1,27 @@
+desc = """
+	Minimal Labwc desktop apps.
+"""
+
+packages = """
+	brightness-udev
+	brightnessctl
+	gnome-themes-extra
+	greetd
+	greetd
+	grim
+	gtklock
+	kanshi
+	labwc
+	mako-notifier
+	network-manager
+	power-profiles-daemon
+	sfwbar
+	slurp
+	tuigreet
+	swaybg
+	swayidle
+	wireplumber
+	wlogout
+	wlopm
+	wofi
+"""

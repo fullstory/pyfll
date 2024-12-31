@@ -12,6 +12,7 @@ deps = """
 	essential
 	hwsupport-essential
 	hwsupport-extra
+	labwc-essential
 	libreoffice-suite
 	utils-essential
 	utils-extra
@@ -20,8 +21,7 @@ deps = """
 """
 
 packages = """
-	brightness-udev
-	brightnessctl
+	blueman
 	celluloid
 	cliphist
 	engrampa
@@ -31,53 +31,36 @@ packages = """
 	freerdp3-wayland
 	gnome-keyring
 		libpam-gnome-keyring
-	gnome-themes-extra
-	greetd
-	grim
-	gtklock
 	gvfs-backends
-	kanshi
 	kitty
 	kooha
-	labwc
 	libreoffice-gtk3
 	librsvg2-common
-	mako-notifier
 	mate-polkit-bin
 		libcanberra-gtk3-module
 	mint-y-icons
-	network-manager
 	nm-connection-editor
 	nwg-look
 	pavucontrol
 	pcmanfm
 	pluma
 	pluma-plugins
-	power-profiles-daemon
 	qalculate-gtk
 	qt6-wayland
 		layer-shell-qt
 	qtwayland5
 	seahorse
-	sfwbar
-	slurp
 	squeekboard
 	swappy
-	swaybg
-	swayidle
-	tuigreet
 	wev
 	wl-clipboard
 	wl-mirror
 	wl-present
 	wayout
-	wlogout
-	wlopm
 	wlr-randr
 	wlrctl
 	wlsunset
 	wob
-	wofi
 	wshowkeys
 	wtype
 	xdg-browser-launcher
