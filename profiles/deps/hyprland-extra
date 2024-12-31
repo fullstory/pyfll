@@ -12,7 +12,7 @@ packages = """
 	hyprcursor-util
 	hyprpaper
 	mousepad
-	nm-applet
+	network-manager-applet
 	policykit-1-gnome
 	qalculate-gtk
 	seahorse
