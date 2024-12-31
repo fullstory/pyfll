@@ -8,7 +8,6 @@ packages = """
 	gnome-themes-extra
 		librsvg2-common
 	greetd
-	greetd
 	grim
 	gtklock
 	kanshi
