@@ -6,13 +6,16 @@ packages = """
 	brightness-udev
 	brightnessctl
 	gnome-themes-extra
+		librsvg2-common
 	greetd
 	greetd
 	grim
 	gtklock
 	kanshi
+	kitty
 	labwc
 	mako-notifier
+	mint-y-icons
 	network-manager
 	power-profiles-daemon
 	sfwbar

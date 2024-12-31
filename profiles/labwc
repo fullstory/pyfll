@@ -13,6 +13,7 @@ deps = """
 	hwsupport-essential
 	hwsupport-extra
 	labwc-essential
+	labwc-extra
 	libreoffice-suite
 	utils-essential
 	utils-extra
@@ -21,29 +22,15 @@ deps = """
 """
 
 packages = """
-	blueman
-	celluloid
 	cliphist
 	engrampa
-	eom
-	firefox
 	fonts-font-awesome
 	freerdp3-wayland
 	gnome-keyring
 		libpam-gnome-keyring
-	gvfs-backends
-	kitty
 	kooha
 	libreoffice-gtk3
-	librsvg2-common
-	mate-polkit-bin
-		libcanberra-gtk3-module
-	mint-y-icons
-	nm-connection-editor
 	nwg-look
-	pavucontrol
-	pcmanfm
-	pluma
 	pluma-plugins
 	qalculate-gtk
 	qt6-wayland
@@ -63,8 +50,4 @@ packages = """
 	wob
 	wshowkeys
 	wtype
-	xdg-browser-launcher
-	xdg-desktop-portal-gtk
-	xdg-desktop-portal-wlr
-	zathura
 """

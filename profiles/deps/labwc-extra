@@ -1,0 +1,20 @@
+desc = """
+	Extra Labwc desktop apps.
+"""
+
+packages = """
+	blueman
+	celluloid
+	eom
+	firefox
+	gvfs-backends
+	kitty
+	mate-polkit-bin
+		libcanberra-gtk3-module
+	nm-connection-editor
+	pcmanfm
+	pluma
+	xdg-desktop-portal-gtk
+	xdg-desktop-portal-wlr
+	zathura
+"""
