@@ -14,7 +14,7 @@ packages = """
 	mousepad
 	nm-applet
 	policykit-1-gnome
-	qalculate
+	qalculate-gtk
 	seahorse
 	thunar
 	thunar-archive-plugin
