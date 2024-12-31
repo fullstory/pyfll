@@ -11,6 +11,9 @@ do_postinst() {
 	say "Setting wlogout defaults"
 	sed -i 's#loginctl lock-session#gtklock -i#' \
 		/etc/wlogout/layout
+	say "setting waybar defaults"
+	cp /usr/share/aptosid-settings-hyprland/waybar/config.jsonc \
+		/etc/xdg/waybar/config.jsonc
 }
 
 case "${1}" in
