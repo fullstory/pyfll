@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+
+	say "Patching LXDE defaults"
+	cp /usr/share/aptosid-settings-lxde/lxpanel/LXDE/panels/panel \
+		/etc/xdg/lxpanel/LXDE/panels/panel
+	cp /usr/share/aptosid-settings-lxde/lxsession/LXDE/desktop.conf \
+		/etc/xdg/lxsession/LXDE/desktop.conf
+	say "Setting default cursor theme"
+	update-alternatives --set x-cursor-theme \
+		/usr/share/icons/DMZ-White/cursor.theme
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
