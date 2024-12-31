@@ -8,8 +8,7 @@ packages = """
 	eom
 	firefox
 	gvfs-backends
-	mate-polkit-bin
-		libcanberra-gtk3-module
+	policykit-1-gnome
 	pcmanfm
 	pluma
 	zathura
