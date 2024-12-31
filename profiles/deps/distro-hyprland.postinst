@@ -1,0 +1,25 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	say "Setting default cursor theme"
+	update-alternatives --set x-cursor-theme \
+		/usr/share/icons/DMZ-White/cursor.theme
+	say "Setting wlogout defaults"
+	sed -i 's#loginctl lock-session#gtklock -i#' \
+		/etc/wlogout/layout
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

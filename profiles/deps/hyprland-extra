@@ -1,0 +1,25 @@
+desc = """
+	Minimal Hyprland desktop apps.
+"""
+
+packages = """
+	blueman
+	celluloid
+	eom
+	file-roller
+	firefox
+	gvfs-backends
+	hyprcursor-util
+	hyprpaper
+	mousepad
+	nm-applet
+	policykit-1-gnome
+	qalculate
+	seahorse
+	thunar
+	thunar-archive-plugin
+	thunar-font-manager
+	thunar-volman
+	tumbler
+	zathura
+"""

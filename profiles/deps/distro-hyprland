@@ -1,0 +1,8 @@
+desc = """
+	Distro specific Labwc packages.
+"""
+
+packages = """
+	aptosid-art-wallpaper
+	aptosid-settings-hyprland
+"""

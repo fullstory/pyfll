@@ -1,0 +1,24 @@
+desc = """
+	Experimental system with Hyprland, greetd, and a plethora
+	of wayland utilities.
+"""
+
+deps = """
+	cli
+	distro
+	distro-hyprland
+	distro-tools
+	distro-tools-x
+	essential
+	hwsupport-essential
+	hwsupport-extra
+	hyprland-essential
+	hyprland-extra
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+"""

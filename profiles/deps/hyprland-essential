@@ -1,0 +1,31 @@
+desc = """
+	Minimal Hyprland desktop apps.
+"""
+
+packages = """
+	brightness-udev
+	brightnessctl
+	gnome-themes-extra
+		librsvg2-common
+	greetd
+	grim
+	gtklock
+	hyprland
+	hyprland-protocols
+	kitty
+	mako-notifier
+	mint-y-icons
+	network-manager
+	nm-connection-editor
+	power-profiles-daemon
+	slurp
+	tuigreet
+	swayidle
+	waybar
+	wireplumber
+	wlogout
+	wlopm
+	wofi
+	xdg-desktop-portal-hyprland
+	xdg-desktop-portal-gtk
+"""
