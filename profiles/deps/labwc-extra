@@ -12,7 +12,5 @@ packages = """
 		libcanberra-gtk3-module
 	pcmanfm
 	pluma
-	xdg-desktop-portal-gtk
-	xdg-desktop-portal-wlr
 	zathura
 """

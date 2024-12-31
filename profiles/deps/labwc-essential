@@ -27,4 +27,6 @@ packages = """
 	wlogout
 	wlopm
 	wofi
+	xdg-desktop-portal-gtk
+	xdg-desktop-portal-wlr
 """
