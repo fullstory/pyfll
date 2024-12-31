@@ -11,7 +11,6 @@ packages = """
 	kitty
 	mate-polkit-bin
 		libcanberra-gtk3-module
-	nm-connection-editor
 	pcmanfm
 	pluma
 	xdg-desktop-portal-gtk
