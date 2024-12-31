@@ -17,6 +17,7 @@ packages = """
 	mako-notifier
 	mint-y-icons
 	network-manager
+	nm-connection-editor
 	power-profiles-daemon
 	sfwbar
 	slurp
