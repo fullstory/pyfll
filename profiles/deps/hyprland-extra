@@ -13,6 +13,7 @@ packages = """
 	hyprpaper
 	mousepad
 	network-manager-applet
+	pavucontrol
 	policykit-1-gnome
 	qalculate-gtk
 	seahorse
