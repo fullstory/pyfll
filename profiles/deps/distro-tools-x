@@ -6,6 +6,7 @@ packages = """
 	aptosid-irc
 	#aptosid-manual-en
 	calamares-settings-aptosid
+		qt6-wayland
 	configure-cups
 	kernel-remover
 	xdg-browser-launcher
