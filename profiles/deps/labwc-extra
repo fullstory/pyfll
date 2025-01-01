@@ -8,7 +8,6 @@ packages = """
 	eom
 	firefox
 	gvfs-backends
-	policykit-1-gnome
 	pcmanfm
 	pluma
 	pqiv

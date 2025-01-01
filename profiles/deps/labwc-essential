@@ -16,6 +16,7 @@ packages = """
 	kitty
 	labwc
 	mako-notifier
+	mate-polkit-bin
 	mint-y-icons
 	network-manager
 	nm-connection-editor
@@ -30,6 +31,5 @@ packages = """
 	wlogout
 	wlopm
 	wofi
-	xdg-desktop-portal-gtk
 	xdg-desktop-portal-wlr
 """
