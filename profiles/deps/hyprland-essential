@@ -19,6 +19,7 @@ packages = """
 	mint-y-icons
 	network-manager
 	nm-connection-editor
+	playerctl
 	policykit-1-gnome
 	power-profiles-daemon
 	slurp

@@ -19,6 +19,7 @@ packages = """
 	mint-y-icons
 	network-manager
 	nm-connection-editor
+	playerctl
 	power-profiles-daemon
 	sfwbar
 	slurp
