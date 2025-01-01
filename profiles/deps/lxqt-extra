@@ -5,6 +5,7 @@ desc = """
 packages = """
 	libreoffice-qt6
 	qalculate-gtk
+	qdiskinfo
 	nomacs
 	transmission-qt
 	vlc

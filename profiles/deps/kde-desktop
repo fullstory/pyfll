@@ -11,6 +11,7 @@ packages = """
 	kate
 	kcharselect
 	kdeadmin
+	kdiskmark
 	kdf
 	kgamma5
 	kget

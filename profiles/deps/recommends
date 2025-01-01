@@ -10,18 +10,18 @@ packages = """
 	fll-live-initscripts
 	gnome-keyring
 	gnome-session
-	initscripts
 	iputils-ping
-	isolinux
 	k3b
 	kontact
-	kopete
-	netbase
+	network-manager-applet
 	nm-tray
+	pipewire-bin
+	pinentry-gnome3
+	pqiv
 	python-dbus
 	qemu-system-x86
 	qpdfview
-	seahorse-daemon
+	seahorse
 	udisks2
 	upower
 	xfce4-session

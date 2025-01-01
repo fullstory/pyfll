@@ -5,6 +5,8 @@ desc = """
 packages = """
 	brightness-udev
 	brightnessctl
+	dbus-broker
+	dbus-user-session
 	gnome-themes-extra
 		librsvg2-common
 	greetd

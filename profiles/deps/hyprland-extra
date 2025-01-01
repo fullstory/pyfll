@@ -5,16 +5,17 @@ desc = """
 packages = """
 	blueman
 	celluloid
-	eom
 	file-roller
 	firefox
+	gnome-disk-utility
+	gparted
 	gvfs-backends
 	hyprcursor-util
 	hyprpaper
 	mousepad
 	network-manager-applet
 	pavucontrol
-	policykit-1-gnome
+	pqiv
 	qalculate-gtk
 	seahorse
 	thunar

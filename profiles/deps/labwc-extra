@@ -11,5 +11,6 @@ packages = """
 	policykit-1-gnome
 	pcmanfm
 	pluma
+	pqiv
 	zathura
 """
