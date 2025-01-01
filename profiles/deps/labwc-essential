@@ -32,4 +32,5 @@ packages = """
 	wlopm
 	wofi
 	xdg-desktop-portal-wlr
+	xdg-desktop-portal-gtk
 """
