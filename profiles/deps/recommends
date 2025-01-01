@@ -13,6 +13,7 @@ packages = """
 	iputils-ping
 	k3b
 	kontact
+	kwin-wayland
 	network-manager-applet
 	nm-tray
 	pipewire-bin

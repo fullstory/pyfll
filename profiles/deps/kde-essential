@@ -16,6 +16,7 @@ packages = """
 		libpam-kwallet-common
 	kwin-x11
 	kwin-wayland
+		xwaylandvideobridge
 	plasma-desktop
 		# plasma-desktop recommends are still fscked
 		kde-config-gtk-style
