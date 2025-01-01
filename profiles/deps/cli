@@ -5,6 +5,7 @@ desc = """
 packages = """
 	bash-completion
 	bat
+	btop
 	dialog
 	htop
 	iotop
