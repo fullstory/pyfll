@@ -1,0 +1,30 @@
+desc = """
+	Minimal LXQt desktop environment.
+"""
+
+deps = """
+	cli
+	distro
+	distro-lxqt
+	distro-tools
+	distro-tools-x
+	essential
+	hwsupport-essential
+	lxqt-essential
+	utils-essential
+	xserver
+"""
+
+packages = """
+	cdebootstrap
+	firefox
+	zenity
+	hyprland
+	hyprland-protocols
+	kwin-wayland
+	labwc
+	sway
+	wayfire
+	wayfire-plugin-winshadows
+"""
+
