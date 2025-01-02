@@ -1,0 +1,33 @@
+desc = """
+	Minimal Sway desktop apps.
+"""
+
+packages = """
+	brightness-udev
+	brightnessctl
+	dbus-broker
+	dbus-user-session
+	gnome-themes-extra
+		librsvg2-common
+	greetd
+	grim
+	gtklock
+	kitty
+	mako-notifier
+	mate-polkit-bin
+	mint-y-icons
+	network-manager
+	nm-connection-editor
+	playerctl
+	power-profiles-daemon
+	slurp
+	tuigreet
+	swaybg
+	swayidle
+	waybar
+		fonts-font-awesome
+	wireplumber
+	wlogout
+	wofi
+	xdg-desktop-portal-hyprland
+"""

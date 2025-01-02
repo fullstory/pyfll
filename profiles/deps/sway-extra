@@ -1,0 +1,25 @@
+desc = """
+	Minimal Sway desktop apps.
+"""
+
+packages = """
+	blueman
+	celluloid
+	file-roller
+	firefox
+	gnome-disk-utility
+	gparted
+	gvfs-backends
+	mousepad
+	network-manager-applet
+	pavucontrol
+	pqiv
+	qalculate-gtk
+	seahorse
+	thunar
+	thunar-archive-plugin
+	thunar-font-manager
+	thunar-volman
+	tumbler
+	zathura
+"""

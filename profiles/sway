@@ -1,0 +1,23 @@
+desc = """
+	Experimental system with Sway and greetd.
+"""
+
+deps = """
+	cli
+	distro
+	distro-sway
+	distro-tools
+	distro-tools-x
+	essential
+	hwsupport-essential
+	hwsupport-extra
+	sway-essential
+	sway-extra
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+"""

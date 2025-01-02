@@ -1,0 +1,8 @@
+desc = """
+	Distro specific Sway packages.
+"""
+
+packages = """
+	aptosid-art-wallpaper
+	aptosid-settings-sway
+"""
