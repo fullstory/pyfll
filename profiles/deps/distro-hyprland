@@ -1,5 +1,5 @@
 desc = """
-	Distro specific Labwc packages.
+	Distro specific Hyprland packages.
 """
 
 packages = """
