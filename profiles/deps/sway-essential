@@ -28,6 +28,7 @@ packages = """
 	swayidle
 	waybar
 		fonts-font-awesome
+		fonts-material-design-icons-iconfont
 	wireplumber
 	wlogout
 	wofi
