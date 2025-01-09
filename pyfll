@@ -1562,7 +1562,7 @@ class FLLBuilder(object):
         # Fetch extra debs and save for live apt install during boot/install
         apt_dir = os.path.join(chroot, 'fll', 'apt')
         os.makedirs(apt_dir)
-        extra_pkgs = ['grub2-fll-portable-efi']
+        extra_pkgs = []
         self.pkgs[arch]['apt'] = dict()
         self._execInChroot(arch, ['apt-get', 'clean'])
         for pkg in extra_pkgs:
