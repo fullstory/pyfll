@@ -23,6 +23,7 @@ import shutil
 import signal
 import stat
 import tempfile
+import time
 
 def restore_sigpipe():
     """Convenience function so that subprocess may be executed with
@@ -191,9 +192,10 @@ class FLLBuilder(object):
         self.log = logging.getLogger('log')
         self.log.setLevel(logging.DEBUG)
 
-        self.time = datetime.datetime.now(datetime.UTC)
-        self.uuid = self.time.strftime('%Y-%m-%d-%H-%M-%S-00')
-        self.timestamp = self.time.strftime('%Y%m%d%H%M')
+        self.time = time.perf_counter()
+        self.date = datetime.datetime.now(datetime.UTC)
+        self.uuid = self.date.strftime('%Y-%m-%d-%H-%M-%S-00')
+        self.timestamp = self.date.strftime('%Y%m%d%H%M')
 
     def __filterList(self, alist, dup_warn = True):
         '''Return a list containing no duplicate items given a list that
@@ -2247,9 +2249,9 @@ class FLLBuilder(object):
         self.writeMd5Sums()
         self.genLiveMedia()
 
-        duration = datetime.datetime.now(datetime.UTC) - self.time
-        self.log.info('build duration was %d minutes and %d seconds' %
-                      divmod(duration.seconds, 60))
+        duration = int(time.perf_counter() - self.time)
+        m, s = divmod(duration, 60)
+        self.log.info(f'build duration was {m:d} minutes and {s:02d} seconds')
 
 
 if __name__ == '__main__':
