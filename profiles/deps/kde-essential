@@ -7,7 +7,7 @@ packages = """
 	ark
 	akonadi-backend-sqlite
 	ca-certificates
-	kaffeine
+	haruna
 	kde-baseapps
 	kio
 	kmix

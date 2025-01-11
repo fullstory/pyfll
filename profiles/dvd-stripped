@@ -27,7 +27,7 @@ packages = """
 	fll-live-initscripts-networkd-dummy
 	gdm3
 	gtk2-engines-xfce
-	kaffeine
+	haruna
 	kde-core
 	konversation
 	kpowersave
