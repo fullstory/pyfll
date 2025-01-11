@@ -1,7 +1,7 @@
 desc = """
 	Packages that are absolutely required to be included in the build
-	chroot or it will fail to build or boot properly. It is also for
-	packages providing core system defaults.
+	chroot or it will fail to build, boot or install properly. It is
+	also for packages providing core system defaults.
 """
 
 debconf = """
