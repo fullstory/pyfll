@@ -4,6 +4,8 @@ desc = """
 
 packages = """
 	gwenview
+	haruna
+		yt-dlp
 	k3b
 	kde-spectacle
 	kcalc
