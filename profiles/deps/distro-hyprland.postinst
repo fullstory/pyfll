@@ -7,13 +7,15 @@ say() {
 do_postinst() {
 	say "Setting default cursor theme"
 	update-alternatives --set x-cursor-theme \
-		/usr/share/icons/DMZ-White/cursor.theme
+		/usr/share/icons/Bibata-Modern-Ice/cursor.theme
 	say "Setting wlogout defaults"
 	sed -i 's#loginctl lock-session#gtklock -i#' \
 		/etc/wlogout/layout
 	say "setting waybar defaults"
 	cp /usr/share/aptosid-settings-hyprland/waybar/config.jsonc \
 		/etc/xdg/waybar/config.jsonc
+	cp /usr/share/aptosid-settings-hyprland/waybar/style.css \
+		/etc/xdg/waybar/style.css
 }
 
 case "${1}" in

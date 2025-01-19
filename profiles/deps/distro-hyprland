@@ -5,4 +5,5 @@ desc = """
 packages = """
 	aptosid-art-wallpaper
 	aptosid-settings-hyprland
+	bibata-cursor-theme
 """
