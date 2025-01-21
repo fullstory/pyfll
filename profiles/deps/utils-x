@@ -5,5 +5,4 @@ desc = """
 packages = """
 	firefox
 	spice-vdagent
-	zenity
 """
