@@ -8,6 +8,7 @@ packages = """
 	akonadi-backend-sqlite
 	ca-certificates
 	kde-baseapps
+	kdialog
 	kio
 	kmix
 	konversation
