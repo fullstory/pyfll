@@ -33,4 +33,5 @@ packages = """
 	xfce4-screensaver
 	xfce4-terminal
 	xtrlock
+	zenity
 """

@@ -83,4 +83,5 @@ packages = """
 	seahorse
 	slick-greeter
 	thunderbird
+	zenity
 """

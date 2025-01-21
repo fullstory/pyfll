@@ -17,4 +17,5 @@ packages = """
 	network-manager-gnome
 	yaru-theme-gnome-shell
 	yaru-theme-gtk
+	zenity
 """
