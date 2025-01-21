@@ -13,6 +13,7 @@ packages = """
 	greetd
 	grim
 	gtklock
+	hexchat
 	kitty
 	mako-notifier
 	mate-polkit-bin

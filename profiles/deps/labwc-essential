@@ -12,6 +12,7 @@ packages = """
 	greetd
 	grim
 	gtklock
+	hexchat
 	kanshi
 	kitty
 	labwc

@@ -12,6 +12,7 @@ packages = """
 	greetd
 	grim
 	gtklock
+	hexchat
 	hyprland
 	hyprland-protocols
 	hyprpaper
