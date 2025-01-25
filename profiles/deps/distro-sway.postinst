@@ -14,7 +14,7 @@ do_postinst() {
 	say "setting waybar defaults"
 	cp /usr/share/aptosid-settings-sway/waybar/config.jsonc \
 		/etc/xdg/waybar/config.jsonc
-	cp /usr/share/aptosid-settings-hyprland/waybar/style.css \
+	cp /usr/share/aptosid-settings-sway/waybar/style.css \
 		/etc/xdg/waybar/style.css
 }
 
