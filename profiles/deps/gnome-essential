@@ -10,7 +10,7 @@ packages = """
 	gnome-terminal
 	gnome-text-editor
 	gnome-themes-extra
-	hexchat
+	srain
 	metacity
 	mint-y-icons
 	nautilus

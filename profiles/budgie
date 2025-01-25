@@ -70,7 +70,7 @@ packages = """
 	gnome-disk-utility
 	gnome-font-viewer
 	gnome-themes-extra
-	hexchat
+	srain
 	libreoffice-gtk3
 		gstreamer1.0-gtk3
 	librsvg2-common

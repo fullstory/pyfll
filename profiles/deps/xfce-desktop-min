@@ -12,7 +12,7 @@ packages = """
 	lightdm
 	mousepad
 	network-manager-gnome
-	hexchat
+	srain
 	hunspell-en-us
 	libglib2.0-bin
 	mint-y-icons

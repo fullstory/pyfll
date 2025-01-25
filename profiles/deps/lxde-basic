@@ -8,7 +8,7 @@ packages = """
 	gnome-themes-extra
 	gvfs-backends
 	gvfs-fuse
-	hexchat
+	srain
 	lightdm
 	lxde
 		lxde-common

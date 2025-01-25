@@ -7,7 +7,7 @@ packages = """
 	gvfs-backends
 	gvfs-fuse
 	gucharmap
-	hexchat
+	srain
 	pavucontrol-qt
 	qlipper
 	screengrab

@@ -11,7 +11,7 @@ packages = """
 	gnome-logs
 	gnome-software
 	gnome-system-monitor
-	hexchat
+	srain
 	nemo
 	nemo-fileroller
 	mint-y-icons
