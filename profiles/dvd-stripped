@@ -22,7 +22,6 @@ deps = """
 packages = """
 	ark
 	build-essential
-	cdebootstrap
 	desktop-file-utils
 	fll-live-initscripts-networkd-dummy
 	gdm3

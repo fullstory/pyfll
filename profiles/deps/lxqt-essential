@@ -36,4 +36,5 @@ packages = """
 	udisks2
 	xscreensaver
 		xdg-utils
+	zenity
 """

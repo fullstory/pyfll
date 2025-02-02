@@ -16,9 +16,7 @@ deps = """
 """
 
 packages = """
-	cdebootstrap
 	firefox
-	zenity
 	hyprland
 	hyprland-protocols
 	kwin-wayland

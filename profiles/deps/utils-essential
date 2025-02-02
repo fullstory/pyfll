@@ -4,6 +4,7 @@ desc = """
 
 packages = """
 	anacron
+	cdebootstrap
 	console-data
 	cron
 	debsums

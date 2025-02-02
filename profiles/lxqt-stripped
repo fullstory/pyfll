@@ -16,8 +16,6 @@ deps = """
 """
 
 packages = """
-	cdebootstrap
 	firefox
-	zenity
 """
 
