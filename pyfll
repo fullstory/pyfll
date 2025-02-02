@@ -1520,103 +1520,18 @@ class FLLBuilder(object):
         pkgs_base = [p.name for p in cache.packages if p.current_ver]
         pkgs_want = self.__filterList(pkgs_base + self._getPackageList(arch))
         pkgs_dict = dict([(p, True) for p in pkgs_want])
-        pkgs_want = self.__filterList(list(pkgs_dict.keys())
-                                      + self._detectRecommendedPkgs(pkgs_dict, cache))
+        pkgs_want = self.__filterList(list(pkgs_dict.keys()) +
+                                      self._detectRecommendedPkgs(pkgs_dict, cache))
+        pkgs_dict = dict([(p, True) for p in pkgs_want])
+        i18n_list = self.__lines2list(self.conf['packages']['i18n'])
+        pkgs_want = self.__filterList(list(pkgs_dict.keys()) +
+                                      self._detectLocalePkgs(i18n_list, pkgs_dict, cache))
+        pkgs_dict = dict([(p, True) for p in pkgs_want])
         pkgs_had = list()
-
-        if self.opts.D:
-            self.pkgs[arch]['install'] = dict()
-
-        chroot = os.path.join(self.temp, arch)
-        self.log.info('downloading packages in %s chroot...' % arch)
-        # re-runs detect*Pkgs using what will now be installed
-        # repeat until nothing was added
-        while len(pkgs_want) > len(pkgs_had):
-            self.log.debug('%i new in package list for this run'
-                          % (len(pkgs_want)-len(pkgs_had)))
-            pkgs_had = list()
-            pkgs_had.extend(pkgs_want)
-            self._aptGetInstall(arch, self.__filterList(pkgs_want),
-                                download_only = True)
-            aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
-            for debfile in glob.glob(aptcache):
-                pkg, vers, extra = debfile.split('/')[-1].split('_')
-                # big dict given below to detect*Pkgs
-                pkgs_dict[pkg] = True
-                if self.opts.D:
-                    # create dict with package name = version to extend manifest
-                    self.pkgs[arch]['install'][pkg] = vers.replace('%3a', ':')
-
-            for pkg in (self._detectRecommendedPkgs(pkgs_dict, cache)):
-                if pkg not in pkgs_want:
-                    pkgs_want.append(pkg)
-                    self.log.debug('%s added to wanted packages %i -> %i' % \
-                                   (pkg, len(pkgs_had), len(pkgs_want)))
 
         if not self.opts.D:
             self.log.info('installing packages in %s chroot...' % arch)
             self._aptGetInstall(arch, pkgs_want)
-
-        # reset /etc/resolv.conf (systemd-resolved clobbered our settings)
-        os.unlink(os.path.join(chroot, 'etc/resolv.conf'))
-        shutil.copy('/etc/resolv.conf', os.path.join(chroot, 'etc'))
-
-        # Fetch extra debs and save for live apt install during boot/install
-        apt_dir = os.path.join(chroot, 'fll', 'apt')
-        os.makedirs(apt_dir)
-        extra_pkgs = []
-        self.pkgs[arch]['apt'] = dict()
-        self._execInChroot(arch, ['apt-get', 'clean'])
-        for pkg in extra_pkgs:
-            self._aptGetInstall(arch, [pkg], download_only = True)
-        aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
-        for debfile in glob.glob(aptcache):
-            if self.opts.D:
-                break
-            shutil.copy(debfile, apt_dir)
-            # create dict with package name = version to extend manifest
-            pkg, vers, extra = debfile.split('/')[-1].split('_')
-            self.pkgs[arch]['apt'][pkg] = vers.replace('%3a', ':')
-
-        # Calculate packages for each language.
-        self.pkgs[arch]['i18n'] = dict()
-        if 'i18n' not in self.conf['packages']:
-            return
-
-        i18n_list = self.__lines2list(self.conf['packages']['i18n'])
-        if len(i18n_list) == 0:
-            return
-        i18n_full = pkgs_want
-        i18n_dir = os.path.join(chroot, 'fll', 'apt', 'i18n')
-        os.makedirs(i18n_dir)
-        for i18n in i18n_list:
-            i18n_pkgs = self._detectLocalePkgs([i18n], pkgs_dict, cache)
-            i18n_lang = os.path.join(i18n_dir, i18n)
-            i18n_list = None
-            try:
-                i18n_list = open(i18n_lang, "w")
-                for pkg in i18n_pkgs:
-                    i18n_list.write('%s ' % (pkg))
-            except IOError:
-                    self.log.exception('error writing i18n file: %s' % i18n)
-                    raise FllError
-            finally:
-                if i18n_list:
-                    i18n_list.close()
-            i18n_full.extend(i18n_pkgs)
-
-        if i18n_pkgs:
-            self._execInChroot(arch, ['apt-get', 'clean'])
-            self._aptGetInstall(arch, self.__filterList(i18n_full),
-                                download_only = True)
-            aptcache = os.path.join(chroot, 'var/cache/apt/archives/*.deb')
-            for debfile in glob.glob(aptcache):
-                if self.opts.D:
-                    break
-                shutil.copy(debfile, apt_dir)
-                # create dict with package name = version to extend manifest
-                pkg, vers, extra = debfile.split('/')[-1].split('_')
-                self.pkgs[arch]['i18n'][pkg] = vers.replace('%3a', ':')
 
 
     def _postInst(self, arch):
@@ -1626,6 +1541,10 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
 
         self.log.info('performing post-install tasks in %s chroot...' % arch)
+
+        # reset /etc/resolv.conf (systemd-resolved clobbered our settings)
+        os.unlink(os.path.join(chroot, 'etc/resolv.conf'))
+        shutil.copy('/etc/resolv.conf', os.path.join(chroot, 'etc'))
 
         for script in self._getPostinstList(arch):
             sname = os.path.basename(script)
