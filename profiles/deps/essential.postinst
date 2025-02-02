@@ -13,6 +13,11 @@ get_efitarget() {
 }
 
 do_postinst() {
+	# Configure a default locale If only one locale was configured in the
+	# build chroot, which is common, this avoids having to do so during boot.
+	DEFAULT_LANG=$(locale -a | grep -vE '^(C|POSIX)' | head -n1)
+	[ -n "${DEFAULT_LANG}" ] && /usr/share/fll-live-initscripts/fll_locales localize "${DEFAULT_LANG}"
+
 	CHARMAP="UTF-8"
 	CODESET="guess"
 	# Debian agrees that Terminus doesn't look great enough to be default
