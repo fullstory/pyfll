@@ -322,6 +322,7 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * Remove 'grub2-fll-portable-efi' from extras.
   * Switch kaffeine for haruna, for an up to date KDE media player.
   * Retire liveapt.
+  * Write modernized /etc/apt/sources.list.d/*.sources files.
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 

@@ -990,6 +990,7 @@ class FLLBuilder(object):
         chroot = os.path.join(self.temp, arch)
         for r in self.conf['repos'].keys():
             repo = self.conf['repos'][r]
+            cached_uri = repo.get('cached')
             sources_uri = repo.get('sources_uri')
             if sources_uri:
                 cmd = ['wget', '--quiet', sources_uri, '-O']
@@ -997,7 +998,6 @@ class FLLBuilder(object):
                                         os.path.basename(sources_uri)))
                 self._execCmd(cmd)
 
-                cached_uri = repo.get('cached_uri')
                 if cached and cached_uri:
                     cmd = ['sed', '-i', 's#^URIs: .*#URIs: %s#' % cached_uri]
                     cmd.append(os.path.join(chroot, 'etc/apt/sources.list.d',
@@ -1005,54 +1005,33 @@ class FLLBuilder(object):
                     self._execCmd(cmd)
                 continue
 
-            sources_list = os.path.join(chroot, 'etc/apt/sources.list.d',
-                                        repo['label'] + '.list')
+            sources_file = os.path.join(chroot, 'etc/apt/sources.list.d',
+                                        repo['label'] + '.sources')
 
-            if os.path.isfile(os.path.join(chroot, 'etc/apt/sources.list')):
-                s = None
-                try:
-                    s = open(os.path.join(chroot, 'etc/apt/sources.list'), 'a')
-                    s.write('#   %-74s#\n' % sources_list.partition(chroot)[2])
-                except IOError:
-                    self.log.exception('failed to open /etc/apt/sources.list')
-                    raise FllError
-                finally:
-                    if s:
-                        s.close()
-
-            self.log.debug("creating %s" % sources_list)
-
-            line = []
-            if cached and repo.get('cached'):
-                line.append(repo['cached'])
-            else:
-                line.append(repo['uri'])
-
-            if repo.get('trivial'):
-                line.append('./')
-            else:
-                line.append(repo['suite'])
-                line.append(repo['components'])
-
-            line.append("\n")
-
-            l = ' '.join(line)
-            self.log.debug('%s: %s', repo, l.rstrip())
-
-            sources_list_fh = None
+            self.log.debug("creating %s" % sources_file)
+            sources_file_fh = None
             try:
-                sources_list_fh = open(sources_list, 'w')
-                sources_list_fh.write('deb ' + l)
-                if not src_uri or self.opts.B:
-                    sources_list_fh.write('#deb-src ' + l)
+                sources_file_fh = open(sources_file, 'w')
+                if src_uri or not self.opts.B:
+                    sources_file_fh.write('Types: deb deb-src\n')
                 else:
-                    sources_list_fh.write('deb-src ' + l)
+                    sources_file_fh.write('Types: deb\n')
+                if cached and cached_uri:
+                    sources_file_fh.write(f'URIs: {cached_uri}\n')
+                else:
+                    sources_file_fh.write(f'URIs: {repo['uri']}\n')
+                sources_file_fh.write(f'Suites: {repo['suite']}\n')
+                sources_file_fh.write(f'Components: {repo['components']}\n')
+                if repo.get('keyring'):
+                    sources_file_fh.write(f'Signed-by: /usr/share/keyrings/{repo['keyring']}.gpg\n')
+                else:
+                    sources_file_fh.write(f'Signed-by: /usr/share/keyrings/debian-archive-keyring.gpg\n')
             except IOError:
-                self.log.exception('failed to open %s' % sources_list)
+                self.log.exception('failed to open %s' % sources_file)
                 raise FllError
             finally:
-                if sources_list_fh:
-                    sources_list_fh.close()
+                if sources_file_fh:
+                    sources_file_fh.close()
 
 
     def _primeApt(self, arch):
