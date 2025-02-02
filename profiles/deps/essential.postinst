@@ -13,6 +13,24 @@ get_efitarget() {
 }
 
 do_postinst() {
+	CHARMAP="UTF-8"
+	CODESET="guess"
+	# Debian agrees that Terminus doesn't look great enough to be default
+	# http://bugs.debian.org/497331
+	FONTFACE="VGA"
+	# Keep the default size of 16 here to avoid clearing VT 1/2 way through
+	# bootup sequence
+	FONTSIZE="8x16"
+	# write configuration: console-setup
+	cat > /etc/default/console-setup <<EOF
+ACTIVE_CONSOLES="/dev/tty[1-6]"
+CHARMAP="${CHARMAP}"
+CODESET="${CODESET}"
+FONTFACE="${FONTFACE}"
+FONTSIZE="${FONTSIZE}"
+EOF
+	setupcon --save-only
+
 	# remember keep service blacklists in sync with fll-installer!
 	ENABLED_SERVICES="systemd-networkd systemd-resolved systemd-timesyncd"
 	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single systemd-networkd-wait-online NetworkManager-wait-online"
