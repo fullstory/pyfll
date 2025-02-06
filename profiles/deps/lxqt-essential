@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	bibata-cursor-theme
 	ca-certificates
 	dbus-x11
 	gnome-themes-extra
