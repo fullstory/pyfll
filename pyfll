@@ -201,14 +201,14 @@ class FLLBuilder(object):
         '''Return a list containing no duplicate items given a list that
         may have duplicate items.'''
 
-        d = dict()
-        for l in alist:
-            if l in d and dup_warn:
-                self.log.debug('duplicate: %s' % l)
+        items = dict()
+        for item in alist:
+            if item in items and dup_warn:
+                self.log.debug(f'duplicate: {item}')
             else:
-                d[l] = True
+                items[item] = True
 
-        blist = list(d.keys())
+        blist = list(items.keys())
         blist.sort()
 
         return blist
@@ -312,42 +312,42 @@ class FLLBuilder(object):
 
 
 
-    def _processDefaults(self, d):
+    def _processDefaults(self, defaults):
         '''Form a distro-defaults data structure to be written to
         /etc/default/distro of each chroot, and used for release name.'''
-        for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
-                  'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
-                  'FLL_LIVE_USER_GROUPS', 'FLL_GFXBOOT_THEME']:
-            if not d.get(k):
-                self.log.critical("%s' is required in 'distro' section " % k +
+        for key in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+                    'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
+                    'FLL_LIVE_USER_GROUPS', 'FLL_GFXBOOT_THEME']:
+            if not defaults.get(key):
+                self.log.critical("%s' is required in 'distro' section " % key +
                                   "of build conf")
                 raise FllError
 
-        for k in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
-                  'FLL_LIVE_USER', 'FLL_DISTRO_CODENAME_SAFE',
-                  'FLL_DISTRO_CODENAME_REV_SAFE']:
-            if not d.get(k):
+        for key in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
+                    'FLL_LIVE_USER', 'FLL_DISTRO_CODENAME_SAFE',
+                    'FLL_DISTRO_CODENAME_REV_SAFE']:
+            if not defaults.get(key):
                 continue
-            if not d[k].isalnum():
-                self.log.critical("'%s' is not alphanumeric: %s" % (k, d[k]))
+            if not defaults[key].isalnum():
+                self.log.critical("'%s' is not alphanumeric: %s" % (key, defaults[key]))
                 raise FllError
-            elif d[k].find(' ') >= 0:
-                self.log.critical("'%s' contains whitespace: %s" % (k, d[k]))
+            elif defaults[key].find(' ') >= 0:
+                self.log.critical("'%s' contains whitespace: %s" % (key, defaults[key]))
                 raise FllError
 
-        version = d.get('FLL_DISTRO_VERSION')
+        version = defaults.get('FLL_DISTRO_VERSION')
         if version and version != 'snapshot':
-            if not d.get('FLL_DISTRO_CODENAME_SAFE'):
+            if not defaults.get('FLL_DISTRO_CODENAME_SAFE'):
                 self.log.critical("'FLL_DISTRO_VERSION' is set, but " +
                                   "'FLL_DISTRO_CODENAME_SAFE' is not")
                 raise FllError
 
-            for k in ['FLL_DISTRO_CODENAME', 'FLL_DISTRO_CODENAME_REV']:
-                safe = k + '_SAFE'
-                if d.get(safe) and not d.get(k):
-                    d[k] = d[safe]
+            for key in ['FLL_DISTRO_CODENAME', 'FLL_DISTRO_CODENAME_REV']:
+                safe = key + '_SAFE'
+                if defaults.get(safe) and not defaults.get(key):
+                    defaults[key] = defaults[safe]
         else:
-            d['FLL_DISTRO_VERSION'] = 'snapshot'
+            defaults['FLL_DISTRO_VERSION'] = 'snapshot'
 
 
     def _getDistroImageFile(self, arch):
@@ -364,16 +364,16 @@ class FLLBuilder(object):
 
     def _getDistroStamp(self):
         '''Return a string suitable for the distro stamp file.'''
-        d = self.conf['distro']
-        stamp = ' '.join([d['FLL_DISTRO_NAME'], d['FLL_DISTRO_VERSION']])
-        if d.get('FLL_DISTRO_VERSION') == 'snapshot':
+        defaults = self.conf['distro']
+        stamp = ' '.join([defaults['FLL_DISTRO_NAME'], defaults['FLL_DISTRO_VERSION']])
+        if defaults.get('FLL_DISTRO_VERSION') == 'snapshot':
             stamp += ' - %s' % self.conf['packages']['profile']
         else:
-            if d.get('FLL_DISTRO_CODENAME_REV'):
-                stamp += ' - %s' % d['FLL_DISTRO_CODENAME']
-                stamp += ' %s -' % d['FLL_DISTRO_CODENAME_REV']
+            if defaults.get('FLL_DISTRO_CODENAME_REV'):
+                stamp += ' - %s' % defaults['FLL_DISTRO_CODENAME']
+                stamp += ' %s -' % defaults['FLL_DISTRO_CODENAME_REV']
             else:
-                stamp += ' %s -' % d['FLL_DISTRO_CODENAME']
+                stamp += ' %s -' % defaults['FLL_DISTRO_CODENAME']
 
             stamp += ' %s' % self.conf['packages']['profile']
 
@@ -385,16 +385,16 @@ class FLLBuilder(object):
 
     def _getDistroMediaName(self):
         '''Return a string suitable for the distro stamp file.'''
-        d = self.conf['distro']
-        name = '-'.join([d['FLL_DISTRO_NAME'], d['FLL_DISTRO_VERSION']])
-        if d.get('FLL_DISTRO_VERSION') == 'snapshot':
+        defaults = self.conf['distro']
+        name = '-'.join([defaults['FLL_DISTRO_NAME'], defaults['FLL_DISTRO_VERSION']])
+        if defaults.get('FLL_DISTRO_VERSION') == 'snapshot':
             name += '-%s' % self.conf['packages']['profile']
         else:
-            if d.get('FLL_DISTRO_CODENAME_REV'):
-                name += '-%s-%s' % (d['FLL_DISTRO_CODENAME_SAFE'],
-                                    d['FLL_DISTRO_CODENAME_REV_SAFE'])
+            if defaults.get('FLL_DISTRO_CODENAME_REV'):
+                name += '-%s-%s' % (defaults['FLL_DISTRO_CODENAME_SAFE'],
+                                    defaults['FLL_DISTRO_CODENAME_REV_SAFE'])
             else:
-                name += '-%s' % d['FLL_DISTRO_CODENAME_SAFE']
+                name += '-%s' % defaults['FLL_DISTRO_CODENAME_SAFE']
 
             name += '-%s' % self.conf['packages']['profile']
 
@@ -535,8 +535,8 @@ class FLLBuilder(object):
         if 'distro' in self.conf:
                 self._processDefaults(self.conf['distro'])
                 self.log.debug('distro-defaults:')
-                for k, v in list(self.conf['distro'].items()):
-                    self.log.debug('%s="%s"' % (k, v))
+                for key, value in list(self.conf['distro'].items()):
+                    self.log.debug(f'{key}="{value}"')
                 self.log.debug('testing stamp/name:')
                 self._getDistroStamp()
                 self._getDistroMediaName()
@@ -573,15 +573,15 @@ class FLLBuilder(object):
 
         if 'debconf' in pfile:
             self.log.debug('debconf:')
-            for d in self.__lines2list(pfile['debconf']):
-                pkgs['debconf'].append(d)
-                self.log.debug('  %s', d)
+            for debconf in self.__lines2list(pfile['debconf']):
+                pkgs['debconf'].append(debconf)
+                self.log.debug('  %s', debconf)
 
         if 'debconf' in self.conf['packages']:
             self.log.debug('debconf (config):')
-            for d in self.__lines2list(self.conf['packages']['debconf']):
-                pkgs['debconf'].append(d)
-                self.log.debug('  %s' % d)
+            for debconf in self.__lines2list(self.conf['packages']['debconf']):
+                pkgs['debconf'].append(debconf)
+                self.log.debug('  %s' % debconf)
 
         if 'packages' in pfile:
             self.log.debug('packages:')
@@ -638,9 +638,9 @@ class FLLBuilder(object):
 
             if 'debconf' in dfile:
                 self.log.debug('debconf:')
-                for d in self.__lines2list(dfile['debconf']):
-                    pkgs['debconf'].append(d)
-                    self.log.debug('  %s' % d)
+                for debconf in self.__lines2list(dfile['debconf']):
+                    pkgs['debconf'].append(debconf)
+                    self.log.debug('  %s' % debconf)
 
             if 'packages' in dfile:
                 self.log.debug('packages:')
@@ -667,8 +667,8 @@ class FLLBuilder(object):
 
         self.log.debug('debconf summary for %s:' % arch)
         pkgs['debconf'].sort()
-        for d in pkgs['debconf']:
-            self.log.debug('  %s' % d)
+        for debconf in pkgs['debconf']:
+            self.log.debug('  %s' % debconf)
 
         pkgs['packages'] = self.__filterList(pkgs['packages'])
 
@@ -1085,26 +1085,26 @@ class FLLBuilder(object):
         '''Divert some facilities and replace temporaily with /bin/true (or
         some other more appropiate facility.'''
         chroot = os.path.join(self.temp, arch)
-        for d in self.diverts:
-            self.log.debug("diverting %s" % d)
-            cmd = 'dpkg-divert --add --local --divert ' + d + '.REAL --rename '
-            cmd += d
+        for divert in self.diverts:
+            self.log.debug("diverting %s" % divert)
+            cmd = 'dpkg-divert --add --local --divert ' + divert + '.REAL --rename '
+            cmd += divert
             self._execInChroot(arch, cmd.split())
 
-            if d == '/usr/sbin/policy-rc.d':
-                self._writeFile(arch, d)
-                os.chmod(os.path.join(chroot, d.lstrip('/')), 0o755)
+            if divert == '/usr/sbin/policy-rc.d':
+                self._writeFile(arch, divert)
+                os.chmod(os.path.join(chroot, divert.lstrip('/')), 0o755)
             else:
-                os.symlink('/bin/true', os.path.join(chroot, d.lstrip('/')))
+                os.symlink('/bin/true', os.path.join(chroot, divert.lstrip('/')))
 
 
     def _dpkgUnDivert(self, arch):
         '''Undivert facilities diverted by self._dpkgAddDivert().'''
         chroot = os.path.join(self.temp, arch)
-        for d in self.diverts:
-            self.log.debug("undoing diversion: %s" % d)
-            os.unlink(os.path.join(chroot, d.lstrip('/')))
-            cmd = 'dpkg-divert --remove --rename ' + d
+        for divert in self.diverts:
+            self.log.debug("undoing diversion: %s" % divert)
+            os.unlink(os.path.join(chroot, divert.lstrip('/')))
+            cmd = 'dpkg-divert --remove --rename ' + divert
             self._execInChroot(arch, cmd.split())
 
 
@@ -1129,23 +1129,23 @@ class FLLBuilder(object):
             f = open(fn, 'w')
             self.log.debug('writing file: %s' % file)
             if file == '/etc/default/distro':
-                d = list(self.conf['distro'].keys())
-                d.sort()
-                for k in d:
-                    if k.startswith('FLL_DISTRO_CODENAME'):
+                defaults = list(self.conf['distro'].keys())
+                defaults.sort()
+                for key in defaults:
+                    if key.startswith('FLL_DISTRO_CODENAME'):
                         continue
-                    elif k == 'FLL_MOUNTPOINT':
-                        f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
-                        test = '$([ -d "$%s" ] && echo live' % k
+                    elif key == 'FLL_MOUNTPOINT':
+                        f.write('%s="%s"\n' % (key, self.conf['distro'][key]))
+                        test = '$([ -d "$%s" ] && echo live' % key
                         test += ' || echo installed)'
                         f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test))
-                    elif k == 'FLL_IMAGE_FILE':
+                    elif key == 'FLL_IMAGE_FILE':
                         image_file = self._getDistroImageFile(arch)
-                        f.write('%s="%s"\n' % (k, image_file))
+                        f.write('%s="%s"\n' % (key, image_file))
                         f.write('%s="$%s/$%s"\n' % ('FLL_IMAGE_LOCATION',
-                                                    'FLL_IMAGE_DIR', k))
+                                                    'FLL_IMAGE_DIR', key))
                     else:
-                        f.write('%s="%s"\n' % (k, self.conf['distro'][k]))
+                        f.write('%s="%s"\n' % (key, self.conf['distro'][key]))
             elif file == '/etc/fstab':
                 f.write('# /etc/fstab: static file system information\n')
             elif file == '/etc/hostname':
@@ -1261,8 +1261,8 @@ class FLLBuilder(object):
         if '/usr/sbin/update-initramfs' in self.diverts and not self.opts.D:
             chroot = os.path.join(self.temp, arch)
             kvers = self._detectLinuxVersion(chroot)
-            for k in kvers:
-                cmd = 'update-initramfs -c -k %s' % k
+            for kernel in kvers:
+                cmd = 'update-initramfs -c -k %s' % kernel
                 if self.opts.v:
                     cmd += ' -v'
                 self._execInChroot(arch, cmd.split())
@@ -1448,9 +1448,9 @@ class FLLBuilder(object):
         srcpkg_seen = dict()
         uris = []
         for p in packages:
-            for k in self._detectLinuxVersion(chroot):
-                if p.endswith('-modules-' + k):
-                    p = p[:p.find('-modules-' + k)]
+            for kernel in self._detectLinuxVersion(chroot):
+                if p.endswith('-modules-' + kernel):
+                    p = p[:p.find('-modules-' + kernel)]
                     p += '-source'
 
             if p.startswith('cdebootstrap-helper'):
@@ -1620,8 +1620,8 @@ class FLLBuilder(object):
             return
 
         kvers = self._detectLinuxVersion(chroot)
-        for k in kvers:
-            initrd = os.path.join(chroot, 'boot', 'initrd.img-' + k)
+        for kernel in kvers:
+            initrd = os.path.join(chroot, 'boot', 'initrd.img-' + kernel)
             if os.path.isfile(initrd):
                 self.log.debug('copying %s to staging dir' % initrd)
                 shutil.copy(initrd, boot_dir)
@@ -1630,7 +1630,7 @@ class FLLBuilder(object):
                                   'copy to staging dir.')
                 raise FllError
             
-            images = glob.glob(os.path.join(chroot, 'boot', 'vmlinu*-' + k))
+            images = glob.glob(os.path.join(chroot, 'boot', 'vmlinu*-' + kernel))
             if len(images) == 1:
                 self.log.debug('copying %s to staging dir' % images[0])
                 shutil.copy(images[0], boot_dir)
@@ -1747,10 +1747,10 @@ class FLLBuilder(object):
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         
         kcount = { '686': 0, 'amd': 0, 'pae': 0, '486': 0, 'ppc': 0 }
-        for k in kvers:
-            cpu = k[k.rfind('-') + 1:]
-            vmlinuz = 'vmlinuz-%s' % k
-            initrd = 'initrd.img-%s' % k
+        for kernel in kvers:
+            cpu = kernel[kernel.rfind('-') + 1:]
+            vmlinuz = 'vmlinuz-%s' % kernel
+            initrd = 'initrd.img-%s' % kernel
 
             for f in [vmlinuz, initrd]:
                 if not os.path.isfile(os.path.join(boot_dir, f)):
