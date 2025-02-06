@@ -24,6 +24,7 @@ packages = """
 	playerctl
 	power-profiles-daemon
 	slurp
+	srain
 	tuigreet
 	swayidle
 	waybar
@@ -34,4 +35,5 @@ packages = """
 	wlopm
 	wofi
 	xdg-desktop-portal-hyprland
+	zenity
 """
