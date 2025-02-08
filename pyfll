@@ -30,23 +30,6 @@ def restore_sigpipe():
     SIGPIPE restored to default (http://bugs.python.org/issue1652)."""
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-FLL_LOCALE_DEFAULTS = {
-    'be': 'be_BY',
-    'cs': 'cs_CZ',
-    'da': 'da_DK',
-    'en': 'en_US',
-    'el': 'el_GR',
-    'ga': 'ga_IE',
-    'he': 'he_IL',
-    'ja': 'ja_JP',
-    'ko': 'ko_KR',
-    'nb': 'nb_NO',
-    'nn': 'nn_NO',
-    'pt': 'pt_BR',
-    'sl': 'sl_SI',
-    'zh': 'zh_CN'
-}
-
 
 class FllLocalesError(Exception):
     """
@@ -113,18 +96,6 @@ class FllLocales(object):
         loc_suf_list.append(ll + '-' + cc)
         loc_suf_list.append(ll + cc)
         loc_suf_list.append(ll)
-
-        default = FLL_LOCALE_DEFAULTS.get(ll)
-        if default and default != locale:
-            try:
-                ll, cc = default.lower().split('_')
-            except ValueError as e:
-                raise FllLocalesError(e)
-            loc_suf_list.append(ll + '-' + cc)
-            loc_suf_list.append(ll + cc)
-        else:
-            loc_suf_list.append(ll + '-' + ll)
-            loc_suf_list.append(ll + ll)
 
         if ll != 'en':
             loc_suf_list.append('i18n')
