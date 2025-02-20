@@ -2060,7 +2060,7 @@ class FLLBuilder(object):
             self.log.info(f)
 
         if self.opts.U:
-            self._execCmd("update-grub")
+            self._execCmd(["update-grub"])
 
 
     def buildChroots(self):
