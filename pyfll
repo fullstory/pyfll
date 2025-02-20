@@ -1444,6 +1444,7 @@ class FLLBuilder(object):
                 uris.extend(u)
             except (apt_pkg.Error, SystemError) as e:
                 self.log.critical(f'failed to query source uris for {srcpkg}: {e}')
+                raise FllError
 
         uris.sort()
         self.pkgs[arch]['source'] = uris
