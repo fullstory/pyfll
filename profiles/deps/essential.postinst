@@ -18,6 +18,7 @@ do_postinst() {
 	DEFAULT_LANG=$(locale -a | grep -vE '^(C|POSIX)' | head -n1)
 	[ -n "${DEFAULT_LANG}" ] && /usr/share/fll-live-initscripts/fll_locales localize "${DEFAULT_LANG}"
 
+	say 'Configuring console-setup'
 	CHARMAP="UTF-8"
 	CODESET="guess"
 	# Debian agrees that Terminus doesn't look great enough to be default
@@ -34,7 +35,17 @@ CODESET="${CODESET}"
 FONTFACE="${FONTFACE}"
 FONTSIZE="${FONTSIZE}"
 EOF
-	setupcon --save-only
+
+	DEBCONF=$(mktemp)
+	cat >"${DEBCONF}" <<EOF
+console-setup console-setup/charmap47 select ${CHARMAP}
+console-setup console-setup/codesetcode string ${CODESET}
+console-setup console-setup/fontface47 select ${FONTFACE}
+console-setup console-setup/fontsize string ${FONTSIZE}
+EOF
+	debconf-set-selections < "${DEBCONF}"
+	rm -f "${DEBCONF}"
+	dpkg-reconfigure -fnoninteractive console-setup
 
 	# remember keep service blacklists in sync with fll-installer!
 	ENABLED_SERVICES="systemd-networkd systemd-resolved systemd-timesyncd"
