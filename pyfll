@@ -1432,19 +1432,18 @@ class FLLBuilder(object):
             else:
                 srcpkg_seen[srcpkg] = True
 
-            u = []
-            sources = apt_pkg.SourceRecords()
-            sources.restart()
-            while sources.lookup(srcpkg):
-                if sources.version == srcver:
-                    u.extend([sources.index.archive_uri(sources.files[f][2])
-                              for f in range(len(sources.files))])
-            if len(u) > 0:
+            try:
+                u = []
+                sources = apt_pkg.SourceRecords()
+                sources.restart()
+                while sources.lookup(srcpkg):
+                    if sources.version == srcver:
+                        u.extend([sources.index.archive_uri(sources.files[f][2])
+                                for f in range(len(sources.files))])
                 self.log.debug(u)
                 uris.extend(u)
-            else:
-                self.log.critical(f'failed to query source uris for {srcpkg}')
-                raise FllError
+            except (apt_pkg.Error, SystemError) as e:
+                self.log.critical(f'failed to query source uris for {srcpkg}: {e}')
 
         uris.sort()
         self.pkgs[arch]['source'] = uris
@@ -1914,7 +1913,7 @@ class FLLBuilder(object):
         sources = None
         try:
             sources = open(sources_file, 'w')
-            sources.writelines([f'{s}\n' % s for s in sources_list])
+            sources.writelines([f'{s}\n' for s in sources_list])
         except IOError:
             self.log.exception(f'failed to write filename: {sources_file}')
             raise FllError
