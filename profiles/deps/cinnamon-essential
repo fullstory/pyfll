@@ -9,7 +9,6 @@ packages = """
 	gedit
 	gnome-disk-utility
 	gnome-logs
-	gnome-software
 	gnome-system-monitor
 	srain
 	nemo
