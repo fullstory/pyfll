@@ -5,13 +5,14 @@ say() {
 }
 
 do_postinst() {
-	say "Writing /etc/firewalld/zones/public.xml (allow mdns/bonjour)"
+	say "Writing /etc/firewalld/zones/public.xml (allow dhcpv6-client/kdeconnect/mdns/ssh)"
 	cat <<EOF >> /etc/firewalld/zones/public.xml
 <?xml version="1.0" encoding="utf-8"?>
 <zone>
   <short>Public</short>
   <description>Only selected incoming connections are accepted.</description>
   <service name="ssh"/>
+  <service name="kdeconnect"/>
   <service name="dhcpv6-client"/>
   <service name="mdns"/>
   <forward/>
