@@ -33,6 +33,9 @@ if which zoxide >/dev/null; then
 	eval "\$(zoxide init bash)"
 fi
 EOF
+		cat >> /etc/skel/.bash_aliases <<EOF
+alias cd=z
+EOF
 	fi
 
 	if which batcat >/dev/null; then
