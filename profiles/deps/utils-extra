@@ -23,6 +23,7 @@ packages = """
 	openssh-client
 	plocate
 	pwgen
+	qemu-guest-agent
 	sshfs
 	smbclient
 	strace
