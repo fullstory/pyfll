@@ -4,6 +4,7 @@ desc = """
 
 packages = """
 	aptosid-settings-kde
+	aptosid-settings-gtk-theme
 	aptosid-art-kde
 	plasma-welcome-
 """

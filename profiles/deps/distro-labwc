@@ -5,6 +5,7 @@ desc = """
 packages = """
 	aptosid-art-wallpaper
 	aptosid-settings-labwc
-	aptosid-settings-qt-gtk
+	aptosid-settings-gtk-theme
+	aptosid-settings-qt-style
 	aptosid-openbox-theme-kaunas
 """

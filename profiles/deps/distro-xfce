@@ -4,6 +4,7 @@ desc = """
 
 packages = """
 	aptosid-settings-xfce
-	aptosid-settings-qt-gtk
+	aptosid-settings-gtk-theme
+	aptosid-settings-qt-style
 	aptosid-art-xfce
 """

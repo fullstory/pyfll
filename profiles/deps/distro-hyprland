@@ -5,5 +5,7 @@ desc = """
 packages = """
 	aptosid-art-wallpaper
 	aptosid-settings-hyprland
+	aptosid-settings-gtk-theme
+	aptosid-settings-qt-style
 	bibata-cursor-theme
 """

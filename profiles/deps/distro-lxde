@@ -5,5 +5,7 @@ desc = """
 packages = """
 #	aptosid-art-lxde
 	aptosid-settings-lxde
+	aptosid-settings-gtk-theme
+	aptosid-settings-qt-style
 	aptosid-art-wallpaper
 """
