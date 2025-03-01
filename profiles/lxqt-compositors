@@ -12,11 +12,11 @@ deps = """
 	hwsupport-essential
 	lxqt-essential
 	utils-essential
+	utils-x
 	xserver
 """
 
 packages = """
-	firefox
 	hyprland
 	hyprland-protocols
 	kwin-wayland

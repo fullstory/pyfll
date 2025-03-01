@@ -20,7 +20,6 @@ packages = """
 	rhythmbox
 	seahorse
 	seahorse-daemon
-	thunderbird
 	transmission-gtk
 	guake
 """

@@ -88,5 +88,4 @@ packages = """
 	network-manager-gnome
 	seahorse
 	slick-greeter
-	thunderbird
 """

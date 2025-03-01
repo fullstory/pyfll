@@ -6,7 +6,6 @@ packages = """
 	blueman
 	celluloid
 	file-roller
-	firefox
 	gnome-disk-utility
 	gparted
 	gvfs-backends

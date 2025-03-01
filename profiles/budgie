@@ -82,6 +82,5 @@ packages = """
 	rhythmbox
 	seahorse
 	slick-greeter
-	thunderbird
 	zenity
 """

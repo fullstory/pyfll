@@ -12,9 +12,9 @@ deps = """
 	hwsupport-essential
 	gnome-essential
 	utils-essential
+	utils-x
 	xserver
 """
 
 packages = """
-	firefox
 """

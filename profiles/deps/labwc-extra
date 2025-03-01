@@ -6,7 +6,6 @@ packages = """
 	blueman
 	celluloid
 	eom
-	firefox
 	gvfs-backends
 	pcmanfm
 	pluma

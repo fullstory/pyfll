@@ -15,7 +15,6 @@ packages = """
 	qalculate-gtk
 	ristretto
 	seahorse
-	thunderbird
 	transmission
 	xfce4-battery-plugin
 	xfce4-clipman-plugin
