@@ -3,6 +3,5 @@ desc = """
 """
 
 packages = """
-	chromium
 	spice-vdagent
 """
