@@ -16,7 +16,7 @@ if [ -f ${THIS_DIR}/pyfll ]; then
 elif [ -f /usr/share/fll/pyfll ]; then
 	FLL="${DEFAULTD}/pyfll --share ${DEFAULTD}"
 else
-	echo "Error locating pyfll.py, aborting." >&2
+	echo "Error locating pyfll, aborting." >&2
 	exit 1
 fi
 
