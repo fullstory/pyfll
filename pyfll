@@ -365,6 +365,7 @@ class FLLBuilder(object):
                 name += '-%s' % defaults['FLL_DISTRO_CODENAME_SAFE']
 
             name += '-%s' % self.conf['packages']['profile']
+            name += '-%s' % self.conf['sourcedistro']['codename']
 
         name += '-' + '-'.join(list(self.conf['archs'].keys()))
         name += '-%s' % self.timestamp
