@@ -336,6 +336,7 @@ class FLLBuilder(object):
         stamp = ' '.join([defaults['FLL_DISTRO_NAME'], defaults['FLL_DISTRO_VERSION']])
         if defaults.get('FLL_DISTRO_VERSION') == 'snapshot':
             stamp += ' - %s' % self.conf['packages']['profile']
+            stamp += ' %s' % self.conf['sourcedistro']['codename']
         else:
             if defaults.get('FLL_DISTRO_CODENAME_REV'):
                 stamp += ' - %s' % defaults['FLL_DISTRO_CODENAME']
@@ -357,6 +358,7 @@ class FLLBuilder(object):
         name = '-'.join([defaults['FLL_DISTRO_NAME'], defaults['FLL_DISTRO_VERSION']])
         if defaults.get('FLL_DISTRO_VERSION') == 'snapshot':
             name += '-%s' % self.conf['packages']['profile']
+            name += '-%s' % self.conf['sourcedistro']['codename']
         else:
             if defaults.get('FLL_DISTRO_CODENAME_REV'):
                 name += '-%s-%s' % (defaults['FLL_DISTRO_CODENAME_SAFE'],
@@ -365,7 +367,6 @@ class FLLBuilder(object):
                 name += '-%s' % defaults['FLL_DISTRO_CODENAME_SAFE']
 
             name += '-%s' % self.conf['packages']['profile']
-            name += '-%s' % self.conf['sourcedistro']['codename']
 
         name += '-' + '-'.join(list(self.conf['archs'].keys()))
         name += '-%s' % self.timestamp
