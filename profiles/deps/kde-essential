@@ -21,7 +21,6 @@ packages = """
 		# plasma-desktop recommends are still fscked
 		kde-config-gtk-style
 		kde-config-screenlocker
-		kde-config-sddm
 		khelpcenter
 		kinfocenter
 		kio-extras
