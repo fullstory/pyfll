@@ -713,8 +713,10 @@ class FLLBuilder(object):
 
 
     def _mount(self, chroot):
-        '''Mount virtual filesystems in a chroot.'''
-        virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
+        '''Mount virtual filesystems in a chroot. sysfs became required as of
+        initramfs-tools 0.146, but wasn't absolutely required previously:
+        https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1099456'''
+        virtfs = {'devpts': 'dev/pts', 'proc': 'proc', 'sysfs': 'sys'}
 
         for v in list(virtfs.items()):
             cmd = ['mount', '-t', v[0], 'fll-' + v[0],
