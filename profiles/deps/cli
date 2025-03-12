@@ -9,6 +9,7 @@ packages = """
 	dialog
 	htop
 	iotop
+	liquidprompt
 	mc
 	most
 	screen

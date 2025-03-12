@@ -34,14 +34,23 @@ if which zoxide >/dev/null; then
 fi
 EOF
 		cat >> /etc/skel/.bash_aliases <<EOF
-alias cd=z
+command -v z >/dev/null && alias cd=z
+EOF
+	fi
+
+	if [ -f /usr/share/liquidprompt/liquidprompt ]; then
+		say "Setting up liquidprompt"
+		cat >> /etc/skel/.bashrc <<EOF
+if [ -f /usr/share/liquidprompt/liquidprompt ]; then
+	echo \$- | grep -q i 2>/dev/null && . /usr/share/liquidprompt/liquidprompt
+fi
 EOF
 	fi
 
 	if which batcat >/dev/null; then
 		say "Setting up batcat"
 		cat >> /etc/skel/.bash_aliases <<EOF
-alias cat=batcat
+command -v batcat >/dev/null && alias cat=batcat
 EOF
 	fi
 
