@@ -26,4 +26,5 @@ packages = """
 	systemd-homed
 	systemd-resolved
 	systemd-timesyncd
+	xfsprogs
 """
