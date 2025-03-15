@@ -101,7 +101,7 @@ EOF
 		else
 			say "Dropping group from FLL_LIVE_USER_GROUPS: ${g}"
 			if [ -w /etc/calamares/modules/users.conf ]; then
-				say "Removing ${g} from /etc/calamares/modules.users.conf"
+				say "Removing ${g} from /etc/calamares/modules/users.conf"
 				sed -i "/- ${g}/d" /etc/calamares/modules/users.conf
 			fi
 		fi
