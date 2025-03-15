@@ -3,5 +3,6 @@ desc = """
 """
 
 packages = """
+	btrfs-assistant
 	spice-vdagent
 """

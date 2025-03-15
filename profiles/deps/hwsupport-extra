@@ -16,6 +16,7 @@ packages = """
 		libspa-0.2-libcamera
 	pipewire-pulse
 	rfkill
+	snapper
 	udisks2
 		udisks2-btrfs
 		udisks2-lvm2
