@@ -31,12 +31,9 @@ EOF
 		cat >> /etc/skel/.bashrc <<EOF
 if which zoxide >/dev/null; then
 	eval "\$(zoxide init bash)"
+	alias cd=z
 fi
 EOF
-		cat >> /etc/skel/.bash_aliases <<EOF
-command -v z >/dev/null && alias cd=z
-EOF
-	fi
 
 	if [ -f /usr/share/liquidprompt/liquidprompt ]; then
 		say "Setting up liquidprompt"
