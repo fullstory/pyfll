@@ -180,7 +180,15 @@ EOF
 		# disable grub2 submenus and use plain menu structures instead
 		if grep -qv ^GRUB_DISABLE_SUBMENU /etc/default/grub; then
 			printf "\n# Disable linux kernel submenus\n" >> /etc/default/grub
-			printf "\nGRUB_DISABLE_SUBMENU=true\n" >> /etc/default/grub
+			printf "GRUB_DISABLE_SUBMENU=true\n" >> /etc/default/grub
+		fi
+
+		# enable os-prober
+		if grep -q '^#GRUB_DISABLE_OS_PROBER=false' /etc/default/grub; then
+			sed -i 's/#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
+		else
+			printf "\n# Enable otheros discovery\n" >> /etc/default/grub
+			printf "GRUB_DISABLE_OS_PROBER=false\n" >> /etc/default/grub
 		fi
 	fi
 
