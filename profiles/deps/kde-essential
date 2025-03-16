@@ -38,4 +38,5 @@ packages = """
 	sddm
 		weston
 	sddm-theme-breeze
+	xdg-desktop-portal-kde
 """
