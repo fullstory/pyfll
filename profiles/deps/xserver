@@ -10,6 +10,7 @@ packages = """
 	fonts-dejavu-extra
 	fonts-liberation
 	fonts-noto
+	intel-media-va-driver
 	libgl1-mesa-dri
 	mesa-utils
 	xauth
