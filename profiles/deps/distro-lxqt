@@ -6,6 +6,4 @@ packages = """
 	aptosid-art-sddm-nemesis
 	aptosid-art-wallpaper
 	aptosid-settings-lxqt
-	aptosid-settings-gtk-theme
-	aptosid-settings-qt-style
 """
