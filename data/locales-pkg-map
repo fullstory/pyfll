@@ -16,6 +16,8 @@ hunspell-en-us = hunspell,
 
 libreoffice-core = libreoffice-help, libreoffice-l10n, mythes, hyphen,
 
+nm-tray = nm-tray-l10n,
+
 plasma-desktop = kde-l10n,
 
 plasma-netbook = kde-l10n,

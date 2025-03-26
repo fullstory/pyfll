@@ -7,6 +7,7 @@ packages = """
 	ca-certificates
 	dbus-x11
 	gnome-themes-extra
+	kdialog
 	lxqt-core
 		lximage-qt
 		lxqt-about
@@ -37,5 +38,4 @@ packages = """
 	udisks2
 	xscreensaver
 		xdg-utils
-	zenity
 """

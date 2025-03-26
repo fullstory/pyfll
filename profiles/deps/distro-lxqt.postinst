@@ -15,7 +15,7 @@ do_postinst() {
 			/etc/xdg/openbox/rc.xml
 		say "Setting default cursor theme"
 		update-alternatives --set x-cursor-theme \
-			/usr/share/icons/DMZ-White/cursor.theme
+			/usr/share/icons/Bibata-Modern-Ice/cursor.theme
 	fi
 }
 
