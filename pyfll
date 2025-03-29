@@ -1192,7 +1192,8 @@ class FLLBuilder(object):
         self._writeAptLists(arch)
 
         if os.path.isfile(os.path.join(chroot, 'etc/resolv.conf')) and \
-           not os.path.islink(os.path.join(chroot, 'etc/resolv.conf')):
+           not os.path.islink(os.path.join(chroot, 'etc/resolv.conf')) and \
+           os.path.isfile(os.path.join(chroot, 'etc/systemd/resolved.conf')):
             # networkd+resolved so setup symlink and disable fallback DNS
             try:
                 os.unlink(os.path.join(chroot, 'etc/resolv.conf'))
@@ -1201,13 +1202,6 @@ class FLLBuilder(object):
                     f.write('DNS=\n')
             except IOError:
                 self.log.exception('failed to setup resolv.conf and resolved.conf')
-                raise FllError
-
-        if os.path.isfile(os.path.join(chroot, 'etc/.resolv.conf.systemd-resolved.bak')):
-            try:
-                os.unlink(os.path.join(chroot, 'etc/.resolv.conf.systemd-resolved.bak'))
-            except IOError:
-                self.log.exception('failed to delete .resolv.conf.systemd-resolved.bak')
                 raise FllError
 
         if 'home' in self.conf:

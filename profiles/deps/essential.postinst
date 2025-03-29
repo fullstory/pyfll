@@ -48,9 +48,9 @@ EOF
 	dpkg-reconfigure -fnoninteractive console-setup
 
 	# remember keep service blacklists in sync with fll-installer!
-	ENABLED_SERVICES="systemd-networkd systemd-resolved systemd-timesyncd"
-	DISABLED_SERVICES="anacron cron bootlogd bootlogs stop-bootlogd stop-bootlogd-single systemd-networkd-wait-online NetworkManager-wait-online"
-	REMOVED_SERVICES=""
+	ENABLED_SERVICES="systemd-networkd systemd-timesyncd"
+	DISABLED_SERVICES="systemd-networkd-wait-online"
+	MASKED_SERVICES=""
 	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
 
 	# enable services wanted on the live CD
@@ -77,9 +77,9 @@ EOF
 	done
 
 	# remove particularly nasty services, don't use!
-	[ -n "${REMOVED_SERVICES}" ] && \
+	[ -n "${MASKED_SERVICES}" ] && \
 		say 'Masking services'
-	for service in ${REMOVED_SERVICES}; do
+	for service in ${MASKED_SERVICES}; do
 		if [ -x "/etc/init.d/${service}" ]; then
 			update-rc.d -f "${service}" remove
 		elif [ -f "/lib/systemd/system/${service}.service" ]; then
@@ -91,6 +91,14 @@ EOF
 	if [ -r /etc/machine-id ]; then
 		say 'systemd: truncate /etc/machine-id'
 		:>/etc/machine-id
+	fi
+
+	# enable DNS caching in NetworkManager via dnsmasq
+	if [ -x /usr/sbin/dnsmasq ]; then
+		cat > /etc/NetworkManager/conf.d/dns.conf << EOF
+[main]
+dns=dnsmasq
+EOF
 	fi
 
 	. /etc/default/distro
@@ -210,7 +218,7 @@ EOF
 	say 'Make mtab a symlink to /proc/mounts'
 	if [ ! -L /etc/mtab ]; then
 		rm -f /etc/mtab
-		ln -sf /proc/mounts /etc/mtab
+		ln -sf ../proc/self/mounts /etc/mtab
 	fi
 }
 
