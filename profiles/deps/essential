@@ -10,7 +10,6 @@ debconf = """
 packages = """
 	adduser
 	console-setup
-	dnsmasq-base
 	fll-live-initramfs
 	fll-live-initscripts
 	locales
@@ -25,6 +24,7 @@ packages = """
 	mtools
 	pkexec
 	systemd-homed
+	systemd-resolved
 	systemd-timesyncd
 	xfsprogs
 """
