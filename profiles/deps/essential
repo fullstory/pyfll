@@ -21,6 +21,7 @@ packages = """
 	grub-efi-ia32-bin
 	grub-efi-amd64-bin
 	efibootmgr
+	linux-sysctl-defaults
 	mtools
 	pkexec
 	systemd-homed
