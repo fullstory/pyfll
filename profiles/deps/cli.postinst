@@ -48,7 +48,7 @@ EOF
 	if which batcat >/dev/null; then
 		say "Setting up batcat"
 		cat >> /etc/skel/.bash_aliases <<EOF
-command -v batcat >/dev/null && alias cat=batcat
+command -v batcat >/dev/null && alias cat="batcat -pp"
 EOF
 	fi
 
