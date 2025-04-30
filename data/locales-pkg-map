@@ -12,6 +12,8 @@ k3b = k3b-i18n,
 
 koffice = koffice-l10n,
 
+qt6-style-kvantum = qt6-style-kvantum-l10n,
+
 hunspell-en-us = hunspell,
 
 libreoffice-core = libreoffice-help, libreoffice-l10n, mythes, hyphen,
