@@ -6,10 +6,8 @@ packages = """
 	featherpad
 	gvfs-backends
 	gvfs-fuse
-	gucharmap
 	kvirc
 	pavucontrol-qt
-	qlipper
 	screengrab
 """
 
