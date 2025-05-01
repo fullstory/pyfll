@@ -6,8 +6,10 @@ packages = """
 	libreoffice-qt6
 	qalculate-gtk
 	qdiskinfo
+	mpv
+		xdg-utils
+		yt-dlp
 	nomacs
 	transmission-qt
-	vlc
 	wireshark
 """
