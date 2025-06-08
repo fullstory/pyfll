@@ -285,7 +285,7 @@ class FLLBuilder(object):
         '''Form a distro-defaults data structure to be written to
         /etc/default/distro of each chroot, and used for release name.'''
         for key in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
-                    'FLL_MEDIA_NAME', 'FLL_MOUNTPOINT', 'FLL_LIVE_USER',
+                    'FLL_MEDIA_NAME', 'FLL_LIVE_USER',
                     'FLL_LIVE_USER_GROUPS', 'FLL_GFXBOOT_THEME']:
             if not defaults.get(key):
                 self.log.critical(f'{key} is required in "distro" section of config file')
@@ -1105,11 +1105,6 @@ class FLLBuilder(object):
                 for key in defaults:
                     if key.startswith('FLL_DISTRO_CODENAME'):
                         continue
-                    elif key == 'FLL_MOUNTPOINT':
-                        f.write('%s="%s"\n' % (key, self.conf['distro'][key]))
-                        test = '$([ -d "$%s" ] && echo live' % key
-                        test += ' || echo installed)'
-                        f.write('%s="%s"\n' % ('FLL_DISTRO_MODE', test))
                     elif key == 'FLL_IMAGE_FILE':
                         image_file = self._getDistroImageFile(arch)
                         f.write('%s="%s"\n' % (key, image_file))

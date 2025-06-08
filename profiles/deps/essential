@@ -24,7 +24,6 @@ packages = """
 	linux-sysctl-defaults
 	mtools
 	pkexec
-	systemd-homed
 	systemd-resolved
 	systemd-timesyncd
 	xfsprogs
