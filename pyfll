@@ -1791,9 +1791,10 @@ class FLLBuilder(object):
         return timeout
 
     def _configBootCmdline(self):
-        cmdline =  self.conf['options'].get('boot_cmdline')
+        cmdline = self.conf['options'].get('boot_cmdline')
         if not cmdline:
             cmdline = 'systemd.show_status=1 quiet splash'
+        cmdline += f' uuid={self.uuid}'
         return cmdline
 
     def configureGrub(self):
