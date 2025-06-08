@@ -11,6 +11,7 @@ packages = """
 	kdialog
 	kio
 	kmix
+	konsole
 	konversation
 	kwalletmanager
 		libpam-kwallet-common
