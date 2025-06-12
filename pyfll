@@ -7,7 +7,6 @@ __license__   = 'GPLv2 or any later version'
 
 from configobj import ConfigObj
 from io import open
-from subprocess import *
 import apt_pkg
 import apt
 import atexit
@@ -22,6 +21,7 @@ import sys
 import shutil
 import signal
 import stat
+import subprocess
 import tempfile
 import time
 
@@ -386,8 +386,9 @@ class FLLBuilder(object):
         if self.opts.a:
             arch = self.opts.a
         elif not self.conf.get('archs'):
-            arch = Popen(['dpkg', '--print-architecture'], preexec_fn=restore_sigpipe,
-                              stdout=PIPE).communicate()[0].decode().rstrip()
+            arch = subprocess.Popen(['dpkg', '--print-architecture'],
+                                    preexec_fn=restore_sigpipe,
+                                    stdout=subprocess.PIPE).communicate()[0].decode().rstrip()
 
         if len(arch):
             self.log.debug(f'arch: {arch}')
@@ -725,7 +726,7 @@ class FLLBuilder(object):
             cmd = ['mount', '-t', v[0], 'fll-' + v[0],
                    os.path.join(chroot, v[1])]
 
-            retv = call(cmd, preexec_fn=restore_sigpipe)
+            retv = subprocess.call(cmd, preexec_fn=restore_sigpipe)
             if retv != 0:
                 self.log.critical(f'failed to mount chroot {v[0]}')
                 raise FllError
@@ -747,7 +748,7 @@ class FLLBuilder(object):
         umount_list.reverse()
 
         for mpoint in umount_list:
-            retv = call(['umount', mpoint], preexec_fn=restore_sigpipe)
+            retv = subprocess.call(['umount', mpoint], preexec_fn=restore_sigpipe)
             if retv != 0:
                 self.log.critical(f'umount failed for: {mpoint}')
                 raise FllError
@@ -799,8 +800,9 @@ class FLLBuilder(object):
         self.log.debug(command_line)
 
         try:
-            c = Popen(cmd, stdout = PIPE, stderr = STDOUT, env = self.env,
-                      close_fds = True, preexec_fn=restore_sigpipe)
+            c = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+                                 stderr = subprocess.STDOUT, env = self.env,
+                                 close_fds = True, preexec_fn=restore_sigpipe)
             cout = c.communicate()[0]
             retv = c.returncode
         except KeyboardInterrupt:
@@ -827,12 +829,12 @@ class FLLBuilder(object):
 
         try:
             if self.opts.q:
-                retv = call(cmd, stdout = open(os.devnull, 'w'),
-                            stderr = STDOUT, env = self.env,
-                            close_fds = True, preexec_fn=restore_sigpipe)
+                retv = subprocess.call(cmd, stdout = open(os.devnull, 'w'),
+                                       stderr = STDOUT, env = self.env,
+                                       close_fds = True, preexec_fn=restore_sigpipe)
             else:
-                retv = call(cmd, env = self.env, close_fds = True,
-                            preexec_fn=restore_sigpipe)
+                retv = subprocess.call(cmd, env = self.env, close_fds = True,
+                                       preexec_fn=restore_sigpipe)
         except KeyboardInterrupt:
             raise FllError
         except:
