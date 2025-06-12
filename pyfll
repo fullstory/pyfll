@@ -326,7 +326,6 @@ class FLLBuilder(object):
         else:
             image_file += '.%s' % arch
 
-        self.log.debug('image_file: %s' % image_file)
         return image_file
 
 
