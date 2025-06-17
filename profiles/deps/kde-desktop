@@ -8,7 +8,6 @@ packages = """
 	digikam
 	hplip-gui
 	fonts-vlgothic
-	kate
 	kcharselect
 	kdeadmin
 	kdiskmark

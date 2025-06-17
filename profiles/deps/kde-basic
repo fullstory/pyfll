@@ -7,6 +7,7 @@ packages = """
 	haruna
 		yt-dlp
 	k3b
+	kate
 	kde-spectacle
 	kcalc
 	kdeconnect
