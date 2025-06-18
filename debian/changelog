@@ -329,7 +329,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * Configure a default locale If only one locale was configured in the
     build chroot, which is common, this avoids having to do so during
     boot.
-  * Drop mozilla packages from profiles and favor chromium browser per default.
+  * Drop all browsers from default package lists and builder must specify.
+  * Update kio to kio6.
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 

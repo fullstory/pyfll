@@ -9,7 +9,7 @@ packages = """
 	ca-certificates
 	kde-baseapps
 	kdialog
-	kio
+	kio6
 	kmix
 	konsole
 	konversation
