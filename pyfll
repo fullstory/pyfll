@@ -1789,7 +1789,7 @@ class FLLBuilder(object):
     def _configBootCmdline(self):
         cmdline = self.conf['options'].get('boot_cmdline')
         if not cmdline:
-            cmdline = 'systemd.show_status=1 quiet splash'
+            cmdline = 'fsck.mode=skip systemd.show_status=1 quiet splash'
         cmdline += f' uuid={self.uuid}'
         return cmdline
 
