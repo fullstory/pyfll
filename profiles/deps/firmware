@@ -39,5 +39,6 @@ packages = """
 		firmware-realtek
 		#firmware-samsung
 		firmware-siano
+		firmware-sof-signed
 		firmware-ti-connectivity
 """
