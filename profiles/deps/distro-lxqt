@@ -6,7 +6,5 @@ packages = """
 	aptosid-art-sddm-nemesis
 	aptosid-art-wallpaper
 	aptosid-settings-lxqt
-	aptosid-settings-labwc
 	aptosid-settings-qt-style
-	aptosid-openbox-theme-kaunas
 """
