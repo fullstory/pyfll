@@ -331,6 +331,8 @@ pyfll (2013.02) UNRELEASED; urgency=low
     boot.
   * Drop all browsers from default package lists and builder must specify.
   * Update kio to kio6.
+  * Use argparse in place of optparse as per python PEP 389:
+      https://peps.python.org/pep-0389/
 
  -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
 

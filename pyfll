@@ -9,13 +9,13 @@ from configobj import ConfigObj
 from io import open
 import apt_pkg
 import apt
+import argparse
 import atexit
 import datetime
 import fileinput
 import functools
 import glob
 import logging
-import optparse
 import os
 import sys
 import shutil
@@ -2106,92 +2106,94 @@ class FLLBuilder(object):
 
 
 if __name__ == '__main__':
-    cli = optparse.OptionParser(usage = 'fll -c <config file> [-b <directory> ' +
-                              '-o <directory> -l <file>] [-BdDpqv]')
+    cli = argparse.ArgumentParser(description='Live (Debian) Linux builder.',
+                                  usage='fll -c <config file> ' +
+                                  '[-b <directory> -o <directory> -l <file>]' +
+                                  '[-BdDpqv]')
 
-    cli.add_option('-a', '--arch', dest = 'a', action = 'store',
-                   type = 'string', metavar = '<arch>',
-                   help = 'Build architecture, overrides config file.')
+    cli.add_argument('-a', '--arch', dest='a', action='store',
+                     type=str, metavar='<arch>',
+                     help='Build architecture, overrides config file.')
 
-    cli.add_option('-b', '--build', dest = 'b', action = 'store',
-                   type = 'string', metavar = '<directory>',
-                   help = 'Build directory. A large amount of free space ' +
-                   'is required.')
+    cli.add_argument('-b', '--build', dest='b', action='store',
+                     type=str, metavar='<directory>',
+                     help='Build directory. A large amount of free space ' +
+                     'is required.')
 
-    cli.add_option('-B', '--binary', dest = 'B', action = 'store_true',
-                   help = 'Do binary build only. Disable generation of ' +
-                   'URI lists. Default: %default')
+    cli.add_argument('-B', '--binary', dest='B', action='store_true',
+                     help='Do binary build only. Disable generation of ' +
+                     'URI lists. Default: %(default)s')
 
-    cli.add_option('-c', '--config', dest = 'c', action = 'store',
-                   type = 'string', metavar = '<config file>',
-                   help = 'Configuration file. This option may be used ' +
-                   'more than once to process multiple configurations. ' +
-                   'A configuration file must be specified.')
+    cli.add_argument('-c', '--config', dest='c', action='store',
+                     type=str, metavar='<config file>', required=True,
+                     help='Configuration file. This option may be used ' +
+                     'more than once to process multiple configurations. ' +
+                     'A configuration file must be specified.')
 
-    cli.add_option('-d', '--debug', dest = 'd', action = 'store_true',
-                   help = 'Enable debug mode. Extra output will be ' +
-                   'to assist in development. Default: %default')
+    cli.add_argument('-d', '--debug', dest='d', action='store_true',
+                     help='Enable debug mode. Extra output will be ' +
+                     'to assist in development. Default: %(default)s')
 
-    cli.add_option('-D', '--dummy', dest = 'D', action = 'store_true',
-                   help = 'Enable dummy mode. Download only ' +
-                   'and no squashfs. Default: %default')
+    cli.add_argument('-D', '--dummy', dest='D', action='store_true',
+                     help='Enable dummy mode. Download only ' +
+                     'and no squashfs. Default: %(default)s')
 
-    cli.add_option('-g', '--gid', dest = 'g', action = 'store',
-                   type = 'int', metavar = '<group id>',
-                   help = optparse.SUPPRESS_HELP)
+    cli.add_argument('-g', '--gid', dest='g', action='store',
+                     type=int, metavar='<group id>',
+                     help = argparse.SUPPRESS)
 
-    cli.add_option('-k', '--hashkey', dest = 'k', action = 'store',
-                   type = 'string', metavar = '<key id>', help = 'Set key ' +
-                   'to sign MD5 and SHA256 hashes of the generated ISOs.')
+    cli.add_argument('-k', '--hashkey', dest='k', action='store',
+                     type=str, metavar='<key id>', help='Set key ' +
+                     'to sign MD5 and SHA256 hashes of the generated ISOs.')
 
-    cli.add_option('-l', '--log', dest = 'l', action = 'store',
-                   type = 'string', metavar = '<file>',
-                   help = 'Log debug output to file. Note that when ' +
-                   'logging is enabled, output to the console is buffered.')
+    cli.add_argument('-l', '--log', dest='l', action='store',
+                     type=str, metavar='<file>',
+                     help='Log debug output to file. Note that when ' +
+                     'logging is enabled, output to the console is buffered.')
 
-    cli.add_option('-n', '--non-root', dest = 'n', action = 'store_true',
-                   help = optparse.SUPPRESS_HELP)
+    cli.add_argument('-n', '--non-root', dest='n', action='store_true',
+                     help = argparse.SUPPRESS)
 
-    cli.add_option('-o', '--output', dest = 'o', action = 'store',
-                   type = 'string', metavar = '<directory>',
-                   help = 'Output directory, where the product of this ' +
-                   'program will be generated.')
+    cli.add_argument('-o', '--output', dest='o', action='store',
+                     type=str, metavar='<directory>',
+                     help='Output directory, where the product of this ' +
+                     'program will be generated.')
 
-    cli.add_option('-p', '--profile', dest = 'p', action = 'store',
-                   type = 'string', metavar = '<profile>',
-                   help = 'Package profile, overrides config file.')
+    cli.add_argument('-p', '--profile', dest='p', action='store',
+                     type=str, metavar='<profile>',
+                     help='Package profile, overrides config file.')
 
-    cli.add_option('-P', '--preserve', dest = 'P', action = 'store_true',
-                   help = 'Preserve build directory. Disable automatic ' +
-                   'cleanup of the build area at exit.')
+    cli.add_argument('-P', '--preserve', dest='P', action='store_true',
+                     help='Preserve build directory. Disable automatic ' +
+                     'cleanup of the build area at exit.')
 
-    cli.add_option('-q', '--quiet', dest = 'q', action = 'store_true',
-                   help = 'Enable quiet mode. Only high priority messages ' +
-                   'will be generated.')
+    cli.add_argument('-q', '--quiet', dest='q', action='store_true',
+                     help='Enable quiet mode. Only high priority messages ' +
+                     'will be generated.')
 
-    cli.add_option('-s', '--share', dest = 's', action = 'store',
-                   type = 'string', metavar = '<directory>',
-                   help = optparse.SUPPRESS_HELP)
+    cli.add_argument('-s', '--share', dest='s', action='store',
+                     type=str, metavar='<directory>',
+                     help = argparse.SUPPRESS)
 
-    cli.add_option('-u', '--uid', dest = 'u', action = 'store',
-                   type = 'int', metavar = '<user id>',
-                   help = optparse.SUPPRESS_HELP)
+    cli.add_argument('-u', '--uid', dest='u', action='store',
+                     type=int, metavar='<user id>',
+                     help = argparse.SUPPRESS)
 
-    cli.add_option('-U', '--update-grub', dest = 'U', action = 'store_true',
-                   help = 'Execute update-grub after generating iso media.')
+    cli.add_argument('-U', '--update-grub', dest='U', action='store_true',
+                     help='Execute update-grub after generating iso media.')
 
-    cli.add_option('-v', '--verbose', dest = 'v', action = 'store_true',
-                   help = 'Enable verbose mode. All messages will be ' +
-                   'generated, such as announcing current operation.')
+    cli.add_argument('-v', '--verbose', dest='v', action='store_true',
+                     help='Enable verbose mode. All messages will be ' +
+                     'generated, such as announcing current operation.')
 
     cli.set_defaults(b = None, B = False, d = False, D = False, g = os.getgid(),
                      k = None, l = None, n = False, o = None, p = None,
                      P = False, q = False, s = None, u = os.getuid(), v = False)
 
-    options = cli.parse_args()[0]
+    arguments = cli.parse_args()
 
     try:
-        fll = FLLBuilder(options)
+        fll = FLLBuilder(arguments)
         fll.main()
     except KeyboardInterrupt:
         pass
