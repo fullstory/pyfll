@@ -397,20 +397,18 @@ class FLLBuilder(object):
             self.log.critical('no apt repos were specified in build config')
             raise FllError
 
-        if 'sourcedistro' not in self.conf or \
-           'name' not in self.conf['sourcedistro']:
-            self.opts.N = 'debian'
-            self.opts.C = 'sid'
+        if 'sourcedistro' in self.conf:
+            if 'name' in self.conf['sourcedistro']:
+                self.opts.source_distro_name = self.conf['sourcedistro']['name']
+            if 'codename' in self.conf['sourcedistro']:
+                self.opts.source_distro_codename = self.conf['sourcedistro']['codename']
+
+        if self.opts.source_distro_name in self.conf['repos']:
+            # trump suite definition in 'repos' section - alternatively we
+            # could bail out in error of the codename <-> suite mismatch
+            self.conf['repos'][self.opts.source_distro_name]['suite'] = self.opts.source_distro_codename
         else:
-            self.opts.N = self.conf['sourcedistro']['name']
-            if 'codename' not in self.conf['sourcedistro']:
-                self.log.critical('codename undefined in distro section of build config')
-                raise FllError
-            else:
-                self.opts.C = self.conf['sourcedistro']['codename']
-                
-        if self.opts.N not in self.conf['repos']:
-            self.log.critical(f'{self.opts.N} repo not configured in build config')
+            self.log.critical(f'{self.opts.source_distro_name} repo not configured in build config')
             raise FllError
 
         for repo in list(self.conf['repos'].keys()):
@@ -879,9 +877,9 @@ class FLLBuilder(object):
 
     def chroot_bootstrap(self, arch: str) -> None:
         '''Bootstrap a debian system with cdebootstrap.'''
-        distro = self.opts.N
+        distro = self.opts.source_distro_name
         debian = self.conf['repos'][distro]
-        codename = self.opts.C
+        codename = self.opts.source_distro_codename
         if debian.get('cached'):
             mirror = debian['cached']
         else:
@@ -1381,7 +1379,7 @@ class FLLBuilder(object):
         self.pkgs[arch]['source'] = uris
 
 
-    def install_packages(self, arch: str, codename: str) -> None:
+    def install_packages(self, arch: str) -> None:
         '''Install packages.'''
         cache = apt_pkg.Cache(apt.progress.base.OpProgress())
         if cache.ver_file_count < 200:
@@ -1991,7 +1989,6 @@ class FLLBuilder(object):
 
     def buildChroots(self, archs: list) -> None:
         '''Main loop to call all chroot building functions.'''
-        codename = self.opts.C
         for arch in archs:
             self.chroot_bootstrap(arch)
             self.dpkg_divert(arch)
@@ -1999,7 +1996,7 @@ class FLLBuilder(object):
             self.write_distro_defaults(arch)
             self.preseed_debconf(arch)
             self.prime_apt(arch)
-            self.install_packages(arch, codename)
+            self.install_packages(arch)
             self.post_installation(arch)
             self.collect_manifest(arch)
             self.write_final_conffiles(arch)
@@ -2039,7 +2036,7 @@ if __name__ == '__main__':
     cli = argparse.ArgumentParser(description='F*** Live Linux builder.',
                                   prog='fll', usage='%(prog)s -c <config file> ' +
                                   '[-b <directory> -o <directory> -l <file>]' +
-                                  ' [-BdDpqUv]')
+                                  ' [-BCdDNpqUv]')
 
     cli.add_argument('-a', '--arch', action='store',
                      type=str, metavar='<arch>', default=None,
@@ -2117,6 +2114,14 @@ if __name__ == '__main__':
 
     cli.add_argument('--non-root', action='store_true',
                      help=argparse.SUPPRESS, default=False)
+
+    cli.add_argument('-N', '--source-distro-name', action='store', type=str,
+                     default='debian',
+                     help='Source distribution name. Default: %(default)s')
+
+    cli.add_argument('-C', '--source-distro-codename', action='store', type=str,
+                     default='sid',
+                     help='Source distribution codename. Default: %(default)s')
 
     arguments = cli.parse_args()
 
