@@ -1,7 +1,5 @@
 fll.*.conf
-aptosid-*
-fullstory-*
-profiles/*.local
-profiles/*.local.*
-profiles/deps/*.local
-profiles/deps/*.local.*
+share/profiles/*.local
+share/profiles/*.local.*
+share/profiles/deps/*.local
+share/profiles/deps/*.local.*
