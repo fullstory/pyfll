@@ -1347,7 +1347,7 @@ class FLLBuilder(object):
             if pkg.startswith('cdebootstrap-helper'):
                 continue
 
-            srcpv = self.__getSourcePkg(cache[pkg], depcache, records)
+            srcpv = self.get_source_package(cache[pkg], depcache, records)
             srcpkg=srcpv[0]
             srcver=srcpv[1]
             if not srcpkg:
