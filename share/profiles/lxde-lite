@@ -2,7 +2,7 @@ desc = """
 	A basic LXDE desktop.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-lxde

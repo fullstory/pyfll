@@ -2,7 +2,7 @@ desc = """
 	Budgie desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-budgie

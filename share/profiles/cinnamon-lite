@@ -2,7 +2,7 @@ desc = """
 	Lightweight Cinnamon desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	cinnamon-essential
 	distro

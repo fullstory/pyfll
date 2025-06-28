@@ -2,7 +2,7 @@ desc = """
 	Complete Cinnamon desktop environment with OpenOffice and Firefox.
 """
 
-deps = """
+modules = """
 	cli
 	cinnamon-essential
 	distro

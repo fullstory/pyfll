@@ -2,7 +2,7 @@ desc = """
 	Complete GNOME desktop environment with OpenOffice and Firefox.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-gnome
