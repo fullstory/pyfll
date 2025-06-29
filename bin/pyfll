@@ -223,7 +223,7 @@ class FLLBuilder(object):
             raise FllError
 
 
-    def init_options(self) -> None:
+    def init_cli_options(self) -> None:
         '''Check and provide default class options.'''
         if self.opts.debug:
             self.init_logger(logging.DEBUG)
@@ -1721,7 +1721,7 @@ class FLLBuilder(object):
 
     def main(self) -> None:
         '''Main loop.'''
-        self.init_options()
+        self.init_cli_options()
         self.init_configuration()
         self.stage_build_directory()
 
