@@ -1,5 +1,5 @@
 fll.*.conf
 share/profiles/*.local
 share/profiles/*.local.*
-share/profiles/deps/*.local
-share/profiles/deps/*.local.*
+share/modules/*.local
+share/modules/*.local.*
