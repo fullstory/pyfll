@@ -305,7 +305,7 @@ class FLLBuilder(object):
         # TODO: validate configuration
 
 
-    def expand_pkg_profile(self, chroot: str, profile: str, profile_dir: str) -> dict:
+    def expand_pkg_profile(self, chroot: str, profile: str, modules_dir: str) -> dict:
         '''Return a dict, chroot string as key and package, debconf and postinst
         lists.'''
         self.log.debug(f'processing package profile for {chroot}: {profile}')
@@ -364,7 +364,7 @@ class FLLBuilder(object):
         self.log.debug('---')
 
         for module in modules:
-            module_file = os.path.join(profile_dir, 'modules', module)
+            module_file = os.path.join(modules_dir, module)
 
             if not os.path.isfile(module_file):
                 self.log.critical(f'no such module file: {module_file}')
@@ -422,8 +422,9 @@ class FLLBuilder(object):
         profile = self.conf['chroots'][chroot]['packages']['profile']
         self.log.info(f'processing package profile: {profile} for chroot: {chroot}')
 
-        profiles_dir = os.path.join(self.opts.share, 'profiles')
-        profile = os.path.join(profiles_dir, profile)
+        profile_dir = os.path.join(self.opts.share, 'profiles')
+        profile = os.path.join(profile_dir, profile)
+        modules_dir = os.path.join(self.opts.share, 'modules')
 
         if not os.path.isfile(profile):
             self.log.critical(f'no such package profile: {profile}')
@@ -431,7 +432,7 @@ class FLLBuilder(object):
 
         self.pkgs = dict()
         for chroot in self.conf['chroots'].keys():
-            self.pkgs[chroot] = self.expand_pkg_profile(chroot, profile, profiles_dir)
+            self.pkgs[chroot] = self.expand_pkg_profile(chroot, profile, modules_dir)
 
 
     def get_debconf_list(self, chroot: str) -> list:
