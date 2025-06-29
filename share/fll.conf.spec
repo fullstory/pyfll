@@ -23,7 +23,7 @@
             cached     = string(default=None)
             suite      = string(default='sid')
             components = string(default='main fix.main')
-            keyring    = string(default=None)
+            keyring    = string(default=aptosid-archive-keyring)
 
             [[[[__many__]]]]
             uri         = string(min=1)
