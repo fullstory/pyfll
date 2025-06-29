@@ -1732,8 +1732,8 @@ class FLLBuilder(object):
 
 
 if __name__ == '__main__':
-    pyfll_path = os.path.abspath(sys.argv[0])
-    share_path = os.path.join(os.path.dirname(pyfll_path), '../share')
+    pyfll_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+    share_path = os.path.join(pyfll_path, '../share')
 
     cli = argparse.ArgumentParser(description='F*** Live Linux builder.',
                                   prog='fll', usage='%(prog)s -c <config file> ' +
@@ -1794,8 +1794,7 @@ if __name__ == '__main__':
 
     # These options are managed by the fll shell snippet non-interactively
     cli.add_argument('--bin', action='store', type=str,
-                     help=argparse.SUPPRESS,
-                     default=os.path.dirname(pyfll_path))
+                     help=argparse.SUPPRESS, default=pyfll_path)
 
     cli.add_argument('--share', action='store', type=str,
                      help=argparse.SUPPRESS, default=share_path)
