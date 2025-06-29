@@ -2,7 +2,7 @@ desc = """
 	A combined stripped kde and xfce.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-kde

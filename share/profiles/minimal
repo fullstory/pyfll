@@ -2,7 +2,7 @@ desc = """
 	Only the essential software that is required to boot.
 """
 
-deps = """
+modules = """
 	distro
 	essential
 	hwsupport-essential

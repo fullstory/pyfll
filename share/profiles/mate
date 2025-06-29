@@ -2,7 +2,7 @@ desc = """
 	MATE desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-mate

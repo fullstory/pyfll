@@ -3,7 +3,7 @@ desc = """
 	configuration.
 """
 
-deps = """
+modules = """
 	distro
 	essential
 	fluxbox
