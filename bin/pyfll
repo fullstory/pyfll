@@ -797,10 +797,9 @@ class FLLBuilder(object):
         # during bootstrap phase.
         self.chroot_exec(chroot, 'apt-get dist-upgrade -y'.split())
 
-        apt_pkg.init_config()
         apt_pkg.config.set('RootDir', chroot_dir)
         apt_pkg.config.set('APT::Architecture', arch)
-        apt_pkg.init_system()
+        apt_pkg.init()
 
 
     def dpkg_divert(self, chroot: str) -> None:
