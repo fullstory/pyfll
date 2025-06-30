@@ -637,7 +637,7 @@ class FLLBuilder(object):
 
     def cdebbootstrap(self, arch: str, target: str, mirror: str, codename: str) -> None:
         '''Bootstrap a dist_repo system with cdebootstrap.'''
-        cmd = ['cdebootstrap', '--arch=%s' % arch,
+        cmd = ['cdebootstrap', f'--arch={arch}',
                '--include=apt-utils,ca-certificates,gnupg,xz-utils,zstd',
                '--flavour=minimal', codename, target, mirror]
 
@@ -663,7 +663,7 @@ class FLLBuilder(object):
 
     def mmdebbootstrap(self, arch: str, target: str, mirror: str, codename: str) -> None:
         '''Bootstrap a distro root filesystem with mmdebstrap.'''
-        cmd = ['mmdebstrap', '--architectures=%s' % arch,
+        cmd = ['mmdebstrap', f'--architectures={arch}',
                '--include=apt-utils,ca-certificates,gnupg,xz-utils,zstd',
                '--variant=minbase', '--mode=root', '--format=directory',
                '--hook-dir=/usr/share/mmdebstrap/hooks/merged-usr', codename,
@@ -809,7 +809,7 @@ class FLLBuilder(object):
         some other more appropiate facility.'''
         chroot_dir = os.path.join(self.temp, chroot)
         for divert in self.diverts:
-            self.log.debug("diverting %s" % divert)
+            self.log.debug(f'diverting {divert}')
             cmd = 'dpkg-divert --add --local --divert ' + divert + '.REAL --rename '
             cmd += divert
             self.chroot_exec(chroot, cmd.split())
