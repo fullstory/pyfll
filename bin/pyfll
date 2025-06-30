@@ -1469,7 +1469,7 @@ class FLLBuilder(object):
         boot_dir = os.path.join(stage_dir, 'boot')
         grub_dir = os.path.join(boot_dir, 'grub')
         distro = self.conf['distro']['FLL_DISTRO_NAME']
-        timeout = self.config_boot_timeout()
+        timeout = self.conf['options'].get('boot_timeout', '-1')
         grubcfg = open(os.path.join(grub_dir, 'kernels.cfg'), 'w')
         
         for chroot in chroots:
@@ -1538,12 +1538,6 @@ class FLLBuilder(object):
             grubcfg.write(f'grub_theme=/boot/{grub_theme}\n')
         grubcfg.write(f'timeout={timeout}\n')
         grubcfg.close()
-
-    def config_boot_timeout(self) -> str:
-        timeout = self.conf['options'].get('boot_timeout')
-        if not timeout:
-            timeout = '-1'
-        return timeout
 
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf['distro']['FLL_IMAGE_DIR']
