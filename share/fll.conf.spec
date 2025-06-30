@@ -26,10 +26,10 @@
             keyring    = string(default=aptosid-archive-keyring)
 
             [[[[__many__]]]]
-            uri         = string(min=1)
+            uri         = string(default=None)
             cached      = string(default=None)
-            suite       = string(min=1)
-            components  = string(min=1)
+            suite       = string(default=None)
+            components  = string(default=None)
             keyring     = string(default=None)
             sources_uri = string(default=None)
 [options]
