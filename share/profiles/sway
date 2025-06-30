@@ -2,7 +2,7 @@ desc = """
 	Experimental system with Sway and greetd.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-sway

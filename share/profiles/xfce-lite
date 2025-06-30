@@ -2,7 +2,7 @@ desc = """
 	A lite XFCE desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-tools
