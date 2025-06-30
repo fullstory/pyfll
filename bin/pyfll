@@ -1630,8 +1630,10 @@ class FLLBuilder(object):
             gpthybrid_cmd += f' --label {self.uuid} --iso {iso_file}'
             if os.path.isfile(os.path.join(stage,
                                            'boot/grub/i386-pc/grub_eltorito')):
-                xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info'
-                xorriso_cmd += f' --grub2-mbr {os.path.join(stage, 'boot/grub/i386-pc/boot_hybrid.img')}'
+                grub_mbr_img = os.path.join(stage,
+                                            'boot/grub/i386-pc/boot_hybrid.img')
+                xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito'
+                xorriso_cmd += f' --grub2-boot-info --grub2-mbr {grub_mbr_img} '
                 for chroot in list(self.conf['chroots'].keys()):
                     image_file = self.get_distro_imagefile(chroot)
                     image_path = os.path.join(image_dir, image_file)
@@ -1666,42 +1668,24 @@ class FLLBuilder(object):
         os.chown(iso_file, self.opts.uid, self.opts.gid)
 
         self.log.info('calculating hashsums of live media iso image...')
-        md5 = None
-        sha256 = None
-        sha512 = None
         try:
-            md5 = open(md5_file, 'w')
-            sha256 = open(sha256_file, 'w')
-            sha512 = open(sha512_file, 'w')
             md5sum, sha256sum, sha512sum = self.hash_hashsums(iso_file)
-            md5.write("%s *%s\n" % (md5sum, os.path.basename(iso_file)))
-            sha256.write("%s *%s\n" % (sha256sum, os.path.basename(iso_file)))
-            sha512.write("%s *%s\n" % (sha512sum, os.path.basename(iso_file)))
+            with open(md5_file, 'w') as md5:
+                md5.write("%s *%s\n" % (md5sum, os.path.basename(iso_file)))
+            with open(sha256_file, 'w') as sha256:
+                sha256.write("%s *%s\n" % (sha256sum, os.path.basename(iso_file)))
+            with open(sha512_file, 'w') as sha512:
+                sha512.write("%s *%s\n" % (sha512sum, os.path.basename(iso_file)))
         except IOError:
             self.log.exception('failed to write hashsums files')
             raise FllError
         finally:
-            if md5:
-                md5.close()
-                os.chown(md5_file, self.opts.uid, self.opts.gid)
+            for hashsum_file in [md5_file, sha256_file, sha512_file]:
+                os.chown(hashsum_file, self.opts.uid, self.opts.gid)
                 if self.opts.hashkey:
-                    self.log.info('signing md5 hash...')
-                    self.sign_file(md5_file)
-                    os.chown(md5_file + '.gpg', self.opts.uid, self.opts.gid)
-            if sha256:
-                sha256.close()
-                os.chown(sha256_file, self.opts.uid, self.opts.gid)
-                if self.opts.hashkey:
-                    self.log.info('signing sha256 hash...')
-                    self.sign_file(sha256_file)
-                    os.chown(sha256_file + '.gpg', self.opts.uid, self.opts.gid)
-            if sha512:
-                sha512.close()
-                os.chown(sha512_file, self.opts.uid, self.opts.gid)
-                if self.opts.hashkey:
-                    self.log.info('signing sha512 hash...')
-                    self.sign_file(sha512_file)
-                    os.chown(sha512_file + '.gpg', self.opts.uid, self.opts.gid)
+                    self.log.info(f'signing {md5_file}...')
+                    self.sign_file(hashsum_file)
+                    os.chown(hashsum_file + '.gpg', self.opts.uid, self.opts.gid)
 
         for f in glob.glob('%s*' % os.path.splitext(iso_file)[0]):
             self.log.info(f)
