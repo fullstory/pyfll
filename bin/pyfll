@@ -800,6 +800,8 @@ class FLLBuilder(object):
         apt_pkg.config.set('RootDir', chroot_dir)
         apt_pkg.config.set('APT::Architecture', arch)
         apt_pkg.init()
+        self.log.debug(f'apt_pkg architecture: {apt_pkg.config["RootDir"]}')
+        self.log.debug(f'apt_pkg architecture: {apt_pkg.config["APT::Architecture"]}')
 
 
     def dpkg_divert(self, chroot: str) -> None:
