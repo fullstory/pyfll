@@ -1609,8 +1609,7 @@ class FLLBuilder(object):
         stage = os.path.join(self.temp, 'staging')
 
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
-        fll_image_dir = self.conf['distro']['FLL_IMAGE_DIR']
-        fll_image_file = self.conf['distro']['FLL_IMAGE_FILE']
+        image_dir = self.conf['distro']['FLL_IMAGE_DIR']
 
         iso_name = f'{distro_name}-{self.uuid}.iso'
 
@@ -1634,9 +1633,10 @@ class FLLBuilder(object):
                 xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito --grub2-boot-info'
                 xorriso_cmd += f' --grub2-mbr {os.path.join(stage, 'boot/grub/i386-pc/boot_hybrid.img')}'
                 for chroot in list(self.conf['chroots'].keys()):
-                    if os.path.isfile(os.path.join(stage, fll_image_dir,
-                                                   self.get_distro_imagefile(chroot))):
-                        gpthybrid_cmd += f' {os.path.join(fll_image_dir, self.get_distro_imagefile(chroot))}'
+                    image_file = self.get_distro_imagefile(chroot)
+                    image_path = os.path.join(image_dir, image_file)
+                    if os.path.isfile(os.path.join(stage, image_path)):
+                        gpthybrid_cmd += f' {image_path}'
             else:
                 self.log.critical('failed to find grub El Torito image file')
                 raise FllError
