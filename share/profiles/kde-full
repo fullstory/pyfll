@@ -2,7 +2,7 @@ desc = """
 	Complete KDE desktop environment with LibreOffice and Firefox.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-kde

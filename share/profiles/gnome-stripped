@@ -2,7 +2,7 @@ desc = """
 	Minimal Gnome desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-gnome

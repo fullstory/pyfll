@@ -2,7 +2,7 @@ desc = """
 	Basic KDE desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-kde

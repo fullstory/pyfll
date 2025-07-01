@@ -2,7 +2,7 @@ desc = """
 	Basic LXQt desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-lxqt

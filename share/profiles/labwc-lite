@@ -3,7 +3,7 @@ desc = """
 	of wayland utilities.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-labwc
