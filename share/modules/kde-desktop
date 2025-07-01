@@ -10,7 +10,7 @@ packages = """
 	fonts-vlgothic
 	kcharselect
 	kdeadmin
-	kdiskmark
+	qdiskinfo
 	kdf
 	kgamma5
 	kget
