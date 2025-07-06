@@ -1255,6 +1255,14 @@ class FLLBuilder(object):
             if squashfs_comp == 'xz':
                 if arch == 'amd64' or arch == 'i386':
                     cmd.extend(['-Xbcj', 'x86'])
+
+        # Set number of processors and I/O throttle value
+        squashfs_processors = self.conf['options'].get('squashfs_processors')
+        if squashfs_processors:
+            cmd.extend(['-processors', f'{squashfs_processors}'])
+        squashfs_throttle = self.conf['options'].get('squashfs_throttle')
+        if squashfs_throttle:
+            cmd.extend(['-throttle', f'{squashfs_throttle}'])
         
         if self.opts.log_file or self.opts.quiet:
             cmd.append('-no-progress')
