@@ -39,6 +39,8 @@ boot_cmdline    = string(default='fsck.mode=skip systemd.show_status=1 quiet spl
 boot_theme      = string(default='bgrt')
 boot_timeout    = string(default='30')
 bootstrapper    = option('cdebootstrap', 'debootstrap', 'mmdebstrap', default='cdebootstrap')
+homed_privkey   = string(default=None)
+homed_pubkey    = string(default=None)
 media_include   = string(default=None)
 squashfs_comp   = option('gzip', 'lz4', 'lzo', 'xz', 'zstd', default='zstd')
 

@@ -949,17 +949,16 @@ class FLLBuilder(object):
                 self.log.exception('failed to setup resolv.conf and resolved.conf')
                 raise FllError
 
-        if 'home' in self.conf:
+        homed_privkey = self.conf['options'].get('homed_privkey')
+        homed_pubkey  = self.conf['options'].get('homed_pubkey')
+        if homed_privkey and homed_pubkey:
             self.log.info(f'copying systemd-homed keys to chroot: {chroot}')
             try:
                 os.makedirs(os.path.join(chroot_dir, 'var/lib/systemd/home/'))
-                pubkey = self.conf['home'].get('pubkey')
-                shutil.copy(pubkey, os.path.join(chroot_dir, 'var/lib/systemd/home/'))
-                privkey = self.conf['home'].get('privkey')
-                if privkey:
-                    shutil.copy(privkey, os.path.join(chroot_dir, 'var/lib/systemd/home/'))
+                shutil.copy(homed_privkey, os.path.join(chroot_dir, 'var/lib/systemd/home/'))
+                shutil.copy(homed_pubkey, os.path.join(chroot_dir, 'var/lib/systemd/home/'))
             except FileNotFoundError:
-                self.log.exception('home configuration invalid')
+                self.log.exception('homed configuration failed')
                 raise FllError
 
         boot_theme = self.conf['options'].get('boot_theme', 'bgrt')
