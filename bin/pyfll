@@ -50,7 +50,6 @@ class FllLocalesError(Exception):
     """
     pass
 
-
 class FllLocales(object):
     """
     A class which provides the ability to determine lists of locale specific
@@ -148,11 +147,9 @@ class FllLocales(object):
 
         return packages
 
-
 class FllError(Exception):
     '''A generic error handler that does nothing.'''
     pass
-
 
 class FLLBuilder(object):
     env = {'LANGUAGE': 'C', 'LC_ALL': 'C', 'LANG' : 'C', 'HOME': '/root',
@@ -165,7 +162,6 @@ class FLLBuilder(object):
                '/usr/sbin/insmod',
                '/usr/sbin/update-grub',
                '/usr/sbin/update-initramfs']
-
 
     def __init__(self, options):
         '''Accept options dict, setup logging.'''
@@ -181,7 +177,6 @@ class FLLBuilder(object):
         self.uuid = self.date.strftime('%Y-%m-%d-%H-%M-%S-00')
         self.timestamp = self.date.strftime('%Y%m%d%H%M')
 
-
     def prep_dir(self, dirname: str) -> str:
         '''Set up working directories.'''
         if not os.path.isdir(dirname):
@@ -194,7 +189,6 @@ class FLLBuilder(object):
 
         return os.path.realpath(dirname)
 
-
     def init_logger(self, lvl: str) -> None:
         '''Set up the logger.'''
         fmt = logging.Formatter('%(asctime)s %(levelname)-5s - %(message)s')
@@ -202,7 +196,6 @@ class FLLBuilder(object):
         out.setFormatter(fmt)
         out.setLevel(lvl)
         self.log.addHandler(out)
-
 
     def init_logfile(self, log_filename: str) -> None:
         '''Set up a log file.'''
@@ -221,7 +214,6 @@ class FLLBuilder(object):
         except:
             self.log.exception(f'failed to setup logfile: {log_filename}')
             raise FllError
-
 
     def init_cli_options(self) -> None:
         '''Check and provide default class options.'''
@@ -251,13 +243,10 @@ class FLLBuilder(object):
         else:
             self.opts.output_dir = self.opts.build
 
-
-
     def get_distro_imagefile(self, chroot: str) -> str:
         '''Return image file that compressed chroot will be archived to.'''
         image_file = self.conf['distro']['FLL_IMAGE_FILE']
         return image_file + f'.{chroot}'
-
 
     def get_distro_stamp(self, chroot: str) -> str:
         '''Return a string suitable for the distro stamp file.'''
@@ -286,10 +275,9 @@ class FLLBuilder(object):
         self.log.debug('stamp: %s' % stamp)
         return stamp
 
-
     def init_configuration(self) -> None:
         '''Parse build configuration file and return it in a dict.'''
-        self.log.info('reading configuration file...')
+        self.log.info(f'reading configuration file: {self.opts.config}')
 
         fll_configspec = os.path.join(self.opts.share, 'fll.conf.spec')
         self.conf = ConfigObj(self.opts.config, configspec=fll_configspec)
@@ -313,12 +301,9 @@ class FLLBuilder(object):
             if fatal_error == True:
                 raise FllError
 
-
     def expand_pkg_profile(self, chroot: str, profile: str, modules_dir: str) -> dict:
         '''Return a dict, chroot string as key and package, debconf and postinst
         lists.'''
-        self.log.debug(f'processing package profile for {chroot}: {profile}')
-
         pkgs = {'debconf': [], 'packages': [], 'postinst': []}
         arch = self.conf['chroots'][chroot]['packages']['arch']
         linux = self.conf['chroots'][chroot]['packages']['linux']
@@ -425,11 +410,10 @@ class FLLBuilder(object):
 
         return pkgs
 
-
     def parse_package_profile(self, chroot: str) -> None:
         '''Parse packages profile for each chroot.'''
         profile = self.conf['chroots'][chroot]['packages']['profile']
-        self.log.info(f'processing package profile: {profile} for chroot: {chroot}')
+        self.log.info(f'{chroot} - processing package profile: {profile}')
 
         profile_dir = os.path.join(self.opts.share, 'profiles')
         profile = os.path.join(profile_dir, profile)
@@ -443,7 +427,6 @@ class FLLBuilder(object):
         for chroot in self.conf['chroots'].keys():
             self.pkgs[chroot] = self.expand_pkg_profile(chroot, profile, modules_dir)
 
-
     def get_debconf_list(self, chroot: str) -> list:
         '''Return debconf list for chroot. Dynamically generate locales
         debconf configuration based on i18n configuration in flk.conf.'''
@@ -455,7 +438,6 @@ class FLLBuilder(object):
         self.pkgs[chroot]['debconf'].append(i18n_debconf)
 
         return self.pkgs[chroot]['debconf']
-
 
     def stage_build_directory(self) -> None:
         '''Prepare temporary directory for chroots and result staging area.'''
@@ -481,7 +463,6 @@ class FLLBuilder(object):
                 self.log.exception(f'problem copying media_include data to staging dir: {media_include}')
                 raise FllError
 
-
     def mount_virtfs(self, chroot_dir: str) -> None:
         '''Mount virtual filesystems in a chroot.'''
         virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
@@ -494,7 +475,6 @@ class FLLBuilder(object):
             if returncode != 0:
                 self.log.critical(f'failed to mount chroot {v[0]}')
                 raise FllError
-
 
     def umount(self, chroot_dir: str) -> None:
         '''Umount any mount points in a chroot.'''
@@ -517,7 +497,6 @@ class FLLBuilder(object):
                 self.log.critical(f'umount failed for: {mpoint}')
                 raise FllError
 
-
     def nuke_directory(self, dirname: str) -> None:
         '''Nuke directory tree.'''
         if os.path.isdir(dirname):
@@ -530,15 +509,13 @@ class FLLBuilder(object):
         else:
             self.log.debug(f'directory does not exist: {dirname}')
 
-
     def nuke_chroot(self, chroot: str) -> None:
         '''Convenience function to nuke chroot given by chroot name.'''
         if not self.opts.preserve:
-            self.log.info(f'nuking chroot: {chroot}')
+            self.log.info(f'{chroot} - nuking chroot...')
             chroot_dir = os.path.join(self.temp, chroot)
             self.umount(chroot_dir)
             self.nuke_directory(chroot_dir)
-
 
     def cleanup(self) -> None:
         '''Clean up the build area after taking care that all build chroots
@@ -555,7 +532,6 @@ class FLLBuilder(object):
 
         if not self.opts.preserve:
             self.nuke_directory(self.temp)
-
 
     def exec_cmd(self, cmd: list, check_returncode: bool=True) -> None:
         '''Execute subprocess without buffering output in a pipe.'''
@@ -592,7 +568,6 @@ class FLLBuilder(object):
             self.log.critical(f'command failed with return value: {cmd_rc}')
             raise FllError
 
-
     def chroot_exec(self, chroot: str, args: list, check_returncode: bool=True) -> None:
         '''Run command in a chroot.'''
         chroot_dir = os.path.join(self.temp, chroot)
@@ -602,7 +577,6 @@ class FLLBuilder(object):
         self.mount_virtfs(chroot_dir)
         self.exec_cmd(cmd, check_returncode)
         self.umount(chroot_dir)
-
 
     def apt_get_install(self, chroot: str, pkgs: list, download_only: bool=False) -> None:
         '''An apt-get install wrapper. Automatic installation of recommended
@@ -623,7 +597,6 @@ class FLLBuilder(object):
 
         self.chroot_exec(chroot, aptget)
 
-
     def cdebbootstrap(self, arch: str, target: str, mirror: str, codename: str) -> None:
         '''Bootstrap a dist_repo system with cdebootstrap.'''
         cmd = ['cdebootstrap', f'--arch={arch}',
@@ -637,7 +610,6 @@ class FLLBuilder(object):
 
         self.exec_cmd(cmd)
 
-
     def debbootstrap(self, arch: str, target: str, mirror: str, codename: str) -> None:
         '''Bootstrap a distro root filesystem with debootstrap.'''
         cmd = ['debootstrap', f'--arch={arch}',
@@ -648,7 +620,6 @@ class FLLBuilder(object):
             cmd.insert(1, '--verbose')
 
         self.exec_cmd(cmd)
-
 
     def mmdebbootstrap(self, arch: str, target: str, mirror: str, codename: str) -> None:
         '''Bootstrap a distro root filesystem with mmdebstrap.'''
@@ -662,7 +633,6 @@ class FLLBuilder(object):
             cmd.insert(1, '--verbose')
 
         self.exec_cmd(cmd)
-
 
     def chroot_bootstrap(self, chroot: str) -> None:
         '''Bootstrap a distro root filesystem with cdebootstrap.'''
@@ -678,7 +648,7 @@ class FLLBuilder(object):
 
         target = os.path.join(self.temp, chroot)
 
-        self.log.info(f'bootstrapping {distro} {codename} {arch}...')
+        self.log.info(f'{chroot} - bootstrapping {distro} {codename} {arch}...')
 
         bootstrapper = self.conf['options'].get('bootstrapper')
         if bootstrapper == 'mmdebstrap':
@@ -693,7 +663,6 @@ class FLLBuilder(object):
         shutil.copy('/etc/hosts', os.path.join(target, 'etc'))
         shutil.copy('/etc/resolv.conf', os.path.join(target, 'etc'))
         os.mkdir(os.path.join(target, 'disks'), 0o755)
-
 
     def write_apt_lists(self, chroot: str, cached: bool=False, src_uri: bool=False) -> None:
         '''Write apt source lists to /etc/apt/sources.list.d/*.'''
@@ -744,17 +713,16 @@ class FLLBuilder(object):
                 if sources_file_fh:
                     sources_file_fh.close()
 
-
     def prime_apt(self, chroot: str) -> None:
         '''Prepare apt for work in each build chroot. Fetch all required gpg
         keys and initialize apt_pkg config.'''
-        self.log.info(f'preparing apt in chroot: {chroot}')
+        self.log.info(f'{chroot} - preparing apt in chroot...')
         chroot_dir = os.path.join(self.temp, chroot)
         arch = self.conf['chroots'][chroot]['packages']['arch']
 
         apt_preferences = self.conf['options'].get('apt_preferences')
         if apt_preferences:
-            self.log.info(f'importing apt preferences file: {apt_preferences}')
+            self.log.info(f'{chroot} - importing apt preferences file: {apt_preferences}')
             try:
                 shutil.copy(apt_preferences, os.path.join(chroot_dir, 'etc/apt/'))
             except IOError:
@@ -792,7 +760,6 @@ class FLLBuilder(object):
         self.log.debug(f'apt_pkg architecture: {apt_pkg.config["RootDir"]}')
         self.log.debug(f'apt_pkg architecture: {apt_pkg.config["APT::Architecture"]}')
 
-
     def dpkg_divert(self, chroot: str) -> None:
         '''Divert some facilities and replace temporaily with /bin/true (or
         some other more appropiate facility.'''
@@ -809,7 +776,6 @@ class FLLBuilder(object):
             else:
                 os.symlink('/bin/true', os.path.join(chroot_dir, divert.lstrip('/')))
 
-
     def dpkg_undo_divert(self, chroot: str) -> None:
         '''Undivert facilities diverted by self.dpkg_divert().'''
         chroot_dir = os.path.join(self.temp, chroot)
@@ -818,7 +784,6 @@ class FLLBuilder(object):
             os.unlink(os.path.join(chroot_dir, divert.lstrip('/')))
             cmd = 'dpkg-divert --remove --rename ' + divert
             self.chroot_exec(chroot, cmd.split())
-
 
     def write_file(self, chroot: str, filename: str) -> None:
         '''Write a file in a chroot. Templates for common files included
@@ -885,18 +850,15 @@ class FLLBuilder(object):
                 if mode:
                     os.chmod(fn, mode)
 
-
     def write_default_conffiles(self, chroot: str) -> None:
         '''Initial creation of conffiles required in chroot.'''
         self.write_file(chroot, '/etc/fstab')
         self.write_file(chroot, '/etc/hostname')
         self.write_file(chroot, '/tmp/iso_uuid')
 
-
     def write_distro_defaults(self, chroot: str) -> None:
         '''Write the /etc/default/distro file.'''
         self.write_file(chroot, '/etc/default/distro')
-
 
     def write_final_conffiles(self, chroot: str) -> None:
         '''Final editing of conffiles in chroot.'''
@@ -941,7 +903,7 @@ class FLLBuilder(object):
         homed_privkey = self.conf['options'].get('homed_privkey')
         homed_pubkey  = self.conf['options'].get('homed_pubkey')
         if homed_privkey and homed_pubkey:
-            self.log.info(f'copying systemd-homed keys to chroot: {chroot}')
+            self.log.info(f'{chroot} - copying systemd-homed keys to chroot...')
             try:
                 os.makedirs(os.path.join(chroot_dir, 'var/lib/systemd/home/'))
                 shutil.copy(homed_privkey, os.path.join(chroot_dir, 'var/lib/systemd/home/'))
@@ -951,9 +913,8 @@ class FLLBuilder(object):
                 raise FllError
 
         boot_theme = self.conf['options'].get('boot_theme', 'bgrt')
-        self.log.info(f'setting plymouth theme: {boot_theme}')
+        self.log.info(f'{chroot} - setting {boot_theme} plymouth theme...')
         self.chroot_exec(chroot, ['plymouth-set-default-theme', boot_theme])
-
 
     def create_initramfs(self, chroot: str) -> None:
         '''Generate the initramfs if update-initramfs was diverted'''
@@ -966,14 +927,13 @@ class FLLBuilder(object):
                     cmd += ' -v'
                 self.chroot_exec(chroot, cmd.split())
 
-
     def preseed_debconf(self, chroot: str) -> None:
         '''Preseed debconf with values read from package lists.'''
         chroot_dir = os.path.join(self.temp, chroot)
         debconf_list = self.get_debconf_list(chroot)
 
         if debconf_list:
-            self.log.info(f'preseeding debconf in chroot: {chroot}')
+            self.log.debug(f'{chroot} - preseeding debconf...')
             debconf = None
             try:
                 debconf = open(os.path.join(chroot_dir, 'tmp',
@@ -994,7 +954,6 @@ class FLLBuilder(object):
 
             self.chroot_exec(chroot, cmd.split())
 
-
     def detect_linux_version(self, chroot: str) -> list:
         '''Return version string of a singularly installed linux-image.'''
         linux = self.conf['chroots'][chroot]['packages']['linux']
@@ -1008,13 +967,12 @@ class FLLBuilder(object):
             linux_images.reverse()
             return linux_images
 
-        self.log.critical(f'failed to detect linux version installed in {chroot} chroot')
+        self.log.critical(f'{chroot} - failed to detect linux version')
         raise FllError
-
 
     def detect_locale_packages(self, i18n: list, wanted: list, cache: apt_pkg.Cache) -> list:
         '''Provide automated detection for extra i18n packages.'''
-        self.log.info(f'detecting i18n packages for locales: {' '.join(i18n)}')
+        self.log.debug(f'detecting i18n packages for locales: {' '.join(i18n)}')
 
         locales_pkg_map_file = os.path.join(self.opts.share, 'data', 'locales-pkg-map')
         locales_pkg_map = ConfigObj(locales_pkg_map_file)
@@ -1035,14 +993,13 @@ class FLLBuilder(object):
         self.log.debug(i18n_list)
         return i18n_list
 
-
     def detect_recommended_packages(self, wanted: list, cache: apt_pkg.Cache) -> list:
         '''Provide automated detection for packages in recommends whitelist.'''
         apt_recommends = self.conf['options'].get('apt_recommends')
         if apt_recommends == 'yes':
             return []
 
-        self.log.info('detecting whitelisted recommended packages...')
+        self.log.debug('detecting whitelisted recommended packages...')
         rec_module = ConfigObj(os.path.join(self.opts.share, 'packages',
                                             'packages.d', 'recommends'))
         try:
@@ -1094,7 +1051,6 @@ class FLLBuilder(object):
         self.log.debug(rec_list)
         return rec_list
 
-
     def get_source_package(self, pkg: str, depcache: apt_pkg.DepCache,
                            records: apt_pkg.PackageRecords) -> list[str, str]:
         '''Get the source package name of a given package.'''
@@ -1121,7 +1077,7 @@ class FLLBuilder(object):
         chroot_dir = os.path.join(self.temp, chroot)
         image_dir = os.path.join(self.temp, 'staging',
                                  self.conf['distro']['FLL_IMAGE_DIR'])
-        self.log.info(f'collecting package manifest for {chroot}...')
+        self.log.info(f'{chroot} - writing package manifest...')
 
         cache = apt_pkg.Cache(apt.progress.base.OpProgress())
         records = apt_pkg.PackageRecords(cache)
@@ -1155,7 +1111,7 @@ class FLLBuilder(object):
         if self.opts.binary:
             return
 
-        self.log.info(f'querying source package URIs for {chroot}...')
+        self.log.info(f'{chroot} - writing source package URIs...')
         srcpkg_seen = dict()
         uris = []
         for pkg in packages:
@@ -1224,9 +1180,8 @@ class FLLBuilder(object):
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + loc_pkgs)
 
         if not self.opts.dummy:
-            self.log.info(f'installing packages in chroot: {chroot}')
+            self.log.info(f'{chroot} - installing packages...')
             self.apt_get_install(chroot, pkgs_want)
-
 
     def post_installation(self, chroot: str) -> None:
         '''Run package module postinst scripts in a chroot.'''
@@ -1234,7 +1189,7 @@ class FLLBuilder(object):
             return
         chroot_dir = os.path.join(self.temp, chroot)
 
-        self.log.info(f'performing post-install tasks in chroot: {chroot}')
+        self.log.info(f'{chroot} - performing post-install tasks...')
 
         # reset /etc/resolv.conf (systemd-resolved clobbered our settings)
         os.unlink(os.path.join(chroot_dir, 'etc/resolv.conf'))
@@ -1253,7 +1208,6 @@ class FLLBuilder(object):
             self.chroot_exec(chroot, cmd.split())
             os.unlink(os.path.join(chroot_dir, 'tmp', sname))
 
-
     def zero_logs(self, chroot: str, dirname: str, filenames: list) -> None:
         '''Truncate all log files.'''
         chroot_dir = os.path.join(self.temp, chroot)
@@ -1264,10 +1218,9 @@ class FLLBuilder(object):
                 continue
             self.write_file(chroot, os.path.join(chrootdir, f))
 
-
     def clean_chroot(self, chroot: str) -> None:
         '''Remove unwanted content from a chroot.'''
-        self.log.info(f'purging unwanted content from chroot: {chroot}')
+        self.log.debug(f'{chroot} - purging unwanted content...')
         chroot_dir = os.path.join(self.temp, chroot)
         arch = self.conf['chroots'][chroot]['packages']['arch']
 
@@ -1279,10 +1232,8 @@ class FLLBuilder(object):
         for dirpath, dirnames, files in os.walk(os.path.join(chroot_dir, 'var/log')):
             self.zero_logs(chroot, dirpath, files)
 
-
     def mksquashfs_chroot(self, chroot: str) -> None:
         '''Make squashfs filesystem image of chroot.'''
-        self.log.info(f'creating squashfs filesystem of chroot: {chroot}')
         chroot_dir = os.path.join(self.temp, chroot)
 
         image_file = self.get_distro_imagefile(chroot)
@@ -1300,7 +1251,6 @@ class FLLBuilder(object):
         # set compression algorithm for squashfs-tools >= 4.1
         squashfs_comp = self.conf['options'].get('squashfs_comp')
         if squashfs_comp in ['gzip', 'lz4', 'lzo', 'xz', 'zstd']:
-            self.log.info(f'using squashfs compression: {squashfs_comp}')
             cmd.extend(['-comp', squashfs_comp])
             if squashfs_comp == 'xz':
                 if arch == 'amd64' or arch == 'i386':
@@ -1312,12 +1262,12 @@ class FLLBuilder(object):
         # can only be last argument
         cmd.extend(['-e', image_file])
 
+        self.log.info(f'{chroot} - creating squashfs ({squashfs_comp}) filesystem...')
         self.chroot_exec(chroot, cmd)
-
 
     def stage_chroot(self, chroot: str) -> None:
         '''Stage files for an chroot for final genisofs.'''
-        self.log.info(f'staging live media for chroot: {chroot}')
+        self.log.info(f'{chroot} - staging live media for chroot...')
         chroot_dir = os.path.join(self.temp, chroot)
         boot_dir = os.path.join(self.temp, 'staging', 'boot')
 
@@ -1449,10 +1399,9 @@ class FLLBuilder(object):
                 self.log.exception('failed to copy memtest86+ to staging dir')
                 raise FllError
 
-
     def write_grub_cfg(self, chroots: list) -> None:
         '''Write grub.cfg for live media.'''
-        self.log.info('writing grub.cfg for live media')
+        self.log.info('writing grub.cfg for live media...')
         stage_dir = os.path.join(self.temp, 'staging')
         boot_dir = os.path.join(stage_dir, 'boot')
         grub_dir = os.path.join(boot_dir, 'grub')
@@ -1545,7 +1494,6 @@ class FLLBuilder(object):
         return hashsums.find('MD5Sum').hashvalue, hashsums.find('SHA256').hashvalue, \
             hashsums.find('SHA512').hashvalue
 
-
     def hash_md5sums(self, base: str, dirpath: str, filenames: list):
         '''Function given to os.path.walk of self.write_md5sums().'''
         for f in filenames:
@@ -1572,7 +1520,6 @@ class FLLBuilder(object):
                 if md5sums:
                     md5sums.close()
 
-
     def write_md5sums(self) -> None:
         '''Calculate md5sums of major release contents.'''
         self.log.info('calculating md5sums of live media...')
@@ -1590,7 +1537,6 @@ class FLLBuilder(object):
             self.exec_cmd(cmd)
         else:
             self.log.info(f'not signing file (no key given): {filename}')
-
 
     def gen_live_media(self) -> None:
         '''Generate live media iso image.'''
@@ -1717,84 +1663,65 @@ class FLLBuilder(object):
         self.gen_live_media()
         self.log_build_stats()
 
-
 if __name__ == '__main__':
     pyfll_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     share_path = os.path.join(pyfll_path, '../share')
-
+    # Parse cli arguments
     cli = argparse.ArgumentParser(description='F*** Live Linux builder.',
                                   prog='fll', usage='%(prog)s -c <config file> ' +
                                   '[-b <directory> -o <directory> -l <file>]' +
                                   ' [-BCdDNpqUv]')
-
     cli.add_argument('-b', '--build', action='store',
                      type=str, metavar='<directory>', required=True,
                      help='Build directory. A large amount of free space ' +
                      'is required.')
-
     cli.add_argument('-B', '--binary', action='store_true', default=False,
                      help='Do binary build only. Disable generation of ' +
                      'URI lists. Default: %(default)s')
-
     cli.add_argument('-c', '--config', action='store',
                      type=str, metavar='<config file>', required=True,
                      help='Configuration file. This option may be used ' +
                      'more than once to process multiple configurations. ' +
                      'A configuration file must be specified.')
-
     cli.add_argument('-d', '--debug', action='store_true', default=False,
                      help='Enable debug mode. Extra output will be ' +
                      'to assist in development. Default: %(default)s')
-
     cli.add_argument('-D', '--dummy', action='store_true', default=False,
                      help='Enable dummy mode. Download only ' +
                      'and no squashfs. Default: %(default)s')
-
     cli.add_argument('-k', '--hashkey', action='store', default=None,
                      type=str, metavar='<key id>', help='Set key ' +
                      'to sign MD5 and SHA256 hashes of the generated ISOs.')
-
     cli.add_argument('-l', '--log-file', action='store', default=None,
                      type=str, metavar='<file>',
                      help='Log debug output to file. Note that when ' +
                      'logging is enabled, output to the console is buffered.')
-
     cli.add_argument('-o', '--output-dir', action='store', default=None,
                      type=str, metavar='<directory>',
                      help='Output directory, where the product of this ' +
                      'program will be generated.')
-
     cli.add_argument('-P', '--preserve', action='store_true', default=False,
                      help='Preserve build directory. Disable automatic ' +
                      'cleanup of the build area at exit.')
-
     cli.add_argument('-q', '--quiet', action='store_true', default=False,
                      help='Enable quiet mode. Only high priority messages ' +
                      'will be generated.')
-
     cli.add_argument('-U', '--update-grub', action='store_true', default=False,
                      help='Execute update-grub after generating iso media.')
-
     cli.add_argument('-v', '--verbose', action='store_true', default=False,
                      help='Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
-
     # These options are managed by the fll shell snippet non-interactively
     cli.add_argument('--bin', action='store', type=str,
                      help=argparse.SUPPRESS, default=pyfll_path)
-
     cli.add_argument('--share', action='store', type=str,
                      help=argparse.SUPPRESS, default=share_path)
-
     cli.add_argument('--gid', action='store', type=int,
                      help=argparse.SUPPRESS, default=os.getgid())
-
     cli.add_argument('--uid', action='store', type=int,
                      help=argparse.SUPPRESS, default=os.getuid())
-
     cli.add_argument('--non-root', action='store_true',
                      help=argparse.SUPPRESS, default=False)
-
     arguments = cli.parse_args()
 
     try:
