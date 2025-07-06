@@ -253,17 +253,6 @@ class FLLBuilder(object):
 
 
 
-    def process_defaults(self, defaults: dict) -> None:
-        '''Form a distro-defaults data structure to be written to
-        /etc/default/distro of each chroot, and used for release name.'''
-        for key in ['FLL_DISTRO_NAME', 'FLL_IMAGE_DIR', 'FLL_IMAGE_FILE',
-                    'FLL_LIVE_USER', 'FLL_LIVE_USER_GROUPS',
-                    'FLL_GFXBOOT_THEME']:
-            if not defaults.get(key):
-                self.log.critical(f'{key} is required in "distro" section of config file')
-                raise FllError
-
-
     def get_distro_imagefile(self, chroot: str) -> str:
         '''Return image file that compressed chroot will be archived to.'''
         image_file = self.conf['distro']['FLL_IMAGE_FILE']
