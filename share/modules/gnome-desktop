@@ -10,7 +10,6 @@ packages = """
 	gimp
 	liferea
 	loupe
-	gnome-bluetooth
 	gnome-commander
 	gnome-control-center
 	gnome-font-viewer
