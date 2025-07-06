@@ -1,0 +1,23 @@
+desc = """
+	A basic LXDE desktop.
+"""
+
+modules = """
+	cli
+	distro
+	distro-lxde
+	distro-tools
+	distro-tools-x
+	essential
+	hwsupport-essential
+	hwsupport-extra
+	libreoffice-suite
+	lxde-basic
+	utils-essential
+	utils-extra
+	utils-x
+	xserver
+"""
+
+packages = """
+"""
