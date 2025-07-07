@@ -307,6 +307,7 @@ class FLLBuilder(object):
         conf_name = f'{distro_name}-{self.uuid}.iso.fll.conf'
         self.conf.filename = os.path.join(self.opts.output_dir, conf_name)
         self.conf.write()
+        os.chown(self.conf.filename, self.opts.uid, self.opts.gid)
 
     def expand_pkg_profile(self, chroot: str, profile: str, modules_dir: str) -> dict:
         '''Return a dict, chroot string as key and package, debconf and postinst
