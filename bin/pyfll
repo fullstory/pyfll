@@ -1300,7 +1300,6 @@ class FLLBuilder(object):
             elif self.opts.debug:
                 cmd.insert(1, '-d9')
             self.log.info(f'{chroot} - creating erofs ({erofs_compression}) filesystem...')
-            self.log.info(' '.join(cmd))
             self.exec_cmd(cmd)
             # move into chroot to avoid having to modify stage_chroot() for now
             shutil.move(image_file, chroot_dir)
