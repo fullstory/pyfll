@@ -1247,6 +1247,7 @@ class FLLBuilder(object):
         image_file = self.get_distro_imagefile(chroot)
         if self.opts.dummy:
             cmd = ['touch', image_file]
+            self.chroot_exec(chroot, cmd)
         elif self.conf['options']['readonly_filesystem'] == 'squashfs':
             cmd = ['mksquashfs', '.', image_file, '-noappend']
 
@@ -1276,20 +1277,33 @@ class FLLBuilder(object):
             cmd.extend(['-e', image_file])
 
             self.log.info(f'{chroot} - creating squashfs ({squashfs_comp}) filesystem...')
+            self.chroot_exec(chroot, cmd)
         elif self.conf['options']['readonly_filesystem'] == 'erofs':
+            image_file = os.path.join(self.temp, image_file)
             erofs_compression = self.conf['options'].get('erofs_compression')
-            cmd = ['mkfs.erofs', f'-z{erofs_compression}', '-Urandom',
-                   '-Efragments', image_file, '.']
+            erofs_uuid = self.conf['options'].get('erofs_uuid')
+            cmd = ['mkfs.erofs', f'-z{erofs_compression}', f'-U{erofs_uuid}',
+                   '-Efragments', image_file, chroot_dir]
             with open(exclude_file) as ef:
                 for exclude in ef.readlines():
-                    cmd.insert(1, f'--exclude-regex={exclude.rstrip()}')
+                    exclude = exclude.rstrip()
+                    if exclude.find('*') > 0:
+                        excludes = glob.glob(os.path.join(chroot_dir, exclude))
+                        for ex in excludes:
+                            if os.path.exists(ex):
+                                cmd.insert(1, f'--exclude-path={ex.replace(chroot_dir + '/', '')}')
+                    else:
+                        if os.path.exists(os.path.join(chroot_dir, exclude)):
+                            cmd.insert(1, f'--exclude-path={exclude}')
             if self.opts.log_file or self.opts.quiet:
                 cmd.insert(1, '-d0')
             elif self.opts.debug:
                 cmd.insert(1, '-d9')
             self.log.info(f'{chroot} - creating erofs ({erofs_compression}) filesystem...')
-
-        self.chroot_exec(chroot, cmd)
+            self.log.info(' '.join(cmd))
+            self.exec_cmd(cmd)
+            # move into chroot to avoid having to modify stage_chroot() for now
+            shutil.move(image_file, chroot_dir)
 
     def stage_chroot(self, chroot: str) -> None:
         '''Stage files for an chroot for final genisofs.'''

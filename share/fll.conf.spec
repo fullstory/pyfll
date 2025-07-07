@@ -48,6 +48,7 @@ squashfs_comp        = option('gzip', 'lz4', 'lzo', 'xz', 'zstd', default='zstd'
 squashfs_processors  = integer(min=1, default=None)
 squashfs_throttle    = integer(1, 99, default=None)
 erofs_compression    = option('lz4', 'lz4hc', 'lzma', 'deflate', 'libdeflate', 'zstd', default='lzma')
+erofs_uuid           = string(default='00000000-0000-0000-0000-000000000000')
 
 [distro]
 FLL_DISTRO_NAME = string(default='aptosid')
