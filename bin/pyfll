@@ -1284,7 +1284,7 @@ class FLLBuilder(object):
                 for exclude in ef.readlines():
                     cmd.insert(1, f'--exclude-regex={exclude.rstrip()}')
             if self.opts.log_file or self.opts.quiet:
-                cmd.insert(1, '--quiet')
+                cmd.insert(1, '-d0')
             elif self.opts.debug:
                 cmd.insert(1, '-d9')
             self.log.info(f'{chroot} - creating erofs ({erofs_compression}) filesystem...')
