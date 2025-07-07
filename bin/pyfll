@@ -1240,7 +1240,7 @@ class FLLBuilder(object):
             self.zero_logs(chroot, dirpath, files)
 
     def mkreadonlyfs_chroot(self, chroot: str) -> None:
-        '''Make squashfs filesystem image of chroot.'''
+        '''Make readonly filesystem image of chroot.'''
         chroot_dir = os.path.join(self.temp, chroot)
         cmd = list()
         exclude_file = os.path.join(self.opts.share, 'data', 'fll_sqfs_exclusion')
@@ -1304,7 +1304,7 @@ class FLLBuilder(object):
             os.chmod(image_file, 0o644)
             shutil.move(image_file, image_dir)
         except IOError:
-            self.log.exception('failed to move squashfs image to staging dir')
+            self.log.exception('failed to move readonly rootfs image to staging dir')
             raise FllError
 
         if self.opts.dummy:
@@ -1708,7 +1708,7 @@ if __name__ == '__main__':
                      'to assist in development. Default: %(default)s')
     cli.add_argument('-D', '--dummy', action='store_true', default=False,
                      help='Enable dummy mode. Download only ' +
-                     'and no squashfs. Default: %(default)s')
+                     'and no readonly rootfs. Default: %(default)s')
     cli.add_argument('-k', '--hashkey', action='store', default=None,
                      type=str, metavar='<key id>', help='Set key ' +
                      'to sign MD5 and SHA256 hashes of the generated ISOs.')
