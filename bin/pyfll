@@ -1243,7 +1243,7 @@ class FLLBuilder(object):
         '''Make readonly filesystem image of chroot.'''
         chroot_dir = os.path.join(self.temp, chroot)
         cmd = list()
-        exclude_file = os.path.join(self.opts.share, 'data', 'fll_sqfs_exclusion')
+        exclude_file = os.path.join(self.opts.share, 'data', 'fll_rootfs_exclusions')
         image_file = self.get_distro_imagefile(chroot)
         if self.opts.dummy:
             cmd = ['touch', image_file]
@@ -1252,7 +1252,7 @@ class FLLBuilder(object):
             cmd = ['mksquashfs', '.', image_file, '-noappend']
 
             shutil.copy(exclude_file, os.path.join(chroot_dir, 'tmp'))
-            cmd.extend(['-wildcards', '-ef', '/tmp/fll_sqfs_exclusion'])
+            cmd.extend(['-wildcards', '-ef', '/tmp/fll_rootfs_exclusions'])
 
             # set compression algorithm for squashfs-tools >= 4.1
             squashfs_comp = self.conf['options'].get('squashfs_comp')
