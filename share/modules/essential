@@ -15,6 +15,7 @@ packages = """
 	locales
 	btrfs-progs
 	e2fsprogs
+	erofs-utils
 	squashfs-tools
 	initramfs-tools
 	grub-pc
