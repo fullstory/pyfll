@@ -13,6 +13,6 @@ Dependencies:
   python3-configobj
   cdebootstrap | debootstrap | mmdebstrap
   xorriso
-  squashfs-tools
+  squashfs-tools | erofs-utils
   gdisk (for gpthybrid used with grub)
   wget (for deb822-style apt data file fetching)
