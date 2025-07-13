@@ -1282,11 +1282,16 @@ class FLLBuilder(object):
         elif self.conf['options']['readonly_filesystem'] == 'erofs':
             image_file = os.path.join(self.temp, image_file)
             erofs_compression = self.conf['options'].get('erofs_compression')
+            erofs_comp_level = self.conf['options'].get('erofs_comp_level')
             erofs_uuid = self.conf['options'].get('erofs_uuid')
             cmd = ['mkfs.erofs', f'-U{erofs_uuid}', image_file, chroot_dir]
             if erofs_compression != 'none':
-                #cmd.insert(1, '-Efragments')
+                if erofs_comp_level:
+                    erofs_compression += f',{erofs_comp_level}'
                 cmd.insert(1, f'-z{erofs_compression}')
+            erofs_options = self.conf['options'].get('erofs_options')
+            if erofs_options:
+                cmd.insert(1, f'{erofs_options}')
             with open(exclude_file) as ef:
                 for exclude in ef.readlines():
                     exclude = exclude.rstrip()
