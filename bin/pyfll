@@ -304,7 +304,7 @@ class FLLBuilder(object):
     def write_configuration(self) -> None:
         '''Save build configuration with live media. Use only at end.'''
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
-        conf_name = f'{distro_name}-{self.uuid}.iso.fll.conf'
+        conf_name = f'{distro_name}-{self.timestamp}.iso.fll.conf'
         self.conf.filename = os.path.join(self.opts.output_dir, conf_name)
         self.conf.write()
         os.chown(self.conf.filename, self.opts.uid, self.opts.gid)
@@ -1587,7 +1587,7 @@ class FLLBuilder(object):
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
         image_dir = self.conf['distro']['FLL_IMAGE_DIR']
 
-        iso_name = f'{distro_name}-{self.uuid}.iso'
+        iso_name = f'{distro_name}-{self.timestamp}.iso'
 
         iso_file = os.path.join(self.opts.output_dir, iso_name)
         md5_file = iso_file + '.md5'
