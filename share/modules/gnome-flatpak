@@ -1,0 +1,8 @@
+desc = """
+	Gnome software flatpak integration
+"""
+
+packages = """
+	gnome-software
+	gnome-software-plugin-flatpak
+"""

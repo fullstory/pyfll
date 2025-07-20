@@ -2,7 +2,7 @@ desc = """
 	Budgie desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-budgie
@@ -51,7 +51,6 @@ packages = """
 	budgie-rotation-lock-applet
 	budgie-session
 	budgie-showtime-applet
-	budgie-sntray-plugin
 	budgie-takeabreak-applet
 	budgie-trash-applet
 	budgie-visualspace-applet

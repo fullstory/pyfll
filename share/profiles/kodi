@@ -5,7 +5,7 @@ desc = """
 	kodi-gbm xsession to function.
 """
 
-deps = """
+modules = """
 	essential
 	hwsupport-essential
 	utils-essential

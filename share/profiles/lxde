@@ -1,19 +1,18 @@
 desc = """
-	Experimental system with Hyprland, greetd, and a plethora
-	of wayland utilities.
+	A basic LXDE desktop.
 """
 
 modules = """
 	cli
 	distro
-	distro-hyprland
+	distro-lxde
 	distro-tools
 	distro-tools-x
 	essential
 	hwsupport-essential
 	hwsupport-extra
-	hyprland-essential
-	hyprland-extra
+	libreoffice-suite
+	lxde-basic
 	utils-essential
 	utils-extra
 	utils-x

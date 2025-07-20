@@ -2,7 +2,7 @@ desc = """
 	MATE desktop environment.
 """
 
-deps = """
+modules = """
 	cli
 	distro
 	distro-mate
@@ -61,7 +61,6 @@ packages = """
 	mate-calc-common
 	mate-window-applets-common
 	mate-common
-	mate-sntray-plugin
 	mate-window-buttons-applet
 	mate-core
 	mate-notification-daemon

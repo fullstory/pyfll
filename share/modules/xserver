@@ -13,6 +13,7 @@ packages = """
 	intel-media-va-driver
 	libgl1-mesa-dri
 	mesa-utils
+	mesa-vulkan-drivers
 	xauth
 	xfonts-base
 	xfonts-75dpi
