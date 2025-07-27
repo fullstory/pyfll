@@ -1669,6 +1669,12 @@ class FLLBuilder(object):
         if self.opts.update_grub:
             self.exec_cmd(["update-grub"])
 
+        if self.opts.write_iso:
+            self.exec_cmd(['dd', f'if={iso_file}', f'of={self.opts.write_iso}',
+                           'bs=1M', 'status=progress']
+            self.exec_cmd(['sgdisk', '--move-second-header',
+                           f'of={self.opts.write_iso}']
+
     def log_build_stats(self) -> None:
         duration = int(time.perf_counter() - self.time)
         m, s = divmod(duration, 60)
@@ -1756,6 +1762,10 @@ if __name__ == '__main__':
     cli.add_argument('-v', '--verbose', action='store_true', default=False,
                      help='Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
+    cli.add_argument('-w', '--write-iso', action='store', default=None,
+                     type=str, metavar='<device>',
+                     help='Write final iso media to device with dd.' +
+                     'WARNING: destroys all existing data on <device>!!!')
     # These options are managed by the fll shell snippet non-interactively
     cli.add_argument('--bin', action='store', type=str,
                      help=argparse.SUPPRESS, default=pyfll_path)
