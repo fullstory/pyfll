@@ -14,6 +14,7 @@ packages = """
 	fll-live-initscripts
 	locales
 	btrfs-progs
+		btrfsmaintenance
 	e2fsprogs
 	erofs-utils
 	squashfs-tools
