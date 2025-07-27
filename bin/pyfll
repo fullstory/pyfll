@@ -893,7 +893,7 @@ class FLLBuilder(object):
         self.write_file(chroot, '/etc/motd.tail')
 
         self.log.debug('writing final apt sources.list(s)')
-        self.write_apt_lists(chroot)
+        self.write_apt_lists(chroot, cached=self.opts.cached)
 
         if os.path.isfile(os.path.join(chroot_dir, 'etc/resolv.conf')) and \
            not os.path.islink(os.path.join(chroot_dir, 'etc/resolv.conf')) and \
@@ -1726,6 +1726,8 @@ if __name__ == '__main__':
                      help='Configuration file. This option may be used ' +
                      'more than once to process multiple configurations. ' +
                      'A configuration file must be specified.')
+    cli.add_argument('-C', '--cached', action='store_true', default=False,
+                     help='Keep cached apt URIs. Default: %(default)s')
     cli.add_argument('-d', '--debug', action='store_true', default=False,
                      help='Enable debug mode. Extra output will be ' +
                      'to assist in development. Default: %(default)s')
