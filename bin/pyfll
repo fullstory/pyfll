@@ -1673,7 +1673,7 @@ class FLLBuilder(object):
             self.exec_cmd(['dd', f'if={iso_file}', f'of={self.opts.write_iso}',
                            'bs=1M', 'status=progress'])
             self.exec_cmd(['sgdisk', '--move-second-header',
-                           f'of={self.opts.write_iso}'])
+                           f'{self.opts.write_iso}'])
 
     def log_build_stats(self) -> None:
         duration = int(time.perf_counter() - self.time)
