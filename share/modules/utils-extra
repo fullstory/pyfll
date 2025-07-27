@@ -4,6 +4,8 @@ desc = """
 
 packages = """
 	aspell
+	avahi-daemon
+	avahi-utils
 	build-essential
 	cifs-utils
 	cryptsetup
@@ -14,6 +16,7 @@ packages = """
 	firewalld
 	ftp-ssl
 	iproute2
+	libnss-mdns
 	man-db
 	manpages
 	memtest86+

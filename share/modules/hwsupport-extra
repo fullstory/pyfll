@@ -6,8 +6,6 @@ desc = """
 packages = """
 	bluetooth
 	cups-browsed
-		avahi-daemon
-		libnss-mdns
 	dmidecode
 	dmsetup
 	libmtp-runtime
