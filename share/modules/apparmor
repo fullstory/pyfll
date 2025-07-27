@@ -1,0 +1,10 @@
+desc = """
+	AppArmor Mandatory Access Control framework
+	https://wiki.debian.org/AppArmor/HowToUse
+"""
+
+packages = """
+	apparmor
+	apparmor-profiles
+	apparmor-utils
+"""

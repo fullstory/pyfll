@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if [ -x "$(which aa-status)" ]; then
+		say "Enabling apparmor"
+		echo 'GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT apparmor=1 security=apparmor"' > /etc/default/grub.d/apparmor.cfg
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
