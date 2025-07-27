@@ -10,7 +10,6 @@ packages = """
 	debsums
 	dosfstools
 	gdisk
-	iptables
 	iputils-ping
 	isc-dhcp-client
 	iw
@@ -19,6 +18,7 @@ packages = """
 	logrotate
 	mbr
 	netbase
+	nftables
 	plymouth
 		plymouth-themes
 	rsync
