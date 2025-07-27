@@ -14,7 +14,6 @@ packages = """
 	kget
 	kgpg
 	kio-audiocd
-	kipi-plugins
 	kmahjongg
 	kmail
 	knavalbattle
