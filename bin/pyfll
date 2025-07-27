@@ -1666,12 +1666,20 @@ class FLLBuilder(object):
         for f in glob.glob('%s*' % os.path.splitext(iso_file)[0]):
             self.log.info(f)
 
+        if self.opts.write_iso:
+            self.log.info(f'wiping {self.opts.write_iso}...')
+            self.exec_cmd(['wipefs', '--all', '--force',
+                           f'{self.opts.write_iso}'])
+
         if self.opts.update_grub:
-            self.exec_cmd(["update-grub"])
+            self.log.info('updating grub2-fll-fromiso entries...')
+            self.exec_cmd(['update-grub'])
 
         if self.opts.write_iso:
+            self.log.info(f'writing iso to {self.opts.write_iso}...')
             self.exec_cmd(['dd', f'if={iso_file}', f'of={self.opts.write_iso}',
                            'bs=1M', 'status=progress'])
+            self.log.info(f'updating GPT alt header location...')
             self.exec_cmd(['sgdisk', '--move-second-header',
                            f'{self.opts.write_iso}'])
 
