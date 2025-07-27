@@ -6,13 +6,11 @@ packages = """
 	akregator
 	bluedevil
 	digikam
-	hplip-gui
-	fonts-vlgothic
 	kcharselect
 	kdeadmin
-	qdiskinfo
+	kde-config-plymouth
 	kdf
-	kgamma5
+	kgamma
 	kget
 	kgpg
 	kio-audiocd
@@ -25,6 +23,10 @@ packages = """
 	kreversi
 	krusader
 	ktorrent
+	libreoffice-kf6
+	libreoffice-plasma
+	qdiskinfo
 	skanlite
+	smb4k
 	yakuake
 """
