@@ -1,0 +1,15 @@
+desc = """
+	QEmu packages.
+"""
+
+packages = """
+	qemu-block-extra
+	qemu-system-common
+	qemu-system-data
+	qemu-system-gui
+	qemu-system-modules-opengl
+	qemu-system-modules-spice
+	qemu-system-x86
+	qemu-utils
+	ovmf
+"""

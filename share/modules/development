@@ -1,0 +1,22 @@
+desc = """
+	Common fll development packages.
+"""
+
+packages = """
+	apt-cacher-ng
+	auto-apt-proxy
+	cdebootstrap
+	cowbuilder
+	debootstrap
+	devscripts
+	fakeroot
+	git-buildpackage
+	git
+	lintian
+	pbuilder
+	python3-apt
+	python3-configobj
+	python3-pylsp
+	python3-requests
+	reprepro
+"""

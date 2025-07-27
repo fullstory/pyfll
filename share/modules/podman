@@ -1,0 +1,11 @@
+desc = """
+	Podman - container management.
+"""
+
+packages = """
+	catatonit
+	crun
+	passt
+	podman
+	uidmap
+"""
