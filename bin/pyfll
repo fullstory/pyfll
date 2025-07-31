@@ -432,8 +432,7 @@ class FLLBuilder(object):
             raise FllError
 
         self.pkgs = dict()
-        for chroot in self.conf['chroots'].keys():
-            self.pkgs[chroot] = self.expand_pkg_profile(chroot, profile, modules_dir)
+        self.pkgs[chroot] = self.expand_pkg_profile(chroot, profile, modules_dir)
 
     def get_debconf_list(self, chroot: str) -> list:
         '''Return debconf list for chroot. Dynamically generate locales
@@ -529,8 +528,9 @@ class FLLBuilder(object):
         '''Clean up the build area after taking care that all build chroots
         have been taken care of.'''
         self.log.info('cleaning up...')
-
-        for chroot in self.conf['chroots'].keys():
+        chroots = [chroot for chroot in self.opts.chroots] \
+            if self.opts.chroots else self.conf['chroots'].keys()
+        for chroot in chroots:
             dirname = os.path.join(self.temp, chroot)
             if os.path.isdir(dirname):
                 self.log.debug(f'cleaning up chroot: {chroot}')
@@ -893,7 +893,7 @@ class FLLBuilder(object):
         self.write_file(chroot, '/etc/motd.tail')
 
         self.log.debug('writing final apt sources.list(s)')
-        self.write_apt_lists(chroot, cached=self.opts.cached)
+        self.write_apt_lists(chroot, cached=self.opts.apt_cache)
 
         if os.path.isfile(os.path.join(chroot_dir, 'etc/resolv.conf')) and \
            not os.path.islink(os.path.join(chroot_dir, 'etc/resolv.conf')) and \
@@ -1580,7 +1580,7 @@ class FLLBuilder(object):
         else:
             self.log.info(f'not signing file (no key given): {filename}')
 
-    def gen_live_media(self) -> None:
+    def gen_live_media(self, chroots: list) -> None:
         '''Generate live media iso image.'''
         stage = os.path.join(self.temp, 'staging')
 
@@ -1612,7 +1612,7 @@ class FLLBuilder(object):
                                             'boot/grub/i386-pc/boot_hybrid.img')
                 xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito'
                 xorriso_cmd += f' --grub2-boot-info --grub2-mbr {grub_mbr_img} '
-                for chroot in list(self.conf['chroots'].keys()):
+                for chroot in chroots:
                     image_file = self.get_distro_imagefile(chroot)
                     image_path = os.path.join(image_dir, image_file)
                     if os.path.isfile(os.path.join(stage, image_path)):
@@ -1692,9 +1692,15 @@ class FLLBuilder(object):
         '''Main loop.'''
         self.init_cli_options()
         self.init_configuration()
-        self.stage_build_directory()
 
-        chroots = self.conf['chroots'].keys()
+        chroots = [chroot for chroot in self.opts.chroots] \
+            if self.opts.chroots else self.conf['chroots'].keys()
+        for chroot in chroots:
+            if not self.conf['chroots'].get(chroot):
+                self.log.error(f'chroot \'{chroot}\' not defined in {self.opts.config}')
+                raise FllError()
+
+        self.stage_build_directory()
         for chroot in chroots:
             self.parse_package_profile(chroot)
             self.chroot_bootstrap(chroot)
@@ -1716,7 +1722,7 @@ class FLLBuilder(object):
 
         self.write_grub_cfg(chroots)
         self.write_sha256sums()
-        self.gen_live_media()
+        self.gen_live_media(chroots)
         self.write_configuration()
         self.log_build_stats()
 
@@ -1726,8 +1732,11 @@ if __name__ == '__main__':
     # Parse cli arguments
     cli = argparse.ArgumentParser(description='F*** Live Linux builder.',
                                   prog='fll', usage='%(prog)s -c <config file> ' +
-                                  '[-b <directory> -o <directory> -l <file>]' +
-                                  ' [-BCdDNpqUv]')
+                                  '[-b <directory> -o <directory> -l <file> ' +
+                                  '-C <chroot> [<chroot> ...] -ABdDNpqUvw]')
+    cli.add_argument('-A', '--apt-cache', action='store_true', default=False,
+                     help='Keep cached apt URIs. Must be defined in config ' +
+                     'file. Default: %(default)s')
     cli.add_argument('-b', '--build', action='store',
                      type=str, metavar='<directory>', required=True,
                      help='Build directory. A large amount of free space ' +
@@ -1740,8 +1749,8 @@ if __name__ == '__main__':
                      help='Configuration file. This option may be used ' +
                      'more than once to process multiple configurations. ' +
                      'A configuration file must be specified.')
-    cli.add_argument('-C', '--cached', action='store_true', default=False,
-                     help='Keep cached apt URIs. Default: %(default)s')
+    cli.add_argument('-C', '--chroots', nargs='+', metavar='<chroot>',
+                     help='Name of chroot(s) to build. Default: all')
     cli.add_argument('-d', '--debug', action='store_true', default=False,
                      help='Enable debug mode. Extra output will be ' +
                      'to assist in development. Default: %(default)s')
