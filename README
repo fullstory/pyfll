@@ -1,11 +1,13 @@
 Usage:
   See ./fll --help
 
-Example Usage:
+Quickstart:
   1) sudo apt install python3-apt python3-configobj gdisk xorriso \
-  	cdebootstrap squashfs-tools
-  2) cp fll.conf fll.local.conf; edit ../fll.local.conf
-  2) ./fll -c ../fll.local.conf -b /tmp/fll/ -o /tmp/fll/
+         cdebootstrap squashfs-tools git apt-cacher-ng auto-apt-proxy
+  2) git clone https://github.com/fullstory/pyfll.git
+  3) cd pyfll && cp fll.conf fll.local.conf
+  4) editor fll.local.conf
+  5) ./fll -c fll.local.conf -b /tmp/fll/
 
 Dependencies:
   python (>= 3.8)
@@ -14,5 +16,8 @@ Dependencies:
   cdebootstrap | debootstrap | mmdebstrap
   xorriso
   squashfs-tools | erofs-utils
-  gdisk (for gpthybrid used with grub)
-  wget (for deb822-style apt data file fetching)
+  gdisk
+
+Recommended:
+  apt-cacher-ng
+  auto-apt-proxy
