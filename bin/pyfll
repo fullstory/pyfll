@@ -653,6 +653,13 @@ class FLLBuilder(object):
             mirror = dist_repo['cached']
         else:
             mirror = dist_repo['uri']
+            # auto-apt-proxy support
+            auto_apt_proxy = shutil.which('auto-apt-proxy')
+            if auto_apt_proxy:
+                apt_proxy = subprocess.run([auto_apt_proxy],
+                                           stdout=subprocess.PIPE).stdout.decode('utf-8')
+                if apt_proxy:
+                    mirror = apt_proxy.rstrip() + '/' + mirror.split('//')[1]
 
         target = os.path.join(self.temp, chroot)
 
@@ -676,9 +683,17 @@ class FLLBuilder(object):
         '''Write apt source lists to /etc/apt/sources.list.d/*.'''
         distro = self.conf['chroots'][chroot]['packages']['distro']
         chroot_dir = os.path.join(self.temp, chroot)
+        auto_apt_proxy = shutil.which('auto-apt-proxy')
+        apt_proxy = None
+        if auto_apt_proxy:
+            apt_proxy = subprocess.run([auto_apt_proxy],
+                                       stdout=subprocess.PIPE).stdout.decode('utf-8')
         for dist_repo in self.conf['chroots'][chroot]['repos'].keys():
             repo = self.conf['chroots'][chroot]['repos'][dist_repo]
+            repo_uri = repo.get('uri')
             cached_uri = repo.get('cached')
+            if not cached_uri and apt_proxy and repo_uri:
+                cached_uri = apt_proxy.rstrip() + '/' + repo_uri.split('//')[1]
             sources_uri = repo.get('sources_uri')
             if sources_uri:
                 cmd = ['wget', '--quiet', sources_uri, '-O']
@@ -707,7 +722,7 @@ class FLLBuilder(object):
                 if cached and cached_uri:
                     sources_file_fh.write(f'URIs: {cached_uri}\n')
                 else:
-                    sources_file_fh.write(f'URIs: {repo['uri']}\n')
+                    sources_file_fh.write(f'URIs: {repo_uri}\n')
                 sources_file_fh.write(f'Suites: {repo['suite']}\n')
                 sources_file_fh.write(f'Components: {repo['components']}\n')
                 if repo.get('keyring'):
