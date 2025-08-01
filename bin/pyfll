@@ -319,7 +319,7 @@ class FLLBuilder(object):
         if browser:
             pkgs['packages'].append(browser)
 
-        ro_fs = self.conf['options'][readonly_filesystem]
+        ro_fs = self.conf['options']['readonly_filesystem']
         if ro_fs == 'squashfs':
             pkgs['packages'].append('squashfs-tools')
         elif ro_fs == 'erofs':
