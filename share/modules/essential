@@ -9,15 +9,13 @@ debconf = """
 
 packages = """
 	adduser
+	btrfs-progs
+		btrfsmaintenance
 	console-setup
 	fll-live-initramfs
 	fll-live-initscripts
 	locales
-	btrfs-progs
-		btrfsmaintenance
 	e2fsprogs
-	erofs-utils
-	squashfs-tools
 	initramfs-tools
 	grub-pc
 	grub-efi-ia32-bin

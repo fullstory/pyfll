@@ -319,6 +319,12 @@ class FLLBuilder(object):
         if browser:
             pkgs['packages'].append(browser)
 
+        ro_fs = self.conf['options'][readonly_filesystem]
+        if ro_fs == 'squashfs':
+            pkgs['packages'].append('squashfs-tools')
+        elif ro_fs == 'erofs':
+            pkgs['packages'].append('erofs-utils')
+
         linux_meta = ['linux-image', 'linux-headers']
         pkgs['packages'].extend(['-'.join([l, linux]) for l in linux_meta])
 
