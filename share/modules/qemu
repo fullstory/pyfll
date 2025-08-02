@@ -7,6 +7,7 @@ packages = """
 	qemu-system-common
 	qemu-system-data
 	qemu-system-gui
+		at-spi2-core
 	qemu-system-modules-opengl
 	qemu-system-modules-spice
 	qemu-system-x86
