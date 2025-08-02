@@ -17,7 +17,6 @@ packages = """
 		libpam-kwallet-common
 	kwin-x11
 	kwin-wayland
-		xwaylandvideobridge
 	partitionmanager
 	plasma-desktop
 		# plasma-desktop recommends are still fscked
