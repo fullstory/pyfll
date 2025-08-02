@@ -1,0 +1,27 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	. /etc/default/distro
+	say "Patching /etc/xdg/kcm-about-distrorc"
+	cat > /etc/xdg/kcm-about-distrorc <<EOF
+[General]
+LogoPath=/usr/share/icons/hicolor/scalable/emblems/emblem-${FLL_DISTRO_NAME}.svg
+Website=https://github.com/fullstory
+Name=${FLL_DISTRO_NAME}
+EOF
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
