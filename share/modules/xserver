@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	dmz-cursor-theme
 	fontconfig
 	fontconfig-config
 	fonts-dejavu-core
