@@ -11,6 +11,16 @@ do_postinst() {
 	# This must be done post fontconfig-config installation
 	echo fontconfig-config fontconfig/enable_bitmaps boolean false | \
 		debconf-set-selections
+
+	say 'Configuring default display-manager.service'
+	for dm in /usr/bin/sddm /usr/sbin/gdm3 /usr/sbin/lightdm \
+		/usr/sbin/lxdm /usr/bin/slim; do
+		[ ! -x "${dm}" ] && continue
+		echo "${dm}" > /etc/X11/default-display-manager
+		ln -vsf /lib/systemd/system/$(basename ${dm}).service \
+			/etc/systemd/system/display-manager.service
+		break
+	done
 }
 
 case "${1}" in

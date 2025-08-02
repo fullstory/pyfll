@@ -1,4 +1,4 @@
-pyfll (2013.02) UNRELEASED; urgency=low
+pyfll (2025.01) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
 
@@ -334,8 +334,9 @@ pyfll (2013.02) UNRELEASED; urgency=low
   * Update kio to kio6.
   * Use argparse in place of optparse as per python PEP 389:
       https://peps.python.org/pep-0389/
+  * Configure default display-manager.service in xserver.postinst.
 
- -- Kel Modderman <kelvmod@gmail.com>  Mon, 11 Nov 2024 16:23:06 +1000
+ -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
 
 pyfll (2013.01) hesperides; urgency=low
 
