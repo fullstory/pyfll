@@ -5,9 +5,6 @@ say() {
 }
 
 do_postinst() {
-	say "Setting default cursor theme"
-	update-alternatives --set x-cursor-theme \
-		/usr/share/icons/Bibata-Modern-Ice/cursor.theme
 	say "Setting wlogout defaults"
 	sed -i 's#loginctl lock-session#gtklock -i#' \
 		/etc/wlogout/layout

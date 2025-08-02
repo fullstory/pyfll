@@ -13,9 +13,6 @@ do_postinst() {
 			/etc/xdg/openbox/rc.xml
 		sed -i 's#<number>[[:alnum:]]</number>#<number>2</number>#' \
 			/etc/xdg/openbox/rc.xml
-		say "Setting default cursor theme"
-		update-alternatives --set x-cursor-theme \
-			/usr/share/icons/Bibata-Modern-Ice/cursor.theme
 	fi
 }
 
