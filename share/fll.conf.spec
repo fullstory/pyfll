@@ -5,8 +5,8 @@
         codename = string(default='sid')
         arch     = string(default='amd64')
         linux    = string(default='aptosid-amd64')
-        profile  = string(default='kde-lite')
-        browser  = string(default=None)
+        profile  = force_list(default=list('kde-lite'))
+        browser  = force_list(default=list())
         modules  = force_list(default=list('firmware'))
         locales  = force_list(default=list('en_US'))
 

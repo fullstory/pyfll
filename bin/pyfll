@@ -312,21 +312,23 @@ class FLLBuilder(object):
     def expand_pkg_profile(self, chroot: str, profile: str, modules_dir: str) -> dict:
         '''Return a dict, chroot string as key and package, debconf and postinst
         lists.'''
-        pkgs = {'debconf': [], 'packages': [], 'postinst': []}
+        debconf = set()
+        packages = set()
+        postinst = set()
         arch = self.conf['chroots'][chroot]['packages']['arch']
         linux = self.conf['chroots'][chroot]['packages']['linux']
-        browser = self.conf['chroots'][chroot]['packages'].get('browser')
-        if browser:
-            pkgs['packages'].append(browser)
+        browsers = self.conf['chroots'][chroot]['packages'].get('browser')
+        for browser in browsers:
+            packages.add(browser)
 
         ro_fs = self.conf['options']['readonly_filesystem']
         if ro_fs == 'squashfs':
-            pkgs['packages'].append('squashfs-tools')
+            packages.add('squashfs-tools')
         elif ro_fs == 'erofs':
-            pkgs['packages'].append('erofs-utils')
+            packages.add('erofs-utils')
 
         linux_meta = ['linux-image', 'linux-headers']
-        pkgs['packages'].extend(['-'.join([l, linux]) for l in linux_meta])
+        packages.update(['-'.join([l, linux]) for l in linux_meta])
 
         profile_conf = ConfigObj(profile)
 
@@ -336,38 +338,38 @@ class FLLBuilder(object):
 
         if 'debconf' in profile_conf:
             self.log.debug('debconf:')
-            for debconf in multiline_to_list(profile_conf['debconf']):
-                pkgs['debconf'].append(debconf)
-                self.log.debug(f'  {debconf}')
+            for line in multiline_to_list(profile_conf['debconf']):
+                debconf.add(line)
+                self.log.debug(f'  {line}')
 
         if 'packages' in profile_conf:
             self.log.debug('packages:')
-            for pkg in multiline_to_list(profile_conf['packages']):
-                pkgs['packages'].append(pkg)
-                self.log.debug(f'  {pkg}')
+            for line in multiline_to_list(profile_conf['packages']):
+                packages.add(line)
+                self.log.debug(f'  {line}')
 
         if arch in profile_conf:
             self.log.debug(f'packages ({arch}):')
-            for pkg in multiline_to_list(profile_conf[arch]):
-                pkgs['packages'].append(pkg)
-                self.log.debug(f'  {pkg}')
+            for line in multiline_to_list(profile_conf[arch]):
+                packages.add(line)
+                self.log.debug(f'  {line}')
 
-        modules = []
+        modules = set()
         if 'modules' in profile_conf:
             self.log.debug('modules:')
             for module in multiline_to_list(profile_conf['modules']):
-                modules.append(module)
+                modules.add(module)
                 self.log.debug(f'  {module}')
 
         if 'modules' in self.conf['chroots'][chroot]['packages']:
             self.log.debug('modules (config):')
             for module in self.conf['chroots'][chroot]['packages']['modules']:
-                modules.append(module)
+                modules.add(module)
                 self.log.debug(f'  {module}')
 
         if os.path.isfile(profile + '.postinst'):
             self.log.debug(f'registering postinst script: {profile}.postinst')
-            pkgs['postinst'].append(profile + '.postinst')
+            postinst.add(profile + '.postinst')
 
         self.log.debug('---')
 
@@ -388,57 +390,59 @@ class FLLBuilder(object):
 
             if 'debconf' in module_conf:
                 self.log.debug('debconf:')
-                for debconf in multiline_to_list(module_conf['debconf']):
-                    pkgs['debconf'].append(debconf)
-                    self.log.debug(f'  {debconf}')
+                for line in multiline_to_list(module_conf['debconf']):
+                    debconf.add(line)
+                    self.log.debug(f'  {line}')
 
             if 'packages' in module_conf:
                 self.log.debug('packages:')
-                for pkg in multiline_to_list(module_conf['packages']):
-                    pkgs['packages'].append(pkg)
-                    self.log.debug(f'  {pkg}')
+                for line in multiline_to_list(module_conf['packages']):
+                    packages.add(line)
+                    self.log.debug(f'  {line}')
 
             if arch in module_conf:
                 self.log.debug(f'packages ({arch}):')
-                for pkg in multiline_to_list(module_conf[arch]):
-                    pkgs['packages'].append(pkg)
-                    self.log.debug(f'  {pkg}')
+                for line in multiline_to_list(module_conf[arch]):
+                    packages.add(line)
+                    self.log.debug(f'  {line}')
 
             if os.path.isfile(module_file + '.postinst'):
                 self.log.debug(f'registering postinst script: {module_file}.postinst')
-                pkgs['postinst'].append(module_file + '.postinst')
+                postinst.add(module_file + '.postinst')
 
             self.log.debug('---')
 
-        self.log.debug(f'package summary for {arch}:')
-        pkgs['packages'].sort()
-        for pkg in pkgs['packages']:
-            self.log.debug(f'  {pkg}')
-
-        self.log.debug(f'debconf summary for {arch}:')
-        pkgs['debconf'].sort()
-        for debconf in pkgs['debconf']:
-            self.log.debug(f'  {debconf}')
-
-        pkgs['packages'] = deduplicate_list(pkgs['packages'])
-
-        return pkgs
+        return debconf, packages, postinst
 
     def parse_package_profile(self, chroot: str) -> None:
         '''Parse packages profile for each chroot.'''
-        profile = self.conf['chroots'][chroot]['packages']['profile']
-        self.log.info(f'{chroot} - processing package profile: {profile}')
-
+        profiles = self.conf['chroots'][chroot]['packages']['profile']
         profile_dir = os.path.join(self.opts.share, 'profiles')
-        profile = os.path.join(profile_dir, profile)
         modules_dir = os.path.join(self.opts.share, 'modules')
 
-        if not os.path.isfile(profile):
-            self.log.critical(f'no such package profile: {profile}')
-            raise FllError
+        self.pkgs = {chroot: {'debconf': set(), 'packages': set(), 'postinst': set()}}
+        for profile in profiles:
+            self.log.info(f'{chroot} - processing package profile: {profile}')
+            profile = os.path.join(profile_dir, profile)
+            if not os.path.isfile(profile):
+                self.log.critical(f'no such package profile: {profile}')
+                raise FllError
+            debconf, packages, postinst = self.expand_pkg_profile(chroot, profile, modules_dir)
+            self.pkgs[chroot]['debconf'].update(debconf)
+            self.pkgs[chroot]['packages'].update(packages)
+            self.pkgs[chroot]['postinst'].update(postinst)
 
-        self.pkgs = dict()
-        self.pkgs[chroot] = self.expand_pkg_profile(chroot, profile, modules_dir)
+        self.log.debug(f'debconf summary for {chroot}:')
+        for item in sorted(self.pkgs[chroot]['debconf']):
+            self.log.debug(f'  {item}')
+
+        self.log.debug(f'package summary for {chroot}:')
+        for item in sorted(self.pkgs[chroot]['packages']):
+            self.log.debug(f'  {item}')
+
+        self.log.debug(f'postinst summary for {chroot}:')
+        for item in sorted(self.pkgs[chroot]['postinst']):
+            self.log.debug(f'  {item}')
 
     def get_debconf_list(self, chroot: str) -> list:
         '''Return debconf list for chroot. Dynamically generate locales
@@ -448,7 +452,7 @@ class FLLBuilder(object):
         for i18n in i18n_list:
             i18n_debconf += f'{i18n}.UTF-8 UTF-8,'
         i18n_debconf = i18n_debconf.rstrip(',')
-        self.pkgs[chroot]['debconf'].append(i18n_debconf)
+        self.pkgs[chroot]['debconf'].add(i18n_debconf)
 
         return self.pkgs[chroot]['debconf']
 
@@ -1199,7 +1203,7 @@ class FLLBuilder(object):
             cache = apt_pkg.Cache(apt.progress.base.OpProgress())
 
         pkgs_base = [pkg.name for pkg in cache.packages if pkg.current_ver]
-        pkgs_want = deduplicate_list(pkgs_base + self.pkgs[chroot]['packages'])
+        pkgs_want = deduplicate_list(pkgs_base + list(self.pkgs[chroot]['packages']))
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
         rec_pkgs = self.detect_recommended_packages(pkgs_dict, cache)
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + rec_pkgs)
