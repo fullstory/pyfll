@@ -40,6 +40,11 @@ def multiline_to_list(lines: str) -> list:
     return [s.strip() for s in lines.splitlines()
             if s.strip() and not s.lstrip().startswith('#')]
 
+def host_timezone() -> str:
+    '''Return timezone of host system.'''
+    with open('/etc/timezone') as tz:
+        return tz.readline().strip('\n')
+
 class FllLocalesError(Exception):
     """
     An FllError class for use by FllLocales.
@@ -1509,9 +1514,12 @@ class FLLBuilder(object):
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf['distro']['FLL_IMAGE_DIR']
         cmdline = self.conf['options'].get('boot_cmdline')
-        if not cmdline:
-            cmdline = 'fsck.mode=skip systemd.show_status=1 quiet splash'
+        if self.opts.timezone:
+            cmdline += f' tz={host_timezone()}'
+        if len(self.opts.locales) == 1:
+            cmdline += f' lang={self.opts.locales[0]}'
         cmdline += f' uuid={self.uuid} image_dir={image_dir} image_file={distro}.{chroot}'
+        self.log.debug(f'boot_cmdline: {cmdline}')
         return cmdline
 
     def hash_sha256sum(self, filename: str):
@@ -1755,6 +1763,9 @@ if __name__ == '__main__':
     cli.add_argument('-q', '--quiet', action='store_true', default=False,
                      help='Enable quiet mode. Only high priority messages ' +
                      'will be generated.')
+    cli.add_argument('-T', '--timezone', action='store_true', default=False,
+                     help='Add host timezone to boot cmdline of live media. ' +
+                     'Default: %(default)s')
     cli.add_argument('-U', '--update-grub', action='store_true', default=False,
                      help='Execute update-grub after generating iso media.')
     cli.add_argument('-v', '--verbose', action='store_true', default=False,
