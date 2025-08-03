@@ -195,8 +195,6 @@ class FLLBuilder(object):
 
     def init_logfile(self) -> None:
         '''Set up a log file.'''
-        if not self.opts.debug:
-            return
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
         log_filename = os.path.join(self.opts.output_dir,
                                     f'{distro_name}-{self.timestamp}.iso.fll.log')
@@ -479,8 +477,9 @@ class FLLBuilder(object):
                 self.log.exception(f'problem copying media_include data to staging dir: {media_include}')
                 raise FllError
 
-    def mount_virtfs(self, chroot_dir: str) -> None:
+    def mount_virtfs(self, chroot: str) -> None:
         '''Mount virtual filesystems in a chroot.'''
+        chroot_dir = os.path.join(self.temp, chroot)
         virtfs = {'devpts': 'dev/pts', 'proc': 'proc'}
 
         for v in list(virtfs.items()):
@@ -489,8 +488,9 @@ class FLLBuilder(object):
 
             self.exec_cmd(cmd)
 
-    def umount(self, chroot_dir: str) -> None:
+    def umount_virtfs(self, chroot: str) -> None:
         '''Umount any mount points in a chroot.'''
+        chroot_dir = os.path.join(self.temp, chroot)
         umount_list = []
         try:
             for line in open('/proc/mounts'):
@@ -523,9 +523,8 @@ class FLLBuilder(object):
         '''Convenience function to nuke chroot given by chroot name.'''
         if not self.opts.preserve:
             self.log.info(f'{chroot} - nuking chroot...')
-            chroot_dir = os.path.join(self.temp, chroot)
-            self.umount(chroot_dir)
-            self.nuke_directory(chroot_dir)
+            self.umount_virtfs(chroot)
+            self.nuke_directory(os.path.join(self.temp, chroot))
 
     def cleanup(self) -> None:
         '''Clean up the build area after taking care that all build chroots
@@ -537,7 +536,7 @@ class FLLBuilder(object):
             dirname = os.path.join(self.temp, chroot)
             if os.path.isdir(dirname):
                 self.log.debug(f'cleaning up chroot: {chroot}')
-                self.umount(dirname)
+                self.umount_virtfs(dirname)
                 if not self.opts.preserve:
                     self.nuke_directory(dirname)
 
@@ -550,15 +549,21 @@ class FLLBuilder(object):
 
         try:
             if self.opts.debug:
-                proc = subprocess.run(cmd, env=self.env, check=True,
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.STDOUT)
-                for line in proc.stdout.decode('UTF-8').splitlines():
-                    self.log.debug(line)
+                proc = subprocess.Popen(cmd, env=self.env,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT,
+                                        universal_newlines=True)
+                for stdout_line in iter(proc.stdout.readline, ""):
+                    self.log.debug(stdout_line.strip())
+                proc.stdout.close()
+                return_code = proc.wait()
+                if return_code:
+                    raise subprocess.CalledProcessError(return_code, shlex.join(cmd))
             else:
                 if self.opts.quiet:
                     subprocess.run(cmd, env=self.env, check=True,
-                                   stdout=subprocess.DEVNULL)
+                                   stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.STDOUT)
                 else:
                     subprocess.run(cmd, env=self.env, check=True)
         except KeyboardInterrupt:
@@ -572,18 +577,18 @@ class FLLBuilder(object):
         chroot_dir = os.path.join(self.temp, chroot)
         cmd = ['chroot', chroot_dir]
         cmd.extend(args)
-
-        self.mount_virtfs(chroot_dir)
         self.exec_cmd(cmd)
-        self.umount(chroot_dir)
 
-    def apt_get_install(self, chroot: str, pkgs: list, download_only: bool=False) -> None:
+    def apt_get(self, chroot: str, command: str, args: list=[], insecure: bool=False) -> None:
         '''An apt-get install wrapper. Automatic installation of recommended
         packages defaults to disabled.'''
-        aptget = ['apt-get', '--yes']
-
-        if download_only:
-            aptget.append('--download-only')
+        aptget = ['apt-get', '--yes', '-qq']
+        if insecure:
+            aptget.extend(['-o', 'Acquire::AllowInsecureRepositories=1'])
+        aptget.extend(['-o', 'Acquire::Languages=none'])
+        aptget.extend(['-o', 'Dpkg::Use-Pty=0'])
+        aptget.extend(['-o', 'Dpkg::Progress-Fancy=0'])
+        aptget.extend(['-o', 'APT::Color=0'])
 
         apt_recommends = self.conf['options'].get('apt_recommends', 'no')
         if apt_recommends == 'no':
@@ -591,47 +596,40 @@ class FLLBuilder(object):
         if self.opts.debug:
             aptget.extend(['-o', 'APT::Get::Show-Versions=1'])
 
-        aptget.append('install')
-        aptget.extend(pkgs)
+        aptget.append(command)
+        if args:
+            aptget.extend(args)
 
         self.chroot_exec(chroot, aptget)
 
-    def cdebbootstrap(self, arch: str, target: str, mirror: str, codename: str) -> None:
-        '''Bootstrap a dist_repo system with cdebootstrap.'''
-        cmd = ['cdebootstrap', f'--arch={arch}',
-               '--include=apt-utils,ca-certificates,gnupg,xz-utils,zstd',
-               '--flavour=minimal', codename, target, mirror]
-
-        if self.opts.debug:
-            cmd.append('--debug')
-        elif self.opts.verbose:
-            cmd.append('--verbose')
-
-        self.exec_cmd(cmd)
-
-    def debbootstrap(self, arch: str, target: str, mirror: str, codename: str) -> None:
+    def debbootstrap(self, chroot: str, arch: str, target: str, mirror: str, codename: str) -> None:
         '''Bootstrap a distro root filesystem with debootstrap.'''
-        cmd = ['debootstrap', f'--arch={arch}',
-               '--include=apt-utils,ca-certificates,gnupg,xz-utils,zstd',
-               '--variant=minbase', '--merged-usr', codename, target, mirror]
+        bootstrapper = self.conf['options'].get('bootstrapper')
+        bootstrap_includes='apt-utils,ca-certificates,gnupg,xz-utils,zstd'
+        if bootstrapper == 'mmdebstrap':
+            cmd = ['mmdebstrap', f'--architectures={arch}',
+                   f'--include={bootstrap_includes}',
+                   '--variant=minbase', '--mode=root', '--format=directory',
+                   '--hook-dir=/usr/share/mmdebstrap/hooks/merged-usr']
+        elif bootstrapper == 'debootstrap':
+            cmd = ['debootstrap', f'--arch={arch}',
+                   f'--include={bootstrap_includes}',
+                   '--variant=minbase', '--merged-usr']
+        else:
+            cmd = ['cdebootstrap', f'--arch={arch}',
+                   f'--include={bootstrap_includes}',
+                   '--flavour=minimal']
+
+        cmd.extend([codename, target, mirror])
 
         if self.opts.debug or self.opts.verbose:
             cmd.insert(1, '--verbose')
 
         self.exec_cmd(cmd)
 
-    def mmdebbootstrap(self, arch: str, target: str, mirror: str, codename: str) -> None:
-        '''Bootstrap a distro root filesystem with mmdebstrap.'''
-        cmd = ['mmdebstrap', f'--architectures={arch}',
-               '--include=apt-utils,ca-certificates,gnupg,xz-utils,zstd',
-               '--variant=minbase', '--mode=root', '--format=directory',
-               '--hook-dir=/usr/share/mmdebstrap/hooks/merged-usr', codename,
-               target, mirror]
-
-        if self.opts.debug or self.opts.verbose:
-            cmd.insert(1, '--verbose')
-
-        self.exec_cmd(cmd)
+        if bootstrapper == 'cdebootstrap':
+            self.chroot_exec(chroot, ['dpkg', '--purge',
+                                      'cdebootstrap-helper-rc.d'])
 
     def chroot_bootstrap(self, chroot: str) -> None:
         '''Bootstrap a distro root filesystem with cdebootstrap.'''
@@ -655,17 +653,8 @@ class FLLBuilder(object):
         target = os.path.join(self.temp, chroot)
 
         self.log.info(f'{chroot} - bootstrapping {distro} {codename} {arch}...')
-
-        bootstrapper = self.conf['options'].get('bootstrapper')
-        if bootstrapper == 'mmdebstrap':
-            self.mmdebbootstrap(arch, target, mirror, codename)
-        elif bootstrapper == 'debootstrap':
-            self.debbootstrap(arch, target, mirror, codename)
-        else:
-            self.cdebbootstrap(arch, target, mirror, codename)
-            self.chroot_exec(chroot, ['dpkg', '--purge',
-                             'cdebootstrap-helper-rc.d'])
-
+        self.debbootstrap(chroot, arch, target, mirror, codename)
+        self.mount_virtfs(chroot)
         shutil.copy('/etc/hosts', os.path.join(target, 'etc'))
         shutil.copy('/etc/resolv.conf', os.path.join(target, 'etc'))
         os.mkdir(os.path.join(target, 'disks'), 0o755)
@@ -757,16 +746,12 @@ class FLLBuilder(object):
             if keyring:
                 keyrings.append(keyring)
 
-        if len(keyrings) > 0:
-            self.chroot_exec(chroot, 'apt-get -o Acquire::Languages=none --allow-insecure-repositories update'.split())
-            cmd = 'apt-get --allow-unauthenticated --yes install'.split()
-            cmd.extend(keyrings)
-            self.chroot_exec(chroot, cmd)
+        if keyrings:
+            self.apt_get(chroot, 'update', insecure=True)
+            self.apt_get(chroot, 'install', args=keyrings, insecure=True)
 
-        self.chroot_exec(chroot, 'apt-get -o Acquire::Languages=none update'.split())
-        # Upgrade any essential packages from sources not available
-        # during bootstrap phase.
-        self.chroot_exec(chroot, 'apt-get dist-upgrade -y'.split())
+        self.apt_get(chroot, 'update')
+        self.apt_get(chroot, 'dist-upgrade')
 
         apt_pkg.config.set('RootDir', chroot_dir)
         apt_pkg.config.set('APT::Architecture', arch)
@@ -1194,7 +1179,7 @@ class FLLBuilder(object):
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + loc_pkgs)
 
         self.log.info(f'{chroot} - installing packages...')
-        self.apt_get_install(chroot, pkgs_want)
+        self.apt_get(chroot, 'install', args=pkgs_want)
 
     def post_installation(self, chroot: str) -> None:
         '''Run package module postinst scripts in a chroot.'''
@@ -1279,7 +1264,9 @@ class FLLBuilder(object):
 
             self.log.info(f'{chroot} - creating squashfs ({squashfs_comp}) filesystem...')
             self.chroot_exec(chroot, cmd)
+            self.umount_virtfs(chroot)
         elif self.conf['options']['readonly_filesystem'] == 'erofs':
+            self.umount_virtfs(chroot)
             image_file = os.path.join(self.temp, image_file)
             erofs_compression = self.conf['options'].get('erofs_compression')
             erofs_comp_level = self.conf['options'].get('erofs_comp_level')
