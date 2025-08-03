@@ -335,6 +335,12 @@ pyfll (2025.01) UNRELEASED; urgency=low
   * Use argparse in place of optparse as per python PEP 389:
       https://peps.python.org/pep-0389/
   * Configure default display-manager.service in xserver.postinst.
+  * Overhaul use of subprocess module in exec_cmd to make use of recent
+    python3 developments:
+    - no longer need to restore signals
+    - simplify logic for calling cmd
+  * No longer support --log-file, instead, log to build area with auto
+    naming.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
 

@@ -19,17 +19,13 @@ import glob
 import logging
 import os
 import sys
+import shlex
 import shutil
 import signal
 import stat
 import subprocess
 import tempfile
 import time
-
-def restore_sigpipe():
-    """Convenience function so that subprocess may be executed with
-    SIGPIPE restored to default (http://bugs.python.org/issue1652)."""
-    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 def deduplicate_list(original_list: list) -> list:
     '''Return a list containing no duplicate items given a list that
@@ -197,8 +193,13 @@ class FLLBuilder(object):
         out.setLevel(lvl)
         self.log.addHandler(out)
 
-    def init_logfile(self, log_filename: str) -> None:
+    def init_logfile(self) -> None:
         '''Set up a log file.'''
+        if not self.opts.log:
+            return
+        distro_name = self.conf['distro']['FLL_DISTRO_NAME']
+        log_filename = os.path.join(self.opts.output_dir,
+                                    f'{distro_name}-{self.timestamp}.iso.fll.log')
         log_filename = os.path.realpath(log_filename)
         dirname = os.path.dirname(log_filename)
         self.prep_dir(dirname)
@@ -211,20 +212,13 @@ class FLLBuilder(object):
             logfile.setLevel(logging.DEBUG)
             self.log.addHandler(logfile)
             os.chown(log_filename, self.opts.uid, self.opts.gid)
+            self.log.debug(' '.join(sys.argv))
         except:
             self.log.exception(f'failed to setup logfile: {log_filename}')
             raise FllError
 
     def init_cli_options(self) -> None:
         '''Check and provide default class options.'''
-        if self.opts.debug:
-            self.init_logger(logging.DEBUG)
-        else:
-            self.init_logger(logging.INFO)
-
-        if self.opts.log_file:
-            self.init_logfile(self.opts.log_file)
-
         if os.path.isfile(self.opts.config):
             self.opts.config = os.path.realpath(self.opts.config)
         else:
@@ -242,6 +236,11 @@ class FLLBuilder(object):
             self.opts.output_dir = self.prep_dir(self.opts.output_dir)
         else:
             self.opts.output_dir = self.opts.build
+
+        if self.opts.debug:
+            self.init_logger(logging.DEBUG)
+        else:
+            self.init_logger(logging.INFO)
 
     def get_distro_imagefile(self, chroot: str) -> str:
         '''Return image file that compressed chroot will be archived to.'''
@@ -488,10 +487,7 @@ class FLLBuilder(object):
             cmd = ['mount', '-t', v[0], 'fll-' + v[0],
                    os.path.join(chroot_dir, v[1])]
 
-            returncode = subprocess.call(cmd, preexec_fn=restore_sigpipe)
-            if returncode != 0:
-                self.log.critical(f'failed to mount chroot {v[0]}')
-                raise FllError
+            self.exec_cmd(cmd)
 
     def umount(self, chroot_dir: str) -> None:
         '''Umount any mount points in a chroot.'''
@@ -509,10 +505,7 @@ class FLLBuilder(object):
         umount_list.reverse()
 
         for mpoint in umount_list:
-            returncode = subprocess.call(['umount', mpoint], preexec_fn=restore_sigpipe)
-            if returncode != 0:
-                self.log.critical(f'umount failed for: {mpoint}')
-                raise FllError
+            self.exec_cmd(f'umount {mpoint}')
 
     def nuke_directory(self, dirname: str) -> None:
         '''Nuke directory tree.'''
@@ -551,49 +544,39 @@ class FLLBuilder(object):
         if not self.opts.preserve:
             self.nuke_directory(self.temp)
 
-    def exec_cmd(self, cmd: list, check_returncode: bool=True) -> None:
+    def exec_cmd(self, cmd: list|str) -> None:
         '''Execute subprocess without buffering output in a pipe.'''
-        command_line = ' '.join(cmd)
-        self.log.debug(command_line)
+        if isinstance(cmd, str):
+            cmd = shlex.split(cmd)
+        self.log.debug(shlex.join(cmd))
 
         try:
-            if self.opts.log_file:
-                cmd_process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                               stderr=subprocess.STDOUT,
-                                               env=self.env, close_fds=True,
-                                               preexec_fn=restore_sigpipe)
-                cmd_stdout = cmd_process.communicate()[0]
-                for line in cmd_stdout.readlines():
-                    self.log.debug(line)
-                cmd_rc = cmd_process.returncode
-            elif self.opts.quiet:
-                with open(os.devnull, 'w') as pipe:
-                    cmd_rc = subprocess.call(cmd, stderr=subprocess.STDOUT,
-                                             stdout=pipe,
-                                             env=self.env, close_fds=True,
-                                             preexec_fn=restore_sigpipe)
+            if self.opts.log:
+                with subprocess.check_call(cmd, stderr=subprocess.STDOUT,
+                                           stdout=subprocess.PIPE,
+                                           env=self.env) as proc:
+                    for line in proc.stdout.read().decode('UTF-8').splitlines():
+                        self.log.debug(line)
             else:
-                cmd_rc = subprocess.call(cmd, stderr=subprocess.STDOUT,
-                                         env=self.env, close_fds=True,
-                                         preexec_fn=restore_sigpipe)
+                if self.opts.quiet:
+                    subprocess.run(cmd, env=self.env, check=True,
+                                   stdout=subprocess.DEVNULL)
+                else:
+                    subprocess.run(cmd, env=self.env, check=True)
         except KeyboardInterrupt:
             raise FllError
-        except:
+        except subprocess.CalledProcessError:
             self.log.exception(f'problem executing command: {command_line}')
             raise FllError
 
-        if cmd_rc != 0 and check_returncode:
-            self.log.critical(f'command failed with return value: {cmd_rc}')
-            raise FllError
-
-    def chroot_exec(self, chroot: str, args: list, check_returncode: bool=True) -> None:
+    def chroot_exec(self, chroot: str, args: list) -> None:
         '''Run command in a chroot.'''
         chroot_dir = os.path.join(self.temp, chroot)
         cmd = ['chroot', chroot_dir]
         cmd.extend(args)
 
         self.mount_virtfs(chroot_dir)
-        self.exec_cmd(cmd, check_returncode)
+        self.exec_cmd(cmd)
         self.umount(chroot_dir)
 
     def apt_get_install(self, chroot: str, pkgs: list, download_only: bool=False) -> None:
@@ -1296,7 +1279,7 @@ class FLLBuilder(object):
             if squashfs_throttle:
                 cmd.extend(['-throttle', f'{squashfs_throttle}'])
 
-            if self.opts.log_file or self.opts.quiet:
+            if self.opts.log or self.opts.quiet:
                 cmd.append('-no-progress')
 
             # can only be last argument
@@ -1328,7 +1311,7 @@ class FLLBuilder(object):
                     else:
                         if os.path.exists(os.path.join(chroot_dir, exclude)):
                             cmd.insert(1, f'--exclude-path={exclude}')
-            if self.opts.log_file or self.opts.quiet:
+            if self.opts.log or self.opts.quiet:
                 cmd.insert(1, '-d0')
             elif self.opts.debug:
                 cmd.insert(1, '-d9')
@@ -1717,6 +1700,7 @@ class FLLBuilder(object):
         '''Main loop.'''
         self.init_cli_options()
         self.init_configuration()
+        self.init_logfile()
 
         chroots = [chroot for chroot in self.opts.chroots] \
             if self.opts.chroots else self.conf['chroots'].keys()
@@ -1785,10 +1769,10 @@ if __name__ == '__main__':
     cli.add_argument('-k', '--hashkey', action='store', default=None,
                      type=str, metavar='<key id>', help='Set key ' +
                      'to sign MD5 and SHA256 hashes of the generated ISOs.')
-    cli.add_argument('-l', '--log-file', action='store', default=None,
-                     type=str, metavar='<file>',
-                     help='Log debug output to file. Note that when ' +
-                     'logging is enabled, output to the console is buffered.')
+    cli.add_argument('-l', '--log', action='store_true', default=False,
+                     help='Log all stdout and stderr output. Note that when ' +
+                     'logging is enabled, output to the console is buffered.' +
+                     ' The log file is saved to the build directory.')
     cli.add_argument('-o', '--output-dir', action='store', default=None,
                      type=str, metavar='<directory>',
                      help='Output directory, where the product of this ' +
