@@ -59,7 +59,7 @@ FLL_IMAGE_DIR  = string(default='aptosid')
 FLL_IMAGE_FILE = string(default='aptosid')
 
 FLL_LIVE_USER        = string(default='aptosid')
-FLL_LIVE_USER_GROUPS = string(default='dialout dip cdrom audio video input render plugdev floppy netdev bluetooth lpadmin kvm sudo')
+FLL_LIVE_USER_GROUPS = string(default='')
 
 FLL_WALLPAPER     = string(default='/usr/share/wallpapers/aptosid-nemesis')
 FLL_GFXBOOT_THEME = string(default='aptosid-nemesis')

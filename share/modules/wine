@@ -19,6 +19,6 @@ packages = """
 	libwine-sane
 """
 
-i386 = """
+packages_i386 = """
 	libwine-jack
 """

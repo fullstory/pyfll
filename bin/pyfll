@@ -252,13 +252,13 @@ class FLLBuilder(object):
 
     def get_distro_stamp(self, chroot: str) -> str:
         '''Return a string suitable for the distro stamp file.'''
-        profile = self.conf['chroots'][chroot]['packages']['profile']
+        profiles = ' '.join(self.conf['chroots'][chroot]['packages']['profile'])
         codename = self.conf['chroots'][chroot]['packages']['codename']
         arch = self.conf['chroots'][chroot]['packages']['arch']
         defaults = self.conf['distro']
         stamp = defaults['FLL_DISTRO_NAME']
         if defaults.get('FLL_DISTRO_VERSION') == 'snapshot':
-            stamp += ' - %s' % profile
+            stamp += ' - %s' % profiles
             try:
                 stamp += ' %s' % codename
             except KeyError:
@@ -270,7 +270,7 @@ class FLLBuilder(object):
             elif defaults.get('FLL_DISTRO_CODENAME'):
                 stamp += ' %s -' % defaults['FLL_DISTRO_CODENAME']
 
-            stamp += f' {profile}'
+            stamp += f' {profiles}'
 
         stamp += f' - ({self.timestamp})'
 
@@ -318,6 +318,7 @@ class FLLBuilder(object):
         lists.'''
         debconf = set()
         packages = set()
+        groups = set()
         postinst = set()
         arch = self.conf['chroots'][chroot]['packages']['arch']
         linux = self.conf['chroots'][chroot]['packages']['linux']
@@ -354,10 +355,17 @@ class FLLBuilder(object):
                 packages.add(line)
                 self.log.debug(f'  {line}')
 
-        if arch in profile_conf:
-            self.log.debug(f'packages ({arch}):')
-            for line in multiline_to_list(profile_conf[arch]):
+        packages_arch = f'packages_{arch}'
+        if packages_arch in profile_conf:
+            self.log.debug(f'packages_{arch}:')
+            for line in multiline_to_list(profile_conf[packages_arch]):
                 packages.add(line)
+                self.log.debug(f'  {line}')
+
+        if 'groups' in profile_conf:
+            self.log.debug('groups:')
+            for line in multiline_to_list(profile_conf['groups']):
+                groups.add(line)
                 self.log.debug(f'  {line}')
 
         modules = set()
@@ -405,10 +413,17 @@ class FLLBuilder(object):
                     packages.add(line)
                     self.log.debug(f'  {line}')
 
-            if arch in module_conf:
-                self.log.debug(f'packages ({arch}):')
-                for line in multiline_to_list(module_conf[arch]):
+            packages_arch = f'packages_{arch}'
+            if packages_arch in module_conf:
+                self.log.debug(f'packages_{arch}:')
+                for line in multiline_to_list(module_conf[packages_arch]):
                     packages.add(line)
+                    self.log.debug(f'  {line}')
+
+            if 'groups' in module_conf:
+                self.log.debug('groups:')
+                for line in multiline_to_list(module_conf['groups']):
+                    groups.add(line)
                     self.log.debug(f'  {line}')
 
             if os.path.isfile(module_file + '.postinst'):
@@ -417,7 +432,7 @@ class FLLBuilder(object):
 
             self.log.debug('---')
 
-        return debconf, packages, postinst
+        return debconf, packages, groups, postinst
 
     def parse_package_profile(self, chroot: str) -> None:
         '''Parse packages profile for each chroot.'''
@@ -425,16 +440,25 @@ class FLLBuilder(object):
         profile_dir = os.path.join(self.opts.share, 'profiles')
         modules_dir = os.path.join(self.opts.share, 'modules')
 
-        self.pkgs = {chroot: {'debconf': set(), 'packages': set(), 'postinst': set()}}
+        self.pkgs = {
+            chroot: {
+                'debconf': set(),
+                'packages': set(),
+                'groups': set(),
+                'postinst': set()
+            }
+        }
         for profile in profiles:
             self.log.info(f'{chroot} - processing package profile: {profile}')
             profile = os.path.join(profile_dir, profile)
             if not os.path.isfile(profile):
                 self.log.critical(f'no such package profile: {profile}')
                 raise FllError
-            debconf, packages, postinst = self.expand_pkg_profile(chroot, profile, modules_dir)
+            debconf, packages, groups, postinst = \
+                self.expand_pkg_profile(chroot, profile, modules_dir)
             self.pkgs[chroot]['debconf'].update(debconf)
             self.pkgs[chroot]['packages'].update(packages)
+            self.pkgs[chroot]['groups'].update(groups)
             self.pkgs[chroot]['postinst'].update(postinst)
 
         self.log.debug(f'debconf summary for {chroot}:')
@@ -443,6 +467,10 @@ class FLLBuilder(object):
 
         self.log.debug(f'package summary for {chroot}:')
         for item in sorted(self.pkgs[chroot]['packages']):
+            self.log.debug(f'  {item}')
+
+        self.log.debug(f'groups summary for {chroot}:')
+        for item in sorted(self.pkgs[chroot]['groups']):
             self.log.debug(f'  {item}')
 
         self.log.debug(f'postinst summary for {chroot}:')
@@ -818,16 +846,20 @@ class FLLBuilder(object):
             f = open(fn, 'w')
             self.log.debug(f'writing file: {filename}')
             if filename == '/etc/default/distro':
-                defaults = list(self.conf['distro'].keys())
-                defaults.sort()
-                for key in defaults:
+                distro_defaults = self.conf['distro'].keys()
+                distro_defaults.sort()
+                for key in distro_defaults:
                     if key.startswith('FLL_DISTRO_CODENAME'):
                         continue
                     elif key == 'FLL_IMAGE_FILE':
                         image_file = self.get_distro_imagefile(chroot)
                         f.write('%s="%s"\n' % (key, image_file))
                         f.write('%s="$%s/$%s"\n' % ('FLL_IMAGE_LOCATION',
-                                                    'FLL_IMAGE_DIR', key))
+                                                    'FLL_IMAGE_DIR',
+                                                    'FLL_IMAGE_FILE'))
+                    elif key == 'FLL_LIVE_USER_GROUPS':
+                        f.write('%s="%s"\n' % \
+                            (key, ' '.join(sorted(self.pkgs[chroot]['groups']))))
                     else:
                         f.write('%s="%s"\n' % (key, self.conf['distro'][key]))
             elif filename == '/etc/fstab':

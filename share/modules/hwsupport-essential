@@ -17,10 +17,10 @@ packages = """
 	wireless-regdb
 """
 
-amd64 = """
+packages_amd64 = """
 	thermald
 """
 
-i386 = """
+packages_i386 = """
 	thermald
 """

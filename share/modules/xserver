@@ -26,6 +26,6 @@ packages = """
 	xutils
 """
 
-i386 = """
+packages_i386 = """
 	xserver-xorg-video-intel
 """

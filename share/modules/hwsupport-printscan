@@ -19,6 +19,6 @@ packages = """
 	system-config-printer-udev
 """
 
-amd64 = """
+packages_amd64 = """
 	printer-driver-gutenprint
 """

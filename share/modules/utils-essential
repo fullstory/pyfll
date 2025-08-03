@@ -22,7 +22,6 @@ packages = """
 	plymouth
 		plymouth-themes
 	rsync
-	sudo
 	wget
 	wpasupplicant
 	xz-utils

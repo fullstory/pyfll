@@ -23,3 +23,8 @@ packages = """
 	udisks2
 	upower
 """
+
+groups = """
+	input
+	render
+"""

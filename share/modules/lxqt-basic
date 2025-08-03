@@ -11,6 +11,6 @@ packages = """
 	screengrab
 """
 
-amd64 = """
+packages_amd64 = """
 	qpdfview
 """

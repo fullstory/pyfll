@@ -24,7 +24,23 @@ packages = """
 	linux-sysctl-defaults
 	mtools
 	pkexec
+	sudo
 	systemd-resolved
 	systemd-timesyncd
 	xfsprogs
+"""
+
+groups = """
+	dialout
+	dip
+	cdrom
+	audio
+	video
+	plugdev
+	floppy
+	netdev
+	bluetooth
+	lpadmin
+	kvm
+	sudo
 """
