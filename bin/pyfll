@@ -280,12 +280,14 @@ class FLLBuilder(object):
     def init_configuration(self) -> None:
         '''Parse build configuration file and return it in a dict.'''
         self.log.info(f'reading configuration file: {self.opts.config}')
+        fll_config_spec = os.path.join(self.opts.share, 'fll.conf.spec')
+        self.conf = ConfigObj(self.opts.config, configspec=fll_config_spec)
+        self.validate_configobj(self.conf)
 
-        fll_configspec = os.path.join(self.opts.share, 'fll.conf.spec')
-        self.conf = ConfigObj(self.opts.config, configspec=fll_configspec)
-
+    def validate_configobj(self, obj: ConfigObj) -> None:
+        self.log.debug(f'vaildating {obj.filename}')
         validator = Validator()
-        result = self.conf.validate(validator, preserve_errors=True)
+        result = obj.validate(validator, preserve_errors=True)
         fatal_error = False
         for entry in flatten_errors(self.conf, result):
             # each entry is a tuple
@@ -332,7 +334,9 @@ class FLLBuilder(object):
         linux_meta = ['linux-image', 'linux-headers']
         packages.update(['-'.join([l, linux]) for l in linux_meta])
 
-        profile_conf = ConfigObj(profile)
+        fll_profile_spec = os.path.join(self.opts.share, 'fll.profile.spec')
+        profile_conf = ConfigObj(profile, configspec=fll_profile_spec)
+        self.validate_configobj(profile_conf)
 
         if 'desc' in profile_conf:
             for line in multiline_to_list(profile_conf['desc']):
@@ -374,7 +378,7 @@ class FLLBuilder(object):
             postinst.add(profile + '.postinst')
 
         self.log.debug('---')
-
+        fll_module_spec = os.path.join(self.opts.share, 'fll.module.spec')
         for module in modules:
             module_file = os.path.join(modules_dir, module)
 
@@ -382,9 +386,8 @@ class FLLBuilder(object):
                 self.log.critical(f'no such module file: {module_file}')
                 raise FllError
 
-            self.log.debug(f'processing module file: {module}')
-
-            module_conf = ConfigObj(module_file)
+            module_conf = ConfigObj(module_file, configspec=fll_module_spec)
+            self.validate_configobj(module_conf)
 
             if 'desc' in module_conf:
                 for line in multiline_to_list(module_conf['desc']):
