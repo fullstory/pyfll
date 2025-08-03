@@ -545,7 +545,7 @@ class FLLBuilder(object):
             self.nuke_directory(self.temp)
 
     def exec_cmd(self, cmd: list|str) -> None:
-        '''Execute subprocess without buffering output in a pipe.'''
+        '''Execute subprocess with support for logging to a file.'''
         if isinstance(cmd, str):
             cmd = shlex.split(cmd)
         self.log.debug(shlex.join(cmd))
