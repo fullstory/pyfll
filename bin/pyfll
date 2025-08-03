@@ -1748,7 +1748,7 @@ if __name__ == '__main__':
                      'to assist in development. Default: %(default)s')
     cli.add_argument('-k', '--hashkey', action='store', default=None,
                      type=str, metavar='<key id>', help='Set key ' +
-                     'to sign MD5 and SHA256 hashes of the generated ISOs.')
+                     'to sign MD5 and SHA256 hashes of the live media.')
     cli.add_argument('-L', '--locales', nargs='+',
                      default=[os.environ.get('LANG').split('.')[0]],
                      help='Fallback locales to use in all chroots. ' +
@@ -1767,14 +1767,14 @@ if __name__ == '__main__':
                      help='Add host timezone to boot cmdline of live media. ' +
                      'Default: %(default)s')
     cli.add_argument('-U', '--update-grub', action='store_true', default=False,
-                     help='Execute update-grub after generating iso media.')
+                     help='Execute update-grub after generating live media.')
     cli.add_argument('-v', '--verbose', action='store_true', default=False,
                      help='Enable verbose mode. All messages will be ' +
                      'generated, such as announcing current operation.')
     cli.add_argument('-w', '--write-iso', action='store', default=None,
                      type=str, metavar='<device>',
-                     help='Write final iso media to device with dd.' +
-                     'WARNING: destroys all existing data on <device>!!!')
+                     help='Write final live media to device with dd. ' +
+                     'WARNING: destroys all existing data on target device!!!')
     # These options are managed by the fll shell snippet non-interactively
     cli.add_argument('--bin', action='store', type=str,
                      help=argparse.SUPPRESS, default=pyfll_path)
