@@ -169,6 +169,7 @@ class FLLBuilder(object):
         self.opts = options
         self.conf = None
         self.temp = None
+        self.mods = dict()
 
         self.log = logging.getLogger('log')
         self.log.setLevel(logging.DEBUG)
@@ -440,7 +441,7 @@ class FLLBuilder(object):
         profile_dir = os.path.join(self.opts.share, 'profiles')
         modules_dir = os.path.join(self.opts.share, 'modules')
 
-        self.pkgs = {
+        self.mods = {
             chroot: {
                 'debconf': set(),
                 'packages': set(),
@@ -456,25 +457,25 @@ class FLLBuilder(object):
                 raise FllError
             debconf, packages, groups, postinst = \
                 self.expand_pkg_profile(chroot, profile, modules_dir)
-            self.pkgs[chroot]['debconf'].update(debconf)
-            self.pkgs[chroot]['packages'].update(packages)
-            self.pkgs[chroot]['groups'].update(groups)
-            self.pkgs[chroot]['postinst'].update(postinst)
+            self.mods[chroot]['debconf'].update(debconf)
+            self.mods[chroot]['packages'].update(packages)
+            self.mods[chroot]['groups'].update(groups)
+            self.mods[chroot]['postinst'].update(postinst)
 
         self.log.debug(f'debconf summary for {chroot}:')
-        for item in sorted(self.pkgs[chroot]['debconf']):
+        for item in sorted(self.mods[chroot]['debconf']):
             self.log.debug(f'  {item}')
 
         self.log.debug(f'package summary for {chroot}:')
-        for item in sorted(self.pkgs[chroot]['packages']):
+        for item in sorted(self.mods[chroot]['packages']):
             self.log.debug(f'  {item}')
 
         self.log.debug(f'groups summary for {chroot}:')
-        for item in sorted(self.pkgs[chroot]['groups']):
+        for item in sorted(self.mods[chroot]['groups']):
             self.log.debug(f'  {item}')
 
         self.log.debug(f'postinst summary for {chroot}:')
-        for item in sorted(self.pkgs[chroot]['postinst']):
+        for item in sorted(self.mods[chroot]['postinst']):
             self.log.debug(f'  {item}')
 
     def get_debconf_list(self, chroot: str) -> list:
@@ -486,9 +487,9 @@ class FLLBuilder(object):
         for locale in locales_list:
             locales_debconf += f'{locale}.UTF-8 UTF-8,'
         locales_debconf = locales_debconf.rstrip(',')
-        self.pkgs[chroot]['debconf'].add(locales_debconf)
+        self.mods[chroot]['debconf'].add(locales_debconf)
         self.log.debug(f'locales_debconf: {locales_debconf}')
-        return self.pkgs[chroot]['debconf']
+        return self.mods[chroot]['debconf']
 
     def stage_build_directory(self) -> None:
         '''Prepare temporary directory for chroots and result staging area.'''
@@ -859,7 +860,7 @@ class FLLBuilder(object):
                                                     'FLL_IMAGE_FILE'))
                     elif key == 'FLL_LIVE_USER_GROUPS':
                         f.write('%s="%s"\n' % \
-                            (key, ' '.join(sorted(self.pkgs[chroot]['groups']))))
+                            (key, ' '.join(sorted(self.mods[chroot]['groups']))))
                     else:
                         f.write('%s="%s"\n' % (key, self.conf['distro'][key]))
             elif filename == '/etc/fstab':
@@ -1003,7 +1004,7 @@ class FLLBuilder(object):
         linux = self.conf['chroots'][chroot]['packages']['linux']
         linux_meta = f'linux-image-{linux}'
         linux_images = [f[len('linux-image-'):] for f in
-                        self.pkgs[chroot]['manifest']
+                        self.mods[chroot]['manifest']
                         if f.startswith('linux-image-') and not f == linux_meta]
 
         if len(linux_images) > 0:
@@ -1128,7 +1129,7 @@ class FLLBuilder(object):
                          for p in cache.packages if p.current_ver
                          and not p.name.startswith('cdebootstrap-helper')])
         # Needed to detect installed linux-image
-        self.pkgs[chroot]['manifest'] = manifest
+        self.mods[chroot]['manifest'] = manifest
 
         packages = list(manifest.keys())
         packages.sort(key=len)
@@ -1211,7 +1212,7 @@ class FLLBuilder(object):
             cache = apt_pkg.Cache(apt.progress.base.OpProgress())
 
         pkgs_base = [pkg.name for pkg in cache.packages if pkg.current_ver]
-        pkgs_want = deduplicate_list(pkgs_base + list(self.pkgs[chroot]['packages']))
+        pkgs_want = deduplicate_list(pkgs_base + list(self.mods[chroot]['packages']))
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
         rec_pkgs = self.detect_recommended_packages(pkgs_dict, cache)
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + rec_pkgs)
@@ -1234,7 +1235,7 @@ class FLLBuilder(object):
         os.unlink(os.path.join(chroot_dir, 'etc/resolv.conf'))
         shutil.copy('/etc/resolv.conf', os.path.join(chroot_dir, 'etc'))
 
-        for script in self.pkgs[chroot]['postinst']:
+        for script in self.mods[chroot]['postinst']:
             sname = os.path.basename(script)
             try:
                 shutil.copy(script, os.path.join(chroot_dir, 'tmp'))
