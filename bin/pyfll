@@ -195,7 +195,7 @@ class FLLBuilder(object):
 
     def init_logfile(self) -> None:
         '''Set up a log file.'''
-        if not self.opts.log:
+        if not self.opts.debug:
             return
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
         log_filename = os.path.join(self.opts.output_dir,
@@ -551,7 +551,7 @@ class FLLBuilder(object):
         self.log.debug(shlex.join(cmd))
 
         try:
-            if self.opts.log:
+            if self.opts.debug:
                 with subprocess.check_call(cmd, stderr=subprocess.STDOUT,
                                            stdout=subprocess.PIPE,
                                            env=self.env) as proc:
@@ -1273,7 +1273,7 @@ class FLLBuilder(object):
             if squashfs_throttle:
                 cmd.extend(['-throttle', f'{squashfs_throttle}'])
 
-            if self.opts.log or self.opts.quiet:
+            if self.opts.debug or self.opts.quiet:
                 cmd.append('-no-progress')
 
             # can only be last argument
@@ -1305,7 +1305,7 @@ class FLLBuilder(object):
                     else:
                         if os.path.exists(os.path.join(chroot_dir, exclude)):
                             cmd.insert(1, f'--exclude-path={exclude}')
-            if self.opts.log or self.opts.quiet:
+            if self.opts.debug or self.opts.quiet:
                 cmd.insert(1, '-d0')
             elif self.opts.debug:
                 cmd.insert(1, '-d9')
@@ -1757,10 +1757,6 @@ if __name__ == '__main__':
     cli.add_argument('-k', '--hashkey', action='store', default=None,
                      type=str, metavar='<key id>', help='Set key ' +
                      'to sign MD5 and SHA256 hashes of the generated ISOs.')
-    cli.add_argument('-l', '--log', action='store_true', default=False,
-                     help='Log all stdout and stderr output. Note that when ' +
-                     'logging is enabled, output to the console is buffered.' +
-                     ' The log file is saved to the build directory.')
     cli.add_argument('-o', '--output-dir', action='store', default=None,
                      type=str, metavar='<directory>',
                      help='Output directory, where the product of this ' +
