@@ -1251,8 +1251,7 @@ class FLLBuilder(object):
         cmd = list()
         exclude_file = os.path.join(self.opts.share, 'data', 'fll_rootfs_exclusions')
         image_file = self.get_distro_imagefile(chroot)
-        self.chroot_exec(chroot, cmd)
-        elif self.conf['options']['readonly_filesystem'] == 'squashfs':
+        if self.conf['options']['readonly_filesystem'] == 'squashfs':
             cmd = ['mksquashfs', '.', image_file, '-noappend']
 
             shutil.copy(exclude_file, os.path.join(chroot_dir, 'tmp'))
