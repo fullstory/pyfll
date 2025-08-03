@@ -934,14 +934,14 @@ class FLLBuilder(object):
 
     def create_initramfs(self, chroot: str) -> None:
         '''Generate the initramfs if update-initramfs was diverted'''
-        if '/usr/sbin/update-initramfs' in self.diverts and not self.opts.dummy:
+        if '/usr/sbin/update-initramfs' in self.diverts:
             chroot_dir = os.path.join(self.temp, chroot)
             kvers = self.detect_linux_version(chroot)
             for kernel in kvers:
                 cmd = f'update-initramfs -c -k {kernel}'
                 if self.opts.verbose or self.opts.debug:
                     cmd += ' -v'
-                self.chroot_exec(chroot, cmd.split())
+                self.chroot_exec(chroot, cmd)
 
     def preseed_debconf(self, chroot: str) -> None:
         '''Preseed debconf with values read from package lists.'''
@@ -1195,14 +1195,11 @@ class FLLBuilder(object):
         loc_pkgs = self.detect_locale_packages(loc_list, pkgs_dict, cache)
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + loc_pkgs)
 
-        if not self.opts.dummy:
-            self.log.info(f'{chroot} - installing packages...')
-            self.apt_get_install(chroot, pkgs_want)
+        self.log.info(f'{chroot} - installing packages...')
+        self.apt_get_install(chroot, pkgs_want)
 
     def post_installation(self, chroot: str) -> None:
         '''Run package module postinst scripts in a chroot.'''
-        if self.opts.dummy:
-            return
         chroot_dir = os.path.join(self.temp, chroot)
 
         self.log.info(f'{chroot} - executing postinst scripts...')
@@ -1254,9 +1251,7 @@ class FLLBuilder(object):
         cmd = list()
         exclude_file = os.path.join(self.opts.share, 'data', 'fll_rootfs_exclusions')
         image_file = self.get_distro_imagefile(chroot)
-        if self.opts.dummy:
-            cmd = ['touch', image_file]
-            self.chroot_exec(chroot, cmd)
+        self.chroot_exec(chroot, cmd)
         elif self.conf['options']['readonly_filesystem'] == 'squashfs':
             cmd = ['mksquashfs', '.', image_file, '-noappend']
 
@@ -1335,9 +1330,6 @@ class FLLBuilder(object):
         except IOError:
             self.log.exception('failed to move readonly rootfs image to staging dir')
             raise FllError
-
-        if self.opts.dummy:
-            return
 
         initrds = glob.glob(os.path.join(chroot_dir, 'boot', 'initrd.img-*'))
         if len(initrds) == 1:
@@ -1763,9 +1755,6 @@ if __name__ == '__main__':
     cli.add_argument('-d', '--debug', action='store_true', default=False,
                      help='Enable debug mode. Extra output will be ' +
                      'to assist in development. Default: %(default)s')
-    cli.add_argument('-D', '--dummy', action='store_true', default=False,
-                     help='Enable dummy mode. Download only ' +
-                     'and no readonly rootfs. Default: %(default)s')
     cli.add_argument('-k', '--hashkey', action='store', default=None,
                      type=str, metavar='<key id>', help='Set key ' +
                      'to sign MD5 and SHA256 hashes of the generated ISOs.')
