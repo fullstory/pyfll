@@ -505,7 +505,7 @@ class FLLBuilder(object):
         umount_list.reverse()
 
         for mpoint in umount_list:
-            self.exec_cmd(f'umount {mpoint}')
+            self.exec_cmd(['umount', mpoint])
 
     def nuke_directory(self, dirname: str) -> None:
         '''Nuke directory tree.'''
@@ -544,10 +544,8 @@ class FLLBuilder(object):
         if not self.opts.preserve:
             self.nuke_directory(self.temp)
 
-    def exec_cmd(self, cmd: list|str) -> None:
+    def exec_cmd(self, cmd: list) -> None:
         '''Execute subprocess with support for logging to a file.'''
-        if isinstance(cmd, str):
-            cmd = shlex.split(cmd)
         self.log.debug(shlex.join(cmd))
 
         try:
@@ -941,7 +939,7 @@ class FLLBuilder(object):
                 cmd = f'update-initramfs -c -k {kernel}'
                 if self.opts.verbose or self.opts.debug:
                     cmd += ' -v'
-                self.chroot_exec(chroot, cmd)
+                self.chroot_exec(chroot, shlex.split(cmd))
 
     def preseed_debconf(self, chroot: str) -> None:
         '''Preseed debconf with values read from package lists.'''
@@ -1306,7 +1304,7 @@ class FLLBuilder(object):
                         if os.path.exists(os.path.join(chroot_dir, exclude)):
                             cmd.insert(1, f'--exclude-path={exclude}')
             if self.opts.debug or self.opts.quiet:
-                cmd.insert(1, '-d0')
+                cmd.insert(1, '--quiet')
             elif self.opts.debug:
                 cmd.insert(1, '-d9')
             self.log.info(f'{chroot} - creating erofs ({erofs_compression}) filesystem...')
