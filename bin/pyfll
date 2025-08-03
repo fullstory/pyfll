@@ -588,8 +588,9 @@ class FLLBuilder(object):
     def apt_get(self, chroot: str, command: str, args: list=[], insecure: bool=False) -> None:
         '''An apt-get install wrapper. Automatic installation of recommended
         packages defaults to disabled.'''
-        aptget = ['apt-get', '--yes', '-qq']
+        aptget = ['apt-get', '--yes']
         if insecure:
+            aptget.append('--allow-unauthenticated')
             aptget.extend(['-o', 'Acquire::AllowInsecureRepositories=1'])
         aptget.extend(['-o', 'Acquire::Languages=none'])
         aptget.extend(['-o', 'Dpkg::Use-Pty=0'])
@@ -599,8 +600,11 @@ class FLLBuilder(object):
         apt_recommends = self.conf['options'].get('apt_recommends', 'no')
         if apt_recommends == 'no':
             aptget.extend(['-o', 'APT::Install-Recommends=0'])
+
         if self.opts.debug:
             aptget.extend(['-o', 'APT::Get::Show-Versions=1'])
+        elif self.opts.quiet:
+            aptget.append('-qq')
 
         aptget.append(command)
         if args:
