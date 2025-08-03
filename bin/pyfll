@@ -444,13 +444,14 @@ class FLLBuilder(object):
     def get_debconf_list(self, chroot: str) -> list:
         '''Return debconf list for chroot. Dynamically generate locales
         debconf configuration based on i18n configuration in flk.conf.'''
-        i18n_list = self.conf['chroots'][chroot]['packages']['locales']
-        i18n_debconf = 'locales locales/locales_to_be_generated multiselect '
-        for i18n in i18n_list:
-            i18n_debconf += f'{i18n}.UTF-8 UTF-8,'
-        i18n_debconf = i18n_debconf.rstrip(',')
-        self.pkgs[chroot]['debconf'].add(i18n_debconf)
-
+        locales_list = [l for l in self.conf['chroots'][chroot]['packages']['locales']] \
+            if self.conf['chroots'][chroot]['packages'].get('locales') else self.opts.locales
+        locales_debconf = 'locales locales/locales_to_be_generated multiselect '
+        for locale in locales_list:
+            locales_debconf += f'{locale}.UTF-8 UTF-8,'
+        locales_debconf = locales_debconf.rstrip(',')
+        self.pkgs[chroot]['debconf'].add(locales_debconf)
+        self.log.debug(f'locales_debconf: {locales_debconf}')
         return self.pkgs[chroot]['debconf']
 
     def stage_build_directory(self) -> None:
@@ -969,9 +970,9 @@ class FLLBuilder(object):
         self.log.critical(f'{chroot} - failed to detect linux version')
         raise FllError
 
-    def detect_locale_packages(self, i18n: list, wanted: list, cache: apt_pkg.Cache) -> list:
-        '''Provide automated detection for extra i18n packages.'''
-        self.log.debug(f'detecting i18n packages for locales: {' '.join(i18n)}')
+    def detect_locale_packages(self, locales: list, wanted: list, cache: apt_pkg.Cache) -> list:
+        '''Provide automated detection for extra locales packages.'''
+        self.log.debug(f'detecting packages for locales: {' '.join(locales)}')
 
         locales_pkg_map_file = os.path.join(self.opts.share, 'data', 'locales-pkg-map')
         locales_pkg_map = ConfigObj(locales_pkg_map_file)
@@ -979,18 +980,18 @@ class FLLBuilder(object):
         self.log.debug(locales_pkg_map)
 
         fll_locales = FllLocales(cache, wanted, locales_pkg_map)
-        i18n_list = []
-        for locale in sorted(i18n):
+        locales_list = []
+        for locale in sorted(locales):
             try:
                 loc_pkg_list = fll_locales.detect_locale_packages(locale)
             except FllLocalesError:
-                print_error(f'Failed to parse locale string: {locale}')
+                self.log.exception(f'Failed to parse locale string: {locale}')
+                raise FllError
             else:
-                i18n_list.extend(loc_pkg_list)
+                locales_list.extend(loc_pkg_list)
 
-        self.log.debug('i18n_list:')
-        self.log.debug(i18n_list)
-        return i18n_list
+        self.log.debug(f'locales_list: {' '.join(locales_list)}')
+        return locales_list
 
     def detect_recommended_packages(self, wanted: list, cache: apt_pkg.Cache) -> list:
         '''Provide automated detection for packages in recommends whitelist.'''
@@ -999,17 +1000,15 @@ class FLLBuilder(object):
             return []
 
         self.log.debug('detecting whitelisted recommended packages...')
-        rec_module = ConfigObj(os.path.join(self.opts.share, 'packages',
-                                            'packages.d', 'recommends'))
+        rec_module = ConfigObj(os.path.join(self.opts.share, 'modules',
+                                            'recommends'))
         try:
             rec_dict = dict([(p, True) for p in
                              multiline_to_list(rec_module['packages'])])
         except KeyError:
-            self.log.debug('rec_dict:')
             return []
 
-        self.log.debug('rec_dict:')
-        self.log.debug(rec_dict)
+        self.log.debug(f'rec_dict: {rec_dict}')
 
         rec_list = []
         for p in wanted.keys():
@@ -1046,8 +1045,7 @@ class FLLBuilder(object):
                         continue
                     rec_list.append(dep.name)
 
-        self.log.debug('rec_list:')
-        self.log.debug(rec_list)
+        self.log.debug(f'rec_list: {rec_list}')
         return rec_list
 
     def get_source_package(self, pkg: str, depcache: apt_pkg.DepCache,
@@ -1174,7 +1172,8 @@ class FLLBuilder(object):
         rec_pkgs = self.detect_recommended_packages(pkgs_dict, cache)
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + rec_pkgs)
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
-        loc_list = self.conf['chroots'][chroot]['packages']['locales']
+        loc_list = [l for l in self.conf['chroots'][chroot]['packages']['locales']] \
+            if self.conf['chroots'][chroot]['packages'].get('locales') else self.opts.locales
         loc_pkgs = self.detect_locale_packages(loc_list, pkgs_dict, cache)
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + loc_pkgs)
 
@@ -1742,6 +1741,10 @@ if __name__ == '__main__':
     cli.add_argument('-k', '--hashkey', action='store', default=None,
                      type=str, metavar='<key id>', help='Set key ' +
                      'to sign MD5 and SHA256 hashes of the generated ISOs.')
+    cli.add_argument('-L', '--locales', nargs='+',
+                     default=[os.environ.get('LANG').split('.')[0]],
+                     help='Fallback locales to use in all chroots. ' +
+                     'Vaules in config file override. Default: %(default)s')
     cli.add_argument('-o', '--output-dir', action='store', default=None,
                      type=str, metavar='<directory>',
                      help='Output directory, where the product of this ' +
