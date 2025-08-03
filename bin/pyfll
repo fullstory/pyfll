@@ -566,7 +566,7 @@ class FLLBuilder(object):
         except KeyboardInterrupt:
             raise FllError
         except subprocess.CalledProcessError:
-            self.log.exception(f'problem executing command: {command_line}')
+            self.log.exception(f'problem executing command: {shlex.join(cmd)}')
             raise FllError
 
     def chroot_exec(self, chroot: str, args: list) -> None:
