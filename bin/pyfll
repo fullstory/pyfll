@@ -1510,7 +1510,7 @@ class FLLBuilder(object):
                     self.log.critical(f'{filename} was not found in {boot_dir}')
                     raise FllError
 
-            for desktop in self.mods[chroot].get('desktops', [None]):
+            for desktop in sorted(self.mods[chroot].get('desktops', [None])):
                 if arch[0:3] == 'amd':
                     grubcfg.write('if cpuid -l; then\n')
                 grubcfg.write('havekernel="Y"\n')

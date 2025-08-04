@@ -18,6 +18,7 @@ modules = """
 
 packages = """
 """
+
 desktops = """
-	plasma
+	kde
 """
