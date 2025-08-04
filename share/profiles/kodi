@@ -24,6 +24,11 @@ packages = """
 	upower
 """
 
+desktops = """
+	kodi-gbm
+	kodi-x11
+"""
+
 groups = """
 	input
 	render

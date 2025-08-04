@@ -23,3 +23,7 @@ modules = """
 packages = """
 """
 
+desktops = """
+	xfce-x11
+	xfce-wayland
+"""

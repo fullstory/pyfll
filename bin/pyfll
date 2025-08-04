@@ -319,6 +319,7 @@ class FLLBuilder(object):
         lists.'''
         debconf = set()
         packages = set()
+        desktops = set()
         groups = set()
         postinst = set()
         arch = self.conf['chroots'][chroot]['packages']['arch']
@@ -361,6 +362,12 @@ class FLLBuilder(object):
             self.log.debug(f'packages_{arch}:')
             for line in multiline_to_list(profile_conf[packages_arch]):
                 packages.add(line)
+                self.log.debug(f'  {line}')
+
+        if 'desktops' in profile_conf:
+            self.log.debug('desktops:')
+            for line in multiline_to_list(profile_conf['desktops']):
+                desktops.add(line)
                 self.log.debug(f'  {line}')
 
         if 'groups' in profile_conf:
@@ -421,6 +428,12 @@ class FLLBuilder(object):
                     packages.add(line)
                     self.log.debug(f'  {line}')
 
+            if 'desktops' in module_conf:
+                self.log.debug('desktops:')
+                for line in multiline_to_list(module_conf['desktops']):
+                    desktops.add(line)
+                    self.log.debug(f'  {line}')
+
             if 'groups' in module_conf:
                 self.log.debug('groups:')
                 for line in multiline_to_list(module_conf['groups']):
@@ -433,7 +446,7 @@ class FLLBuilder(object):
 
             self.log.debug('---')
 
-        return debconf, packages, groups, postinst
+        return debconf, packages, desktops, groups, postinst
 
     def parse_package_profile(self, chroot: str) -> None:
         '''Parse packages profile for each chroot.'''
@@ -445,6 +458,7 @@ class FLLBuilder(object):
             chroot: {
                 'debconf': set(),
                 'packages': set(),
+                'desktops': set(),
                 'groups': set(),
                 'postinst': set()
             }
@@ -455,10 +469,11 @@ class FLLBuilder(object):
             if not os.path.isfile(profile):
                 self.log.critical(f'no such package profile: {profile}')
                 raise FllError
-            debconf, packages, groups, postinst = \
+            debconf, packages, desktops, groups, postinst = \
                 self.expand_pkg_profile(chroot, profile, modules_dir)
             self.mods[chroot]['debconf'].update(debconf)
             self.mods[chroot]['packages'].update(packages)
+            self.mods[chroot]['desktops'].update(desktops)
             self.mods[chroot]['groups'].update(groups)
             self.mods[chroot]['postinst'].update(postinst)
 
@@ -1495,24 +1510,28 @@ class FLLBuilder(object):
                     self.log.critical(f'{filename} was not found in {boot_dir}')
                     raise FllError
 
-            if arch[0:3] == 'amd':
-                grubcfg.write('if cpuid -l; then\n')
-            grubcfg.write('havekernel="Y"\n')
-            grubcfg.write('title=""\n')
-            grubcfg.write('for kopt in %s $kopts boot=fll %s; do\n' % (vmlinuz[8:], cmdline))
-            grubcfg.write(' if [ -n "$title" ] ; then\n')
-            grubcfg.write('  title="$title $kopt";\n')
-            grubcfg.write(' else\n')
-            grubcfg.write('  title="$kopt";\n')
-            grubcfg.write(' fi;\n')
-            grubcfg.write('done\n')
-            grubcfg.write('menuentry --class=%s.%s \"$title\" {' % (distro, arch))
-            grubcfg.write('# set arguments above with the editor\n')
-            grubcfg.write('linux /boot/vmlinuz-$@\n')
-            grubcfg.write('initrd /boot/%s\n' % initrd)
-            grubcfg.write('}\n')
-            if arch[0:3] == 'amd':
-                grubcfg.write('fi\n')
+            for desktop in self.mods[chroot].get('desktops', [None]):
+                if arch[0:3] == 'amd':
+                    grubcfg.write('if cpuid -l; then\n')
+                grubcfg.write('havekernel="Y"\n')
+                grubcfg.write('title=""\n')
+                if desktop:
+                    grubcfg.write(f'for kopt in {vmlinuz[8:]} $kopts desktop={desktop} boot=fll {cmdline}; do\n')
+                else:
+                    grubcfg.write(f'for kopt in {vmlinuz[8:]} $kopts boot=fll {cmdline}; do\n')
+                grubcfg.write(' if [ -n "$title" ] ; then\n')
+                grubcfg.write('  title="$title $kopt";\n')
+                grubcfg.write(' else\n')
+                grubcfg.write('  title="$kopt";\n')
+                grubcfg.write(' fi;\n')
+                grubcfg.write('done\n')
+                grubcfg.write('menuentry --class=%s.%s \"$title\" {' % (distro, arch))
+                grubcfg.write('# set arguments above with the editor\n')
+                grubcfg.write('linux /boot/vmlinuz-$@\n')
+                grubcfg.write('initrd /boot/%s\n' % initrd)
+                grubcfg.write('}\n')
+                if arch[0:3] == 'amd':
+                    grubcfg.write('fi\n')
         grubcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
         grubcfg.write('  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {echo $@')
         grubcfg.write('  echo "There are no kernels suitable for this machine available."\n')

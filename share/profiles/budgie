@@ -83,3 +83,7 @@ packages = """
 	slick-greeter
 	zenity
 """
+
+desktops = """
+	budgie
+"""

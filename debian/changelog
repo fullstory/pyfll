@@ -343,6 +343,8 @@ pyfll (2025.01) UNRELEASED; urgency=low
     naming.
   * Drop dupport of -D|--dummy it was becoming difficult and messy to
     support.
+  * Create boot entry for each mutually exclusive desktop= cheatcode.
+    Closes: #15.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
 

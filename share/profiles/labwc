@@ -51,3 +51,7 @@ packages = """
 	wshowkeys
 	wtype
 """
+
+desktops = """
+	labwc
+"""

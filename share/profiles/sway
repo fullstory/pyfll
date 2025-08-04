@@ -21,3 +21,7 @@ modules = """
 
 packages = """
 """
+
+desktops = """
+	sway
+"""

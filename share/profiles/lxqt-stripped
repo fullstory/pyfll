@@ -19,3 +19,7 @@ modules = """
 packages = """
 """
 
+desktops = """
+	lxqt-x11
+	lxqt-wayland
+"""

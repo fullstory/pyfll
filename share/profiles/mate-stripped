@@ -32,3 +32,6 @@ packages = """
 	network-manager-gnome
 	slick-greeter
 """
+desktops = """
+	mate
+"""

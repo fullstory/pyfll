@@ -38,3 +38,7 @@ packages = """
 	transmission-gtk
 """
 
+desktops = """
+	cinnamon
+	cinnamon-wayland
+"""

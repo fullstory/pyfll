@@ -18,3 +18,6 @@ modules = """
 
 packages = """
 """
+desktops = """
+	lxde
+"""

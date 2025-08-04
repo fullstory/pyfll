@@ -88,3 +88,7 @@ packages = """
 	seahorse
 	slick-greeter
 """
+
+desktops = """
+	mate
+"""

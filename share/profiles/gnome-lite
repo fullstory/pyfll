@@ -21,3 +21,6 @@ modules = """
 
 packages = """
 """
+desktops = """
+	gnome
+"""

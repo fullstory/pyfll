@@ -26,3 +26,11 @@ packages = """
 	wayfire-plugin-winshadows
 """
 
+desktops = """
+	lxqt-labwc
+	lxqt-kwin
+	lxqt-hyprland
+	lxqt-sway
+	lxqt-wayfire
+	lxqt-openbox
+"""

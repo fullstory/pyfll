@@ -1,4 +1,5 @@
 desc = string()
 packages = string()
 debconf = string(default='')
+desktops = string(default='')
 groups = string(default='')

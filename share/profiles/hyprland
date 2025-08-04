@@ -22,3 +22,7 @@ modules = """
 
 packages = """
 """
+
+desktops = """
+	hyprland
+"""
