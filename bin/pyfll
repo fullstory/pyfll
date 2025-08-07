@@ -1500,7 +1500,6 @@ class FLLBuilder(object):
         grubcfg = open(os.path.join(grub_dir, 'kernels.cfg'), 'w')
         
         for chroot in chroots:
-            vmlinuz = f'vmlinuz-{chroot}'
             initrd = f'initrd.img-{chroot}'
             arch = self.conf['chroots'][chroot]['packages']['arch']
             cmdline = self.config_boot_cmdline(distro, chroot)
@@ -1520,21 +1519,20 @@ class FLLBuilder(object):
                 if arch[0:3] == 'amd':
                     grubcfg.write('if cpuid -l; then\n')
                 grubcfg.write('havekernel="Y"\n')
-                grubcfg.write('title=""\n')
+                grubcfg.write(f'title="{title}"\n')
                 if desktop:
-                    grubcfg.write(f'for kopt in {title} $kopts desktop={desktop} boot=fll {cmdline}; do\n')
+                    grubcfg.write(f'for kopt in {chroot} $kopts desktop={desktop} boot=fll {cmdline}; do\n')
                 else:
-                    grubcfg.write(f'for kopt in {title} $kopts boot=fll {cmdline}; do\n')
+                    grubcfg.write(f'for kopt in {chroot} $kopts boot=fll {cmdline}; do\n')
                 grubcfg.write(' if [ -n "$title" ] ; then\n')
                 grubcfg.write('  title="$title $kopt";\n')
                 grubcfg.write(' else\n')
                 grubcfg.write('  title="$kopt";\n')
                 grubcfg.write(' fi;\n')
                 grubcfg.write('done\n')
-                grubcfg.write(f'menuentry --class={distro}.{arch} \"$title\"' + '{\n')
+                grubcfg.write(f'menuentry --class={distro}.{arch} \"$title\"' + ' {\n')
                 grubcfg.write('# set arguments above with the editor\n')
-                #grubcfg.write('linux /boot/vmlinuz-$@\n')
-                grubcfg.write(f'linux /boot/{vmlinuz}\n')
+                grubcfg.write('linux /boot/vmlinuz-$@\n')
                 grubcfg.write(f'initrd /boot/{initrd}\n')
                 grubcfg.write('}\n')
                 if arch[0:3] == 'amd':
