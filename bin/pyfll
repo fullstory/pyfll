@@ -1500,6 +1500,7 @@ class FLLBuilder(object):
         grubcfg = open(os.path.join(grub_dir, 'kernels.cfg'), 'w')
         
         for chroot in chroots:
+            vmlinuz = f'vmlinuz-{chroot}'
             initrd = f'initrd.img-{chroot}'
             arch = self.conf['chroots'][chroot]['packages']['arch']
             cmdline = self.config_boot_cmdline(distro, chroot)
