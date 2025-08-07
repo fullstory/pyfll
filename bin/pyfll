@@ -1511,14 +1511,20 @@ class FLLBuilder(object):
                     raise FllError
 
             for desktop in sorted(self.mods[chroot].get('desktops', [None])):
+                if desktop is None:
+                    title = chroot
+                elif len(desktop.split('-')) > 1:
+                    title = f'{desktop.split('-')[0].upper()} ({desktop.split('-')[1]})'
+                else:
+                    title = desktop.upper()
                 if arch[0:3] == 'amd':
                     grubcfg.write('if cpuid -l; then\n')
                 grubcfg.write('havekernel="Y"\n')
                 grubcfg.write('title=""\n')
                 if desktop:
-                    grubcfg.write(f'for kopt in {vmlinuz[8:]} $kopts desktop={desktop} boot=fll {cmdline}; do\n')
+                    grubcfg.write(f'for kopt in {title} $kopts desktop={desktop} boot=fll {cmdline}; do\n')
                 else:
-                    grubcfg.write(f'for kopt in {vmlinuz[8:]} $kopts boot=fll {cmdline}; do\n')
+                    grubcfg.write(f'for kopt in {title} $kopts boot=fll {cmdline}; do\n')
                 grubcfg.write(' if [ -n "$title" ] ; then\n')
                 grubcfg.write('  title="$title $kopt";\n')
                 grubcfg.write(' else\n')
