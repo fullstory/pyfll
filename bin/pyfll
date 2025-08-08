@@ -1510,6 +1510,10 @@ class FLLBuilder(object):
                         self.log.critical(f'{filename} was not found in {boot_dir}')
                         raise FllError
 
+                if arch[0:3] == 'amd':
+                    kcfg.write('if cpuid -l; then\n')
+                    kcfg.write('havekernel="Y"\n')
+
                 for desktop in sorted(self.mods[chroot].get('desktops', [None])):
                     if desktop is None:
                         title = chroot
@@ -1517,9 +1521,6 @@ class FLLBuilder(object):
                         title = f'{desktop.split('-')[0].upper()} ({desktop.split('-')[1]})'
                     else:
                         title = desktop.upper()
-                    if arch[0:3] == 'amd':
-                        kcfg.write('if cpuid -l; then\n')
-                    kcfg.write('havekernel="Y"\n')
                     kcfg.write(f'menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
                     if desktop:
                         kcfg.write(f'linux /boot/{vmlinuz} desktop={desktop} boot=fll {cmdline} $kopts\n')
@@ -1527,8 +1528,10 @@ class FLLBuilder(object):
                         kcfg.write(f'linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
                     kcfg.write(f'initrd /boot/{initrd}\n')
                     kcfg.write('}\n')
-                    if arch[0:3] == 'amd':
-                        kcfg.write('fi\n')
+
+                if arch[0:3] == 'amd':
+                    kcfg.write('fi\n')
+
             kcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
             kcfg.write('  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {echo $@')
             kcfg.write('  echo "There are no kernels suitable for this machine available."\n')
@@ -1545,14 +1548,13 @@ class FLLBuilder(object):
         self.log.debug('writing loopback.cfg for live media')
         with open(os.path.join(grub_dir, 'loopback.cfg'), 'w') as lcfg:
             lcfg.write('source /boot/grub/grub.cfg\n')
-            lcfg.close()
 
-            self.log.debug('writing variable.cfg for live media')
-            lcfg = open(os.path.join(grub_dir, 'variable.cfg'), 'w')
+        self.log.debug('writing variable.cfg for live media')
+        with open(os.path.join(grub_dir, 'variable.cfg'), 'w') as vcfg:
             grub_theme = f'grub/themes/{self.conf['distro']['FLL_GFXBOOT_THEME']}/theme.txt'
             if os.path.isfile(os.path.join(boot_dir, grub_theme)):
-                lcfg.write(f'grub_theme=/boot/{grub_theme}\n')
-            lcfg.write(f'timeout={timeout}\n')
+                vcfg.write(f'grub_theme=/boot/{grub_theme}\n')
+            vcfg.write(f'timeout={timeout}\n')
 
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf['distro']['FLL_IMAGE_DIR']
