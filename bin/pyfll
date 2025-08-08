@@ -1504,6 +1504,7 @@ class FLLBuilder(object):
                 initrd = f'initrd.img-{chroot}'
                 arch = self.conf['chroots'][chroot]['packages']['arch']
                 cmdline = self.config_boot_cmdline(distro, chroot)
+                indent = ''
 
                 for filename in [vmlinuz, initrd]:
                     if not os.path.isfile(os.path.join(boot_dir, filename)):
@@ -1511,8 +1512,9 @@ class FLLBuilder(object):
                         raise FllError
 
                 if arch[0:3] == 'amd':
+                    indent = '  '
                     kcfg.write('if cpuid -l; then\n')
-                    kcfg.write('havekernel="Y"\n')
+                    kcfg.write(f'{indent}havekernel="Y"\n')
 
                 for desktop in sorted(self.mods[chroot].get('desktops', [None])):
                     if desktop is None:
@@ -1521,13 +1523,13 @@ class FLLBuilder(object):
                         title = f'{desktop.split('-')[0].upper()} ({desktop.split('-')[1]})'
                     else:
                         title = desktop.upper()
-                    kcfg.write(f'menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
+                    kcfg.write(f'{indent}menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
                     if desktop:
-                        kcfg.write(f'linux /boot/{vmlinuz} desktop={desktop} boot=fll {cmdline} $kopts\n')
+                        kcfg.write(f'{indent}  linux /boot/{vmlinuz} desktop={desktop} boot=fll {cmdline} $kopts\n')
                     else:
-                        kcfg.write(f'linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
-                    kcfg.write(f'initrd /boot/{initrd}\n')
-                    kcfg.write('}\n')
+                        kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
+                    kcfg.write(f'{indent}  initrd /boot/{initrd}\n')
+                    kcfg.write(f'{indent}\n')
 
                 if arch[0:3] == 'amd':
                     kcfg.write('fi\n')
