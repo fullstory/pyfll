@@ -1519,13 +1519,11 @@ class FLLBuilder(object):
                 for desktop in sorted(self.mods[chroot].get('desktops', [None])):
                     if desktop is None:
                         title = chroot
-                    elif len(desktop.split('-')) > 1:
-                        title = f'{desktop.split('-')[0].upper()} ({desktop.split('-')[1]})'
                     else:
-                        title = desktop.upper()
+                        title = f'{distro} {chroot} {desktop}'
                     kcfg.write(f'{indent}menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
                     if desktop:
-                        kcfg.write(f'{indent}  linux /boot/{vmlinuz} desktop={desktop} boot=fll {cmdline} $kopts\n')
+                        kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} desktop={desktop} $kopts\n')
                     else:
                         kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
                     kcfg.write(f'{indent}  initrd /boot/{initrd}\n')
