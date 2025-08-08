@@ -1497,65 +1497,62 @@ class FLLBuilder(object):
         grub_dir = os.path.join(boot_dir, 'grub')
         distro = self.conf['distro']['FLL_DISTRO_NAME']
         timeout = self.conf['options'].get('boot_timeout', '-1')
-        grubcfg = open(os.path.join(grub_dir, 'kernels.cfg'), 'w')
-        
-        for chroot in chroots:
-            vmlinuz = f'vmlinuz-{chroot}'
-            initrd = f'initrd.img-{chroot}'
-            arch = self.conf['chroots'][chroot]['packages']['arch']
-            cmdline = self.config_boot_cmdline(distro, chroot)
 
-            for filename in [vmlinuz, initrd]:
-                if not os.path.isfile(os.path.join(boot_dir, filename)):
-                    self.log.critical(f'{filename} was not found in {boot_dir}')
-                    raise FllError
+        with open(os.path.join(grub_dir, 'kernels.cfg'), 'w') as kcfg:
+            for chroot in chroots:
+                vmlinuz = f'vmlinuz-{chroot}'
+                initrd = f'initrd.img-{chroot}'
+                arch = self.conf['chroots'][chroot]['packages']['arch']
+                cmdline = self.config_boot_cmdline(distro, chroot)
 
-            for desktop in sorted(self.mods[chroot].get('desktops', [None])):
-                if desktop is None:
-                    title = chroot
-                elif len(desktop.split('-')) > 1:
-                    title = f'{desktop.split('-')[0].upper()} ({desktop.split('-')[1]})'
-                else:
-                    title = desktop.upper()
-                if arch[0:3] == 'amd':
-                    grubcfg.write('if cpuid -l; then\n')
-                grubcfg.write('havekernel="Y"\n')
-                grubcfg.write(f'menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
-                if desktop:
-                    grubcfg.write(f'linux /boot/{vmlinuz} desktop={desktop} boot=fll {cmdline} $kopts\n')
-                else:
-                    grubcfg.write(f'linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
-                grubcfg.write(f'initrd /boot/{initrd}\n')
-                grubcfg.write('}\n')
-                if arch[0:3] == 'amd':
-                    grubcfg.write('fi\n')
-        grubcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
-        grubcfg.write('  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {echo $@')
-        grubcfg.write('  echo "There are no kernels suitable for this machine available."\n')
-        grubcfg.write('  echo ""\n')
-        grubcfg.write('  if ! cpuid -l; then\n')
-        grubcfg.write('    echo "This machine is NOT 64bit capable."\n')
-        grubcfg.write('  fi\n')
-        grubcfg.write('  echo "Press Escape to return to the main menu"\n')
-        grubcfg.write('  sleep --interruptible 9999\n')
-        grubcfg.write('  menu_reload\n')
-        grubcfg.write('  }\n')
-        grubcfg.write('fi\n')
+                for filename in [vmlinuz, initrd]:
+                    if not os.path.isfile(os.path.join(boot_dir, filename)):
+                        self.log.critical(f'{filename} was not found in {boot_dir}')
+                        raise FllError
 
-        grubcfg.close()
+                for desktop in sorted(self.mods[chroot].get('desktops', [None])):
+                    if desktop is None:
+                        title = chroot
+                    elif len(desktop.split('-')) > 1:
+                        title = f'{desktop.split('-')[0].upper()} ({desktop.split('-')[1]})'
+                    else:
+                        title = desktop.upper()
+                    if arch[0:3] == 'amd':
+                        kcfg.write('if cpuid -l; then\n')
+                    kcfg.write('havekernel="Y"\n')
+                    kcfg.write(f'menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
+                    if desktop:
+                        kcfg.write(f'linux /boot/{vmlinuz} desktop={desktop} boot=fll {cmdline} $kopts\n')
+                    else:
+                        kcfg.write(f'linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
+                    kcfg.write(f'initrd /boot/{initrd}\n')
+                    kcfg.write('}\n')
+                    if arch[0:3] == 'amd':
+                        kcfg.write('fi\n')
+            kcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
+            kcfg.write('  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {echo $@')
+            kcfg.write('  echo "There are no kernels suitable for this machine available."\n')
+            kcfg.write('  echo ""\n')
+            kcfg.write('  if ! cpuid -l; then\n')
+            kcfg.write('    echo "This machine is NOT 64bit capable."\n')
+            kcfg.write('  fi\n')
+            kcfg.write('  echo "Press Escape to return to the main menu"\n')
+            kcfg.write('  sleep --interruptible 9999\n')
+            kcfg.write('  menu_reload\n')
+            kcfg.write('  }\n')
+            kcfg.write('fi\n')
         
         self.log.debug('writing loopback.cfg for live media')
-        grubcfg = open(os.path.join(grub_dir, 'loopback.cfg'), 'w')
-        grubcfg.write('source /boot/grub/grub.cfg\n')
-        grubcfg.close()
-        
-        self.log.debug('writing variable.cfg for live media')
-        grubcfg = open(os.path.join(grub_dir, 'variable.cfg'), 'w')
-        grub_theme = f'grub/themes/{self.conf['distro']['FLL_GFXBOOT_THEME']}/theme.txt'
-        if os.path.isfile(os.path.join(boot_dir, grub_theme)):
-            grubcfg.write(f'grub_theme=/boot/{grub_theme}\n')
-        grubcfg.write(f'timeout={timeout}\n')
-        grubcfg.close()
+        with open(os.path.join(grub_dir, 'loopback.cfg'), 'w') as lcfg:
+            lcfg.write('source /boot/grub/grub.cfg\n')
+            lcfg.close()
+
+            self.log.debug('writing variable.cfg for live media')
+            lcfg = open(os.path.join(grub_dir, 'variable.cfg'), 'w')
+            grub_theme = f'grub/themes/{self.conf['distro']['FLL_GFXBOOT_THEME']}/theme.txt'
+            if os.path.isfile(os.path.join(boot_dir, grub_theme)):
+                lcfg.write(f'grub_theme=/boot/{grub_theme}\n')
+            lcfg.write(f'timeout={timeout}\n')
 
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf['distro']['FLL_IMAGE_DIR']
