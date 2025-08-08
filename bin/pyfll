@@ -1529,7 +1529,7 @@ class FLLBuilder(object):
                     else:
                         kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
                     kcfg.write(f'{indent}  initrd /boot/{initrd}\n')
-                    kcfg.write(f'{indent}}\n')
+                    kcfg.write(f'{indent}' + '}\n')
 
                 if arch[0:3] == 'amd':
                     kcfg.write('fi\n')
