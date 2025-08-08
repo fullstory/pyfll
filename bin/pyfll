@@ -1521,6 +1521,8 @@ class FLLBuilder(object):
                         title = chroot
                     else:
                         title = f'{distro} {chroot} {desktop}'
+                    # arch is passed to the --class option so that a 64bit fred icon
+                    # may be displayed next to the menuentry by gfxboot theme
                     kcfg.write(f'{indent}menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
                     if desktop:
                         kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} desktop={desktop} $kopts\n')
