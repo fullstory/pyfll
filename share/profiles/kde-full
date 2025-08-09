@@ -27,4 +27,5 @@ packages = """
 
 desktops = """
 	kde
+	kde-x11
 """
