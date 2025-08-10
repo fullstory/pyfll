@@ -27,5 +27,6 @@ packages = """
 	qdiskinfo
 	skanlite
 	smb4k
+	syncthingtray-kde-plasma
 	yakuake
 """

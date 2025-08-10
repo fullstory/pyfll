@@ -30,6 +30,7 @@ packages = """
 	sshfs
 	smbclient
 	strace
+	syncthing
 	testdisk
 	tofrodos
 	traceroute
