@@ -1525,7 +1525,7 @@ class FLLBuilder(object):
 
                 if len(chroots) > 1 and len(desktops) > 1:
                     title = f'{distro} {chroot} [{', '.join(desktops)}]'
-                    kcfg.write(f'{indent}{menuentry} --class={distro}.{arch} \"{title}\"' + ' {\n')
+                    kcfg.write(f'{indent}{menucmd} --class={distro}.{arch} \"{title}\"' + ' {\n')
                     menucmd = 'submenu'
                     indent += '  '
 
