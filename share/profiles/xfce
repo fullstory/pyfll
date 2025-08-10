@@ -24,6 +24,6 @@ packages = """
 """
 
 desktops = """
-	xfce-x11
+	xfce
 	xfce-wayland
 """
