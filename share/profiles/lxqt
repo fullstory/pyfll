@@ -25,6 +25,6 @@ packages = """
 """
 
 desktops = """
-	lxqt
+	lxqt-x11
 	lxqt-wayland
 """
