@@ -1510,7 +1510,6 @@ class FLLBuilder(object):
                 arch = self.conf['chroots'][chroot]['packages']['arch']
                 cmdline = self.config_boot_cmdline(distro, chroot)
                 indent = ''
-                menucmd = 'menuentry'
                 desktops = sorted(self.profiles[chroot].get('desktops', [None]))
 
                 for filename in [vmlinuz, initrd]:
@@ -1525,8 +1524,7 @@ class FLLBuilder(object):
 
                 if len(chroots) > 1 and len(desktops) > 1:
                     title = f'{distro} {chroot} [{', '.join(desktops)}]'
-                    kcfg.write(f'{indent}{menucmd} --class={distro}.{arch} \"{title}\"' + ' {\n')
-                    menucmd = 'submenu'
+                    kcfg.write(f'{indent}submenu --class={distro}.{arch} \"{title}\"' + ' {\n')
                     indent += '  '
 
                 for desktop in desktops:
@@ -1536,7 +1534,7 @@ class FLLBuilder(object):
                         title = f'{distro} {chroot} {desktop}'
                     # arch is passed to the --class option so that a 64bit fred icon
                     # may be displayed next to the menu entry by gfxboot theme
-                    kcfg.write(f'{indent}{menucmd} --class={distro}.{arch} \"{title}\"' + ' {\n')
+                    kcfg.write(f'{indent}menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
                     if desktop:
                         kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} desktop={desktop} $kopts\n')
                     else:
