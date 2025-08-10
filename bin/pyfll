@@ -1505,6 +1505,8 @@ class FLLBuilder(object):
                 arch = self.conf['chroots'][chroot]['packages']['arch']
                 cmdline = self.config_boot_cmdline(distro, chroot)
                 indent = ''
+                menucmd = 'menuentry'
+                desktops = sorted(self.mods[chroot].get('desktops', [None]))
 
                 for filename in [vmlinuz, initrd]:
                     if not os.path.isfile(os.path.join(boot_dir, filename)):
@@ -1512,23 +1514,33 @@ class FLLBuilder(object):
                         raise FllError
 
                 if arch[0:3] == 'amd':
-                    indent = '  '
+                    indent += '  '
                     kcfg.write('if cpuid -l; then\n')
                     kcfg.write(f'{indent}havekernel="Y"\n')
 
-                for desktop in sorted(self.mods[chroot].get('desktops', [None])):
+                if len(chroots) > 1 and len(desktops) > 1:
+                    title = f'{distro} {chroot} [{', '.join(desktops)}]'
+                    kcfg.write(f'{indent}{menuentry} --class={distro}.{arch} \"{title}\"' + ' {\n')
+                    menucmd = 'submenu'
+                    indent += '  '
+
+                for desktop in desktops:
                     if desktop is None:
-                        title = chroot
+                        title = f'{distro} {chroot}'
                     else:
                         title = f'{distro} {chroot} {desktop}'
                     # arch is passed to the --class option so that a 64bit fred icon
-                    # may be displayed next to the menuentry by gfxboot theme
-                    kcfg.write(f'{indent}menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
+                    # may be displayed next to the menu entry by gfxboot theme
+                    kcfg.write(f'{indent}{menucmd} --class={distro}.{arch} \"{title}\"' + ' {\n')
                     if desktop:
                         kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} desktop={desktop} $kopts\n')
                     else:
                         kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
                     kcfg.write(f'{indent}  initrd /boot/{initrd}\n')
+                    kcfg.write(f'{indent}' + '}\n')
+
+                if len(chroots) > 1 and len(desktops) > 1:
+                    indent = indent[:-2]
                     kcfg.write(f'{indent}' + '}\n')
 
                 if arch[0:3] == 'amd':
