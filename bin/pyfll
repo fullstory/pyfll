@@ -481,6 +481,10 @@ class FLLBuilder(object):
         for item in sorted(self.mods[chroot]['debconf']):
             self.log.debug(f'  {item}')
 
+        self.log.debug(f'desktops summary for {chroot}:')
+        for item in sorted(self.mods[chroot]['desktops']):
+            self.log.debug(f'  {item}')
+
         self.log.debug(f'package summary for {chroot}:')
         for item in sorted(self.mods[chroot]['packages']):
             self.log.debug(f'  {item}')
