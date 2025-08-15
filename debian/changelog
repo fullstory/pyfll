@@ -345,6 +345,8 @@ pyfll (2025.01) UNRELEASED; urgency=low
     support.
   * Create boot entry for each mutually exclusive desktop= cheatcode.
     Closes: #15.
+  * Do not call plythouth-set-theme, rather write the conffile to avoid
+    recreating an initramfs.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
 

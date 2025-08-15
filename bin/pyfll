@@ -906,6 +906,10 @@ class FLLBuilder(object):
             elif filename == '/tmp/iso_uuid':
                 f.write(self.uuid)
                 self.conf['distro']['FLL_UUID'] = self.uuid
+            elif filename == '/etc/plymouth/plymouthd.conf':
+                boot_theme = self.conf['options'].get('boot_theme', 'bgrt')
+                f.write('[Daemon]\n')
+                f.write(f'Theme={boot_theme}\n')
         except IOError:
             self.log.exception(f'failed to open file for writing: {filename}')
             raise FllError
@@ -949,6 +953,9 @@ class FLLBuilder(object):
         self.write_file(chroot, '/etc/hosts')
         self.write_file(chroot, '/etc/motd.tail')
 
+        self.log.debug(f'{chroot} - setting {boot_theme} plymouth theme...')
+        self.write_file(chroot, '/etc/plymouth/plymouthd.conf')
+
         self.log.debug('writing final apt sources.list(s)')
         self.write_apt_lists(chroot, cached=self.opts.apt_cache)
 
@@ -976,10 +983,6 @@ class FLLBuilder(object):
             except FileNotFoundError:
                 self.log.exception('homed configuration failed')
                 raise FllError
-
-        boot_theme = self.conf['options'].get('boot_theme', 'bgrt')
-        self.log.info(f'{chroot} - setting {boot_theme} plymouth theme...')
-        self.chroot_exec(chroot, ['plymouth-set-default-theme', boot_theme])
 
     def create_initramfs(self, chroot: str) -> None:
         '''Generate the initramfs if update-initramfs was diverted'''
