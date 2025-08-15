@@ -908,6 +908,7 @@ class FLLBuilder(object):
                 self.conf['distro']['FLL_UUID'] = self.uuid
             elif filename == '/etc/plymouth/plymouthd.conf':
                 boot_theme = self.conf['options'].get('boot_theme', 'bgrt')
+                self.log.debug(f'{chroot} - setting {boot_theme} plymouth theme')
                 f.write('[Daemon]\n')
                 f.write(f'Theme={boot_theme}\n')
         except IOError:
@@ -952,8 +953,6 @@ class FLLBuilder(object):
 
         self.write_file(chroot, '/etc/hosts')
         self.write_file(chroot, '/etc/motd.tail')
-
-        self.log.debug(f'{chroot} - setting {boot_theme} plymouth theme...')
         self.write_file(chroot, '/etc/plymouth/plymouthd.conf')
 
         self.log.debug('writing final apt sources.list(s)')
