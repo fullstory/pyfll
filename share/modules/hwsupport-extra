@@ -15,6 +15,7 @@ packages = """
 		libspa-0.2-bluetooth
 		libspa-0.2-libcamera
 	pipewire-pulse
+	power-profiles-daemon
 	rfkill
 	snapper
 	udisks2
