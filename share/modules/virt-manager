@@ -1,0 +1,27 @@
+desc = """
+	virt-manager and libvirt.
+"""
+
+packages = """
+
+"""
+	libvirt-clients
+	libvirt-common
+	libvirt-daemon
+	libvirt-daemon-common
+	libvirt-daemon-config-network
+	libvirt-daemon-config-nwfilter
+	libvirt-daemon-driver-network
+	libvirt-daemon-driver-nodedev
+	libvirt-daemon-driver-nwfilter
+	libvirt-daemon-driver-qemu
+	libvirt-daemon-driver-secret
+	libvirt-daemon-driver-storage
+	libvirt-daemon-log
+	libvirt-daemon-system
+	virt-manager
+"""
+
+groups = """
+	libvirt
+"""

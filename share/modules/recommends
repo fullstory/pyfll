@@ -25,6 +25,7 @@ packages = """
 	seahorse
 	udisks2
 	upower
+	virt-manager
 	xfce4-session
 	xserver-xorg-input-all
 	xserver-xorg-video-all
