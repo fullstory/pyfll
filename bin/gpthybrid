@@ -146,23 +146,19 @@ if __name__ == '__main__':
     pnum = 1
     for part in parts:
         (start, end, name) = part.split()
-        # default to ms basic partition and no custom partname
-        typecode = '0700'
-        pname=''
-        if len(name) > 4 and (name[-6:] == '.amd64' or name[-4:] == '.686' or \
-            name[-2:] == '.2'):
-            typecode = '8300'
-            # use label.extension or just the filename as the partlabel
-            if len(args.label) == 0:
-                pname = '%s' % name
-            else:
-                pname = '%s.%s' % (args.label, name[name.rfind('.') + 1:])
-        elif len(name) > 6 and name[-7:] == 'efi.img':
+        if len(name) > 6 and name[-7:] == 'efi.img':
             typecode = 'ef00'
             pname = 'EFI boot partition'
-        elif len(name) >5 and name[-5:] == '.ef02':
+        elif len(name) > 5 and name[-5:] == '.ef02':
             typecode = 'ef02'
             pname = 'BIOS boot partition'
+        elif name in args.filesystems:
+            typecode = '8300'
+            pname = f'{name.split('.')[1]}'
+        else:
+            # default to ms basic partition and no custom partname
+            typecode = '0700'
+            pname=''
         # if the last partition ended more then sectors less then this starts
         if int(start)-last >= args.sector:
             sgdisk_cmd.append('--new=%i:%i:%i' % \
