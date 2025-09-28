@@ -1668,7 +1668,7 @@ class FLLBuilder(object):
 
         if os.path.isdir(os.path.join(stage, 'boot/grub')):
             xorriso_cmd += ' -no-emul-boot -boot-load-size 4 -boot-info-table'
-            gpthybrid_cmd += f' --label {self.uuid} --iso {iso_file}'
+            gpthybrid_cmd += f' --iso {iso_file}'
             if os.path.isfile(os.path.join(stage,
                                            'boot/grub/i386-pc/grub_eltorito')):
                 grub_mbr_img = os.path.join(stage,
@@ -1795,10 +1795,8 @@ if __name__ == '__main__':
     pyfll_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     share_path = os.path.join(pyfll_path, '../share')
     # Parse cli arguments
-    cli = argparse.ArgumentParser(description='F*** Live Linux builder.',
-                                  prog='fll', usage='%(prog)s -c <config file> ' +
-                                  '[-b <directory> -o <directory> -l <file> ' +
-                                  '-C <chroot> [<chroot> ...] -ABdDNpqUvw]')
+    cli = argparse.ArgumentParser(description='F*** Live Linux builder.',\
+                                  prog='fll')
     cli.add_argument('-A', '--apt-cache', action='store_true', default=False,
                      help='Keep cached apt URIs. Must be defined in config ' +
                      'file. Default: %(default)s')
@@ -1822,7 +1820,7 @@ if __name__ == '__main__':
     cli.add_argument('-k', '--hashkey', action='store', default=None,
                      type=str, metavar='<key id>', help='Set key ' +
                      'to sign MD5 and SHA256 hashes of the live media.')
-    cli.add_argument('-L', '--locales', nargs='+',
+    cli.add_argument('-L', '--locales', nargs='+', metavar='<locale>',
                      default=[os.environ.get('LANG').split('.')[0]],
                      help='Fallback locales to use in all chroots. ' +
                      'Vaules in config file override. Default: %(default)s')

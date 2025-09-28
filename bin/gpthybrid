@@ -29,13 +29,7 @@ def moddown(number, mod, target):
     return number
 
 if __name__ == '__main__':
-    cli = argparse.ArgumentParser(description='GPT hybrid iso manipulator.',
-                                  prog='gpthybrid', usage='%(prog)s ' +
-                                  '--iso <iso> --label <label> --sector <num>')
-    cli.add_argument('-l', '--label', action='store',
-                     type=str, metavar='<label>', required=True,
-                     help='Set the partition label for rootfs partitions. ' +
-                    'Default: %(default)s')
+    cli = argparse.ArgumentParser(description='GPT hybrid iso manipulator.')
     cli.add_argument('-i', '--iso', action='store',
                      type=str, metavar='<iso>', required=True,
                      help='Path to iso file.')
