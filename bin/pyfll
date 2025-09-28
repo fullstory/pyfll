@@ -1674,6 +1674,7 @@ class FLLBuilder(object):
                                             'boot/grub/i386-pc/boot_hybrid.img')
                 xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito'
                 xorriso_cmd += f' --grub2-boot-info --grub2-mbr {grub_mbr_img} '
+                gpthybrid_cmd += ' --filesystems'
                 for chroot in chroots:
                     image_file = self.get_distro_imagefile(chroot)
                     image_path = os.path.join(image_dir, image_file)
