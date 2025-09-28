@@ -645,9 +645,14 @@ class FLLBuilder(object):
             aptget.append('--allow-unauthenticated')
             aptget.extend(['-o', 'Acquire::AllowInsecureRepositories=1'])
         aptget.extend(['-o', 'Acquire::Languages=none'])
-        aptget.extend(['-o', 'Dpkg::Use-Pty=0'])
-        aptget.extend(['-o', 'Dpkg::Progress-Fancy=0'])
-        aptget.extend(['-o', 'APT::Color=0'])
+        if self.opts.debug or self.opts.quiet:
+            aptget.extend(['-o', 'Dpkg::Use-Pty=0'])
+            aptget.extend(['-o', 'Dpkg::Progress-Fancy=0'])
+            aptget.extend(['-o', 'APT::Color=0'])
+        else:
+            aptget.extend(['-o', 'Dpkg::Use-Pty=1'])
+            aptget.extend(['-o', 'Dpkg::Progress-Fancy=1'])
+            aptget.extend(['-o', 'APT::Color=1'])
 
         apt_recommends = self.conf['options'].get('apt_recommends', 'no')
         if apt_recommends == 'no':
