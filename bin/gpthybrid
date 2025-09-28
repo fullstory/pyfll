@@ -193,7 +193,7 @@ if __name__ == '__main__':
         print(sgdisk.stdout.decode())
 
     if args.verbose:
-        gdisk_cmd = ['/usr/sbin/gdisk', '-l', args.iso]
+        gdisk_cmd = ['/usr/sbin/sgdisk', '-p', args.iso]
         print('I: gpthybrid: %s' % ' '.join(gdisk_cmd))
         try:
             gdisk = subprocess.run(gdisk_cmd, check=True, capture_output=True)
