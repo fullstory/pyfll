@@ -20,38 +20,6 @@ let g:skip_defaults_vim=1
 EOF
 	fi
 
-	most=$(which most)
-	if [ -x "$most" ]; then
-		say "Setting default pager to $most"
-		update-alternatives --set pager $most >/dev/null
-	fi
-
-	if which zoxide >/dev/null; then
-		say "Setting up zoxide"
-		cat >> /etc/skel/.bashrc <<EOF
-if which zoxide >/dev/null; then
-	eval "\$(zoxide init bash)"
-	alias cd=z
-fi
-EOF
-	fi
-
-	if [ -f /usr/share/liquidprompt/liquidprompt ]; then
-		say "Setting up liquidprompt"
-		cat >> /etc/skel/.bashrc <<EOF
-if [ -f /usr/share/liquidprompt/liquidprompt ]; then
-	echo \$- | grep -q i 2>/dev/null && . /usr/share/liquidprompt/liquidprompt
-fi
-EOF
-	fi
-
-	if which batcat >/dev/null; then
-		say "Setting up batcat"
-		cat >> /etc/skel/.bash_aliases <<EOF
-command -v batcat >/dev/null && alias cat="batcat -pp"
-EOF
-	fi
-
 	say "Setting up cli colors"
 	cat >> /etc/skel/.bash_aliases <<EOF
 alias ls="ls --color=auto"

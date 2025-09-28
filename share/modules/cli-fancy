@@ -1,0 +1,11 @@
+desc = """
+	Fancy versions of common command line utilities.
+"""
+
+packages = """
+	bat
+	btop
+	liquidprompt
+	most
+	zoxide
+"""

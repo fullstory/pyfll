@@ -4,16 +4,11 @@ desc = """
 
 packages = """
 	bash-completion
-	bat
-	btop
 	dialog
 	htop
 	iotop
-	liquidprompt
 	mc
-	most
 	screen
 	unp
 	vim
-	zoxide
 """
