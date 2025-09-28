@@ -8,6 +8,7 @@ packages = """
 	irqbalance
 	laptop-detect
 	firmware-linux-free
+	lsscsi
 	lvm2
 	mdadm
 	openfwwf

@@ -300,6 +300,7 @@ pyfll (2025.01) UNRELEASED; urgency=low
   * locales-pkg-map: fix typo for chromium.
   * cli-fancy: move bat, btop, liquidprompt, most and zoxide into this new
     module and add it to all profiles by default.
+  * lsscsi: move from hwsupport-extra to hwsupport-essential.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.
