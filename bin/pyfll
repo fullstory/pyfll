@@ -1599,7 +1599,7 @@ class FLLBuilder(object):
             cmdline += f' lang={self.opts.locales[0]}'
         cmdline += f' iso_uuid={self.xorriso_uuid} image_dir={image_dir} image_file={distro}.{chroot}'
         if self.opts.persist:
-            cmdline += f' rootfs_uuid={rootfs_uuid} persist_uuid={self.options.persist_uuid}'
+            cmdline += f' rootfs_uuid={rootfs_uuid} persist_uuid={self.persist_uuid}'
         self.log.debug(f'boot_cmdline: {cmdline}')
         return cmdline
 
