@@ -15,12 +15,12 @@ import sys
 import argparse
 
 def modup(number, mod, target):
-    if (number % mod != target):
+    if number % mod != target:
         number = number + target - number % mod
     return number
 
 def moddown(number, mod, target):
-    if (number % mod != target):
+    if number % mod != target:
         adjust = number % mod - target
         if (adjust > 0):
             number -= adjust
@@ -51,10 +51,10 @@ if __name__ == '__main__':
         gdisk = subprocess.run(gdisk_cmd, check=True, capture_output=True)
     except subprocess.CalledProcessError:
         print('E: gdisk failed to process %s' % args.iso)
-        sys.exit(gdisk.returncode)
-    finally:
-        if args.verbose:
-            print(gdisk.stdout.decode())
+        sys.exit(1)
+
+    if args.verbose:
+        print(gdisk.stdout.decode())
 
     last = 0
     end = 0
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         if old_part.startswith('   '):
             # end should be the last used sector
             testend = int(old_part.split()[2])
-            if (testend > end):
+            if testend > end:
                 end = modup(testend, args.sector, args.sector - 1)
                 if args.verbose:
                     print('I: gpthybrid: got partition ending: %i' % end)
@@ -93,15 +93,15 @@ if __name__ == '__main__':
         osirrox = subprocess.run(osirrox_cmd, check=True, capture_output=True)
     except subprocess.CalledProcessError:
         print('E: osirrox failed to process %s' % args.iso)
-        sys.exit(osirrox.returncode)
-    finally:
-        if args.verbose:
-            print(osirrox.stdout.decode())
+        sys.exit(1)
+
+    if args.verbose:
+        print(osirrox.stdout.decode())
 
     for line in osirrox.stdout.decode().split('\n'):
         if line[:21] == 'R:1: File data lba:  ':
             # extract the fields
-            (xt, startlba, blocks, filesize, name) = line.split(',')
+            xt, startlba, blocks, filesize, name = line.split(',')
             # osirrox talks in 2048b sectors so *4
             startlba = int(startlba.split()[0]) * 4
             blocks = int(blocks.split()[0]) * 4
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                 # rebuild list in post in order
                 done = 0
                 post = list()
-                for part in (parts):
+                for part in parts:
                     if startlba < int(part.split()[0]):
                         # we start before this part
                         if done == 0:
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     gap = 0
     pnum = 1
     for part in parts:
-        (start, end, name) = part.split()
+        start, end, name = part.split()
         if len(name) > 6 and name[-7:] == 'efi.img':
             typecode = 'ef00'
             pname = 'EFI boot partition'
@@ -161,7 +161,7 @@ if __name__ == '__main__':
             typecode = '0700'
             pname=''
         # if the last partition ended more then sectors less then this starts
-        if int(start)-last >= args.sector:
+        if int(start) - last >= args.sector:
             sgdisk_cmd.append('--new=%i:%i:%i' % \
                 (pnum, modup(last + 1, args.sector, 0),
                  moddown(int(start)-1, args.sector, 3)))
@@ -189,8 +189,9 @@ if __name__ == '__main__':
         sgdisk = subprocess.run(sgdisk_cmd, check=True, capture_output=True)
     except subprocess.CalledProcessError:
         print('E: gpthybrid failed to hybridise %s' % args.iso)
-        sys.exit(sgdisk.returncode)
-    finally:
+        sys.exit(1)
+
+    if args.verbose:
         print(sgdisk.stdout.decode())
 
     if args.verbose:
