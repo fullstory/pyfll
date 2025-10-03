@@ -27,6 +27,7 @@ import stat
 import subprocess
 import tempfile
 import time
+import uuid
 
 def deduplicate_list(original_list: list) -> list:
     '''Return a list containing no duplicate items given a list that
@@ -40,6 +41,10 @@ def multiline_to_list(lines: str) -> list:
     commented strings.'''
     return [s.strip() for s in lines.splitlines()
             if s.strip() and not s.lstrip().startswith('#')]
+
+def uuidgen() -> str:
+    '''Return a random UUID string.'''
+    return str(uuid.uuid4())
 
 def host_timezone() -> str:
     '''Return timezone of host system.'''
@@ -177,7 +182,8 @@ class FLLBuilder(object):
 
         self.time = time.perf_counter()
         self.date = datetime.datetime.now(datetime.UTC)
-        self.uuid = self.date.strftime('%Y-%m-%d-%H-%M-%S-00')
+        self.xorriso_uuid = self.date.strftime('%Y-%m-%d-%H-%M-%S-00')
+        self.persist_uuid = uuidgen()
         self.timestamp = self.date.strftime('%Y%m%d%H%M')
 
     def prep_dir(self, dirname: str) -> str:
@@ -909,8 +915,8 @@ class FLLBuilder(object):
                 f.write('echo "$0 denied action: $1 $2" >&2\n')
                 f.write('exit 101\n')
             elif filename == '/tmp/iso_uuid':
-                f.write(self.uuid)
-                self.conf['distro']['FLL_UUID'] = self.uuid
+                f.write(self.xorriso_uuid)
+                self.conf['distro']['FLL_ISO_UUID'] = self.xorriso_uuid
             elif filename == '/etc/plymouth/plymouthd.conf':
                 boot_theme = self.conf['options'].get('boot_theme', 'bgrt')
                 self.log.debug(f'{chroot} - setting {boot_theme} plymouth theme')
@@ -1341,7 +1347,7 @@ class FLLBuilder(object):
             image_file = os.path.join(self.temp, image_file)
             erofs_compression = self.conf['options'].get('erofs_compression')
             erofs_comp_level = self.conf['options'].get('erofs_comp_level')
-            erofs_uuid = self.conf['options'].get('erofs_uuid')
+            erofs_uuid = self.conf['chroots'][chroot].get('uuid')
             cmd = ['mkfs.erofs', f'-U{erofs_uuid}', image_file, chroot_dir]
             if erofs_compression != 'none':
                 if erofs_comp_level:
@@ -1586,11 +1592,14 @@ class FLLBuilder(object):
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf['distro']['FLL_IMAGE_DIR']
         cmdline = self.conf['options'].get('boot_cmdline')
+        rootfs_uuid = self.conf['chroots'][chroot].get('uuid')
         if self.opts.timezone:
             cmdline += f' tz={host_timezone()}'
         if len(self.opts.locales) == 1:
             cmdline += f' lang={self.opts.locales[0]}'
-        cmdline += f' uuid={self.uuid} image_dir={image_dir} image_file={distro}.{chroot}'
+        cmdline += f' iso_uuid={self.xorriso_uuid} image_dir={image_dir} image_file={distro}.{chroot}'
+        if self.opts.persist:
+            cmdline += f' rootfs_uuid={rootfs_uuid} persist_uuid={self.persist_uuid}'
         self.log.debug(f'boot_cmdline: {cmdline}')
         return cmdline
 
@@ -1688,7 +1697,7 @@ class FLLBuilder(object):
             self.log.critical('grub is required to boot live media')
             raise FllError
 
-        xorriso_cmd += f' --modification-date={self.uuid.replace("-","")}'
+        xorriso_cmd += f' --modification-date={self.xorriso_uuid.replace("-","")}'
         if os.path.isfile(os.path.join(stage, 'efi.img')):
             xorriso_cmd += ' --efi-boot efi.img -efi-boot-part --efi-boot-image'
             gpthybrid_cmd += ' efi.img'
@@ -1746,6 +1755,17 @@ class FLLBuilder(object):
             self.log.info(f'updating GPT alt header location...')
             self.exec_cmd(['sgdisk', '--move-second-header',
                            f'{self.opts.write_iso}'])
+            if self.opts.persist:
+                # 1:Gap1, 2:EFI, 3:Gap2, 4:Chroot(s), 5:Gap3, 6:storage
+                part_num = len(chroots) + 5
+                self.log.info(f'appending partition {part_num} to {self.opts.write_iso}...')
+                self.exec_cmd(['sgdisk', f'--new={part_num}::', f'--typecode={part_num}:8300',
+                               f'--change-name={part_num}:storage', f'{self.opts.write_iso}'])
+                if self.opts.verbose:
+                    self.exec_cmd(['sgdisk', '-p', self.opts.write_iso])
+                self.exec_cmd(['partprobe', self.opts.write_iso])
+                self.exec_cmd(['mkfs.ext4', '-U', f'{self.persist_uuid}',
+                               os.path.realpath(f'{self.opts.write_iso}-part{part_num}')])
 
     def log_build_stats(self) -> None:
         duration = int(time.perf_counter() - self.time)
@@ -1764,6 +1784,12 @@ class FLLBuilder(object):
             if not self.conf['chroots'].get(chroot):
                 self.log.error(f'chroot \'{chroot}\' not defined in {self.opts.config}')
                 raise FllError()
+            self.conf['chroots'][chroot]['uuid'] = uuidgen()
+            self.log.debug(f'uuid for {chroot}: {self.conf['chroots'][chroot]['uuid']}')
+
+        if self.opts.persist:
+            self.log.debug('forcing readonly_filesystem=erofs for rootfs')
+            self.conf['options']['readonly_filesystem'] = 'erofs'
 
         self.stage_build_directory()
         for chroot in chroots:
@@ -1828,6 +1854,9 @@ if __name__ == '__main__':
                      type=str, metavar='<directory>',
                      help='Output directory, where the product of this ' +
                      'program will be generated.')
+    cli.add_argument('-p', '--persist', action='store_true', default=False,
+                     help='Create persist partition for use by overlayfs as ' +
+                     'upper storage backing. Default: %(default)s')
     cli.add_argument('-P', '--preserve', action='store_true', default=False,
                      help='Preserve build directory. Disable automatic ' +
                      'cleanup of the build area at exit.')

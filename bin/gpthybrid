@@ -83,7 +83,7 @@ if __name__ == '__main__':
     osirrox_cmd = ['/usr/bin/osirrox', '-pkt_output', 'on',
                    '-indev', args.iso, '-logfile', '.', '-']
 
-    for fs in args.filesystems:
+    for fs in sorted(args.filesystems):
         osirrox_cmd.extend(['-find', fs, '-exec', 'report_lba', '--'])
 
     if args.verbose:
@@ -99,7 +99,7 @@ if __name__ == '__main__':
             print(osirrox.stdout.decode())
 
     for line in osirrox.stdout.decode().split('\n'):
-        if line[:22] == 'R:1: File data lba:  0':
+        if line[:21] == 'R:1: File data lba:  ':
             # extract the fields
             (xt, startlba, blocks, filesize, name) = line.split(',')
             # osirrox talks in 2048b sectors so *4
@@ -107,25 +107,32 @@ if __name__ == '__main__':
             blocks = int(blocks.split()[0]) * 4
             # drop the quotes around the name
             name = name.split()[0].split("'")[1]
-            # rebuild list in post in order
-            done = 0
-            post = list()
-            for part in (parts):
-                if startlba < int(part.split()[0]):
-                    # we start before this part
-                    if done == 0:
-                        # add ourselves if not done
-                        post.append('%s %s %s' % (moddown(startlba, args.sector, 0),
-                                                  modup(startlba + blocks - 1,
-                                                        args.sector, 3), name))
-                        done = 1
-                post.append(part)
-            if done == 0:
-                # no parts for us to go before so add to the end
-                post.append('%s %s %s' % (moddown(startlba, args.sector, 0),
-                                          modup(startlba + blocks - 1,
-                                                args.sector, 3), name))
-            parts = post
+            if line[21:22] == '0':
+                # rebuild list in post in order
+                done = 0
+                post = list()
+                for part in (parts):
+                    if startlba < int(part.split()[0]):
+                        # we start before this part
+                        if done == 0:
+                            # add ourselves if not done
+                            post.append('%s %s %s' % (moddown(startlba, args.sector, 0),
+                                                      modup(startlba + blocks - 1,
+                                                            args.sector, 3), name))
+                            done = 1
+                    post.append(part)
+                if done == 0:
+                    # no parts for us to go before so add to the end
+                    post.append('%s %s %s' % (moddown(startlba, args.sector, 0),
+                                              modup(startlba + blocks - 1,
+                                                    args.sector, 3), name))
+                parts = post
+            else:
+                last_part = parts.pop()
+                last_start, last_end, last_name = last_part.split()
+                new_end = modup(startlba + blocks - 1, args.sector, 3)
+                post.append(f'{last_start} {new_end} {last_name}')
+
 
     # delete the existing partitions
     sgdisk_cmd = ['/usr/sbin/sgdisk']
