@@ -83,7 +83,7 @@ if __name__ == '__main__':
     osirrox_cmd = ['/usr/bin/osirrox', '-pkt_output', 'on',
                    '-indev', args.iso, '-logfile', '.', '-']
 
-    for fs in args.filesystems:
+    for fs in sorted(args.filesystems):
         osirrox_cmd.extend(['-find', fs, '-exec', 'report_lba', '--'])
 
     if args.verbose:
