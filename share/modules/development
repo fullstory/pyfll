@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	apt-cacher-ng
 	auto-apt-proxy
 	cdebootstrap
 	cowbuilder
