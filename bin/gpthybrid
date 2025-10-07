@@ -125,19 +125,20 @@ if __name__ == '__main__':
     num = 0
     for fs in sorted(list(filesystems.values()), key=itemgetter('startlba')):
         num += 1
-        first = run_process([SGDISK,
-                             f'--set-alignment={sgdisk_align}',
-                             '--first-aligned-in-largest', args.iso],
-                            verbose=args.verbose)[0]
+        first = int(run_process([SGDISK,
+                                f'--set-alignment={sgdisk_align}',
+                                '--first-aligned-in-largest', args.iso],
+                                verbose=args.verbose)[0])
         start = fs['startlba'] * 4
-        run_process([SGDISK, '--align-end',
-                    f'--set-alignment={sgdisk_align}',
-                    f'--new={num}:{first}:{start - 1}',
-                    f'--change-name={num}:Gap{gap}',
-                    f'--typecode={num}:0700', args.iso],
-                    verbose=args.verbose)
-        gap += 1
-        num += 1
+        if first < start:
+            run_process([SGDISK, '--align-end',
+                        f'--set-alignment={sgdisk_align}',
+                        f'--new={num}:{first}:{start - 1}',
+                        f'--change-name={num}:Gap{gap}',
+                        f'--typecode={num}:0700', args.iso],
+                        verbose=args.verbose)
+            gap += 1
+            num += 1
         if fs['name'] == 'efi.img':
             fs_name = 'EFI boot partition'
             fs_type = 'ef00'
