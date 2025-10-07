@@ -9,24 +9,35 @@ __copyright__ = """
 """
 __license__   = 'GPLv2 or any later version'
 
-
+from operator import itemgetter
+import argparse
+import shlex
 import subprocess
 import sys
-import argparse
 
-def modup(number, mod, target):
-    if number % mod != target:
-        number = number + target - number % mod
-    return number
+SGDISK = '/usr/sbin/sgdisk'
 
-def moddown(number, mod, target):
-    if number % mod != target:
-        adjust = number % mod - target
-        if (adjust > 0):
-            number -= adjust
-        else:
-            number -= mod + adjust
-    return number
+def run_process(cmd, verbose=False):
+    if verbose:
+        print(f'# {shlex.join(cmd)}')
+    try:
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE, encoding='utf-8') as proc:
+            stdout = proc.stdout.read()
+            if verbose:
+                print(stdout)
+            return stdout.split('\n')
+    except FileNotFoundError as exc:
+        print(
+            f"Command {cmd} failed because the process "
+            f"could not be found.\n{exc}"
+        )
+    except subprocess.CalledProcessError as exc:
+        print(
+            f"Command {cmd} failed because the process "
+            f"did not return a successful return code.\n{exc}"
+        )
+    except subprocess.TimeoutExpired as exc:
+        print(f"Command {cmd} timed out.\n {exc}")
 
 if __name__ == '__main__':
     cli = argparse.ArgumentParser(description='GPT hybrid iso manipulator.')
@@ -34,173 +45,124 @@ if __name__ == '__main__':
                      type=str, metavar='<iso>', required=True,
                      help='Path to iso file.')
     cli.add_argument('-f', '--filesystems', nargs='+', metavar='<filesystem>',
+                     required=True,
                      help='Paths to filesystems within iso file.')
-    cli.add_argument('-s', '--sector', action='store', default=4,
-                     type=int, metavar='<sector_size>',
-                     help='Size of sectors to use in partition table. ' +
-                     'Default: %(default)s')
     cli.add_argument('-v', '--verbose', action='store_true', default=False,
                      help='Show process output and extra informational data.')
     args = cli.parse_args()
 
-    # extract start and end of space to partition from existing gpt
-    gdisk_cmd = ['/usr/sbin/gdisk', '-l', args.iso]
-    if args.verbose:
-        print('I: gpthybrid: %s' % ' '.join(gdisk_cmd))
-    try:
-        gdisk = subprocess.run(gdisk_cmd, check=True, capture_output=True)
-    except subprocess.CalledProcessError:
-        print('E: gdisk failed to process %s' % args.iso)
-        sys.exit(1)
+    sgdisk_align = run_process([SGDISK, '--display-alignment',
+                               args.iso], verbose=args.verbose)
+    sgdisk_align = int(sgdisk_align[0])
+    sgdisk_print = run_process([SGDISK, '--print', args.iso],
+                               verbose=args.verbose)
 
-    if args.verbose:
-        print(gdisk.stdout.decode())
+    old_partitions = dict()
+    for line in sgdisk_print:
+        if not line.startswith('   '):
+            continue
+        num, start, end, size, unit, code = line.split()[:6]
+        name = ' '.join(line.split()[6:])
+        if args.verbose:
+            print(
+                f'num={num} start={start} end={end} size={size} unit={unit}'
+                f' code={code} name={name}'
+            )
+        old_partitions[num] = {
+            'start': start,
+            'end': end,
+            'size': size,
+            'unit': unit,
+            'code': code,
+            'name': name
+        }
+    sgdisk_delete = [SGDISK, args.iso]
+    for num in reversed(old_partitions.keys()):
+        sgdisk_delete.insert(1, f'--delete={num}')
+    run_process(sgdisk_delete, verbose=args.verbose)
 
-    last = 0
-    end = 0
-    partitions = 0
-    for old_part in gdisk.stdout.decode().split('\n'):
-        if old_part.startswith('   1'):
-            # below we want last as 'end' of space before 1st partiion
-            last = int(old_part.split()[1]) - 1
-            # min 63 and round up to %sectors==sectors-1 (so 63 means next starts on 64)
-            if last < 63:
-                last=63
-            last = modup(last, args.sector, args.sector - 1)
-            if args.verbose:
-                print('I: gpthybrid: first partition set last to %i' % last)
-        if old_part.startswith('   '):
-            # end should be the last used sector
-            testend = int(old_part.split()[2])
-            if testend > end:
-                end = modup(testend, args.sector, args.sector - 1)
-                if args.verbose:
-                    print('I: gpthybrid: got partition ending: %i' % end)
-            partitions += 1
+    osirrox = ['osirrox', '-pkt_output', 'on', '-indev', args.iso]
+    for fs in args.filesystems:
+        osirrox.extend(['-find', fs, '-exec', 'report_sections', '--'])
+    osirrox_report = run_process(osirrox, verbose=args.verbose)
 
-    # get the lba addresses of the files using osirrox
-    parts = list()
-    osirrox_cmd = ['/usr/bin/osirrox', '-pkt_output', 'on',
-                   '-indev', args.iso, '-logfile', '.', '-']
-
-    for fs in sorted(args.filesystems):
-        osirrox_cmd.extend(['-find', fs, '-exec', 'report_lba', '--'])
-
-    if args.verbose:
-        print('I: gpthybrid: %s' % ' '.join(osirrox_cmd))
-
-    try:
-        osirrox = subprocess.run(osirrox_cmd, check=True, capture_output=True)
-    except subprocess.CalledProcessError:
-        print('E: osirrox failed to process %s' % args.iso)
-        sys.exit(1)
-
-    if args.verbose:
-        print(osirrox.stdout.decode())
-
-    for line in osirrox.stdout.decode().split('\n'):
-        if line[:21] == 'R:1: File data lba:  ':
-            # extract the fields
-            xt, startlba, blocks, filesize, name = line.split(',')
-            # osirrox talks in 2048b sectors so *4
-            startlba = int(startlba.split()[0]) * 4
-            blocks = int(blocks.split()[0]) * 4
-            # drop the quotes around the name
-            name = name.split()[0].split("'")[1]
-            if line[21:22] == '0':
-                # rebuild list in post in order
-                done = 0
-                post = list()
-                for part in parts:
-                    if startlba < int(part.split()[0]):
-                        # we start before this part
-                        if done == 0:
-                            # add ourselves if not done
-                            post.append('%s %s %s' % (moddown(startlba, args.sector, 0),
-                                                      modup(startlba + blocks - 1,
-                                                            args.sector, 3), name))
-                            done = 1
-                    post.append(part)
-                if done == 0:
-                    # no parts for us to go before so add to the end
-                    post.append('%s %s %s' % (moddown(startlba, args.sector, 0),
-                                              modup(startlba + blocks - 1,
-                                                    args.sector, 3), name))
-                parts = post
-            else:
-                last_part = parts.pop()
-                last_start, last_end, last_name = last_part.split()
-                new_end = modup(startlba + blocks - 1, args.sector, 3)
-                post.append(f'{last_start} {new_end} {last_name}')
-
-
-    # delete the existing partitions
-    sgdisk_cmd = ['/usr/sbin/sgdisk']
-    for part in range(partitions, 0, -1):
-        sgdisk_cmd.append('--delete=%i' % part)
-
-    # gdisk commands to create the partitions
-    # set sectors alignment (2048b iso sector size by default) for partition creation
-    sgdisk_cmd.append('--set-alignment=%i' % args.sector)
-    # gap and pnum just count
-    gap = 0
-    pnum = 1
-    for part in parts:
-        start, end, name = part.split()
-        if len(name) > 6 and name[-7:] == 'efi.img':
-            typecode = 'ef00'
-            pname = 'EFI boot partition'
-        elif len(name) > 5 and name[-5:] == '.ef02':
-            typecode = 'ef02'
-            pname = 'BIOS boot partition'
-        elif name in args.filesystems:
-            typecode = '8300'
-            pname = f'{name.split('.')[1]}'
+    filesystems = dict()
+    for line in osirrox_report:
+        if not line.startswith('R:1: File data lba:  '):
+            continue
+        xt, startlba, blocks, sectsize, name = line[21:].split(',')
+        xt = int(xt.strip())
+        startlba = int(startlba.strip())
+        blocks = int(blocks.strip())
+        sectsize = int(sectsize.strip())
+        name = name.strip().strip("'")
+        if name in filesystems:
+            filesystems[name] = {
+                'xt': f'{filesystems[name]["xt"]}+{xt}',
+                'startlba': filesystems[name]["startlba"],
+                'blocks': filesystems[name]["blocks"] + blocks,
+                'sectsize': filesystems[name]["sectsize"] + sectsize,
+                'name': name
+            }
         else:
-            # default to ms basic partition and no custom partname
-            typecode = '0700'
-            pname=''
-        # if the last partition ended more then sectors less then this starts
-        if int(start) - last >= args.sector:
-            sgdisk_cmd.append('--new=%i:%i:%i' % \
-                (pnum, modup(last + 1, args.sector, 0),
-                 moddown(int(start)-1, args.sector, 3)))
-            sgdisk_cmd.append('--typecode=%i:0700' % pnum)
-            sgdisk_cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
-            pnum += 1
-            gap += 1
-        # create the partition itself
-        sgdisk_cmd.append('--new=%i:%i:%i' % (pnum, int(start), int(end)))
-        sgdisk_cmd.append('--typecode=%i:%s' % (pnum, typecode))
-        if len(pname) > 0:
-            sgdisk_cmd.append('--change-name=%i:%s' % (pnum, pname))
-        pnum += 1
-        last = int(end)
+            filesystems[name] = {
+                'xt': xt,
+                'startlba': startlba,
+                'blocks': blocks,
+                'sectsize': sectsize,
+                'name': name
+            }
+        if args.verbose:
+            print(
+                f'xt={filesystems[name]["xt"]}'
+                f' startlba={filesystems[name]["startlba"]}'
+                f' blocks={filesystems[name]["blocks"]} '
+                f' sectsize={filesystems[name]["sectsize"]}'
+                f' name={name}'
+            )
 
-    # create a gap from end of last partition to fill the remaining free space
-    sgdisk_cmd.append('--new=%i:%i:0' % (pnum, modup(last + 1, args.sector, 0)))
-    sgdisk_cmd.append('--typecode=%i:0700' % pnum)
-    sgdisk_cmd.append('--change-name=%i:Gap%i' % (pnum, gap))
+    gap = 0
+    num = 0
+    for fs in sorted(list(filesystems.values()), key=itemgetter('startlba')):
+        num += 1
+        first = run_process([SGDISK,
+                             f'--set-alignment={sgdisk_align}',
+                             '--first-aligned-in-largest', args.iso],
+                            verbose=args.verbose)[0]
+        start = fs['startlba'] * 4
+        run_process([SGDISK, '--align-end',
+                    f'--set-alignment={sgdisk_align}',
+                    f'--new={num}:{first}:{start - 1}',
+                    f'--change-name={num}:Gap{gap}',
+                    f'--typecode={num}:0700', args.iso],
+                    verbose=args.verbose)
+        gap += 1
+        num += 1
+        if fs['name'] == 'efi.img':
+            fs_name = 'EFI boot partition'
+            fs_type = 'ef00'
+        elif fs['name'].endswith('.ef02'):
+            fs_name = 'BIOS boot partition'
+            fs_type = 'ef02'
+        else:
+            fs_name = fs['name'].split('.')[1]
+            fs_type = '8300'
+        run_process([SGDISK, '--align-end',
+                     f'--set-alignment={sgdisk_align}',
+                     f'--new={num}:{start}:+{fs["sectsize"] / 1024}KiB',
+                     f'--change-name={num}:{fs_name}',
+                     f'--typecode={num}:{fs_type}', args.iso],
+                    verbose=args.verbose)
 
-    sgdisk_cmd.append(args.iso)
-    print('I: gpthybrid: %s' % ' '.join(sgdisk_cmd))
+    first = run_process([SGDISK, f'--set-alignment={sgdisk_align}',
+                         '--first-aligned-in-largest',
+                         args.iso], verbose=args.verbose)[0]
+    num += 1
+    run_process([SGDISK, '--align-end',
+                 f'--set-alignment={sgdisk_align}', f'--new={num}:{first}:',
+                 f'--change-name={num}:Gap{gap}', f'--typecode={num}:0700',
+                 args.iso], verbose=args.verbose)
 
-    try:
-        sgdisk = subprocess.run(sgdisk_cmd, check=True, capture_output=True)
-    except subprocess.CalledProcessError:
-        print('E: gpthybrid failed to hybridise %s' % args.iso)
-        sys.exit(1)
-
-    if args.verbose:
-        print(sgdisk.stdout.decode())
-
-    if args.verbose:
-        gdisk_cmd = ['/usr/sbin/sgdisk', '-p', args.iso]
-        print('I: gpthybrid: %s' % ' '.join(gdisk_cmd))
-        try:
-            gdisk = subprocess.run(gdisk_cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError:
-            print('E: gdisk failed to process %s' % args.iso)
-            sys.exit(gdisk.returncode)
-        finally:
-            print(gdisk.stdout.decode())
+    run_process([SGDISK, '--move-second-header', args.iso], verbose=args.verbose)
+    run_process([SGDISK, '--print', args.iso], verbose=args.verbose)
+    run_process([SGDISK, '--verify', args.iso], verbose=args.verbose)
