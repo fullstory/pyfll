@@ -9,6 +9,11 @@ __copyright__ = """
 """
 __license__   = 'GPLv2 or any later version'
 
+__description__ = """
+This program rearranges the GPT partition table to expose the compressed
+filesystems within the isofs wrapper as partition type block devices.
+"""
+
 from operator import itemgetter
 import argparse
 import shlex
@@ -31,13 +36,16 @@ def run_process(cmd, verbose=False):
             f"Command {cmd} failed because the process "
             f"could not be found.\n{exc}"
         )
+        raise exc
     except subprocess.CalledProcessError as exc:
         print(
             f"Command {cmd} failed because the process "
             f"did not return a successful return code.\n{exc}"
         )
+        raise exc
     except subprocess.TimeoutExpired as exc:
         print(f"Command {cmd} timed out.\n {exc}")
+        raise exc
 
 if __name__ == '__main__':
     cli = argparse.ArgumentParser(description='GPT hybrid iso manipulator.')
@@ -51,12 +59,14 @@ if __name__ == '__main__':
                      help='Show process output and extra informational data.')
     args = cli.parse_args()
 
+    # get the sector alignment used on the iso
     sgdisk_align = run_process([SGDISK, '--display-alignment',
                                args.iso], verbose=args.verbose)
     sgdisk_align = int(sgdisk_align[0])
     sgdisk_print = run_process([SGDISK, '--print', args.iso],
                                verbose=args.verbose)
 
+    # dump the existing GPT partition table
     old_partitions = dict()
     for line in sgdisk_print:
         if not line.startswith('   '):
@@ -76,11 +86,14 @@ if __name__ == '__main__':
             'code': code,
             'name': name
         }
+
+    # delete all existing partitions
     sgdisk_delete = [SGDISK, args.iso]
     for num in reversed(old_partitions.keys()):
         sgdisk_delete.insert(1, f'--delete={num}')
     run_process(sgdisk_delete, verbose=args.verbose)
 
+    # find out sector start position and size for boot and rootfs filesystems
     osirrox = ['osirrox', '-pkt_output', 'on', '-indev', args.iso]
     for fs in args.filesystems:
         osirrox.extend(['-find', fs, '-exec', 'report_sections', '--'])
@@ -97,6 +110,7 @@ if __name__ == '__main__':
         sectsize = int(sectsize.strip())
         name = name.strip().strip("'")
         if name in filesystems:
+            # blocks and sectsize values are additive across isofs extents
             filesystems[name] = {
                 'xt': f'{filesystems[name]["xt"]}+{xt}',
                 'startlba': filesystems[name]["startlba"],
@@ -121,15 +135,23 @@ if __name__ == '__main__':
                 f' name={name}'
             )
 
+    # re-assemble the GPT partition table with filler "GapN" partitions of
+    # type 0700 between significant filesystems. Ensure alignment with
+    # appropriate sector boundaries.
     gap = 0
     num = 0
+    # sort filesystems by startlba value from lowest to highest
     for fs in sorted(list(filesystems.values()), key=itemgetter('startlba')):
         num += 1
-        first = int(run_process([SGDISK,
-                                f'--set-alignment={sgdisk_align}',
-                                '--first-aligned-in-largest', args.iso],
-                                verbose=args.verbose)[0])
+        # get first usable aligned sector of largest free space
+        first = run_process([SGDISK,
+                            f'--set-alignment={sgdisk_align}',
+                            '--first-aligned-in-largest', args.iso],
+                            verbose=args.verbose)
+        first = int(first[0])
+        # calculate start sector 2048b (* 4)
         start = fs['startlba'] * 4
+        # add gap partition to fill space unoccupied by major filesystems
         if first < start:
             run_process([SGDISK, '--align-end',
                         f'--set-alignment={sgdisk_align}',
@@ -148,6 +170,8 @@ if __name__ == '__main__':
         else:
             fs_name = fs['name'].split('.')[1]
             fs_type = '8300'
+        # add a partition entry corresponding to a significant filesystem,
+        # calculate the end in relation to the start sector by sectorsize
         run_process([SGDISK, '--align-end',
                      f'--set-alignment={sgdisk_align}',
                      f'--new={num}:{start}:+{fs["sectsize"] / 1024}KiB',
@@ -155,6 +179,7 @@ if __name__ == '__main__':
                      f'--typecode={num}:{fs_type}', args.iso],
                     verbose=args.verbose)
 
+    # fill up remaining free space
     first = run_process([SGDISK, f'--set-alignment={sgdisk_align}',
                          '--first-aligned-in-largest',
                          args.iso], verbose=args.verbose)[0]
@@ -164,6 +189,8 @@ if __name__ == '__main__':
                  f'--change-name={num}:Gap{gap}', f'--typecode={num}:0700',
                  args.iso], verbose=args.verbose)
 
+    # move the secondary header to the end of device (if neccessary), print
+    # and verify the partition table
     run_process([SGDISK, '--move-second-header', args.iso], verbose=args.verbose)
     run_process([SGDISK, '--print', args.iso], verbose=args.verbose)
     run_process([SGDISK, '--verify', args.iso], verbose=args.verbose)
