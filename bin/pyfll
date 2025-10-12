@@ -175,6 +175,7 @@ class FLLBuilder(object):
         self.opts = options
         self.conf = None
         self.temp = None
+        self.chroots = list()
         self.profiles = dict()
 
         self.log = logging.getLogger('log')
@@ -517,7 +518,7 @@ class FLLBuilder(object):
         self.log.debug(f'locales_debconf: {locales_debconf}')
         return self.profiles[chroot]['debconf']
 
-    def stage_build_directory(self) -> None:
+    def init_build_directory(self) -> None:
         '''Prepare temporary directory for chroots and result staging area.'''
         self.log.debug('preparing build area...')
 
@@ -1772,15 +1773,11 @@ class FLLBuilder(object):
         m, s = divmod(duration, 60)
         self.log.info(f'build duration was {m:d} minutes and {s:02d} seconds')
 
-    def main(self) -> None:
-        '''Main loop.'''
-        self.init_cli_options()
-        self.init_configuration()
-        self.init_logfile()
-
-        chroots = [chroot for chroot in self.opts.chroots] \
+    def init_chroots(self) -> None:
+        '''Initialise and check global defaults for all chroots.'''
+        self.chroots = [chroot for chroot in self.opts.chroots] \
             if self.opts.chroots else self.conf['chroots'].keys()
-        for chroot in chroots:
+        for chroot in self.chroots:
             if not self.conf['chroots'].get(chroot):
                 self.log.error(f'chroot \'{chroot}\' not defined in {self.opts.config}')
                 raise FllError()
@@ -1791,9 +1788,19 @@ class FLLBuilder(object):
             self.log.debug('forcing readonly_filesystem=erofs for rootfs')
             self.conf['options']['readonly_filesystem'] = 'erofs'
 
-        self.stage_build_directory()
-        for chroot in chroots:
-            self.profiles[chroot] = copy.deepcopy(self.parse_package_profile(chroot))
+    def init_chroot(self, chroot: str) -> None:
+        '''Initialise variables for chroot.'''
+        self.profiles[chroot] = copy.deepcopy(self.parse_package_profile(chroot))
+
+    def main(self) -> None:
+        '''Main loop.'''
+        self.init_cli_options()
+        self.init_configuration()
+        self.init_logfile()
+        self.init_build_directory()
+        self.init_chroots()
+        for chroot in self.chroots:
+            self.init_chroot(chroot)
             self.chroot_bootstrap(chroot)
             self.dpkg_divert(chroot)
             self.write_default_conffiles(chroot)
@@ -1810,7 +1817,6 @@ class FLLBuilder(object):
             self.mkreadonlyfs_chroot(chroot)
             self.stage_chroot(chroot)
             self.nuke_chroot(chroot)
-
         self.write_grub_cfg(chroots)
         self.write_sha256sums()
         self.gen_live_media(chroots)
