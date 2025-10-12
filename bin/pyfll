@@ -1752,7 +1752,7 @@ class FLLBuilder(object):
         if self.opts.write_iso:
             self.log.info(f'writing iso to {self.opts.write_iso}...')
             self.exec_cmd(['dd', f'if={iso_file}', f'of={self.opts.write_iso}',
-                           'bs=1M', 'status=progress'])
+                           'bs=512', 'status=progress'])
             self.log.info(f'updating GPT alt header location...')
             self.exec_cmd(['sgdisk', '--move-second-header',
                            f'{self.opts.write_iso}'])
