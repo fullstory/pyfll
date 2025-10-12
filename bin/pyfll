@@ -1508,7 +1508,7 @@ class FLLBuilder(object):
                 self.log.exception('failed to copy memtest86+ to staging dir')
                 raise FllError
 
-    def write_grub_cfg(self, chroots: list) -> None:
+    def write_grub_cfg(self) -> None:
         '''Write grub.cfg for live media.'''
         self.log.info('writing grub.cfg for live media...')
         stage_dir = os.path.join(self.temp, 'staging')
@@ -1518,7 +1518,7 @@ class FLLBuilder(object):
         timeout = self.conf['options'].get('boot_timeout', '-1')
 
         with open(os.path.join(grub_dir, 'kernels.cfg'), 'w') as kcfg:
-            for chroot in chroots:
+            for chroot in self.chroots:
                 vmlinuz = f'vmlinuz-{chroot}'
                 initrd = f'initrd.img-{chroot}'
                 arch = self.conf['chroots'][chroot]['packages']['arch']
@@ -1536,7 +1536,7 @@ class FLLBuilder(object):
                     kcfg.write('if cpuid -l; then\n')
                     kcfg.write(f'{indent}havekernel="Y"\n')
 
-                if len(chroots) > 1 and len(desktops) > 1:
+                if len(self.chroots) > 1 and len(desktops) > 1:
                     title = f'{distro} {chroot} [{', '.join(desktops)}]'
                     kcfg.write(f'{indent}submenu --class={distro}.{arch} \"{title}\"' + ' {\n')
                     indent += '  '
@@ -1557,7 +1557,7 @@ class FLLBuilder(object):
                         kcfg.write(f'{indent}  initrd /boot/{initrd}\n')
                         kcfg.write(f'{indent}' + '}\n')
 
-                if len(chroots) > 1 and len(desktops) > 1:
+                if len(self.chroots) > 1 and len(desktops) > 1:
                     indent = indent[:-2]
                     kcfg.write(f'{indent}' + '}\n')
 
@@ -1653,7 +1653,7 @@ class FLLBuilder(object):
         else:
             self.log.info(f'not signing file (no key given): {filename}')
 
-    def gen_live_media(self, chroots: list) -> None:
+    def gen_live_media(self) -> None:
         '''Generate live media iso image.'''
         stage = os.path.join(self.temp, 'staging')
 
@@ -1686,7 +1686,7 @@ class FLLBuilder(object):
                 xorriso_cmd += ' -b boot/grub/i386-pc/grub_eltorito'
                 xorriso_cmd += f' --grub2-boot-info --grub2-mbr {grub_mbr_img} '
                 gpthybrid_cmd += ' --filesystems'
-                for chroot in chroots:
+                for chroot in self.chroots:
                     image_file = self.get_distro_imagefile(chroot)
                     image_path = os.path.join(image_dir, image_file)
                     if os.path.isfile(os.path.join(stage, image_path)):
@@ -1758,7 +1758,7 @@ class FLLBuilder(object):
                            f'{self.opts.write_iso}'])
             if self.opts.persist:
                 # 1:Gap1, 2:EFI, 3:Gap2, 4:Chroot(s), 5:Gap3, 6:storage
-                part_num = len(chroots) + 5
+                part_num = len(self.chroots) + 5
                 self.log.info(f'appending partition {part_num} to {self.opts.write_iso}...')
                 self.exec_cmd(['sgdisk', f'--new={part_num}::', f'--typecode={part_num}:8300',
                                f'--change-name={part_num}:storage', f'{self.opts.write_iso}'])
@@ -1817,9 +1817,9 @@ class FLLBuilder(object):
             self.mkreadonlyfs_chroot(chroot)
             self.stage_chroot(chroot)
             self.nuke_chroot(chroot)
-        self.write_grub_cfg(chroots)
+        self.write_grub_cfg()
         self.write_sha256sums()
-        self.gen_live_media(chroots)
+        self.gen_live_media()
         self.write_configuration()
         self.log_build_stats()
 
