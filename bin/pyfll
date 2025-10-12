@@ -1761,7 +1761,8 @@ class FLLBuilder(object):
                 part_num = len(self.chroots) + 5
                 self.log.info(f'appending partition {part_num} to {self.opts.write_iso}...')
                 self.exec_cmd(['sgdisk', f'--new={part_num}::', f'--typecode={part_num}:8300',
-                               f'--change-name={part_num}:storage', f'{self.opts.write_iso}'])
+                               f'--change-name={part_num}:storage', '--align-end',
+                               f'{self.opts.write_iso}'])
                 if self.opts.verbose:
                     self.exec_cmd(['sgdisk', '-p', self.opts.write_iso])
                 self.exec_cmd(['partprobe', self.opts.write_iso])
