@@ -1765,6 +1765,7 @@ class FLLBuilder(object):
                                f'{self.opts.write_iso}'])
                 if self.opts.verbose:
                     self.exec_cmd(['sgdisk', '-p', self.opts.write_iso])
+                    self.exec_cmd(['sgdisk', '--verify', self.opts.write_iso])
                 self.exec_cmd(['partprobe', self.opts.write_iso])
                 self.exec_cmd(['mkfs.ext4', '-U', f'{self.persist_uuid}',
                                os.path.realpath(f'{self.opts.write_iso}-part{part_num}')])
