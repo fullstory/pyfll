@@ -1779,6 +1779,8 @@ class FLLBuilder(object):
         '''Initialise and check global defaults for all chroots.'''
         self.chroots = [chroot for chroot in self.opts.chroots] \
             if self.opts.chroots else self.conf['chroots'].keys()
+        # unique list of chroot names
+        self.chroots = list(dict.fromkeys(self.chroots))
         for chroot in self.chroots:
             if not self.conf['chroots'].get(chroot):
                 self.log.error(f'chroot \'{chroot}\' not defined in {self.opts.config}')
