@@ -1599,8 +1599,10 @@ class FLLBuilder(object):
         if len(self.opts.locales) == 1:
             cmdline += f' lang={self.opts.locales[0]}'
         cmdline += f' iso_uuid={self.xorriso_uuid} image_dir={image_dir} image_file={distro}.{chroot}'
-        if self.opts.persist:
-            cmdline += f' rootfs_uuid={rootfs_uuid} persist_uuid={self.persist_uuid}'
+        if self.conf['options']['readonly_filesystem'] == 'erofs':
+            cmdline += f' rootfs_uuid={rootfs_uuid}'
+            if self.opts.persist:
+                cmdline += f' persist_uuid={self.persist_uuid}'
         self.log.debug(f'boot_cmdline: {cmdline}')
         return cmdline
 
