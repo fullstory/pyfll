@@ -33,6 +33,7 @@ packages = """
 		systemsettings
 	plasma-nm
 	plasma-pa
+		libcanberra-pulse
 	plasma-workspace
 	powerdevil
 	sddm
