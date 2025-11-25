@@ -12,9 +12,13 @@ packages = """
 	greetd
 	grim
 	gtklock
+	hypridle
 	hyprland
 	hyprland-protocols
+	hyprland-qtutils
+	hyprlock
 	hyprpaper
+	hyprpicker
 	kitty
 	mako-notifier
 	mate-polkit-bin
