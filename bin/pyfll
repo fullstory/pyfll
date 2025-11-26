@@ -1606,43 +1606,10 @@ class FLLBuilder(object):
         self.log.debug(f'boot_cmdline: {cmdline}')
         return cmdline
 
-    def hash_sha256sum(self, filename: str):
-        '''Calculate sha256sum of a file and return it.'''
-        return apt_pkg.Hashes(open(filename, 'rb')).hashes.find('SHA256').hashvalue
-
     def hash_hashsums(self, filename: str):
         '''Calculate hashsums of a file and return it.'''
         hashsums = apt_pkg.Hashes(open(filename, 'rb')).hashes
         return hashsums.find('SHA256').hashvalue, hashsums.find('SHA512').hashvalue
-
-    def hash_sha256sums(self, base: str, dirpath: str, filenames: list):
-        '''Function given to os.path.walk of self.write_sha256sums().'''
-        for f in filenames:
-            filepath = os.path.join(dirpath, f)
-            filename = filepath.partition(base)[2].lstrip('/')
-
-            if not os.path.isfile(filepath) or f == 'sha256sums':
-                continue
-            if dirpath.endswith('grub') and f.find('stage') >= 0:
-                continue
-            if f.find('grub_eltorito') >= 0:
-                continue
-            if f.find('iso_uuid') >= 0:
-                continue
-
-            try:
-                with open(os.path.join(base, 'sha256sums'), 'a') as sha256sums:
-                    sha256sums.write(f'{self.hash_sha256sum(filepath)} *{filename}\n')
-            except IOError:
-                self.log.exception('failed to write sha256sums file')
-                raise FllError
-
-    def write_sha256sums(self) -> None:
-        '''Calculate sha256sums of major release contents.'''
-        self.log.info('calculating sha256sums of live media...')
-        stage = os.path.join(self.temp, 'staging')
-        for dirpath, dirnames, filenames in os.walk(stage):
-            self.hash_sha256sums(stage, dirpath, filenames)
 
     def sign_file(self, filename) -> None:
         '''Sign a file with hashkey if available.'''
@@ -1823,7 +1790,6 @@ class FLLBuilder(object):
             self.stage_chroot(chroot)
             self.nuke_chroot(chroot)
         self.write_grub_cfg()
-        self.write_sha256sums()
         self.gen_live_media()
         self.write_configuration()
         self.log_build_stats()
