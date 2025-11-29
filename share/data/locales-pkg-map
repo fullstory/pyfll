@@ -29,3 +29,5 @@ qpdfview = qpdfview-translations,
 qterminal = qterminal-l10n,
 
 sylpheed = sylpheed-i18n,
+
+vlc = vlc-l10n,
