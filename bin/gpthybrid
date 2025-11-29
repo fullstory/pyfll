@@ -59,10 +59,8 @@ if __name__ == '__main__':
                      help='Show process output and extra informational data.')
     args = cli.parse_args()
 
-    # get the sector alignment used on the iso
-    sgdisk_align = run_process([SGDISK, '--display-alignment',
-                               args.iso], verbose=args.verbose)
-    sgdisk_align = int(sgdisk_align[0])
+    # force the sector alignment
+    sgdisk_align = 4
     sgdisk_print = run_process([SGDISK, '--print', args.iso],
                                verbose=args.verbose)
 
