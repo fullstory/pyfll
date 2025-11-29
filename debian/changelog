@@ -352,6 +352,7 @@ pyfll (2025.01) UNRELEASED; urgency=low
     recreating an initramfs.
   * Re-write gpyhybrid to take advantage of relatively new sector
     alignment options.
+  * Add fll.conf option allowing packages to be defined for each chroot.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
 

@@ -327,6 +327,8 @@ class FLLBuilder(object):
         lists.'''
         debconf = set()
         packages = set()
+        for package in self.conf['chroots'][chroot]['packages'].get('packages'):
+            packages.add(package)
         desktops = set()
         groups = set()
         postinst = set()
