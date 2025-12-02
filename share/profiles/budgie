@@ -23,7 +23,6 @@ packages = """
 	brasero
 	budgie-app-launcher-applet
 	budgie-applications-menu-applet
-	budgie-appmenu-applet
 	budgie-backgrounds
 	budgie-brightness-controller-applet
 	budgie-clockworks-applet
