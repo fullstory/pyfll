@@ -9,24 +9,19 @@ debconf = """
 
 packages = """
 	adduser
-	btrfs-progs
-		btrfsmaintenance
 	console-setup
 	fll-live-initramfs
 	fll-live-initscripts
 	locales
-	e2fsprogs
 	grub-pc
 	grub-efi-ia32-bin
 	grub-efi-amd64-bin
 	efibootmgr
 	linux-sysctl-defaults
 	mtools
-	pkexec
 	sudo
 	systemd-resolved
 	systemd-timesyncd
-	xfsprogs
 """
 
 groups = """

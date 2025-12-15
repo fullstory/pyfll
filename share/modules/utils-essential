@@ -4,11 +4,14 @@ desc = """
 
 packages = """
 	anacron
+	btrfs-progs
+		btrfsmaintenance
 	cdebootstrap
 	console-data
 	cron
 	debsums
 	dosfstools
+	e2fsprogs
 	gdisk
 	iputils-ping
 	isc-dhcp-client
@@ -19,11 +22,13 @@ packages = """
 	mbr
 	netbase
 	nftables
+	pkexec
 	plymouth
 		plymouth-themes
 	rsync
 	wget
 	wpasupplicant
+	xfsprogs
 	xz-utils
 	zstd
 """
