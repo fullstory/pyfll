@@ -1559,7 +1559,7 @@ class FLLBuilder(object):
                     # arch is passed to the --class option so that a 64bit fred icon
                     # may be displayed next to the menu entry by gfxboot theme
                     kcfg.write(f'{indent}menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
-                    kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} desktop={desktop} $kopts\n')
+                    kcfg.write(f'{indent}  linux /boot/{vmlinuz} {cmdline} desktop={desktop} $kopts\n')
                     kcfg.write(f'{indent}  initrd /boot/{initrd}\n')
                     kcfg.write(f'{indent}' + '}\n')
                 else:
@@ -1616,6 +1616,10 @@ class FLLBuilder(object):
             cmdline += f' rootfs_uuid={rootfs_uuid}'
             if self.opts.persist:
                 cmdline += f' persist_uuid={self.persist_uuid}'
+        if self.conf['options']['initramfs_tool'] == 'initramfs-tools':
+            cmdline += ' boot=fll'
+        elif self.conf['options']['initramfs_tool'] == 'dracut':
+            cmdline += ' SYSTEMD_SULOGIN_FORCE=1'
         self.log.debug(f'boot_cmdline: {cmdline}')
         return cmdline
 
