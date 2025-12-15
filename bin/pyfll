@@ -1566,7 +1566,7 @@ class FLLBuilder(object):
                     if len(desktops) == 0:
                         title = f'{distro} {chroot}'
                         kcfg.write(f'{indent}menuentry --class={distro}.{arch} \"{title}\"' + ' {\n')
-                        kcfg.write(f'{indent}  linux /boot/{vmlinuz} boot=fll {cmdline} $kopts\n')
+                        kcfg.write(f'{indent}  linux /boot/{vmlinuz} {cmdline} $kopts\n')
                         kcfg.write(f'{indent}  initrd /boot/{initrd}\n')
                         kcfg.write(f'{indent}' + '}\n')
 
