@@ -168,7 +168,8 @@ class FLLBuilder(object):
                '/usr/sbin/modprobe',
                '/usr/sbin/insmod',
                '/usr/sbin/update-grub',
-               '/usr/sbin/update-initramfs']
+               '/usr/sbin/update-initramfs',
+               '/usr/bin/dracut']
 
     def __init__(self, options):
         '''Accept options dict, setup logging.'''
@@ -343,6 +344,9 @@ class FLLBuilder(object):
             packages.add('squashfs-tools')
         elif ro_fs == 'erofs':
             packages.add('erofs-utils')
+
+        initramfs_tool = self.conf['options'].get('initramfs_tool')
+        packages.add(initramfs_tool)
 
         linux_meta = ['linux-image', 'linux-headers']
         packages.update(['-'.join([l, linux]) for l in linux_meta])
@@ -998,15 +1002,22 @@ class FLLBuilder(object):
                 raise FllError
 
     def create_initramfs(self, chroot: str) -> None:
-        '''Generate the initramfs if update-initramfs was diverted'''
-        if '/usr/sbin/update-initramfs' in self.diverts:
-            chroot_dir = os.path.join(self.temp, chroot)
-            kvers = self.detect_linux_version(chroot)
-            for kernel in kvers:
+        '''Create an initramfs'''
+        initramfs_tool = self.conf['options'].get('initramfs_tool')
+        kvers = self.detect_linux_version(chroot)
+        for kernel in kvers:
+            if initramfs_tool == 'initramfs-tools':
                 cmd = f'update-initramfs -c -k {kernel}'
                 if self.opts.verbose or self.opts.debug:
                     cmd += ' -v'
-                self.chroot_exec(chroot, shlex.split(cmd))
+            elif initramfs_tool == 'dracut':
+                cmd = 'dracut --no-hostonly --no-hostonly-i18n '
+                cmd += f'--add-confdir fll --kver {kernel}'
+                if self.opts.verbose or self.opts.debug:
+                    cmd += ' --verbose'
+                elif self.opts.quiet:
+                    cmd += ' --quiet'
+            self.chroot_exec(chroot, shlex.split(cmd))
 
     def preseed_debconf(self, chroot: str) -> None:
         '''Preseed debconf with values read from package lists.'''
