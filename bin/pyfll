@@ -1619,7 +1619,7 @@ class FLLBuilder(object):
         if self.conf['options']['initramfs_tool'] == 'initramfs-tools':
             cmdline += ' boot=fll'
         elif self.conf['options']['initramfs_tool'] == 'dracut':
-            cmdline += ' SYSTEMD_SULOGIN_FORCE=1'
+            cmdline += ' systemd.gpt_auto=0 SYSTEMD_SULOGIN_FORCE=1'
         self.log.debug(f'boot_cmdline: {cmdline}')
         return cmdline
 
