@@ -39,8 +39,8 @@ def deduplicate_list(original_list: list) -> list:
 def multiline_to_list(lines: str) -> list:
     '''Return a list of stripped strings given a multiline string. Filter
     commented strings.'''
-    return [s.strip() for s in lines.splitlines()
-            if s.strip() and not s.lstrip().startswith('#')]
+    return [s.strip() for s in lines.splitlines() \
+        if s.strip() and not s.lstrip().startswith('#')]
 
 def uuidgen() -> str:
     '''Return a random UUID string.'''
