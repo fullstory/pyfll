@@ -48,8 +48,9 @@ def uuidgen() -> str:
 
 def host_timezone() -> str:
     '''Return timezone of host system.'''
-    with open('/etc/timezone') as tz:
-        return tz.readline().strip('\n')
+    tz = subprocess.run(['timedatectl', 'show', '--property=Timezone', '--value'],
+                        capture_output=True)
+    return tz.stdout.decode().strip('\n')
 
 class FllLocalesError(Exception):
     """
