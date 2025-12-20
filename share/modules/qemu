@@ -12,5 +12,6 @@ packages = """
 	qemu-system-modules-spice
 	qemu-system-x86
 	qemu-utils
+	quickemu
 	ovmf
 """
