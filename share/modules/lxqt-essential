@@ -6,6 +6,7 @@ packages = """
 	bibata-cursor-theme
 	ca-certificates
 	dbus-x11
+		dbus-user-session
 	gnome-themes-extra
 	kdialog
 	lxqt-core

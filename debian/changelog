@@ -301,6 +301,7 @@ pyfll (2025.01) UNRELEASED; urgency=low
   * cli-fancy: move bat, btop, liquidprompt, most and zoxide into this new
     module and add it to all profiles by default.
   * lsscsi: move from hwsupport-extra to hwsupport-essential.
+  * lxqt-essential: add dbus-user-session (required for pipewire).
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.
