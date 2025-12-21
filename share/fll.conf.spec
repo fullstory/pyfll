@@ -42,7 +42,7 @@ boot_timeout    = string(default='30')
 bootstrapper    = option('cdebootstrap', 'debootstrap', 'mmdebstrap', default='cdebootstrap')
 homed_privkey   = string(default=None)
 homed_pubkey    = string(default=None)
-initramfs_tool  = option('dracut', 'initramfs-tools', default='initramfs-tools')
+initramfs_tool  = option('dracut', 'initramfs-tools', default='dracut')
 media_include   = string(default=None)
 
 readonly_filesystem  = option('squashfs', 'erofs', default='squashfs')
