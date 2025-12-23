@@ -284,7 +284,7 @@ class FLLBuilder(object):
 
             stamp += f' {profiles}'
 
-        stamp += f' - ({self.timestamp})'
+        stamp += f' - {self.timestamp}'
 
         self.log.debug('stamp: %s' % stamp)
         return stamp
