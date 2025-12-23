@@ -4,6 +4,8 @@ aptosid-manual-en = aptosid-manual,
 
 chromium = chromium-l10n,
 
+e2fsprogs = e2fsprogs-l10n,
+
 firefox = firefox-l10n,
 
 gcompris = gcompris-sound,
@@ -19,6 +21,8 @@ qt6-style-kvantum = qt6-style-kvantum-l10n,
 hunspell-en-us = hunspell,
 
 libreoffice-core = libreoffice-help, libreoffice-l10n, mythes, hyphen,
+
+network-manager = network-manager-l10n,
 
 nm-tray = nm-tray-l10n,
 
