@@ -13,7 +13,7 @@ packages = """
 	initramfs-tools
 	iputils-ping
 	k3b
-	kodi
+	#kodi
 	kontact
 	kwin-wayland
 	network-manager-applet
