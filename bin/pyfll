@@ -188,6 +188,7 @@ class FLLBuilder(object):
         self.xorriso_uuid = self.date.strftime('%Y-%m-%d-%H-%M-%S-00')
         self.persist_uuid = uuidgen()
         self.timestamp = self.date.strftime('%Y%m%d%H%M')
+        self.live_media = None
 
     def prep_dir(self, dirname: str) -> str:
         '''Set up working directories.'''
@@ -318,9 +319,7 @@ class FLLBuilder(object):
 
     def write_configuration(self) -> None:
         '''Save build configuration with live media. Use only at end.'''
-        distro_name = self.conf['distro']['FLL_DISTRO_NAME']
-        conf_name = f'{distro_name}-{self.timestamp}.iso.fll.conf'
-        self.conf.filename = os.path.join(self.opts.output_dir, conf_name)
+        self.conf.filename = f'{self.live_media}.fll.conf'
         self.conf.write()
         os.chown(self.conf.filename, self.opts.uid, self.opts.gid)
 
@@ -1704,6 +1703,7 @@ class FLLBuilder(object):
         self.exec_cmd(gpthybrid_cmd.split())
 
         os.chown(iso_file, self.opts.uid, self.opts.gid)
+        self.live_media = iso_file
 
         self.log.info('calculating hashsums of live media iso image...')
         try:
@@ -1778,6 +1778,17 @@ class FLLBuilder(object):
             self.log.debug('forcing readonly_filesystem=erofs for rootfs')
             self.conf['options']['readonly_filesystem'] = 'erofs'
 
+    def write_quickemu_conf(self) -> None:
+        if not self.opts.quickemu:
+            return
+        quickemu_conf = f'{self.live_media}.quickemu.conf'
+        quickemu_disk = f'{self.live_media}.disk.qcow2'
+        with open(quickemu_conf, 'w') as quickemu_conf_fh:
+            quickemu_conf_fh.write(f'disk_img="{quickemu_disk}"\n')
+            quickemu_conf_fh.write(f'iso="{self.live_media}"\n')
+        os.chown(quickemu_conf, self.opts.uid, self.opts.gid)
+        self.log.info(f'quickemu conf: {quickemu_conf}'
+
     def init_chroot(self, chroot: str) -> None:
         '''Initialise variables for chroot.'''
         self.profiles[chroot] = copy.deepcopy(self.parse_package_profile(chroot))
@@ -1810,6 +1821,7 @@ class FLLBuilder(object):
         self.write_grub_cfg()
         self.gen_live_media()
         self.write_configuration()
+        self.write_quickemu_conf()
         self.log_build_stats()
 
 if __name__ == '__main__':
@@ -1855,6 +1867,8 @@ if __name__ == '__main__':
     cli.add_argument('-P', '--preserve', action='store_true', default=False,
                      help='Preserve build directory. Disable automatic ' +
                      'cleanup of the build area at exit.')
+    cli.add_argument('-Q', '--quickemu', action='store_true', default=False,
+                     help='Write a configuration file for quickemu.')
     cli.add_argument('-q', '--quiet', action='store_true', default=False,
                      help='Enable quiet mode. Only high priority messages ' +
                      'will be generated.')
