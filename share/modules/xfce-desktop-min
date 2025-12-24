@@ -11,7 +11,7 @@ packages = """
 	libnotify-bin
 	lightdm
 	mousepad
-	network-manager-gnome
+	nm-tray
 	srain
 	hunspell-en-us
 	libglib2.0-bin
