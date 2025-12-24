@@ -23,6 +23,6 @@ packages = """
 """
 
 desktops = """
-	kde
-	kde-x11
+	plasma
+	plasmax11
 """
