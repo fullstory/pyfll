@@ -18,6 +18,7 @@ packages = """
 	kwin-wayland
 	network-manager-applet
 	nm-tray
+	libreoffice-core
 	pipewire-bin
 	pinentry-gnome3
 	pqiv

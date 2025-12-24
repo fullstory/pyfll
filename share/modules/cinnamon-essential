@@ -16,6 +16,7 @@ packages = """
 	mint-y-icons
 	slick-greeter
 	system-config-printer
+	xdg-desktop-portal-gtk
 	zenity
 """
 
