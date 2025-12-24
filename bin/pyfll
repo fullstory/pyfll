@@ -1784,10 +1784,10 @@ class FLLBuilder(object):
         quickemu_conf = f'{self.live_media}.quickemu.conf'
         quickemu_disk = f'{self.live_media}.disk.qcow2'
         with open(quickemu_conf, 'w') as quickemu_conf_fh:
-            quickemu_conf_fh.write(f'disk_img="{quickemu_disk}"\n')
-            quickemu_conf_fh.write(f'iso="{self.live_media}"\n')
+            quickemu_conf_fh.write(f'disk_img="{os.path.basename(quickemu_disk)}"\n')
+            quickemu_conf_fh.write(f'iso="{os.path.basename(self.live_media)}"\n')
         os.chown(quickemu_conf, self.opts.uid, self.opts.gid)
-        self.log.info(f'quickemu conf: {quickemu_conf}'
+        self.log.info(f'quickemu --vm {quickemu_conf}')
 
     def init_chroot(self, chroot: str) -> None:
         '''Initialise variables for chroot.'''
@@ -1820,9 +1820,9 @@ class FLLBuilder(object):
             self.nuke_chroot(chroot)
         self.write_grub_cfg()
         self.gen_live_media()
+        self.log_build_stats()
         self.write_configuration()
         self.write_quickemu_conf()
-        self.log_build_stats()
 
 if __name__ == '__main__':
     pyfll_path = os.path.dirname(os.path.abspath(sys.argv[0]))
