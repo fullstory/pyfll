@@ -1611,15 +1611,16 @@ class FLLBuilder(object):
             cmdline += f' tz={host_timezone()}'
         if len(self.opts.locales) == 1:
             cmdline += f' lang={self.opts.locales[0]}'
-        cmdline += f' iso_uuid={self.xorriso_uuid} image_dir={image_dir} image_file={distro}.{chroot}'
+        cmdline = f'iso_uuid={self.xorriso_uuid} ' + \
+            f'image_dir={image_dir} image_file={distro}.{chroot} ' + cmdline
         if self.conf['options']['readonly_filesystem'] == 'erofs':
             cmdline += f' rootfs_uuid={rootfs_uuid}'
             if self.opts.persist:
                 cmdline += f' persist_uuid={self.persist_uuid}'
         if self.conf['options']['initramfs_tool'] == 'initramfs-tools':
-            cmdline += ' boot=fll'
+            cmdline = 'boot=fll ' + cmdline
         elif self.conf['options']['initramfs_tool'] == 'dracut':
-            cmdline += ' systemd.gpt_auto=0 SYSTEMD_SULOGIN_FORCE=1'
+            cmdline = 'systemd.gpt_auto=0 SYSTEMD_SULOGIN_FORCE=1 ' + cmdline
         self.log.debug(f'boot_cmdline: {cmdline}')
         return cmdline
 
