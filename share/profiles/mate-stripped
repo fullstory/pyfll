@@ -29,7 +29,7 @@ packages = """
 	mate-desktop-environment
 	mate-desktop-environment-extras
 	mint-y-icons
-	network-manager-gnome
+	nm-tray
 	slick-greeter
 """
 desktops = """

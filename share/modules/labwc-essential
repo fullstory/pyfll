@@ -21,7 +21,7 @@ packages = """
 	mate-polkit-bin
 	mint-y-icons
 	network-manager
-	nm-connection-editor
+	nm-tray
 	playerctl
 	power-profiles-daemon
 	sfwbar

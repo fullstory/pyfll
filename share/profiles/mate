@@ -84,7 +84,7 @@ packages = """
 	pluma
 	qalculate-gtk
 	mint-y-icons
-	network-manager-gnome
+	nm-tray
 	seahorse
 	slick-greeter
 """

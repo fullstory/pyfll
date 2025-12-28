@@ -17,7 +17,7 @@ packages = """
 	lxtask
 	mint-y-icons
 	mupdf
-	network-manager-gnome
+	nm-tray
 	xscreensaver
 	zenity
 """
