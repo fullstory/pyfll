@@ -23,6 +23,7 @@ packages = """
 	power-profiles-daemon
 	slurp
 	srain
+	thunar
 	tuigreet
 	sway
 	swaybg

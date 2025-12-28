@@ -1,5 +1,5 @@
 desc = """
-	Minimal Sway desktop apps.
+	Extra Sway desktop apps.
 """
 
 packages = """
@@ -10,12 +10,10 @@ packages = """
 	gparted
 	gvfs-backends
 	mousepad
-	network-manager-applet
 	pavucontrol
 	pqiv
 	qalculate-gtk
 	seahorse
-	thunar
 	thunar-archive-plugin
 	thunar-font-manager
 	thunar-volman
