@@ -1,5 +1,5 @@
 desc = """
-	Minimal Hyprland desktop apps.
+	Extra Hyprland desktop apps.
 """
 
 packages = """
@@ -11,12 +11,10 @@ packages = """
 	gvfs-backends
 	hyprcursor-util
 	mousepad
-	network-manager-applet
 	pavucontrol
 	pqiv
 	qalculate-gtk
 	seahorse
-	thunar
 	thunar-archive-plugin
 	thunar-font-manager
 	thunar-volman
