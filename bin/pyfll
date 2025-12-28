@@ -1647,10 +1647,11 @@ class FLLBuilder(object):
         distro_name = self.conf['distro']['FLL_DISTRO_NAME']
         image_dir = self.conf['distro']['FLL_IMAGE_DIR']
 
-        if len(self.chroots) == 1:
-            iso_name = f'{distro_name}-{self.timestamp}-{self.chroots[0]}.iso'
-        else:
-            iso_name = f'{distro_name}-{self.timestamp}.iso'
+        iso_name = f'{distro_name}-{self.timestamp}-{self.chroots[0]}'
+        for index, chroot in enumerate(self.chroots[1:]):
+            common_prefix = os.path.commonprefix([self.chroots[index], chroot])
+            iso_name += f'+{chroot.replace(common_prefix, '')}'
+        iso_name += '.iso'
         iso_file = os.path.join(self.opts.output_dir, iso_name)
 
         sha256_file = iso_file + '.sha256'
