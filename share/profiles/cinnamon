@@ -41,5 +41,4 @@ packages = """
 
 desktops = """
 	cinnamon
-	cinnamon-wayland
 """
