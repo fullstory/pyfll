@@ -7,7 +7,6 @@ packages = """
 	brightnessctl
 	dbus-broker
 	dbus-user-session
-	featherpad
 	gnome-themes-extra
 		librsvg2-common
 	greetd
@@ -24,13 +23,14 @@ packages = """
 	kvirc
 	mako-notifier
 	mint-y-icons
+	mousepad
 	network-manager
 	nm-tray
-	pcmanfm-qt
 	playerctl
 	polkit-kde-agent-1
 	power-profiles-daemon
 	slurp
+	thunar
 	tuigreet
 	swayidle
 	waybar

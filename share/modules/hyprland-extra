@@ -4,12 +4,17 @@ desc = """
 
 packages = """
 	celluloid
+	file-roller
 	gnome-disk-utility
 	gparted
 	gvfs-backends
 	hyprcursor-util
-	pavucontrol-qt
+	pavucontrol
 	pqiv
-	qalculate-qt
+	qalculate-gtk
+	thunar-archive-plugin
+	thunar-font-manager
+	thunar-volman
+	tumbler
 	zathura
 """
