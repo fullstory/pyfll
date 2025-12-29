@@ -19,7 +19,6 @@ packages = """
 	network-manager-applet
 	nm-tray
 	libreoffice-core
-	pcmanfm-qt
 	pipewire-bin
 	pinentry-gnome3
 	pqiv
