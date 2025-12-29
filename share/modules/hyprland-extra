@@ -3,14 +3,13 @@ desc = """
 """
 
 packages = """
-	bluedevil
-	haruna
+	celluloid
+	gnome-disk-utility
+	gparted
+	gvfs-backends
 	hyprcursor-util
-	kate
 	pavucontrol-qt
-	partitionmanager
 	pqiv
 	qalculate-qt
-	tumbler
 	zathura
 """

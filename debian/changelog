@@ -356,6 +356,8 @@ pyfll (2025.01) UNRELEASED; urgency=low
   * Add fll.conf option allowing packages to be defined for each chroot.
   * Integrate dracut as default initramfs generator.
   * hyprland: switch to Qt/KDE centric package profile.
+  * Add pcmanfm-qt and mosepad to recommends. Update locales-pkg-map.
+    Install Qt apps in Hyprland profile.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
 

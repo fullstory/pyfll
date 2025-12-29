@@ -5,9 +5,9 @@ desc = """
 packages = """
 	brightness-udev
 	brightnessctl
-	dolphin
 	dbus-broker
 	dbus-user-session
+	featherpad
 	gnome-themes-extra
 		librsvg2-common
 	greetd
@@ -21,13 +21,14 @@ packages = """
 	hyprpaper
 	hyprpicker
 	kitty
-	konversation
+	kvirc
+	lxqt-policykit
 	mako-notifier
 	mint-y-icons
 	network-manager
 	nm-tray
+	pcmanfm-qt
 	playerctl
-	polkit-kde-agent-1
 	power-profiles-daemon
 	slurp
 	tuigreet
@@ -40,6 +41,5 @@ packages = """
 	wlopm
 	wofi
 	xdg-desktop-portal-hyprland
-	xdg-desktop-portal-kde
 	zenity
 """

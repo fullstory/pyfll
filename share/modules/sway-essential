@@ -17,6 +17,7 @@ packages = """
 	mako-notifier
 	mate-polkit-bin
 	mint-y-icons
+	mousepad
 	network-manager
 	nm-tray
 	playerctl

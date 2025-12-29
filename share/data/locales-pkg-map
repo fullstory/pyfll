@@ -6,6 +6,8 @@ chromium = chromium-l10n,
 
 e2fsprogs = e2fsprogs-l10n,
 
+featherpad = featherpad-l10n,
+
 firefox = firefox-l10n,
 
 gcompris = gcompris-sound,
@@ -25,6 +27,8 @@ libreoffice-core = libreoffice-help, libreoffice-l10n, mythes, hyphen,
 network-manager = network-manager-l10n,
 
 nm-tray = nm-tray-l10n,
+
+pcmanfm-qt = pcmanfm-qt-l10n,
 
 plasma-desktop = kde-l10n,
 
