@@ -22,13 +22,13 @@ packages = """
 	hyprpicker
 	kitty
 	kvirc
-	lxqt-policykit
 	mako-notifier
 	mint-y-icons
 	network-manager
 	nm-tray
 	pcmanfm-qt
 	playerctl
+	polkit-kde-agent-1
 	power-profiles-daemon
 	slurp
 	tuigreet
