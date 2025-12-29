@@ -40,6 +40,8 @@ packages = """
 	wlogout
 	wlopm
 	wofi
+	xdg-desktop-portal-gtk
 	xdg-desktop-portal-hyprland
+	xdg-desktop-portal-kde
 	zenity
 """
