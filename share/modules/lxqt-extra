@@ -4,7 +4,7 @@ desc = """
 
 packages = """
 	libreoffice-qt6
-	qalculate-gtk
+	qalculate-qt
 	qdiskinfo
 	mpv
 		xdg-utils

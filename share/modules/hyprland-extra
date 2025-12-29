@@ -3,21 +3,14 @@ desc = """
 """
 
 packages = """
-	blueman
-	celluloid
-	file-roller
-	gnome-disk-utility
-	gparted
-	gvfs-backends
+	bluedevil
+	haruna
 	hyprcursor-util
-	mousepad
-	pavucontrol
+	kate
+	pavucontrol-qt
+	partitionmanager
 	pqiv
-	qalculate-gtk
-	seahorse
-	thunar-archive-plugin
-	thunar-font-manager
-	thunar-volman
+	qalculate-qt
 	tumbler
 	zathura
 """

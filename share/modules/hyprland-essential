@@ -5,6 +5,7 @@ desc = """
 packages = """
 	brightness-udev
 	brightnessctl
+	dolphin
 	dbus-broker
 	dbus-user-session
 	gnome-themes-extra
@@ -20,16 +21,15 @@ packages = """
 	hyprpaper
 	hyprpicker
 	kitty
+	konversation
 	mako-notifier
-	mate-polkit-bin
 	mint-y-icons
 	network-manager
 	nm-tray
 	playerctl
+	polkit-kde-agent-1
 	power-profiles-daemon
 	slurp
-	srain
-	thunar
 	tuigreet
 	swayidle
 	waybar
@@ -40,5 +40,6 @@ packages = """
 	wlopm
 	wofi
 	xdg-desktop-portal-hyprland
+	xdg-desktop-portal-kde
 	zenity
 """
