@@ -35,6 +35,7 @@ packages = """
 	wireplumber
 	wlogout
 	wofi
-	xdg-desktop-portal-hyprland
+	xdg-desktop-portal-gtk
+	xdg-desktop-portal-wlr
 	zenity
 """
