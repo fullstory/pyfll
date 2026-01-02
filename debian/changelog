@@ -302,6 +302,7 @@ pyfll (2025.01) UNRELEASED; urgency=low
     module and add it to all profiles by default.
   * lsscsi: move from hwsupport-extra to hwsupport-essential.
   * lxqt-essential: add dbus-user-session (required for pipewire).
+  * fll.conf: add kde-stripped flavours.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.
