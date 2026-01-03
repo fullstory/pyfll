@@ -33,6 +33,14 @@
             components  = string(default=None)
             keyring     = string(default=None)
             sources_uri = string(default=None)
+
+        [[[flatpak]]]
+            [[[[flathub]]]]
+            flatpaks    = force_list(default=list())
+
+            [[[[flathub-beta]]]]
+            flatpaks    = force_list(default=list())
+
 [options]
 apt_preferences = string(default=None)
 apt_recommends  = option('yes', 'no', default='no')
