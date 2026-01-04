@@ -24,6 +24,4 @@ desktops = """
 """
 
 groups = """
-	input
-	render
 """
