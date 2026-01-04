@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	flatpak
 	gnome-software
 	gnome-software-plugin-flatpak
 """
