@@ -6,7 +6,7 @@ say() {
 
 do_postinst() {
 	# Thanks to https://github.com/graysky2/kodi-standalone-service
-	mkdir -p /etc/sysusers.d tmpfiles.d
+	mkdir -p /etc/sysusers.d /etc/tmpfiles.d
 	say "Creating /etc/sysusers.d/kodi-flatpak.conf"
 	cat >/etc/sysusers.d/kodi-flatpak.conf <<EOF
 # Type Name ID GECOS Home directory Shell
