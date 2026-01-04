@@ -351,6 +351,9 @@ class FLLBuilder(object):
         linux_meta = ['linux-image', 'linux-headers']
         packages.update(['-'.join([l, linux]) for l in linux_meta])
 
+        flatpaks = set(self.conf['chroots'][chroot]['flatpak']['flathub'].get('flatpaks'))
+        flatpaks_beta = set(self.conf['chroots'][chroot]['flatpak']['flathub-beta'].get('flatpaks'))
+
         fll_profile_spec = os.path.join(self.opts.share, 'fll.profile.spec')
         profile_conf = ConfigObj(profile, configspec=fll_profile_spec)
         self.validate_configobj(profile_conf)
@@ -376,6 +379,18 @@ class FLLBuilder(object):
             self.log.debug(f'packages_{arch}:')
             for line in multiline_to_list(profile_conf[packages_arch]):
                 packages.add(line)
+                self.log.debug(f'  {line}')
+
+        if 'flatpaks' in profile_conf:
+            self.log.debug('flatpaks:')
+            for line in multiline_to_list(profile_conf['flatpaks']):
+                flatpaks.add(line)
+                self.log.debug(f'  {line}')
+
+        if 'flatpaks_beta' in profile_conf:
+            self.log.debug('flatpaks_beta:')
+            for line in multiline_to_list(profile_conf['flatpaks_beta']):
+                flatpaks_beta.add(line)
                 self.log.debug(f'  {line}')
 
         if 'desktops' in profile_conf:
@@ -442,6 +457,18 @@ class FLLBuilder(object):
                     packages.add(line)
                     self.log.debug(f'  {line}')
 
+            if 'flatpaks' in module_conf:
+                self.log.debug('flatpaks:')
+                for line in multiline_to_list(module_conf['flatpaks']):
+                    flatpaks.add(line)
+                    self.log.debug(f'  {line}')
+
+            if 'flatpaks_beta' in module_conf:
+                self.log.debug('flatpaks_beta:')
+                for line in multiline_to_list(module_conf['flatpaks_beta']):
+                    flatpaks_beta.add(line)
+                    self.log.debug(f'  {line}')
+
             if 'desktops' in module_conf:
                 self.log.debug('desktops:')
                 for line in multiline_to_list(module_conf['desktops']):
@@ -460,7 +487,10 @@ class FLLBuilder(object):
 
             self.log.debug('---')
 
-        return debconf, packages, desktops, groups, postinst
+        if len(flatpaks) > 0 or len(flatpaks_beta) > 0:
+            packages.add('flatpak')
+
+        return debconf, packages, flatpaks, flatpaks_beta, desktops, groups, postinst
 
     def parse_package_profile(self, chroot: str) -> dict:
         '''Parse packages profile for each chroot.'''
@@ -471,6 +501,8 @@ class FLLBuilder(object):
         chroot_profile = {
             'debconf': set(),
             'packages': set(),
+            'flatpaks': set(),
+            'flatpaks_beta': set(),
             'desktops': set(),
             'groups': set(),
             'postinst': set()
@@ -481,10 +513,12 @@ class FLLBuilder(object):
             if not os.path.isfile(profile):
                 self.log.critical(f'no such package profile: {profile}')
                 raise FllError
-            debconf, packages, desktops, groups, postinst = \
+            debconf, packages, flatpaks, flatpaks_beta, desktops, groups, postinst = \
                 self.expand_pkg_profile(chroot, profile, modules_dir)
             chroot_profile['debconf'].update(debconf)
             chroot_profile['packages'].update(packages)
+            chroot_profile['flatpaks'].update(flatpaks)
+            chroot_profile['flatpaks_beta'].update(flatpaks_beta)
             chroot_profile['desktops'].update(desktops)
             chroot_profile['groups'].update(groups)
             chroot_profile['postinst'].update(postinst)
@@ -499,6 +533,14 @@ class FLLBuilder(object):
 
         self.log.debug(f'package summary for {chroot}:')
         for item in sorted(chroot_profile['packages']):
+            self.log.debug(f'  {item}')
+
+        self.log.debug(f'flatpaks summary for {chroot}:')
+        for item in sorted(chroot_profile['flatpaks']):
+            self.log.debug(f'  {item}')
+
+        self.log.debug(f'flatpaks_beta summary for {chroot}:')
+        for item in sorted(chroot_profile['flatpaks_beta']):
             self.log.debug(f'  {item}')
 
         self.log.debug(f'groups summary for {chroot}:')
@@ -1272,6 +1314,27 @@ class FLLBuilder(object):
         self.log.info(f'{chroot} - installing packages...')
         self.apt_get(chroot, 'install', args=pkgs_want)
 
+    def install_flatpaks(self, chroot: str) -> None:
+        '''Install flatpaks'''
+        flatpak_cmd = 'flatpak'
+        if self.opts.verbose:
+            flatpak_cmd += ' --verbose'
+        elif self.opts.debug:
+            flatpak_cmd += ' -vv'
+        flatpaks = self.profiles[chroot].get('flatpaks')
+        if 'flatpak' in self.profiles[chroot].get('packages'):
+            flathub_remote = 'flathub https://flathub.org/repo/flathub.flatpakrepo'
+            self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} remote-add --if-not-exists {flathub_remote}'))
+            for flatpak in flatpaks:
+                self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} install --assumeyes flathub {flatpak}'))
+
+        flatpaks_beta = self.profiles[chroot].get('flatpaks_beta')
+        if len(flatpaks_beta) > 0:
+            flathub_beta_remote = 'flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo'
+            self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} remote-add --if-not-exists {flathub_beta_remote}'))
+            for flatpak in flatpaks_beta:
+                self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} install --assumeyes flathub-beta {flatpak}'))
+
     def post_installation(self, chroot: str) -> None:
         '''Run package module postinst scripts in a chroot.'''
         chroot_dir = os.path.join(self.temp, chroot)
@@ -1814,6 +1877,7 @@ class FLLBuilder(object):
             self.preseed_debconf(chroot)
             self.prime_apt(chroot)
             self.install_packages(chroot)
+            self.install_flatpaks(chroot)
             self.post_installation(chroot)
             self.write_manifest(chroot)
             self.write_final_conffiles(chroot)
