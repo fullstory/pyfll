@@ -170,7 +170,8 @@ class FLLBuilder(object):
                '/usr/sbin/insmod',
                '/usr/sbin/update-grub',
                '/usr/sbin/update-initramfs',
-               '/usr/bin/dracut']
+               '/usr/bin/dracut',
+               '/usr/bin/bwrap']
 
     def __init__(self, options):
         '''Accept options dict, setup logging.'''
