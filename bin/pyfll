@@ -1317,6 +1317,7 @@ class FLLBuilder(object):
 
     def install_flatpaks(self, chroot: str) -> None:
         '''Install flatpaks'''
+        self.log.info(f'{chroot} - configuring flatpak remotes and installing flatpaks...')
         flatpak_cmd = 'flatpak'
         if self.opts.verbose:
             flatpak_cmd += ' --verbose'
