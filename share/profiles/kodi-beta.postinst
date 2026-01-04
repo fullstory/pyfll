@@ -1,0 +1,67 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	# Thanks to https://github.com/graysky2/kodi-standalone-service
+	mkdir -p /etc/sysusers.d tmpfiles.d
+	say "Creating /etc/sysusers.d/kodi-flatpak.conf"
+	cat >/etc/sysusers.d/kodi-flatpak.conf <<EOF
+# Type Name ID GECOS Home directory Shell
+g kodi - -
+u kodi - "Kodi User" /var/lib/kodi
+
+# supplemental groups
+m kodi audio
+m kodi bluetooth
+m kodi cdrom
+m kodi dialout
+m kodi netdev
+m kodi plugdev
+m kodi power
+m kodi render
+m kodi video
+EOF
+	say "Creating /etc/tmpfiles.d/kodi-flatpak.conf"
+	cat >/etc/tmpfiles.d/kodi-flatpak.conf <<EOF
+# Type Path Mode User Group Age Argument
+d /var/lib/kodi 0750 kodi kodi - -
+Z /var/lib/kodi - kodi kodi - -
+EOF
+	say "Creating and enabling /etc/systemd/system/kodi-flatpak.service"
+	cat >/etc/systemd/system/kodi-flatpak.service <<EOF
+[Unit]
+Description=Kodi Flatpak (GBM)
+After=remote-fs.target systemd-user-sessions.service network-online.target nss-lookup.target sound.target bluetooth.target polkit.service upower.service mysqld.service lircd.service
+Wants=network-online.target polkit.service upower.service
+Conflicts=getty@tty1.service
+
+[Service]
+User=kodi
+Group=kodi
+SupplementaryGroups=input
+PAMName=login
+TTYPath=/dev/tty1
+ExecStart=/usr/bin/flatpak run --filesystem=xdg-run/pipewire-0:ro --filesystem=/run/udev:ro tv.kodi.Kodi --standalone --windowing=gbm
+Restart=on-abort
+StandardInput=tty
+StandardOutput=journal
+
+[Install]
+Alias=display-manager.service
+EOF
+	systemctl enable kodi-flatpak.service
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:

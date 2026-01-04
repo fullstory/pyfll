@@ -1,0 +1,13 @@
+desc = """
+	Essential for Kodi.
+"""
+
+packages = """
+	dbus-user-session
+	network-manager
+	pipewire
+	polkitd
+	udisks2
+	upower
+	xdg-user-dirs
+"""

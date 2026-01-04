@@ -1,29 +1,26 @@
 desc = """
-	Open Source Home Theatre.
+	Open Source Home Theatre. Beta from Flatpak.
 
 	FLL_LIVE_USER_GROUPS must contain input & render groups for
-	kodi-gbm xsession to function.
+	kodi --windowing=gbm to function.
 """
 
 modules = """
+	distro
 	essential
 	hwsupport-essential
 	kodi-essential
 	utils-essential
-	xserver
 """
 
 packages = """
-	kodi
-	kodi-repository-kodi
-	kodi-visualization-spectrum-
-	sddm
-		weston
+"""
+
+flatpaks_beta = """
+	tv.kodi.Kodi
 """
 
 desktops = """
-	kodi-gbm
-	kodi-x11
 """
 
 groups = """
