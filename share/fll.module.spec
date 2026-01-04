@@ -1,5 +1,7 @@
 desc = string()
 packages = string()
 debconf = string(default='')
+flatpaks = string(default='')
+flatpaks_beta = string(default='')
 desktops = string(default='')
 groups = string(default='')
