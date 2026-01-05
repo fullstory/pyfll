@@ -1319,10 +1319,12 @@ class FLLBuilder(object):
         '''Install flatpaks'''
         self.log.info(f'{chroot} - configuring flatpak remotes and installing flatpaks...')
         flatpak_cmd = 'flatpak'
-        if self.opts.verbose:
-            flatpak_cmd += ' --verbose'
+        if self.opts.quiet:
+            flatpak_cmd += ' --noninteractive'
+        elif self.opts.verbose:
+            flatpak_cmd += ' --noninteractive --verbose'
         elif self.opts.debug:
-            flatpak_cmd += ' -vv'
+            flatpak_cmd += ' --noninteractive -vv'
         flatpaks = self.profiles[chroot].get('flatpaks')
         if 'flatpak' in self.profiles[chroot].get('packages'):
             flathub_remote = 'flathub https://flathub.org/repo/flathub.flatpakrepo'
