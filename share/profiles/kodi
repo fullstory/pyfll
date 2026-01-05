@@ -1,8 +1,7 @@
 desc = """
-	Open Source Home Theatre.
+	Kodi - Ultimate entertainment center. Kodi from Debian.
 
-	FLL_LIVE_USER_GROUPS must contain input & render groups for
-	kodi-gbm xsession to function.
+	groups must contain input & render for kodi-gbm.
 """
 
 modules = """
