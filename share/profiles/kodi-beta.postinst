@@ -44,7 +44,7 @@ Group=kodi
 SupplementaryGroups=input
 PAMName=login
 TTYPath=/dev/tty1
-ExecStart=/usr/bin/flatpak run --filesystem=/run/udev:ro tv.kodi.Kodi --standalone --windowing=gbm
+ExecStart=/usr/bin/flatpak run tv.kodi.Kodi --standalone --windowing=gbm
 Restart=on-abort
 StandardInput=tty
 StandardOutput=journal
