@@ -1,8 +1,5 @@
 desc = """
-	Open Source Home Theatre. Beta from Flatpak.
-
-	FLL_LIVE_USER_GROUPS must contain input & render groups for
-	kodi --windowing=gbm to function.
+	Kodi - Ultimate entertainment center. Kodi flatpak from flathub-beta.
 """
 
 modules = """
@@ -14,6 +11,10 @@ modules = """
 """
 
 packages = """
+"""
+
+flatpaks = """
+	org.freedesktop.Platform.VAAPI.Intel/x86_64/24.08
 """
 
 flatpaks_beta = """
