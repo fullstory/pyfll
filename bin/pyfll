@@ -1319,25 +1319,23 @@ class FLLBuilder(object):
         '''Install flatpaks'''
         self.log.info(f'{chroot} - configuring flatpak remotes and installing flatpaks...')
         flatpak_cmd = 'flatpak'
-        if self.opts.quiet:
-            flatpak_cmd += ' --noninteractive'
-        elif self.opts.verbose:
-            flatpak_cmd += ' --noninteractive --verbose'
+        if self.opts.verbose:
+            flatpak_cmd += ' --verbose'
         elif self.opts.debug:
-            flatpak_cmd += ' --noninteractive -vv'
+            flatpak_cmd += ' -vv'
         flatpaks = self.profiles[chroot].get('flatpaks')
         if 'flatpak' in self.profiles[chroot].get('packages'):
             flathub_remote = 'flathub https://flathub.org/repo/flathub.flatpakrepo'
             self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} remote-add --if-not-exists {flathub_remote}'))
             for flatpak in flatpaks:
-                self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} install --assumeyes flathub {flatpak}'))
+                self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} install --noninteractive --assumeyes flathub {flatpak}'))
 
         flatpaks_beta = self.profiles[chroot].get('flatpaks_beta')
         if len(flatpaks_beta) > 0:
             flathub_beta_remote = 'flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo'
             self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} remote-add --if-not-exists {flathub_beta_remote}'))
             for flatpak in flatpaks_beta:
-                self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} install --assumeyes flathub-beta {flatpak}'))
+                self.chroot_exec(chroot, shlex.split(f'{flatpak_cmd} install --noninteractive --assumeyes flathub-beta {flatpak}'))
 
     def post_installation(self, chroot: str) -> None:
         '''Run package module postinst scripts in a chroot.'''
