@@ -14,6 +14,13 @@ do_postinst() {
 		sed -i 's#<number>[[:alnum:]]</number>#<number>2</number>#' \
 			/etc/xdg/openbox/rc.xml
 	fi
+
+	if [ -f /usr/share/aptosid-settings-lxqt/lxqt/panel.conf ] && \
+	   [ -f /etc/xdg/lxqt/panel.conf ]; then
+		say "Patching LXQt panel.conf"
+		cp /usr/share/aptosid-settings-lxqt/lxqt/panel.conf \
+			/etc/xdg/lxqt/panel.conf
+	fi
 }
 
 case "${1}" in

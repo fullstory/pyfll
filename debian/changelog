@@ -360,6 +360,8 @@ pyfll (2025.01) UNRELEASED; urgency=low
   * hyprland: switch to Qt/KDE centric package profile.
   * Add pcmanfm-qt and mosepad to recommends. Update locales-pkg-map.
     Install Qt apps in Hyprland profile.
+  * distro-lxqt: patch panel.conf in postinst script to avoid conflict
+    with lxqt-panel >= 2.3.2-1.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
 
