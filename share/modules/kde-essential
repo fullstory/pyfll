@@ -16,6 +16,8 @@ packages = """
 		libpam-kwallet-common
 	kwin-x11
 	kwin-wayland
+		kde-style-breeze
+		kwin-style-aurorae
 	partitionmanager
 	plasma-desktop
 		# plasma-desktop recommends are still fscked

@@ -15,7 +15,6 @@ packages = """
 	k3b
 	#kodi
 	kontact
-	kwin-wayland
 	network-manager-applet
 	nm-tray
 	libreoffice-core
