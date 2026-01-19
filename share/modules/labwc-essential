@@ -23,7 +23,6 @@ packages = """
 	network-manager
 	nm-tray
 	playerctl
-	power-profiles-daemon
 	sfwbar
 	slurp
 	tuigreet

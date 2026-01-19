@@ -21,7 +21,6 @@ packages = """
 	network-manager
 	nm-tray
 	playerctl
-	power-profiles-daemon
 	slurp
 	srain
 	thunar

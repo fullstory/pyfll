@@ -28,7 +28,6 @@ packages = """
 	nm-tray
 	playerctl
 	polkit-kde-agent-1
-	power-profiles-daemon
 	slurp
 	thunar
 	tuigreet
