@@ -556,7 +556,7 @@ class FLLBuilder(object):
 
     def get_debconf_list(self, chroot: str) -> list:
         '''Return debconf list for chroot. Dynamically generate locales
-        debconf configuration based on i18n configuration in flk.conf.'''
+        debconf configuration.'''
         locales_list = [l for l in self.conf['chroots'][chroot]['packages']['locales']] \
             if self.conf['chroots'][chroot]['packages'].get('locales') else self.opts.locales
         locales_debconf = 'locales locales/locales_to_be_generated multiselect '
