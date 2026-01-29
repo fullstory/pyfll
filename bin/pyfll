@@ -554,18 +554,20 @@ class FLLBuilder(object):
 
         return chroot_profile
 
-    def get_debconf_list(self, chroot: str) -> list:
-        '''Return debconf list for chroot. Dynamically generate locales
-        debconf configuration.'''
+    def configure_locales(self, chroot: str) -> list:
+        '''Generate locales.'''
+        chroot_dir = os.path.join(self.temp, chroot)
         locales_list = [l for l in self.conf['chroots'][chroot]['packages']['locales']] \
             if self.conf['chroots'][chroot]['packages'].get('locales') else self.opts.locales
-        locales_debconf = 'locales locales/locales_to_be_generated multiselect '
-        for locale in locales_list:
-            locales_debconf += f'{locale}.UTF-8 UTF-8,'
-        locales_debconf = locales_debconf.rstrip(',')
-        self.profiles[chroot]['debconf'].add(locales_debconf)
-        self.log.debug(f'locales_debconf: {locales_debconf}')
-        return self.profiles[chroot]['debconf']
+        default_locale = f'{locales_list[0]}.UTF-8'
+        with open(os.path.join(chroot_dir, 'etc', 'locale.gen'), 'a') as locale_gen:
+            locale_gen.write('\n# Locales enabled by fll\n')
+            for locale in locales_list:
+                self.log.debug(f'enabling locale: {locale}.UTF-8 UTF-8')
+                locale_gen.write(f'{locale}.UTF-8 UTF-8\n')
+        self.chroot_exec(chroot, ['locale-gen'])
+        self.chroot_exec(chroot, ['update-locale', f'LANG={default_locale}'])
+
 
     def init_build_directory(self) -> None:
         '''Prepare temporary directory for chroots and result staging area.'''
@@ -1065,7 +1067,7 @@ class FLLBuilder(object):
     def preseed_debconf(self, chroot: str) -> None:
         '''Preseed debconf with values read from package lists.'''
         chroot_dir = os.path.join(self.temp, chroot)
-        debconf_list = self.get_debconf_list(chroot)
+        debconf_list = self.profiles[chroot].get('debconf')
 
         if debconf_list:
             self.log.debug(f'{chroot} - preseeding debconf...')
@@ -1880,6 +1882,7 @@ class FLLBuilder(object):
             self.prime_apt(chroot)
             self.install_packages(chroot)
             self.install_flatpaks(chroot)
+            self.configure_locales(chroot)
             self.post_installation(chroot)
             self.write_manifest(chroot)
             self.write_final_conffiles(chroot)

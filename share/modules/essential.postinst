@@ -13,25 +13,6 @@ get_efitarget() {
 }
 
 do_postinst() {
-	# Configure a default locale If only one locale was configured in the
-	# build chroot, which is common, this avoids having to do so during boot.
-	locales_list=""
-	locales_to_be_generated=$(debconf-get-selections 2>/dev/null | grep locales_to_be_generated | sed 's/,/ /g')
-	say "Generating locales: ${locales_to_be_generated}"
-	for locale in ${locales_to_be_generated}; do
-		case ${locale} in
-			*.UTF-8)
-				locales_list="${locale} ${locales_list}"
-				sed -i "s/# ${locale} UTF-8/${locale} UTF-8/" /etc/locale.gen
-				;;
-		esac
-	done
-	locale-gen
-
-	default_environment_locale=$(echo ${locales_list} | awk '{ print $NF }')
-	say "Configuring default locale: ${default_environment_locale}"
-	update-locale "LANG=${default_environment_locale}"
-
 	say 'Configuring console-setup'
 	CHARMAP="UTF-8"
 	CODESET="guess"
