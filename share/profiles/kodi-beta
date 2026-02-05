@@ -14,7 +14,6 @@ packages = """
 """
 
 flatpaks = """
-	org.freedesktop.Platform.VAAPI.Intel/x86_64/24.08
 """
 
 flatpaks_beta = """
