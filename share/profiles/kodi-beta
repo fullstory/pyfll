@@ -11,6 +11,7 @@ modules = """
 """
 
 packages = """
+	sddm
 """
 
 flatpaks = """
