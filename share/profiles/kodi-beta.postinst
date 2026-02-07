@@ -52,6 +52,7 @@ StandardOutput=journal
 [Install]
 Alias=display-manager.service
 EOF
+	rm -fv /etc/systemd/system/display-manager.service
 	systemctl enable kodi-flatpak.service
 }
 
