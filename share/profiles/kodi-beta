@@ -14,6 +14,7 @@ packages = """
 """
 
 flatpaks = """
+	org.freedesktop.Platform.VAAPI.Intel/x86_64/25.08
 """
 
 flatpaks_beta = """
@@ -21,7 +22,10 @@ flatpaks_beta = """
 """
 
 desktops = """
+	kodi-flatpak
 """
 
 groups = """
+	input
+	render
 """
