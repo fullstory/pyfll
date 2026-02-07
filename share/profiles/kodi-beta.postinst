@@ -10,7 +10,6 @@ do_postinst() {
 	say "Creating /etc/sysusers.d/kodi-flatpak.conf"
 	cat >/etc/sysusers.d/kodi-flatpak.conf <<EOF
 # Type Name ID GECOS Home directory Shell
-g kodi - -
 u kodi - "Kodi User" /var/lib/kodi
 
 # supplemental groups
