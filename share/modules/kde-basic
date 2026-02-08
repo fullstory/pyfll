@@ -6,13 +6,13 @@ packages = """
 	gwenview
 	haruna
 		yt-dlp
-	k3b
 	kate
 	kde-spectacle
 	kcalc
 	kdeconnect
 	kmenuedit
 	okular
+	plasma-browser-integration
 	plasma-firewall
 	print-manager
 """

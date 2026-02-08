@@ -6,6 +6,7 @@ packages = """
 	akregator
 	bluedevil
 	digikam
+	k3b
 	kcharselect
 	kdeadmin
 	kde-config-plymouth
