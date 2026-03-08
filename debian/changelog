@@ -363,6 +363,7 @@ pyfll (2025.01) UNRELEASED; urgency=low
     Install Qt apps in Hyprland profile.
   * distro-lxqt: patch panel.conf in postinst script to avoid conflict
     with lxqt-panel >= 2.3.2-1.
+  * memtest: handle x64+ia32 variants and allow in efi environment.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
 
