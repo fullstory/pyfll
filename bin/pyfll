@@ -93,6 +93,8 @@ class FllLocales(object):
             for loc_pkg in list(locale_map.keys()):
                 if pkg.name == loc_pkg:
                     loc_pkg_prefix_list = locale_map.get(loc_pkg)
+                    if not loc_pkg_prefix_list:
+                        break
                     for loc_pkg_prefix in loc_pkg_prefix_list:
                         self.loc_pkgs_set.add(loc_pkg_prefix)
                     break
@@ -198,8 +200,8 @@ class FLLBuilder(object):
     def __init__(self, options):
         """Accept options dict, setup logging."""
         self.opts = options
-        self.conf = None
-        self.temp = None
+        self.conf = dict()
+        self.temp = str()
         self.chroots = list()
         self.profiles = dict()
 
@@ -211,7 +213,7 @@ class FLLBuilder(object):
         self.xorriso_uuid = self.date.strftime("%Y-%m-%d-%H-%M-%S-00")
         self.persist_uuid = uuidgen()
         self.timestamp = self.date.strftime("%Y%m%d%H%M")
-        self.live_media = None
+        self.live_media = str()
 
     def prep_dir(self, dirname: str) -> str:
         """Set up working directories."""
@@ -271,9 +273,9 @@ class FLLBuilder(object):
             self.opts.output_dir = self.opts.build
 
         if self.opts.debug:
-            self.init_logger(logging.DEBUG)
+            self.init_logger("DEBUG")
         else:
-            self.init_logger(logging.INFO)
+            self.init_logger("INFO")
 
     def get_distro_imagefile(self, chroot: str) -> str:
         """Return image file that compressed chroot will be archived to."""
@@ -340,9 +342,9 @@ class FLLBuilder(object):
         self.conf.write()
         os.chown(self.conf.filename, self.opts.uid, self.opts.gid)
 
-    def expand_pkg_profile(self, chroot: str, profile: str, modules_dir: str) -> dict:
-        """Return a dict, chroot string as key and package, debconf and postinst
-        lists."""
+    def expand_pkg_profile(self, chroot: str, profile: str, modules_dir: str) -> tuple:
+        """Return a tuple of package, debconf, flatpaks, desktops, groups and postinst
+        lists for a given chroot and profile."""
         debconf = set()
         packages = set()
         for package in self.conf["chroots"][chroot]["packages"].get("packages"):
@@ -575,7 +577,7 @@ class FLLBuilder(object):
 
         return chroot_profile
 
-    def configure_locales(self, chroot: str) -> list:
+    def configure_locales(self, chroot: str) -> None:
         """Generate locales."""
         chroot_dir = os.path.join(self.temp, chroot)
         locales_list = (
@@ -987,17 +989,15 @@ class FLLBuilder(object):
         """Write a file in a chroot. Templates for common files included
         below."""
         chroot_dir = os.path.join(self.temp, chroot)
-
-        f = None
-        fn = None
         mode = 0o644
+        change_mode = True
+        filename = os.path.join(chroot_dir, filename.lstrip("/"))
+        if os.path.isfile(filename):
+            change_mode = False
+        if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename), 0o755, exist_ok=True)
+        filehandle = open(filename, "w")
         try:
-            fn = os.path.join(chroot_dir, filename.lstrip("/"))
-            if os.path.isfile(fn):
-                mode = None
-            if not os.path.exists(os.path.dirname(fn)):
-                os.makedirs(os.path.dirname(fn), 0o755, exist_ok=True)
-            f = open(fn, "w")
             self.log.debug(f"writing file: {filename}")
             if filename == "/etc/default/distro":
                 distro_defaults = self.conf["distro"].keys()
@@ -1007,54 +1007,54 @@ class FLLBuilder(object):
                         continue
                     elif key == "FLL_IMAGE_FILE":
                         image_file = self.get_distro_imagefile(chroot)
-                        f.write('%s="%s"\n' % (key, image_file))
-                        f.write(
+                        filehandle.write('%s="%s"\n' % (key, image_file))
+                        filehandle.write(
                             '%s="$%s/$%s"\n'
                             % ("FLL_IMAGE_LOCATION", "FLL_IMAGE_DIR", "FLL_IMAGE_FILE")
                         )
                     elif key == "FLL_LIVE_USER_GROUPS":
-                        f.write(
+                        filehandle.write(
                             '%s="%s"\n'
                             % (key, " ".join(sorted(self.profiles[chroot]["groups"])))
                         )
                     else:
-                        f.write('%s="%s"\n' % (key, self.conf["distro"][key]))
+                        filehandle.write('%s="%s"\n' % (key, self.conf["distro"][key]))
             elif filename == "/etc/fstab":
-                f.write("# /etc/fstab: static file system information\n")
+                filehandle.write("# /etc/fstab: static file system information\n")
             elif filename == "/etc/hostname":
                 hostname = self.conf["distro"]["FLL_DISTRO_NAME"]
-                f.write(hostname + "\n")
+                filehandle.write(hostname + "\n")
             elif filename == "/etc/hosts":
                 hostname = self.conf["distro"]["FLL_DISTRO_NAME"]
-                f.write("127.0.0.1\tlocalhost\n")
-                f.write("127.0.0.1\t" + hostname + "\n\n")
-                f.write("# Below lines are for IPv6 capable hosts\n")
-                f.write("::1     ip6-localhost ip6-loopback\n")
-                f.write("fe00::0 ip6-localnet\n")
-                f.write("ff00::0 ip6-mcastprefix\n")
-                f.write("ff02::1 ip6-allnodes\n")
-                f.write("ff02::2 ip6-allrouters\n")
-                f.write("ff02::3 ip6-allhosts\n")
+                filehandle.write("127.0.0.1\tlocalhost\n")
+                filehandle.write("127.0.0.1\t" + hostname + "\n\n")
+                filehandle.write("# Below lines are for IPv6 capable hosts\n")
+                filehandle.write("::1     ip6-localhost ip6-loopback\n")
+                filehandle.write("fe00::0 ip6-localnet\n")
+                filehandle.write("ff00::0 ip6-mcastprefix\n")
+                filehandle.write("ff02::1 ip6-allnodes\n")
+                filehandle.write("ff02::2 ip6-allrouters\n")
+                filehandle.write("ff02::3 ip6-allhosts\n")
             elif filename == "/usr/sbin/policy-rc.d":
-                f.write("#!/bin/sh\n")
-                f.write('echo "$0 denied action: $1 $2" >&2\n')
-                f.write("exit 101\n")
+                filehandle.write("#!/bin/sh\n")
+                filehandle.write('echo "$0 denied action: $1 $2" >&2\n')
+                filehandle.write("exit 101\n")
             elif filename == "/tmp/iso_uuid":
-                f.write(self.xorriso_uuid)
+                filehandle.write(self.xorriso_uuid)
                 self.conf["distro"]["FLL_ISO_UUID"] = self.xorriso_uuid
             elif filename == "/etc/plymouth/plymouthd.conf":
                 boot_theme = self.conf["options"].get("boot_theme", "bgrt")
                 self.log.debug(f"{chroot} - setting {boot_theme} plymouth theme")
-                f.write("[Daemon]\n")
-                f.write(f"Theme={boot_theme}\n")
+                filehandle.write("[Daemon]\n")
+                filehandle.write(f"Theme={boot_theme}\n")
         except IOError:
             self.log.exception(f"failed to open file for writing: {filename}")
             raise FllError
         finally:
-            if f:
-                f.close()
-                if mode:
-                    os.chmod(fn, mode)
+            if filehandle:
+                filehandle.close()
+                if change_mode:
+                    os.chmod(filename, mode)
 
     def write_default_conffiles(self, chroot: str) -> None:
         """Initial creation of conffiles required in chroot."""
@@ -1221,7 +1221,7 @@ class FLLBuilder(object):
         self.log.debug(f"locales_list: {' '.join(locales_list)}")
         return locales_list
 
-    def detect_recommended_packages(self, wanted: list, cache: apt_pkg.Cache) -> list:
+    def detect_recommended_packages(self, wanted: dict, cache: apt_pkg.Cache) -> list:
         """Provide automated detection for packages in recommends whitelist."""
         apt_recommends = self.conf["options"].get("apt_recommends")
         if apt_recommends == "yes":
@@ -2210,7 +2210,7 @@ if __name__ == "__main__":
         "--locales",
         nargs="+",
         metavar="<locale>",
-        default=[os.environ.get("LANG").split(".")[0]],
+        default=[os.environ.get("LANG", "en_US").split(".")[0]],
         help="Fallback locales to use in all chroots. "
         + "Vaules in config file override. Default: %(default)s",
     )
