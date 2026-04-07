@@ -1009,11 +1009,11 @@ class FLLBuilder(object):
                             '%s="$%s/$%s"\n'
                             % ("FLL_IMAGE_LOCATION", "FLL_IMAGE_DIR", "FLL_IMAGE_FILE")
                         )
+                        self.conf["distro"][key] = image_file
                     elif key == "FLL_LIVE_USER_GROUPS":
-                        filehandle.write(
-                            '%s="%s"\n'
-                            % (key, " ".join(sorted(self.profiles[chroot]["groups"])))
-                        )
+                        groups = " ".join(sorted(self.profiles[chroot]["groups"]))
+                        filehandle.write('%s="%s"\n' % (key, groups))
+                        self.conf["distro"][key] = groups
                     else:
                         filehandle.write('%s="%s"\n' % (key, self.conf["distro"][key]))
             elif filename == "/etc/fstab":
