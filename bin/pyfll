@@ -1137,30 +1137,19 @@ class FLLBuilder(object):
         chroot_dir = os.path.join(self.temp, chroot)
         debconf_list = self.profiles[chroot].get("debconf")
 
-        if debconf_list:
-            self.log.debug(f"{chroot} - preseeding debconf...")
-            debconf = None
-            try:
-                debconf = open(
-                    os.path.join(chroot_dir, "tmp", "fll_debconf_selections"), "w"
-                )
-                debconf.writelines([f"{d}\n" for d in debconf_list])
-            except IOError:
-                self.log.exception(
-                    "failed to open file for writing: %s"
-                    % "/tmp/fll_debconf_selections"
-                )
-                raise FllError
-            finally:
-                if debconf:
-                    debconf.close()
+        if not debconf_list:
+            return
 
-            cmd = "debconf-set-selections "
-            if self.opts.verbose:
-                cmd += "--verbose "
-            cmd += "/tmp/fll_debconf_selections"
+        self.log.debug(f"{chroot} - preseeding debconf...")
+        debconf_filename = os.path.join(chroot_dir, "tmp", "fll_debconf_selections")
+        with open(debconf_filename, "w") as debconf:
+            debconf.writelines([f"{d}\n" for d in debconf_list])
 
-            self.chroot_exec(chroot, cmd.split())
+        cmd = "debconf-set-selections "
+        if self.opts.verbose:
+            cmd += "--verbose "
+        cmd += "/tmp/fll_debconf_selections"
+        self.chroot_exec(chroot, cmd.split())
 
     def detect_linux_version(self, chroot: str) -> list:
         """Return version string of a singularly installed linux-image."""
