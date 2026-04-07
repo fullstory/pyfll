@@ -985,19 +985,16 @@ class FLLBuilder(object):
             cmd = "dpkg-divert --remove --rename " + divert
             self.chroot_exec(chroot, cmd.split())
 
-    def write_file(self, chroot: str, filename: str) -> None:
-        """Write a file in a chroot. Templates for common files included
-        below."""
+    def write_file(self, chroot: str, filename: str, mode: int = 0o644) -> None:
+        """Write a file in a chroot. Templates defined below."""
+        new_file = True
         chroot_dir = os.path.join(self.temp, chroot)
-        mode = 0o644
-        change_mode = True
         filename = os.path.join(chroot_dir, filename.lstrip("/"))
         if os.path.isfile(filename):
-            change_mode = False
+            new_file = False
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename), 0o755, exist_ok=True)
-        filehandle = open(filename, "w")
-        try:
+        with open(filename, "w") as filehandle:
             self.log.debug(f"writing file: {filename}")
             if filename == "/etc/default/distro":
                 distro_defaults = self.conf["distro"].keys()
@@ -1047,14 +1044,9 @@ class FLLBuilder(object):
                 self.log.debug(f"{chroot} - setting {boot_theme} plymouth theme")
                 filehandle.write("[Daemon]\n")
                 filehandle.write(f"Theme={boot_theme}\n")
-        except IOError:
-            self.log.exception(f"failed to open file for writing: {filename}")
-            raise FllError
-        finally:
-            if filehandle:
-                filehandle.close()
-                if change_mode:
-                    os.chmod(filename, mode)
+
+        if new_file:
+            os.chmod(filename, mode)
 
     def write_default_conffiles(self, chroot: str) -> None:
         """Initial creation of conffiles required in chroot."""
