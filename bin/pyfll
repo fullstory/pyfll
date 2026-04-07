@@ -640,9 +640,9 @@ class FLLBuilder(object):
         umount_list = []
         try:
             for line in open("/proc/mounts"):
-                (dev, mnt, fs, options, d, p) = line.split()
-                if mnt.startswith(chroot_dir):
-                    umount_list.append(mnt)
+                (dev, mntpnt, fs, options, d, p) = line.split()
+                if mntpnt.startswith(chroot_dir):
+                    umount_list.append(mntpnt)
         except IOError:
             self.log.exception("failed to open /proc/mounts")
             raise FllError
@@ -650,8 +650,8 @@ class FLLBuilder(object):
         umount_list.sort(key=len)
         umount_list.reverse()
 
-        for mpoint in umount_list:
-            self.exec_cmd(["umount", mpoint])
+        for mntpnt in umount_list:
+            self.exec_cmd(["umount", mntpnt])
 
     def nuke_directory(self, dirname: str) -> None:
         """Nuke directory tree."""
