@@ -1712,27 +1712,10 @@ class FLLBuilder(object):
                 os.path.join(self.temp, "staging", "efi.img")
             ):
                 try:
-                    cmd = [
-                        "mformat",
-                        "-C",
-                        "-f",
-                        "2880",
-                        "-L",
-                        "16",
-                        "-i",
-                        "/tmp/efi.img",
-                        "::",
-                    ]
-                    self.chroot_exec(chroot, cmd)
-                    cmd = [
-                        "mcopy",
-                        "-s",
-                        "-i",
-                        "/tmp/efi.img",
-                        "/tmp/efi_img/efi",
-                        "::/",
-                    ]
-                    self.chroot_exec(chroot, cmd)
+                    cmd = "mformat -C -f 2880 -L 16 -i /tmp/efi.img ::"
+                    self.chroot_exec(chroot, shlex.split(cmd))
+                    cmd = "mcopy -s -i /tmp/efi.img /tmp/efi_img/efi ::/"
+                    self.chroot_exec(chroot, shlex.split(cmd))
                     shutil.copy(
                         os.path.join(chroot_dir, "tmp/efi.img"),
                         os.path.join(self.temp, "staging"),
