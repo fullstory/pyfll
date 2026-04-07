@@ -629,8 +629,8 @@ class FLLBuilder(object):
         chroot_dir = os.path.join(self.temp, chroot)
         virtfs = {"devpts": "dev/pts", "proc": "proc"}
 
-        for v in list(virtfs.items()):
-            cmd = ["mount", "-t", v[0], "fll-" + v[0], os.path.join(chroot_dir, v[1])]
+        for fs, mntpnt in list(virtfs.items()):
+            cmd = ["mount", "-t", fs, f"fll-{fs}", os.path.join(chroot_dir, mntpnt)]
 
             self.exec_cmd(cmd)
 
