@@ -1063,20 +1063,12 @@ class FLLBuilder(object):
         chroot_dir = os.path.join(self.temp, chroot)
 
         distro_version = "%s-version" % self.conf["distro"]["FLL_DISTRO_NAME"].lower()
-        distro_version = os.path.join(chroot_dir, "etc", distro_version)
+        distro_version_filename = os.path.join(chroot_dir, "etc", distro_version)
 
         self.log.debug(f"stamping distro version: {distro_version}")
-        f = None
-        try:
-            f = open(distro_version, "w")
-            f.write(self.get_distro_stamp(chroot))
-        except IOError:
-            self.log.exception(f"failed to open file for writing: {distro_version}")
-            raise FllError
-        finally:
-            if f:
-                f.close()
-                os.chmod(distro_version, 0o444)
+        with open(distro_version_filename, "w") as distro_version_filehandle:
+            distro_version_filehandle.write(self.get_distro_stamp(chroot))
+        os.chmod(distro_version_filename, 0o444)
 
         self.write_file(chroot, "/etc/hosts")
         self.write_file(chroot, "/etc/motd.tail")
@@ -1099,8 +1091,8 @@ class FLLBuilder(object):
                 )
                 with open(
                     os.path.join(chroot_dir, "etc/systemd/resolved.conf"), "a"
-                ) as f:
-                    f.write("DNS=\n")
+                ) as resolvedconf:
+                    resolvedconf.write("DNS=\n")
             except IOError:
                 self.log.exception("failed to setup resolv.conf and resolved.conf")
                 raise FllError
