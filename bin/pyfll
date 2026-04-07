@@ -989,12 +989,12 @@ class FLLBuilder(object):
         """Write a file in a chroot. Templates defined below."""
         new_file = True
         chroot_dir = os.path.join(self.temp, chroot)
-        filename = os.path.join(chroot_dir, filename.lstrip("/"))
-        if os.path.isfile(filename):
+        chroot_filename = os.path.join(chroot_dir, filename.lstrip("/"))
+        if os.path.isfile(chroot_filename):
             new_file = False
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename), 0o755, exist_ok=True)
-        with open(filename, "w") as filehandle:
+        if not os.path.exists(os.path.dirname(chroot_filename)):
+            os.makedirs(os.path.dirname(chroot_filename), 0o755, exist_ok=True)
+        with open(chroot_filename, "w") as filehandle:
             self.log.debug(f"writing file: {filename}")
             if filename == "/etc/default/distro":
                 distro_defaults = self.conf["distro"].keys()
@@ -1046,7 +1046,7 @@ class FLLBuilder(object):
                 filehandle.write(f"Theme={boot_theme}\n")
 
         if new_file:
-            os.chmod(filename, mode)
+            os.chmod(chroot_filename, mode)
 
     def write_default_conffiles(self, chroot: str) -> None:
         """Initial creation of conffiles required in chroot."""
