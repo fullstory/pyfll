@@ -1483,10 +1483,9 @@ class FLLBuilder(object):
         self.log.debug(f"{chroot} - purging unwanted content...")
         chroot_dir = os.path.join(self.temp, chroot)
 
-        cmd = "dpkg --purge fll-live-initramfs"
-        self.chroot_exec(chroot, shlex.split(cmd))
-        self.chroot_exec(chroot, "apt-get clean".split())
-        self.chroot_exec(chroot, "dpkg --clear-avail".split())
+        self.chroot_exec(chroot, shlex.split("dpkg --purge fll-live-initramfs"))
+        self.chroot_exec(chroot, shlex.split("apt-get clean"))
+        self.chroot_exec(chroot, shlex.split("dpkg --clear-avail"))
 
         for dirpath, dirnames, files in os.walk(os.path.join(chroot_dir, "var/log")):
             self.zero_logs(chroot, dirpath, files)
