@@ -968,7 +968,7 @@ class FLLBuilder(object):
             self.log.debug(f"diverting {divert}")
             cmd = "dpkg-divert --add --local --divert " + divert + ".REAL --rename "
             cmd += divert
-            self.chroot_exec(chroot, cmd.split())
+            self.chroot_exec(chroot, shlex.split(cmd))
 
             if divert == "/usr/sbin/policy-rc.d":
                 self.write_file(chroot_dir, divert)
@@ -983,7 +983,7 @@ class FLLBuilder(object):
             self.log.debug(f"undoing diversion: {divert}")
             os.unlink(os.path.join(chroot_dir, divert.lstrip("/")))
             cmd = "dpkg-divert --remove --rename " + divert
-            self.chroot_exec(chroot, cmd.split())
+            self.chroot_exec(chroot, shlex.split(cmd))
 
     def write_file(self, chroot: str, filename: str, mode: int = 0o644) -> None:
         """Write a file in a chroot. Templates defined below."""
@@ -1149,7 +1149,7 @@ class FLLBuilder(object):
         if self.opts.verbose:
             cmd += "--verbose "
         cmd += "/tmp/fll_debconf_selections"
-        self.chroot_exec(chroot, cmd.split())
+        self.chroot_exec(chroot, shlex.split(cmd))
 
     def detect_linux_version(self, chroot: str) -> list:
         """Return version string of a singularly installed linux-image."""
@@ -1466,7 +1466,7 @@ class FLLBuilder(object):
                 raise FllError
 
             cmd = f"/tmp/{sname} postinst"
-            self.chroot_exec(chroot, cmd.split())
+            self.chroot_exec(chroot, shlex.split(cmd))
             os.unlink(os.path.join(chroot_dir, "tmp", sname))
 
     def zero_logs(self, chroot: str, dirname: str, filenames: list) -> None:
@@ -1484,7 +1484,7 @@ class FLLBuilder(object):
         chroot_dir = os.path.join(self.temp, chroot)
 
         cmd = "dpkg --purge fll-live-initramfs"
-        self.chroot_exec(chroot, cmd.split())
+        self.chroot_exec(chroot, shlex.split(cmd))
         self.chroot_exec(chroot, "apt-get clean".split())
         self.chroot_exec(chroot, "dpkg --clear-avail".split())
 
@@ -1960,10 +1960,10 @@ class FLLBuilder(object):
         xorriso_cmd += f" -o {iso_file} {stage}"
 
         self.log.info("generating iso image of live media...")
-        self.exec_cmd(xorriso_cmd.split())
+        self.exec_cmd(shlex.split(xorriso_cmd))
 
         self.log.info("converting to hybrid iso...")
-        self.exec_cmd(gpthybrid_cmd.split())
+        self.exec_cmd(shlex.split(gpthybrid_cmd))
 
         os.chown(iso_file, self.opts.uid, self.opts.gid)
         self.live_media = iso_file
