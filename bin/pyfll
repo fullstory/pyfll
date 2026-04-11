@@ -354,7 +354,7 @@ class FLLBuilder(object):
         postinst = set()
         arch = self.conf["chroots"][chroot]["packages"]["arch"]
         linux = self.conf["chroots"][chroot]["packages"]["linux"]
-        browsers = self.conf["chroots"][chroot]["packages"].get("browser")
+        browsers = self.conf["chroots"][chroot]["packages"]["browser"]
         for browser in browsers:
             packages.add(browser)
 
@@ -364,17 +364,15 @@ class FLLBuilder(object):
         elif ro_fs == "erofs":
             packages.add("erofs-utils")
 
-        initramfs_tool = self.conf["options"].get("initramfs_tool")
+        initramfs_tool = self.conf["options"]["initramfs_tool"]
         packages.add(initramfs_tool)
 
         linux_meta = ["linux-image", "linux-headers"]
         packages.update(["-".join([prefix, linux]) for prefix in linux_meta])
 
-        flatpaks = set(
-            self.conf["chroots"][chroot]["flatpak"]["flathub"].get("flatpaks")
-        )
+        flatpaks = set(self.conf["chroots"][chroot]["flatpak"]["flathub"]["flatpaks"])
         flatpaks_beta = set(
-            self.conf["chroots"][chroot]["flatpak"]["flathub-beta"].get("flatpaks")
+            self.conf["chroots"][chroot]["flatpak"]["flathub-beta"]["flatpaks"]
         )
 
         fll_profile_spec = os.path.join(self.opts.share, "fll.profile.spec")
