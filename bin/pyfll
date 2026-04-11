@@ -510,7 +510,7 @@ class FLLBuilder(object):
 
             self.log.debug("---")
 
-        if len(flatpaks) > 0 or len(flatpaks_beta) > 0:
+        if any([flatpaks, flatpaks_beta]):
             packages.add("flatpak")
 
         return debconf, packages, flatpaks, flatpaks_beta, desktops, groups, postinst
