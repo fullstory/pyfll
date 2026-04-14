@@ -36,5 +36,4 @@ groups = """
 	bluetooth
 	lpadmin
 	kvm
-	sudo
 """
