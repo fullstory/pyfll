@@ -89,32 +89,20 @@ EOF
 	fi
 
 	. /etc/default/distro
-	unset GROUPS
-	for g in ${FLL_LIVE_USER_GROUPS}; do
-		if getent group ${g} >/dev/null; then
-			[ -z "${GROUPS}" ] && GROUPS="${g}" || GROUPS="${GROUPS} ${g}"
-		else
-			say "Dropping group from FLL_LIVE_USER_GROUPS: ${g}"
-			if [ -w /etc/calamares/modules/users.conf ]; then
-				say "Removing ${g} from /etc/calamares/modules/users.conf"
-				# calamares-settings-aptosid >= 20250803.1
-				g_line=$(grep -n "\- name: ${g}" /etc/calamares/modules/users.conf)
-				g_line=${g_line%%:*}
-				if [ "${g_line:-0}" -gt 0 ]; then
-					sed -i "$g_line,$((g_line+2))d" /etc/calamares/modules/users.conf
-				else
-					sed -i "/- ${g}/d" /etc/calamares/modules/users.conf
-				fi
-			fi
-		fi
+	for group in ${FLL_LIVE_USER_GROUPS}; do
+		getent group ${group} >/dev/null || continue
+		[ -w /etc/calamares/modules/users.conf ] || continue
+		say "Inserting system group '${group}' into calamares users.conf"
+		sed -i '/# FLL_DEFAULT_GROUPS/i\
+    - name: '${group}'\
+      must_exist: false\
+      system: true' /etc/calamares/modules/users.conf
 	done
 
 	if [ -w /etc/adduser.conf ]; then
 		say 'Preseeding /etc/adduser.conf'
 		sed -i 's/^DIR_MODE=.*/DIR_MODE=0700/' /etc/adduser.conf
-		sed -i "s#^FLL_LIVE_USER_GROUPS=.*#FLL_LIVE_USER_GROUPS=\"${GROUPS}\"#" \
-			/etc/default/distro
-		sed -i -e 's/^#\?\(EXTRA_GROUPS=\).*/\1"'"${GROUPS# }"'"/' \
+		sed -i -e 's/^#\?\(EXTRA_GROUPS=\).*/\1"'"${FLL_LIVE_USER_GROUPS# }"'"/' \
 			-e 's/^#\?\(ADD_EXTRA_GROUPS=\).*/\11/' \
 			/etc/adduser.conf
 	fi
