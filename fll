@@ -35,7 +35,7 @@ if [ "${ROOTEXEC}" = yes ]; then
 		exec sudo /usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}
 	else
 		ROOT_CMD="/usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
-		exec su root --command "${ROOT_CMD}"
+		exec su --command "${ROOT_CMD}" root
 	fi
 else
 	exec /usr/bin/python3 ${FLL} ${@}
