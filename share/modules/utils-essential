@@ -3,12 +3,10 @@ desc = """
 """
 
 packages = """
-	anacron
 	btrfs-progs
 		btrfsmaintenance
 	cdebootstrap
 	console-data
-	cron
 	debsums
 	dosfstools
 	e2fsprogs
@@ -26,6 +24,7 @@ packages = """
 	plymouth
 		plymouth-themes
 	rsync
+	systemd-cron
 	wget
 	wpasupplicant
 	xfsprogs
