@@ -13,6 +13,7 @@ packages = """
 	libgl1-mesa-dri
 	mesa-utils
 	mesa-vulkan-drivers
+	vainfo
 	xauth
 	xfonts-base
 	xfonts-75dpi
