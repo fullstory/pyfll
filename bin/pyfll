@@ -20,6 +20,7 @@ import sys
 import tempfile
 import time
 import uuid
+from dataclasses import dataclass, field
 from io import open
 
 import apt
@@ -172,6 +173,43 @@ class FllError(Exception):
     """A generic error handler that does nothing."""
 
     pass
+
+
+@dataclass
+class PkgProfile:
+    """
+    Holds the package-related data collected from a single profile file and
+    all modules it references.
+
+    Attributes:
+        debconf       - debconf pre-seed lines loaded pre-installation
+        packages      - Debian package names
+        flatpaks      - flatpak app IDs from flathub
+        flatpaks_beta - flatpak app IDs from flathub-beta
+        desktops      - X11/wayland session .desktop file names
+        groups        - groups to add live user into
+        postinst      - paths to postinst scripts to run post-installation
+        manifest      - package manifest data
+    """
+
+    debconf: set = field(default_factory=set)
+    packages: set = field(default_factory=set)
+    flatpaks: set = field(default_factory=set)
+    flatpaks_beta: set = field(default_factory=set)
+    desktops: set = field(default_factory=set)
+    groups: set = field(default_factory=set)
+    postinst: set = field(default_factory=set)
+    manifest: dict = field(default_factory=dict)
+
+    def merge(self, other):
+        """Add all items from another PkgProfile into this one."""
+        self.debconf.update(other.debconf)
+        self.packages.update(other.packages)
+        self.flatpaks.update(other.flatpaks)
+        self.flatpaks_beta.update(other.flatpaks_beta)
+        self.desktops.update(other.desktops)
+        self.groups.update(other.groups)
+        self.postinst.update(other.postinst)
 
 
 class FLLBuilder(object):
@@ -342,36 +380,37 @@ class FLLBuilder(object):
         self.conf.write()
         os.chown(self.conf.filename, self.opts.uid, self.opts.gid)
 
-    def expand_pkg_profile(self, chroot: str, profile: str, modules_dir: str) -> tuple:
-        """Return a tuple of package, debconf, flatpaks, desktops, groups and postinst
-        lists for a given chroot and profile."""
-        debconf = set()
-        packages = set()
+    def expand_pkg_profile(
+        self, chroot: str, profile: str, modules_dir: str
+    ) -> PkgProfile:
+        """Return a PkgProfile for a given chroot and profile."""
+        pkg_profile = PkgProfile()
         for package in self.conf["chroots"][chroot]["packages"].get("packages"):
-            packages.add(package)
-        desktops = set()
-        groups = set()
-        postinst = set()
+            pkg_profile.packages.add(package)
         arch = self.conf["chroots"][chroot]["packages"]["arch"]
         linux = self.conf["chroots"][chroot]["packages"]["linux"]
         browsers = self.conf["chroots"][chroot]["packages"]["browser"]
         for browser in browsers:
-            packages.add(browser)
+            pkg_profile.packages.add(browser)
 
         ro_fs = self.conf["options"]["readonly_filesystem"]
         if ro_fs == "squashfs":
-            packages.add("squashfs-tools")
+            pkg_profile.packages.add("squashfs-tools")
         elif ro_fs == "erofs":
-            packages.add("erofs-utils")
+            pkg_profile.packages.add("erofs-utils")
 
         initramfs_tool = self.conf["options"]["initramfs_tool"]
-        packages.add(initramfs_tool)
+        pkg_profile.packages.add(initramfs_tool)
 
         linux_meta = ["linux-image", "linux-headers"]
-        packages.update(["-".join([prefix, linux]) for prefix in linux_meta])
+        pkg_profile.packages.update(
+            ["-".join([prefix, linux]) for prefix in linux_meta]
+        )
 
-        flatpaks = set(self.conf["chroots"][chroot]["flatpak"]["flathub"]["flatpaks"])
-        flatpaks_beta = set(
+        pkg_profile.flatpaks = set(
+            self.conf["chroots"][chroot]["flatpak"]["flathub"]["flatpaks"]
+        )
+        pkg_profile.flatpaks_beta = set(
             self.conf["chroots"][chroot]["flatpak"]["flathub-beta"]["flatpaks"]
         )
 
@@ -386,44 +425,44 @@ class FLLBuilder(object):
         if "debconf" in profile_conf:
             self.log.debug("debconf:")
             for line in multiline_to_list(profile_conf["debconf"]):
-                debconf.add(line)
+                pkg_profile.debconf.add(line)
                 self.log.debug(f"  {line}")
 
         if "packages" in profile_conf:
             self.log.debug("packages:")
             for line in multiline_to_list(profile_conf["packages"]):
-                packages.add(line)
+                pkg_profile.packages.add(line)
                 self.log.debug(f"  {line}")
 
         packages_arch = f"packages_{arch}"
         if packages_arch in profile_conf:
             self.log.debug(f"packages_{arch}:")
             for line in multiline_to_list(profile_conf[packages_arch]):
-                packages.add(line)
+                pkg_profile.packages.add(line)
                 self.log.debug(f"  {line}")
 
         if "flatpaks" in profile_conf:
             self.log.debug("flatpaks:")
             for line in multiline_to_list(profile_conf["flatpaks"]):
-                flatpaks.add(line)
+                pkg_profile.flatpaks.add(line)
                 self.log.debug(f"  {line}")
 
         if "flatpaks_beta" in profile_conf:
             self.log.debug("flatpaks_beta:")
             for line in multiline_to_list(profile_conf["flatpaks_beta"]):
-                flatpaks_beta.add(line)
+                pkg_profile.flatpaks_beta.add(line)
                 self.log.debug(f"  {line}")
 
         if "desktops" in profile_conf:
             self.log.debug("desktops:")
             for line in multiline_to_list(profile_conf["desktops"]):
-                desktops.add(line)
+                pkg_profile.desktops.add(line)
                 self.log.debug(f"  {line}")
 
         if "groups" in profile_conf:
             self.log.debug("groups:")
             for line in multiline_to_list(profile_conf["groups"]):
-                groups.add(line)
+                pkg_profile.groups.add(line)
                 self.log.debug(f"  {line}")
 
         modules = set()
@@ -441,7 +480,7 @@ class FLLBuilder(object):
 
         if os.path.isfile(profile + ".postinst"):
             self.log.debug(f"registering postinst script: {profile}.postinst")
-            postinst.add(profile + ".postinst")
+            pkg_profile.postinst.add(profile + ".postinst")
 
         self.log.debug("---")
         fll_module_spec = os.path.join(self.opts.share, "fll.module.spec")
@@ -462,115 +501,98 @@ class FLLBuilder(object):
             if "debconf" in module_conf:
                 self.log.debug("debconf:")
                 for line in multiline_to_list(module_conf["debconf"]):
-                    debconf.add(line)
+                    pkg_profile.debconf.add(line)
                     self.log.debug(f"  {line}")
 
             if "packages" in module_conf:
                 self.log.debug("packages:")
                 for line in multiline_to_list(module_conf["packages"]):
-                    packages.add(line)
+                    pkg_profile.packages.add(line)
                     self.log.debug(f"  {line}")
 
             packages_arch = f"packages_{arch}"
             if packages_arch in module_conf:
                 self.log.debug(f"packages_{arch}:")
                 for line in multiline_to_list(module_conf[packages_arch]):
-                    packages.add(line)
+                    pkg_profile.packages.add(line)
                     self.log.debug(f"  {line}")
 
             if "flatpaks" in module_conf:
                 self.log.debug("flatpaks:")
                 for line in multiline_to_list(module_conf["flatpaks"]):
-                    flatpaks.add(line)
+                    pkg_profile.flatpaks.add(line)
                     self.log.debug(f"  {line}")
 
             if "flatpaks_beta" in module_conf:
                 self.log.debug("flatpaks_beta:")
                 for line in multiline_to_list(module_conf["flatpaks_beta"]):
-                    flatpaks_beta.add(line)
+                    pkg_profile.flatpaks_beta.add(line)
                     self.log.debug(f"  {line}")
 
             if "desktops" in module_conf:
                 self.log.debug("desktops:")
                 for line in multiline_to_list(module_conf["desktops"]):
-                    desktops.add(line)
+                    pkg_profile.desktops.add(line)
                     self.log.debug(f"  {line}")
 
             if "groups" in module_conf:
                 self.log.debug("groups:")
                 for line in multiline_to_list(module_conf["groups"]):
-                    groups.add(line)
+                    pkg_profile.groups.add(line)
                     self.log.debug(f"  {line}")
 
             if os.path.isfile(module_file + ".postinst"):
                 self.log.debug(f"registering postinst script: {module_file}.postinst")
-                postinst.add(module_file + ".postinst")
+                pkg_profile.postinst.add(module_file + ".postinst")
 
             self.log.debug("---")
 
-        if any([flatpaks, flatpaks_beta]):
-            packages.add("flatpak")
+        if any([pkg_profile.flatpaks, pkg_profile.flatpaks_beta]):
+            pkg_profile.packages.add("flatpak")
 
-        return debconf, packages, flatpaks, flatpaks_beta, desktops, groups, postinst
+        return pkg_profile
 
-    def parse_package_profile(self, chroot: str) -> dict:
+    def parse_package_profile(self, chroot: str) -> PkgProfile:
         """Parse packages profile for each chroot."""
         profiles = self.conf["chroots"][chroot]["packages"]["profile"]
         profile_dir = os.path.join(self.opts.share, "profiles")
         modules_dir = os.path.join(self.opts.share, "modules")
 
-        chroot_profile = {
-            "debconf": set(),
-            "packages": set(),
-            "flatpaks": set(),
-            "flatpaks_beta": set(),
-            "desktops": set(),
-            "groups": set(),
-            "postinst": set(),
-        }
+        chroot_profile = PkgProfile()
         for profile in profiles:
             self.log.info(f"{chroot} - processing package profile: {profile}")
             profile = os.path.join(profile_dir, profile)
             if not os.path.isfile(profile):
                 self.log.critical(f"no such package profile: {profile}")
                 raise FllError
-            debconf, packages, flatpaks, flatpaks_beta, desktops, groups, postinst = (
-                self.expand_pkg_profile(chroot, profile, modules_dir)
-            )
-            chroot_profile["debconf"].update(debconf)
-            chroot_profile["packages"].update(packages)
-            chroot_profile["flatpaks"].update(flatpaks)
-            chroot_profile["flatpaks_beta"].update(flatpaks_beta)
-            chroot_profile["desktops"].update(desktops)
-            chroot_profile["groups"].update(groups)
-            chroot_profile["postinst"].update(postinst)
+            chroot_profile.merge(self.expand_pkg_profile(chroot, profile, modules_dir))
 
         self.log.debug(f"debconf summary for {chroot}:")
-        for item in sorted(chroot_profile["debconf"]):
+        for item in sorted(chroot_profile.debconf):
             self.log.debug(f"  {item}")
 
         self.log.debug(f"desktops summary for {chroot}:")
-        for item in sorted(chroot_profile["desktops"]):
+        for item in sorted(chroot_profile.desktops):
             self.log.debug(f"  {item}")
 
         self.log.debug(f"package summary for {chroot}:")
-        for item in sorted(chroot_profile["packages"]):
+        for item in sorted(chroot_profile.packages):
             self.log.debug(f"  {item}")
 
         self.log.debug(f"flatpaks summary for {chroot}:")
-        for item in sorted(chroot_profile["flatpaks"]):
+        for item in sorted(chroot_profile.flatpaks):
             self.log.debug(f"  {item}")
 
         self.log.debug(f"flatpaks_beta summary for {chroot}:")
-        for item in sorted(chroot_profile["flatpaks_beta"]):
+        for item in sorted(chroot_profile.flatpaks_beta):
             self.log.debug(f"  {item}")
 
         self.log.debug(f"groups summary for {chroot}:")
-        for item in sorted(chroot_profile["groups"]):
+        for item in sorted(chroot_profile.groups):
             self.log.debug(f"  {item}")
 
         self.log.debug(f"postinst summary for {chroot}:")
-        for item in sorted(chroot_profile["postinst"]):
+        for item in sorted(chroot_profile.postinst):
             self.log.debug(f"  {item}")
 
         return chroot_profile
@@ -1007,7 +1029,7 @@ class FLLBuilder(object):
                             'FLL_IMAGE_LOCATION="$FLL_IMAGE_DIR/$FLL_IMAGE_FILE"\n'
                         )
                     elif key == "FLL_LIVE_USER_GROUPS":
-                        groups = " ".join(sorted(self.profiles[chroot]["groups"]))
+                        groups = " ".join(sorted(self.profiles[chroot].groups))
                         filehandle.write('%s="%s"\n' % (key, groups))
                     else:
                         filehandle.write('%s="%s"\n' % (key, self.conf["distro"][key]))
@@ -1129,7 +1151,7 @@ class FLLBuilder(object):
     def preseed_debconf(self, chroot: str) -> None:
         """Preseed debconf with values read from package lists."""
         chroot_dir = os.path.join(self.temp, chroot)
-        debconf_list = self.profiles[chroot].get("debconf")
+        debconf_list = self.profiles[chroot].debconf
 
         if not debconf_list:
             return
@@ -1151,7 +1173,7 @@ class FLLBuilder(object):
         linux_meta = f"linux-image-{linux}"
         linux_images = [
             f[len("linux-image-") :]
-            for f in self.profiles[chroot]["manifest"]
+            for f in self.profiles[chroot].manifest
             if f.startswith("linux-image-") and not f == linux_meta
         ]
 
@@ -1286,7 +1308,7 @@ class FLLBuilder(object):
             ]
         )
         # Needed to detect installed linux-image
-        self.profiles[chroot]["manifest"] = manifest
+        self.profiles[chroot].manifest = manifest
 
         packages = list(manifest.keys())
         packages.sort(key=len)
@@ -1376,9 +1398,7 @@ class FLLBuilder(object):
             cache = apt_pkg.Cache(apt.progress.base.OpProgress())
 
         pkgs_base = [pkg.name for pkg in cache.packages if pkg.current_ver]
-        pkgs_want = deduplicate_list(
-            pkgs_base + list(self.profiles[chroot]["packages"])
-        )
+        pkgs_want = deduplicate_list(pkgs_base + list(self.profiles[chroot].packages))
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
         rec_pkgs = self.detect_recommended_packages(pkgs_dict, cache)
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + rec_pkgs)
@@ -1404,8 +1424,8 @@ class FLLBuilder(object):
             flatpak_cmd += " --verbose"
         elif self.opts.debug:
             flatpak_cmd += " -vv"
-        flatpaks = self.profiles[chroot].get("flatpaks")
-        if "flatpak" in self.profiles[chroot].get("packages"):
+        flatpaks = self.profiles[chroot].flatpaks
+        if "flatpak" in self.profiles[chroot].packages:
             flathub_remote = "flathub https://flathub.org/repo/flathub.flatpakrepo"
             self.chroot_exec(
                 chroot,
@@ -1421,7 +1441,7 @@ class FLLBuilder(object):
                     ),
                 )
 
-        flatpaks_beta = self.profiles[chroot].get("flatpaks_beta")
+        flatpaks_beta = self.profiles[chroot].flatpaks_beta
         if len(flatpaks_beta) > 0:
             flathub_beta_remote = (
                 "flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo"
@@ -1450,7 +1470,7 @@ class FLLBuilder(object):
         os.unlink(os.path.join(chroot_dir, "etc/resolv.conf"))
         shutil.copy("/etc/resolv.conf", os.path.join(chroot_dir, "etc"))
 
-        for script in self.profiles[chroot]["postinst"]:
+        for script in self.profiles[chroot].postinst:
             sname = os.path.basename(script)
             try:
                 shutil.copy(script, os.path.join(chroot_dir, "tmp"))
@@ -1753,7 +1773,7 @@ class FLLBuilder(object):
                 arch = self.conf["chroots"][chroot]["packages"]["arch"]
                 cmdline = self.config_boot_cmdline(distro, chroot)
                 indent = ""
-                desktops = sorted(self.profiles[chroot].get("desktops"))
+                desktops = sorted(self.profiles[chroot].desktops)
 
                 for filename in [vmlinuz, initrd]:
                     if not os.path.isfile(os.path.join(boot_dir, filename)):
