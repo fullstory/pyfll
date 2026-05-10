@@ -1383,7 +1383,6 @@ class FLLBuilder(object):
         sources_name = self.get_distro_imagefile(chroot) + ".sources"
         sources_file = os.path.join(image_dir, sources_name)
 
-        sources = None
         try:
             with open(sources_file, "w") as sources_fh:
                 sources_fh.writelines([f"{s}\n" for s in sources_list])
