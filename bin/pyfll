@@ -1160,8 +1160,8 @@ class FLLBuilder(object):
 
         self.log.debug(f"{chroot} - preseeding debconf...")
         debconf_filename = os.path.join(chroot_dir, "tmp", "fll_debconf_selections")
-        with open(debconf_filename, "w") as debconf:
-            debconf.writelines([f"{d}\n" for d in debconf_list])
+        with open(debconf_filename, "w") as debconf_fh:
+            debconf_fh.writelines([f"{d}\n" for d in debconf_list])
 
         cmd = "debconf-set-selections "
         if self.opts.verbose:
