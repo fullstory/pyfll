@@ -559,13 +559,15 @@ class FLLBuilder(object):
         modules_dir = os.path.join(self.opts.share, "modules")
 
         chroot_profile = PkgProfile()
-        for profile in profiles:
-            self.log.info(f"{chroot} - processing package profile: {profile}")
-            profile = os.path.join(profile_dir, profile)
-            if not os.path.isfile(profile):
-                self.log.critical(f"no such package profile: {profile}")
+        for profile_name in profiles:
+            self.log.info(f"{chroot} - processing package profile: {profile_name}")
+            profile_path = os.path.join(profile_dir, profile_name)
+            if not os.path.isfile(profile_path):
+                self.log.critical(f"no such package profile: {profile_path}")
                 raise FllError
-            chroot_profile.merge(self.expand_pkg_profile(chroot, profile, modules_dir))
+            chroot_profile.merge(
+                self.expand_pkg_profile(chroot, profile_path, modules_dir)
+            )
 
         self.log.debug(f"debconf summary for {chroot}:")
         for item in sorted(chroot_profile.debconf):
