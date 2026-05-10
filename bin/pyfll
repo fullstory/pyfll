@@ -1986,55 +1986,18 @@ class FLLBuilder(object):
         for f in glob.glob("%s*" % os.path.splitext(iso_file)[0]):
             self.log.info(f)
 
-        if self.opts.write_iso:
-            self.log.info(f"wiping {self.opts.write_iso}...")
-            self.exec_cmd(["wipefs", "--all", "--force", f"{self.opts.write_iso}"])
-
         if self.opts.update_grub:
             self.log.info("updating grub2-fll-fromiso entries...")
             self.exec_cmd(["update-grub"])
 
         if self.opts.write_iso:
-            self.log.info(f"writing iso to {self.opts.write_iso}...")
-            self.exec_cmd(
-                [
-                    "dd",
-                    f"if={iso_file}",
-                    f"of={self.opts.write_iso}",
-                    "bs=1M",
-                    "status=progress",
-                ]
-            )
-            self.log.info("updating GPT alt header location...")
-            self.exec_cmd(["sgdisk", "--move-second-header", f"{self.opts.write_iso}"])
+            fllisodd_cmd = os.path.join(self.opts.bin, "fllisodd")
+            fllisodd_cmd += f" --iso {iso_file} --device {self.opts.write_iso}"
             if self.opts.persist:
-                # 1:Gap1, 2:EFI, 3:Gap2, 4:Chroot(s), 5:Gap3, 6:storage
-                part_num = len(self.chroots) + 5
-                self.log.info(
-                    f"appending partition {part_num} to {self.opts.write_iso}..."
-                )
-                self.exec_cmd(
-                    [
-                        "sgdisk",
-                        "--align-end",
-                        f"--new={part_num}::",
-                        f"--typecode={part_num}:8300",
-                        f"--change-name={part_num}:storage",
-                        f"{self.opts.write_iso}",
-                    ]
-                )
-                if self.opts.verbose:
-                    self.exec_cmd(["sgdisk", "-p", self.opts.write_iso])
-                    self.exec_cmd(["sgdisk", "--verify", self.opts.write_iso])
-                self.exec_cmd(["partprobe", self.opts.write_iso])
-                self.exec_cmd(
-                    [
-                        "mkfs.ext4",
-                        "-U",
-                        f"{self.persist_uuid}",
-                        os.path.realpath(f"{self.opts.write_iso}-part{part_num}"),
-                    ]
-                )
+                fllisodd_cmd += f" --persist --persist-uuid {self.persist_uuid}"
+            if self.opts.verbose:
+                fllisodd_cmd += " --verbose"
+            self.exec_cmd(shlex.split(fllisodd_cmd))
 
     def log_build_stats(self) -> None:
         duration = int(time.perf_counter() - self.time)
@@ -2254,9 +2217,10 @@ if __name__ == "__main__":
         default=None,
         type=str,
         metavar="<device>",
-        help="Write final live media to device with dd. "
+        help="Write final live media to device with dd via fllisodd. "
         + "WARNING: destroys all existing data on target device!!!",
     )
+
     # These options are managed by the fll shell snippet non-interactively
     cli.add_argument(
         "--bin", action="store", type=str, help=argparse.SUPPRESS, default=pyfll_path

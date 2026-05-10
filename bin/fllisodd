@@ -1,0 +1,192 @@
+#!/usr/bin/python3 -tt
+# -*- coding: utf-8 -*-
+
+__author__ = "Kel Modderman"
+__copyright__ = "(C) 2008-2026 Kel Modderman <kelvmod@gmail.com>"
+__license__ = "GPLv2 or any later version"
+__description__ = """
+Write a fll live media ISO image to a block device with dd, and
+optionally create a persistent ext4 storage partition using the
+persist_uuid embedded in the ISO's boot configuration by pyfll.
+"""
+
+import argparse
+import os
+import re
+import shlex
+import subprocess
+import sys
+import tempfile
+
+SGDISK = "/usr/sbin/sgdisk"
+
+
+def run_process(cmd, verbose=False, streaming=False):
+    """
+    Run a subprocess command.
+
+    When streaming=True the process inherits stdout and stderr directly
+    (suitable for dd with status=progress). Otherwise stdout is captured
+    and returned as a list of lines.
+    """
+    if verbose:
+        print(f"# {shlex.join(cmd)}")
+    try:
+        if streaming:
+            subprocess.run(cmd, check=True)
+            return []
+        result = subprocess.run(cmd, capture_output=True, encoding="utf-8", check=True)
+        if verbose and result.stdout:
+            print(result.stdout)
+        return result.stdout.splitlines()
+    except FileNotFoundError as exc:
+        print(f"command not found: {cmd[0]}\n{exc}")
+        raise
+    except subprocess.CalledProcessError as exc:
+        print(f"command failed: {shlex.join(cmd)}\n{exc}")
+        raise
+
+
+def extract_persist_uuid(iso, verbose=False):
+    """
+    Extract the persist_uuid value from boot/grub/kernels.cfg inside
+    the ISO image. The UUID is embedded there by pyfll at build time
+    when the ISO is built with the --persist option.
+
+    Returns the UUID string. Exits with an error if no UUID is found.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        kernels_cfg = os.path.join(tmpdir, "kernels.cfg")
+        run_process(
+            [
+                "osirrox",
+                "-indev",
+                iso,
+                "-extract",
+                "/boot/grub/kernels.cfg",
+                kernels_cfg,
+            ],
+            verbose=verbose,
+        )
+        with open(kernels_cfg) as f:
+            content = f.read()
+
+    match = re.search(r"persist_uuid=(\S+)", content)
+    if not match:
+        sys.exit(
+            "error: persist_uuid not found in boot/grub/kernels.cfg\n"
+            "       Was the ISO built with pyfll --persist?"
+        )
+    return match.group(1)
+
+
+def storage_partition_dev(device, verbose=False):
+    """
+    Return the device path of the storage partition just appended to
+    the device. Reads sgdisk --print in reverse and returns the path
+    for the last entry whose first field is a partition number.
+    """
+    output = run_process([SGDISK, "--print", device], verbose=verbose)
+    for line in reversed(output):
+        fields = line.split()
+        if fields and fields[0].isdigit():
+            return os.path.realpath(f"{device}-part{fields[0]}")
+    sys.exit(f"error: could not determine storage partition on {device}")
+
+
+if __name__ == "__main__":
+    cli = argparse.ArgumentParser(
+        description="Write fll live media ISO to a block device.",
+        epilog=__description__,
+    )
+    cli.add_argument(
+        "-i",
+        "--iso",
+        required=True,
+        metavar="<iso>",
+        help="Path to the fll live media ISO image.",
+    )
+    cli.add_argument(
+        "-d",
+        "--device",
+        required=True,
+        metavar="<device>",
+        help="Target block device. WARNING: destroys all existing data.",
+    )
+    cli.add_argument(
+        "-p",
+        "--persist",
+        action="store_true",
+        default=False,
+        help="Append a persistent ext4 storage partition after writing the ISO.",
+    )
+    cli.add_argument(
+        "-u",
+        "--persist-uuid",
+        default=None,
+        metavar="<uuid>",
+        help="UUID for the persistent storage partition. If not given, "
+        + "extracted from boot/grub/kernels.cfg inside the ISO.",
+    )
+    cli.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="Show commands and extra output.",
+    )
+    args = cli.parse_args()
+
+    if not os.path.isfile(args.iso):
+        sys.exit(f"error: ISO not found: {args.iso}")
+    if not os.path.exists(args.device):
+        sys.exit(f"error: device not found: {args.device}")
+
+    persist_uuid = None
+    if args.persist:
+        if args.persist_uuid:
+            persist_uuid = args.persist_uuid
+        else:
+            print(f"Extracting persist UUID from {args.iso}...")
+            persist_uuid = extract_persist_uuid(args.iso, verbose=args.verbose)
+        print(f"persist_uuid: {persist_uuid}")
+
+    print(f"Wiping {args.device}...")
+    run_process(["wipefs", "--all", "--force", args.device], verbose=args.verbose)
+
+    print(f"Writing {args.iso} to {args.device}...")
+    run_process(
+        ["dd", f"if={args.iso}", f"of={args.device}", "bs=1M", "status=progress"],
+        verbose=args.verbose,
+        streaming=True,
+    )
+
+    print("Relocating GPT alt header...")
+    run_process([SGDISK, "--move-second-header", args.device], verbose=args.verbose)
+
+    if args.persist:
+        print(f"Appending storage partition to {args.device}...")
+        run_process(
+            [
+                SGDISK,
+                "--align-end",
+                "--new=0:0:0",
+                "--typecode=0:8300",
+                "--change-name=0:storage",
+                args.device,
+            ],
+            verbose=args.verbose,
+        )
+        run_process(["partprobe", args.device], verbose=args.verbose)
+        part_dev = storage_partition_dev(args.device, verbose=args.verbose)
+        print(f"Formatting {part_dev} as ext4 (UUID: {persist_uuid})...")
+        run_process(
+            ["mkfs.ext4", "-U", persist_uuid, part_dev],
+            verbose=args.verbose,
+        )
+
+    if args.verbose:
+        run_process([SGDISK, "-p", args.device], verbose=args.verbose)
+    run_process([SGDISK, "--verify", args.device], verbose=args.verbose)
+
+    print("Done.")
