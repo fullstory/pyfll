@@ -1247,8 +1247,8 @@ class FLLBuilder(object):
                 current = version
 
             depends = current.depends_list
-            list = depends.get("Recommends", [])
-            for dependency in list:
+            recommends = depends.get("Recommends", [])
+            for dependency in recommends:
                 depdone = 0
                 for deppart in dependency:
                     if depdone > 0:
