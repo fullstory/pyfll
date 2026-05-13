@@ -1498,13 +1498,13 @@ class FLLBuilder(object):
         efi_img = os.path.join(stage_dir, "efi.img")
         efi_dir = os.path.join(stage_dir, "efi")
 
-        # Calculate total content size; 20% overhead + 4 MiB minimum headroom
+        # Calculate total content size + 10% overhead, 4 MiB minimum
         total_bytes = sum(
             os.path.getsize(os.path.join(dirpath, fname))
             for dirpath, dirnames, filenames in os.walk(efi_dir)
             for fname in filenames
         )
-        img_size = max(4 * 1024 * 1024, int(total_bytes * 1.2) + 4 * 1024 * 1024)
+        img_size = max(4 * 1024 * 1024, int(total_bytes * 1.1) * 1024 * 1024)
         # Round up to a 512-byte sector boundary
         img_size = ((img_size + 511) // 512) * 512
         self.log.info(f"creating EFI FAT image ({img_size // 1024 // 1024} MiB)...")
