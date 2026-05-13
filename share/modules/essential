@@ -13,9 +13,6 @@ packages = """
 	fll-live-initramfs
 	fll-live-initscripts
 	locales
-	grub-pc
-	grub-efi-ia32-bin
-	grub-efi-amd64-bin
 	efibootmgr
 	linux-sysctl-defaults
 	sudo

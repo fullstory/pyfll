@@ -51,6 +51,7 @@ bootstrapper    = option('cdebootstrap', 'debootstrap', 'mmdebstrap', default='c
 homed_privkey   = string(default=None)
 homed_pubkey    = string(default=None)
 initramfs_tool  = option('dracut', 'initramfs-tools', default='dracut')
+bootloader      = option('grub', 'systemd-boot', default='grub')
 media_include   = string(default=None)
 
 readonly_filesystem  = option('squashfs', 'erofs', default='squashfs')

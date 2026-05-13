@@ -49,35 +49,72 @@ def run_process(cmd, verbose=False, streaming=False):
 
 def extract_persist_uuid(iso, verbose=False):
     """
-    Extract the persist_uuid value from boot/grub/kernels.cfg inside
-    the ISO image. The UUID is embedded there by pyfll at build time
-    when the ISO is built with the --persist option.
+    Extract the persist_uuid value from boot configuration inside the ISO image.
+    The UUID is embedded there by pyfll at build time when the ISO is built with
+    the --persist option.
+
+    First tries /boot/grub/kernels.cfg (grub bootloader). If not found, falls
+    back to scanning loader/entries/*.conf files (systemd-boot).
 
     Returns the UUID string. Exits with an error if no UUID is found.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
+        # Try grub path first
         kernels_cfg = os.path.join(tmpdir, "kernels.cfg")
-        run_process(
-            [
-                "osirrox",
-                "-indev",
-                iso,
-                "-extract",
-                "/boot/grub/kernels.cfg",
-                kernels_cfg,
-            ],
-            verbose=verbose,
-        )
-        with open(kernels_cfg) as f:
-            content = f.read()
+        content = None
+        try:
+            run_process(
+                [
+                    "osirrox",
+                    "-indev",
+                    iso,
+                    "-extract",
+                    "/boot/grub/kernels.cfg",
+                    kernels_cfg,
+                ],
+                verbose=verbose,
+            )
+            with open(kernels_cfg) as f:
+                content = f.read()
+        except subprocess.CalledProcessError:
+            pass
 
-    match = re.search(r"persist_uuid=(\S+)", content)
-    if not match:
-        sys.exit(
-            "error: persist_uuid not found in boot/grub/kernels.cfg\n"
-            "       Was the ISO built with pyfll --persist?"
-        )
-    return match.group(1)
+        if content is not None:
+            match = re.search(r"persist_uuid=(\S+)", content)
+            if match:
+                return match.group(1)
+
+        # Fall back to systemd-boot loader entries
+        entries_dir = os.path.join(tmpdir, "entries")
+        os.makedirs(entries_dir, exist_ok=True)
+        try:
+            run_process(
+                [
+                    "osirrox",
+                    "-indev",
+                    iso,
+                    "-extract_l",
+                    "/loader/entries",
+                    entries_dir,
+                ],
+                verbose=verbose,
+            )
+        except subprocess.CalledProcessError:
+            pass
+        else:
+            for entry_file in os.listdir(entries_dir):
+                entry_path = os.path.join(entries_dir, entry_file)
+                if os.path.isfile(entry_path):
+                    with open(entry_path) as f:
+                        content = f.read()
+                    match = re.search(r"persist_uuid=(\S+)", content)
+                    if match:
+                        return match.group(1)
+
+    sys.exit(
+        "error: persist_uuid not found in boot/grub/kernels.cfg or loader/entries/\n"
+        "       Was the ISO built with pyfll --persist?"
+    )
 
 
 def storage_partition_dev(device, verbose=False):
