@@ -99,15 +99,13 @@ EOF
 			/etc/adduser.conf
 	fi
 
-	# preseed linux_cmdline_default
-	say 'preseed linux_cmdline_default for grub2'
-	echo grub-pc grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
-	echo grub-efi-ia32 grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
-	echo grub-efi-amd64 grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
-
 	# preconfigure grub2
 	if [ -w /etc/default/grub ]; then
-		# set linux_cmdline_default
+		# preseed linux_cmdline_default
+		say 'preseed linux_cmdline_default for grub2'
+		echo grub-pc grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
+		echo grub-efi-ia32 grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
+		echo grub-efi-amd64 grub2/linux_cmdline_default string quiet systemd.show_status=1 splash | debconf-set-selections
 		if grep -q ^GRUB_CMDLINE_LINUX_DEFAULT\= /etc/default/grub; then
 			sed -i "s/^\(GRUB_CMDLINE_LINUX_DEFAULT=\).*/\1\"quiet systemd.show_status=1 splash\"/" /etc/default/grub
 		else
