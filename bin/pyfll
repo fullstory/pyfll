@@ -403,6 +403,17 @@ class FLLBuilder(object):
         initramfs_tool = self.conf["options"]["initramfs_tool"]
         pkg_profile.packages.add(initramfs_tool)
 
+        bootloader = self.conf["options"]["bootloader"]
+        if bootloader == "grub":
+            if arch in ("amd64", "i386"):
+                pkg_profile.packages.add("grub-pc")
+            if arch == "amd64":
+                pkg_profile.packages.update(["grub-efi-amd64-bin", "grub-efi-ia32-bin"])
+            elif arch == "i386":
+                pkg_profile.packages.add("grub-efi-ia32-bin")
+        elif bootloader == "systemd-boot":
+            pkg_profile.packages.update(["systemd-boot", "systemd-boot-efi"])
+
         linux_meta = ["linux-image", "linux-headers"]
         pkg_profile.packages.update(
             ["-".join([prefix, linux]) for prefix in linux_meta]
@@ -1482,7 +1493,35 @@ class FLLBuilder(object):
             self.chroot_exec(chroot, shlex.split(cmd))
             os.unlink(os.path.join(chroot_dir, "tmp", sname))
 
-    def create_grub_images(self, chroot: str) -> None:
+    def _build_efi_fat_img(self, stage_dir: str) -> None:
+        """Build a dynamically-sized FAT EFI system partition image from staging/efi/."""
+        efi_img = os.path.join(stage_dir, "efi.img")
+        efi_dir = os.path.join(stage_dir, "efi")
+
+        # Calculate total content size; 20% overhead + 4 MiB minimum headroom
+        total_bytes = sum(
+            os.path.getsize(os.path.join(dirpath, fname))
+            for dirpath, dirnames, filenames in os.walk(efi_dir)
+            for fname in filenames
+        )
+        img_size = max(4 * 1024 * 1024, int(total_bytes * 1.2) + 4 * 1024 * 1024)
+        # Round up to a 512-byte sector boundary
+        img_size = ((img_size + 511) // 512) * 512
+        self.log.info(f"creating EFI FAT image ({img_size // 1024 // 1024} MiB)...")
+
+        # Pre-allocate image file and format as FAT
+        with open(efi_img, "wb") as f:
+            f.truncate(img_size)
+        self.exec_cmd(["mformat", "-i", efi_img, "::"])
+
+        # Copy each top-level item from staging/efi/ into the FAT root so that
+        # EFI/BOOT/, EFI/Linux/, loader/ etc. land at the correct depth
+        for item in sorted(os.listdir(efi_dir)):
+            self.exec_cmd(
+                ["mcopy", "-s", "-i", efi_img, os.path.join(efi_dir, item), "::/"]
+            )
+
+    def stage_grub(self, chroot: str) -> None:
         """Create grub2 BIOS El Torito and EFI boot images."""
         chroot_dir = os.path.join(self.temp, chroot)
 
@@ -1525,9 +1564,9 @@ class FLLBuilder(object):
 
         self.log.info(f"{chroot} - creating grub2 EFI boot images...")
 
-        # Create staging/efi/boot/ now so grub-mkimage output lands there
+        # Create staging/efi/EFI/BOOT/ now so grub-mkimage output lands there
         # directly with no intermediary copies through the chroot's /tmp/
-        efi_boot_dir = os.path.join(stage_dir, "efi/boot")
+        efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
         os.makedirs(efi_boot_dir, exist_ok=True)
 
         # Build memdisk tar; grub-mkimage runs inside the chroot so the tar
@@ -1576,13 +1615,208 @@ class FLLBuilder(object):
 
         os.unlink(memdisk_img)
 
-        # Create the FAT EFI system partition image on the host, sourcing
-        # the .efi files already written directly into staging/efi/
-        self.log.info(f"{chroot} - creating EFI FAT image...")
-        self.exec_cmd(["mformat", "-C", "-f", "2880", "-L", "16", "-i", efi_img, "::"])
-        self.exec_cmd(
-            ["mcopy", "-s", "-i", efi_img, os.path.join(stage_dir, "efi"), "::/"]
-        )
+        # stage the boot directory for grub on the iso
+        boot_dir = os.path.join(self.temp, "staging", "boot")
+
+        # for grub, stage the initramfs and kernel images on the iso
+        initrds = glob.glob(os.path.join(chroot_dir, "boot", "initrd.img-*"))
+        if len(initrds) == 1:
+            self.log.debug(f"copying {initrds[0]} to staging dir")
+            shutil.copy(initrds[0], os.path.join(boot_dir, f"initrd.img-{chroot}"))
+        else:
+            self.log.critical(
+                "could not find initramfs image to " + "copy to staging dir."
+            )
+            raise FllError
+
+        images = glob.glob(os.path.join(chroot_dir, "boot", "vmlinuz-*"))
+        if len(images) == 1:
+            self.log.debug(f"copying {images[0]} to staging dir")
+            shutil.copy(images[0], os.path.join(boot_dir, f"vmlinuz-{chroot}"))
+        else:
+            self.log.critical(
+                "could not find linux kernel image to " + "copy to staging dir."
+            )
+            raise FllError
+
+        grub_dir = os.path.join(boot_dir, "grub")
+        if not os.path.isdir(grub_dir):
+            os.makedirs(grub_dir, 0o755)
+        if not os.path.isfile(os.path.join(grub_dir, "grub.cfg")):
+            shutil.copy(os.path.join(self.opts.share, "data/grub.cfg"), grub_dir)
+            shutil.copy(
+                os.path.join(chroot_dir, "usr/share/grub/unicode.pf2"), grub_dir
+            )
+            shutil.copytree(
+                os.path.join(self.opts.share, "data/locales"),
+                os.path.join(grub_dir, "locales"),
+            )
+            shutil.copytree(
+                os.path.join(self.opts.share, "data/tz"),
+                os.path.join(grub_dir, "tz"),
+            )
+            theme_dir = f"themes/{self.conf['distro']['FLL_GFXBOOT_THEME']}"
+            if os.path.isfile(
+                os.path.join(chroot_dir, f"usr/share/grub/{theme_dir}/theme.txt")
+            ):
+                shutil.copytree(
+                    os.path.join(chroot_dir, f"usr/share/grub/{theme_dir}"),
+                    os.path.join(grub_dir, theme_dir),
+                )
+
+        gfile_dir = glob.glob(os.path.join(chroot_dir, "usr/lib/grub/*-pc"))[0]
+
+        grub2_modules = glob.glob(os.path.join(gfile_dir, "*.mod"))
+        if len(grub2_modules) > 0:
+            gfiles = [
+                os.path.join(gfile_dir, f)
+                for f in os.listdir(gfile_dir)
+                if f.endswith(".mod") or f.endswith(".img") or f.endswith(".lst")
+            ]
+        else:
+            gfiles = [
+                os.path.join(gfile_dir, f)
+                for f in os.listdir(gfile_dir)
+                if f.startswith("stage2") or f.startswith("iso9660")
+            ]
+
+        if len(gfiles) > 0:
+            self.log.debug("copying grub stage files to boot dir")
+            grub_dir = os.path.join(boot_dir, "grub", "i386-pc")
+            if not os.path.isdir(grub_dir):
+                os.makedirs(grub_dir, 0o755)
+        else:
+            self.log.exception("grub stage files not found")
+            raise FllError
+
+        for file in gfiles:
+            try:
+                shutil.copy(file, grub_dir)
+            except IOError:
+                self.log.exception("failed to copy grub file to staging dir")
+                raise FllError
+
+        # efi
+        efitypes = {"x86_64-efi": "bootx64", "i386-efi": "bootia32"}
+        for efitype in list(efitypes.keys()):
+            gfile_dir = os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
+            if os.path.isdir(gfile_dir):
+                gfiles = [
+                    os.path.join(gfile_dir, f)
+                    for f in os.listdir(gfile_dir)
+                    if f.endswith(".mod") or f.endswith(".lst")
+                ]
+                gfiles.append(os.path.join(chroot_dir, "/usr/share/grub/unicode.pf2"))
+                if len(gfiles) > 0:
+                    self.log.debug(f"copying grub {efitype} stage files to boot dir")
+                    grub_dir = os.path.join(boot_dir, "grub", efitype)
+                    if not os.path.isdir(grub_dir):
+                        os.makedirs(grub_dir, 0o755)
+                for file in gfiles:
+                    try:
+                        shutil.copy(file, grub_dir)
+                    except IOError:
+                        self.log.exception(
+                            "failed to copy grub efi file to staging dir"
+                        )
+                        raise FllError
+
+        # for grub stage memtest on the iso
+        for mt in ["mt86+ia32", "mt86+x64"]:
+            memtest = os.path.join(chroot_dir, "boot", mt)
+            memtest_out = os.path.join(boot_dir, mt)
+            if os.path.isfile(memtest):
+                self.log.debug(f"copying {mt} to boot dir")
+                try:
+                    shutil.copy(memtest, memtest_out)
+                except IOError:
+                    self.log.exception(f"failed to copy {mt} to staging dir")
+                    raise FllError
+
+        # Build the FAT EFI system partition image
+        self._build_efi_fat_img(stage_dir)
+
+    def stage_systemd_boot(self, chroot: str) -> None:
+        """Stage systemd-boot EFI binaries and copy kernel/initramfs onto the ESP."""
+        chroot_dir = os.path.join(self.temp, chroot)
+        stage_dir = os.path.join(self.temp, "staging")
+
+        efi_src_dir = os.path.join(chroot_dir, "usr/lib/systemd/boot/efi")
+        if not os.path.isdir(efi_src_dir):
+            self.log.critical(f"{chroot} - systemd-boot EFI binaries not found")
+            raise FllError
+
+        # Stage the fallback bootloader binaries into EFI/BOOT/ on the ESP.
+        # Runs per-chroot but is idempotent - same files each time.
+        efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
+        os.makedirs(efi_boot_dir, exist_ok=True)
+        efi_binaries = {
+            "systemd-bootx64.efi": "bootx64.efi",
+            "systemd-bootia32.efi": "bootia32.efi",
+            "systemd-bootaa64.efi": "bootaa64.efi",
+        }
+        for src_name, dst_name in efi_binaries.items():
+            src = os.path.join(efi_src_dir, src_name)
+            if os.path.isfile(src):
+                self.log.debug(f"{chroot} - staging {dst_name}")
+                shutil.copy(src, os.path.join(efi_boot_dir, dst_name))
+
+        # Copy the kernel and initramfs for this chroot onto the ESP under a
+        # per-chroot subdirectory.  All loader/entries/*.conf files for this
+        # chroot's desktop variants point at these two files, so the kernel and
+        # initramfs are stored exactly once per chroot regardless of how many
+        # desktop specific entries are generated.
+        vmlinuz_files = glob.glob(os.path.join(chroot_dir, "boot", "vmlinuz-*"))
+        initrd_files = glob.glob(os.path.join(chroot_dir, "boot", "initrd.img-*"))
+        if len(vmlinuz_files) != 1 or len(initrd_files) != 1:
+            self.log.critical(
+                f"{chroot} - could not find unique kernel/initramfs for ESP staging"
+            )
+            raise FllError
+
+        esp_chroot_dir = os.path.join(stage_dir, f"efi/{chroot}")
+        os.makedirs(esp_chroot_dir, exist_ok=True)
+        self.log.info(f"{chroot} - staging kernel and initramfs onto ESP...")
+        shutil.copy(vmlinuz_files[0], os.path.join(esp_chroot_dir, "vmlinuz"))
+        shutil.copy(initrd_files[0], os.path.join(esp_chroot_dir, "initrd"))
+
+        # for systemd-boot stage memtest on the ESP
+        memtest_binaries = {
+            "bootia32.efi": os.path.join(
+                chroot_dir, "/usr/lib/memtest86+/memtest86+ia32.iso"
+            ),
+            "bootx64.efi": os.path.join(
+                chroot_dir, "/usr/lib/memtest86+/memtest86+x64.iso"
+            ),
+        }
+        for memtest_efi, memtest_iso in memtest_binaries.items():
+            memtest_out = os.path.join(stage_dir, f"efi/{memtest_efi}")
+            if os.path.isfile(memtest_iso):
+                self.log.debug(f"extracting {memtest_efi} ...")
+                try:
+                    self.exec_cmd(
+                        [
+                            "osirrox",
+                            "-indev",
+                            memtest_iso,
+                            "-extract",
+                            f"/EFI/BOOT/{memtest_efi}",
+                            memtest_out,
+                        ]
+                    )
+                except IOError:
+                    self.log.exception(
+                        f"failed to extract {memtest_efi} from {memtest_iso}"
+                    )
+                    raise FllError
+
+    def stage_bootloader(self, chroot: str) -> None:
+        """Dispatch boot image creation to the configured bootloader."""
+        bootloader = self.conf["options"]["bootloader"]
+        if bootloader == "grub":
+            self.stage_grub(chroot)
+        elif bootloader == "systemd-boot":
+            self.stage_systemd_boot(chroot)
 
     def zero_logs(self, chroot: str, dirname: str, filenames: list) -> None:
         """Truncate all log files."""
@@ -1686,8 +1920,6 @@ class FLLBuilder(object):
         """Stage files for an chroot for final genisofs."""
         self.log.info(f"{chroot} - staging live media for chroot...")
         chroot_dir = os.path.join(self.temp, chroot)
-        boot_dir = os.path.join(self.temp, "staging", "boot")
-
         image_file = os.path.join(chroot_dir, self.get_distro_imagefile(chroot))
         image_dir = os.path.join(
             self.temp, "staging", self.conf["distro"]["FLL_IMAGE_DIR"]
@@ -1698,124 +1930,6 @@ class FLLBuilder(object):
         except IOError:
             self.log.exception("failed to move readonly rootfs image to staging dir")
             raise FllError
-
-        initrds = glob.glob(os.path.join(chroot_dir, "boot", "initrd.img-*"))
-        if len(initrds) == 1:
-            self.log.debug(f"copying {initrds[0]} to staging dir")
-            shutil.copy(initrds[0], os.path.join(boot_dir, f"initrd.img-{chroot}"))
-        else:
-            self.log.critical(
-                "could not find initramfs image to " + "copy to staging dir."
-            )
-            raise FllError
-
-        images = glob.glob(os.path.join(chroot_dir, "boot", "vmlinuz-*"))
-        if len(images) == 1:
-            self.log.debug(f"copying {images[0]} to staging dir")
-            shutil.copy(images[0], os.path.join(boot_dir, f"vmlinuz-{chroot}"))
-        else:
-            self.log.critical(
-                "could not find linux kernel image to " + "copy to staging dir."
-            )
-            raise FllError
-
-        if os.path.isdir(os.path.join(chroot_dir, "usr/lib/grub")):
-            grub_dir = os.path.join(boot_dir, "grub")
-            if not os.path.isdir(grub_dir):
-                os.makedirs(grub_dir, 0o755)
-            if not os.path.isfile(os.path.join(grub_dir, "grub.cfg")):
-                shutil.copy(os.path.join(self.opts.share, "data/grub.cfg"), grub_dir)
-                shutil.copy(
-                    os.path.join(chroot_dir, "usr/share/grub/unicode.pf2"), grub_dir
-                )
-                shutil.copytree(
-                    os.path.join(self.opts.share, "data/locales"),
-                    os.path.join(grub_dir, "locales"),
-                )
-                shutil.copytree(
-                    os.path.join(self.opts.share, "data/tz"),
-                    os.path.join(grub_dir, "tz"),
-                )
-                theme_dir = f"themes/{self.conf['distro']['FLL_GFXBOOT_THEME']}"
-                if os.path.isfile(
-                    os.path.join(chroot_dir, f"usr/share/grub/{theme_dir}/theme.txt")
-                ):
-                    shutil.copytree(
-                        os.path.join(chroot_dir, f"usr/share/grub/{theme_dir}"),
-                        os.path.join(grub_dir, theme_dir),
-                    )
-
-            gfile_dir = glob.glob(os.path.join(chroot_dir, "usr/lib/grub/*-pc"))[0]
-
-            grub2_modules = glob.glob(os.path.join(gfile_dir, "*.mod"))
-            if len(grub2_modules) > 0:
-                gfiles = [
-                    os.path.join(gfile_dir, f)
-                    for f in os.listdir(gfile_dir)
-                    if f.endswith(".mod") or f.endswith(".img") or f.endswith(".lst")
-                ]
-            else:
-                gfiles = [
-                    os.path.join(gfile_dir, f)
-                    for f in os.listdir(gfile_dir)
-                    if f.startswith("stage2") or f.startswith("iso9660")
-                ]
-
-            if len(gfiles) > 0:
-                self.log.debug("copying grub stage files to boot dir")
-                grub_dir = os.path.join(boot_dir, "grub", "i386-pc")
-                if not os.path.isdir(grub_dir):
-                    os.makedirs(grub_dir, 0o755)
-            else:
-                self.log.exception("grub stage files not found")
-                raise FllError
-
-            for file in gfiles:
-                try:
-                    shutil.copy(file, grub_dir)
-                except IOError:
-                    self.log.exception("failed to copy grub file to staging dir")
-                    raise FllError
-
-            # efi
-            efitypes = {"x86_64-efi": "bootx64", "i386-efi": "bootia32"}
-            for efitype in list(efitypes.keys()):
-                gfile_dir = os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
-                if os.path.isdir(gfile_dir):
-                    gfiles = [
-                        os.path.join(gfile_dir, f)
-                        for f in os.listdir(gfile_dir)
-                        if f.endswith(".mod") or f.endswith(".lst")
-                    ]
-                    gfiles.append(
-                        os.path.join(chroot_dir, "/usr/share/grub/unicode.pf2")
-                    )
-                    if len(gfiles) > 0:
-                        self.log.debug(
-                            f"copying grub {efitype} stage files to boot dir"
-                        )
-                        grub_dir = os.path.join(boot_dir, "grub", efitype)
-                        if not os.path.isdir(grub_dir):
-                            os.makedirs(grub_dir, 0o755)
-                    for file in gfiles:
-                        try:
-                            shutil.copy(file, grub_dir)
-                        except IOError:
-                            self.log.exception(
-                                "failed to copy grub efi file to staging dir"
-                            )
-                            raise FllError
-
-        for mt in ["mt86+ia32", "mt86+x64"]:
-            memtest = os.path.join(chroot_dir, "boot", mt)
-            memtest_out = os.path.join(boot_dir, mt)
-            if os.path.isfile(memtest):
-                self.log.debug(f"copying {mt} to boot dir")
-                try:
-                    shutil.copy(memtest, memtest_out)
-                except IOError:
-                    self.log.exception(f"failed to copy {mt} to staging dir")
-                    raise FllError
 
     def write_grub_cfg(self) -> None:
         """Write grub.cfg for live media."""
@@ -1916,6 +2030,79 @@ class FLLBuilder(object):
                 vcfg.write(f"grub_theme=/boot/{grub_theme}\n")
             vcfg.write(f"timeout={timeout}\n")
 
+    def write_systemd_loader_conf(self) -> None:
+        """Write systemd-boot loader entries and loader.conf; build efi.img."""
+        self.log.info("writing systemd-boot loader configuration...")
+        stage_dir = os.path.join(self.temp, "staging")
+
+        # All loader content lives inside staging/efi/ so it ends up in the
+        # FAT image, not in the ISO9660 tree.
+        loader_dir = os.path.join(stage_dir, "efi/loader")
+        entries_dir = os.path.join(loader_dir, "entries")
+        os.makedirs(entries_dir, exist_ok=True)
+
+        distro = self.conf["distro"]["FLL_DISTRO_NAME"]
+        timeout = self.conf["options"].get("boot_timeout", "30")
+
+        # One entry file per desktop (or one per chroot when there are no
+        # desktops).  All entries for the same chroot share the single
+        # vmlinuz and initrd that create_systemd_boot_images() copied onto
+        # the ESP, so the kernel and initramfs are stored only once per chroot.
+        first_entry = None
+        for chroot in self.chroots:
+            cmdline_base = self.config_boot_cmdline(distro, chroot)
+            desktops = sorted(self.profiles[chroot].desktops)
+
+            entries = []
+            if desktops:
+                for desktop in desktops:
+                    entries.append(
+                        (
+                            f"{chroot}-{desktop}",
+                            f"{distro} {chroot} {desktop}",
+                            f"{cmdline_base} desktop={desktop}",
+                        )
+                    )
+            else:
+                entries.append((chroot, f"{distro} {chroot}", cmdline_base))
+
+            for entry_name, title, opts in entries:
+                if first_entry is None:
+                    first_entry = entry_name
+                self.log.debug(f"writing loader entry: {entry_name}.conf")
+                with open(os.path.join(entries_dir, f"{entry_name}.conf"), "w") as f:
+                    f.write(f"title   {title}\n")
+                    f.write(f"linux   /{chroot}/vmlinuz\n")
+                    f.write(f"initrd  /{chroot}/initrd\n")
+                    f.write(f"options {opts}\n")
+
+        for mt in ["bootx64.efi", "bootia32.efi"]:
+            memtest = os.path.join(stage_dir, f"efi/{mt}")
+            if os.path.isfile(memtest):
+                self.log.debug(f"writing {mt} to loader entry")
+                with open(os.path.join(entries_dir, f"{mt}.conf"), "w") as f:
+                    f.write(f"title Memory test ({mt})\n")
+                    f.write(f"efi   /{mt}\n")
+
+        self.log.debug("writing efi/loader/loader.conf")
+        with open(os.path.join(loader_dir, "loader.conf"), "w") as f:
+            f.write(f"timeout {timeout}\n")
+            if first_entry:
+                f.write(f"default {first_entry}.conf\n")
+            f.write("editor yes\n")
+
+        # All ESP content (EFI/BOOT/, {chroot}/, loader/) is now staged under
+        # staging/efi/; build the FAT image from it.
+        self._build_efi_fat_img(stage_dir)
+
+    def write_bootloader_config(self) -> None:
+        """Dispatch boot configuration writing to the configured bootloader."""
+        bootloader = self.conf["options"]["bootloader"]
+        if bootloader == "grub":
+            self.write_grub_cfg()
+        elif bootloader == "systemd-boot":
+            self.write_systemd_loader_conf()
+
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf["distro"]["FLL_IMAGE_DIR"]
         cmdline = self.conf["options"].get("boot_cmdline")
@@ -1982,25 +2169,28 @@ class FLLBuilder(object):
             xorriso_cmd += " -v"
             gpthybrid_cmd += " --verbose"
 
-        if os.path.isdir(os.path.join(stage, "boot/grub")):
-            xorriso_cmd += " -no-emul-boot -boot-load-size 4 -boot-info-table"
-            gpthybrid_cmd += f" --iso {iso_file}"
-            if os.path.isfile(os.path.join(stage, "boot/grub/i386-pc/grub_eltorito")):
-                grub_mbr_img = os.path.join(stage, "boot/grub/i386-pc/boot_hybrid.img")
-                xorriso_cmd += " -b boot/grub/i386-pc/grub_eltorito"
-                xorriso_cmd += f" --grub2-boot-info --grub2-mbr {grub_mbr_img} "
-                gpthybrid_cmd += " --filesystems"
-                for chroot in self.chroots:
-                    image_file = self.get_distro_imagefile(chroot)
-                    image_path = os.path.join(image_dir, image_file)
-                    if os.path.isfile(os.path.join(stage, image_path)):
-                        gpthybrid_cmd += f" {image_path}"
-            else:
-                self.log.critical("failed to find grub El Torito image file")
+        bootloader = self.conf["options"]["bootloader"]
+        if bootloader == "grub":
+            if not os.path.isfile(
+                os.path.join(stage, "boot/grub/i386-pc/grub_eltorito")
+            ):
+                self.log.critical("grub El Torito image not found in staging")
                 raise FllError
-        else:
-            self.log.critical("grub is required to boot live media")
-            raise FllError
+            grub_mbr_img = os.path.join(stage, "boot/grub/i386-pc/boot_hybrid.img")
+            xorriso_cmd += " -no-emul-boot -boot-load-size 4 -boot-info-table"
+            xorriso_cmd += " -b boot/grub/i386-pc/grub_eltorito"
+            xorriso_cmd += f" --grub2-boot-info --grub2-mbr {grub_mbr_img} "
+        elif bootloader == "systemd-boot":
+            if not os.path.isfile(os.path.join(stage, "efi.img")):
+                self.log.critical("EFI image not found in staging for systemd-boot")
+                raise FllError
+
+        gpthybrid_cmd += f" --iso {iso_file} --filesystems"
+        for chroot in self.chroots:
+            image_file = self.get_distro_imagefile(chroot)
+            image_path = os.path.join(image_dir, image_file)
+            if os.path.isfile(os.path.join(stage, image_path)):
+                gpthybrid_cmd += f" {image_path}"
 
         xorriso_cmd += f" --modification-date={self.xorriso_uuid.replace('-', '')}"
         if os.path.isfile(os.path.join(stage, "efi.img")):
@@ -2010,9 +2200,13 @@ class FLLBuilder(object):
         xorriso_cmd += f" --protective-msdos-label -V {distro_name[:32]}"
         if os.path.isdir(os.path.join(stage, "boot")):
             xorriso_cmd += " --sort-weight 0 / --sort-weight 1 /boot"
-            if os.path.isdir(os.path.join(stage, "boot/grub")):
+            if bootloader == "grub" and os.path.isdir(os.path.join(stage, "boot/grub")):
                 xorriso_cmd += " --sort-weight 2 /boot/grub"
-        xorriso_cmd += " -x genisoimage.sort"
+            elif bootloader == "systemd-boot" and os.path.isdir(
+                os.path.join(stage, "loader")
+            ):
+                xorriso_cmd += " --sort-weight 2 /loader"
+        xorriso_cmd += " -x efi -x genisoimage.sort"
         xorriso_cmd += f" -o {iso_file} {stage}"
 
         self.log.info("generating iso image of live media...")
@@ -2117,16 +2311,16 @@ class FLLBuilder(object):
             self.install_flatpaks(chroot)
             self.configure_locales(chroot)
             self.post_installation(chroot)
-            self.create_grub_images(chroot)
             self.write_manifest(chroot)
             self.write_final_conffiles(chroot)
             self.dpkg_undo_divert(chroot)
             self.create_initramfs(chroot)
+            self.stage_bootloader(chroot)
             self.clean_chroot(chroot)
             self.mkreadonlyfs_chroot(chroot)
             self.stage_chroot(chroot)
             self.nuke_chroot(chroot)
-        self.write_grub_cfg()
+        self.write_bootloader_config()
         self.gen_live_media()
         self.log_build_stats()
         self.write_configuration()
