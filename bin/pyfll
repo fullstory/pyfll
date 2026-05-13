@@ -1782,11 +1782,11 @@ class FLLBuilder(object):
 
         # for systemd-boot stage memtest on the ESP
         memtest_binaries = {
-            "bootia32.efi": os.path.join(
-                chroot_dir, "/usr/lib/memtest86+/memtest86+ia32.iso"
-            ),
             "bootx64.efi": os.path.join(
                 chroot_dir, "/usr/lib/memtest86+/memtest86+x64.iso"
+            ),
+            "bootia32.efi": os.path.join(
+                chroot_dir, "/usr/lib/memtest86+/memtest86+ia32.iso"
             ),
         }
         for memtest_efi, memtest_iso in memtest_binaries.items():
@@ -1809,6 +1809,8 @@ class FLLBuilder(object):
                         f"failed to extract {memtest_efi} from {memtest_iso}"
                     )
                     raise FllError
+                finally:
+                    break
 
     def stage_bootloader(self, chroot: str) -> None:
         """Dispatch boot image creation to the configured bootloader."""
