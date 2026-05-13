@@ -44,11 +44,8 @@ EOF
 	[ -n "${ENABLED_SERVICES}" ] && \
 		say 'Enabling services'
 	for service in ${ENABLED_SERVICES}; do
-		if [ -x "/etc/init.d/${service}" ]; then
-			update-rc.d "${service}" enable
-		elif [ -f "/lib/systemd/system/${service}.service" ]; then
+		[ -f "/lib/systemd/system/${service}.service" ] && \
 			systemctl enable "${service}.service"
-		fi
 	done
 
 	# disable services not wanted on the live CD
@@ -56,22 +53,16 @@ EOF
 		say 'Disabling services'
 	fi
 	for service in ${DISABLED_SERVICES} ${SERVICE_BLACKLIST}; do
-		if [ -x "/etc/init.d/${service}" ]; then
-			update-rc.d "${service}" disable
-		elif [ -f "/lib/systemd/system/${service}.service" ]; then
+		[ -f "/lib/systemd/system/${service}.service" ] && \
 			systemctl disable "${service}.service"
-		fi
 	done
 
 	# remove particularly nasty services, don't use!
 	[ -n "${MASKED_SERVICES}" ] && \
 		say 'Masking services'
 	for service in ${MASKED_SERVICES}; do
-		if [ -x "/etc/init.d/${service}" ]; then
-			update-rc.d -f "${service}" remove
-		elif [ -f "/lib/systemd/system/${service}.service" ]; then
+		[ -f "/lib/systemd/system/${service}.service" ] && \
 			systemctl mask "${service}.service"
-		fi
 	done
 
 	# truncate systemd machine-id to zero byte
