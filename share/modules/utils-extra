@@ -21,6 +21,7 @@ packages = """
 	manpages
 	memtest86+
 	module-assistant
+	mtools
 	ntfs-3g
 	nmap
 	openssh-client

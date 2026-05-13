@@ -17,6 +17,7 @@ Dependencies:
   xorriso
   squashfs-tools | erofs-utils
   gdisk
+  mtools
 
 Recommended:
   apt-cacher-ng
