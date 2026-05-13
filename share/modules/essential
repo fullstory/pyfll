@@ -18,7 +18,6 @@ packages = """
 	grub-efi-amd64-bin
 	efibootmgr
 	linux-sysctl-defaults
-	mtools
 	sudo
 	systemd-resolved
 	systemd-timesyncd
