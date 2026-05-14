@@ -227,9 +227,11 @@ class FLLBuilder(object):
     }
 
     diverts = [
+        "/usr/bin/dracut",
         "/usr/sbin/policy-rc.d",
         "/usr/sbin/modprobe",
         "/usr/sbin/update-grub",
+        "/usr/sbin/update-initramfs",
     ]
 
     def __init__(self, options: dict) -> None:
@@ -1126,7 +1128,8 @@ class FLLBuilder(object):
                     cmd += " -v"
             elif initramfs_tool == "dracut":
                 cmd = "dracut --no-hostonly --no-hostonly-i18n "
-                cmd += f"--add-confdir fll --kver {kernel}"
+                cmd += "--no-hostonly-cmdline --no-hostonly-default-device "
+                cmd += f"--force-add fll --kver {kernel}"
                 if self.opts.verbose or self.opts.debug:
                     cmd += " --verbose"
                 elif self.opts.quiet:
