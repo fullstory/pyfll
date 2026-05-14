@@ -3,13 +3,14 @@ Usage:
 
 Quickstart:
   1) sudo apt install python3-apt python3-configobj gdisk xorriso \
-         cdebootstrap squashfs-tools git apt-cacher-ng auto-apt-proxy
+         cdebootstrap {erofs,squashfs}-tools git mtools systemd-container
   2) git clone https://github.com/fullstory/pyfll.git
   3) cd pyfll && cp fll.conf fll.local.conf
   4) editor fll.local.conf
   5) ./fll -c fll.local.conf -b /tmp/fll/
 
 Dependencies:
+  systemd-container
   python (>= 3.8)
   python3-apt
   python3-configobj
