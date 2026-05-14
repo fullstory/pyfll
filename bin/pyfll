@@ -845,6 +845,7 @@ class FLLBuilder(object):
         self.debbootstrap(chroot, arch, target, mirror, codename)
         shutil.copy("/etc/hosts", os.path.join(target, "etc"))
         os.mkdir(os.path.join(target, "disks"), 0o755)
+        os.mkdir(os.path.join(target, "fll"), 0o755)
 
     def write_apt_lists(
         self, chroot: str, cached: bool = False, src_uri: bool = False
@@ -1140,14 +1141,14 @@ class FLLBuilder(object):
             return
 
         self.log.debug(f"{chroot} - preseeding debconf...")
-        debconf_filename = os.path.join(chroot_dir, "tmp", "fll_debconf_selections")
+        debconf_filename = os.path.join(chroot_dir, "fll", "fll_debconf_selections")
         with open(debconf_filename, "w") as debconf_fh:
             debconf_fh.writelines([f"{d}\n" for d in debconf_list])
 
         cmd = "debconf-set-selections "
         if self.opts.verbose:
             cmd += "--verbose "
-        cmd += "/tmp/fll_debconf_selections"
+        cmd += "/fll/fll_debconf_selections"
         self.chroot_exec(chroot, shlex.split(cmd))
 
     def detect_linux_version(self, chroot: str) -> list:
@@ -1451,15 +1452,15 @@ class FLLBuilder(object):
         for script in self.profiles[chroot].postinst:
             sname = os.path.basename(script)
             try:
-                shutil.copy(script, os.path.join(chroot_dir, "tmp"))
-                os.chmod(os.path.join(chroot_dir, "tmp", sname), 0o755)
+                shutil.copy(script, os.path.join(chroot_dir, "fll"))
+                os.chmod(os.path.join(chroot_dir, "fll", sname), 0o755)
             except OSError:
                 self.log.exception(f"error preparing postinst script: {sname}")
                 raise FllError
 
-            cmd = f"/tmp/{sname} postinst"
+            cmd = f"/fll/{sname} postinst"
             self.chroot_exec(chroot, shlex.split(cmd))
-            os.unlink(os.path.join(chroot_dir, "tmp", sname))
+            os.unlink(os.path.join(chroot_dir, "fll", sname))
 
     def _build_efi_fat_img(self, stage_dir: str) -> None:
         """Build a dynamically-sized FAT EFI system partition image from staging/efi/."""
@@ -1503,7 +1504,7 @@ class FLLBuilder(object):
                 "--prefix=/boot/grub",
                 "--format=i386-pc-eltorito",
                 "-o",
-                "/tmp/grub_eltorito",
+                "/fll/grub_eltorito",
                 "biosdisk",
                 "iso9660",
             ]
@@ -1511,7 +1512,7 @@ class FLLBuilder(object):
             eltorito_dst = os.path.join(self.temp, "staging/boot/grub/i386-pc")
             os.makedirs(eltorito_dst, exist_ok=True)
             shutil.move(
-                os.path.join(chroot_dir, "tmp/grub_eltorito"),
+                os.path.join(chroot_dir, "fll/grub_eltorito"),
                 eltorito_dst,
             )
 
@@ -1539,7 +1540,7 @@ class FLLBuilder(object):
 
         # Build memdisk tar; grub-mkimage runs inside the chroot so the tar
         # must be accessible there - it is removed once all images are built
-        memdisk_img = os.path.join(chroot_dir, "tmp/grub_efi_memdisk.img")
+        memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
         with tempfile.TemporaryDirectory() as memdisk_src:
             grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
             os.makedirs(grub_cfg_dir)
@@ -1556,16 +1557,16 @@ class FLLBuilder(object):
             self.log.info(
                 f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
             )
-            efi_out_host = os.path.join(chroot_dir, f"tmp/{efitarget}.efi")
+            efi_out_host = os.path.join(chroot_dir, f"fll/{efitarget}.efi")
             cmd = [
                 "grub-mkimage",
                 "-O",
                 efitype,
                 "-m",
-                "/tmp/grub_efi_memdisk.img",
+                "/fll/grub_efi_memdisk.img",
                 "--prefix=(memdisk)/boot/grub",
                 "-o",
-                f"/tmp/{efitarget}.efi",
+                f"/fll/{efitarget}.efi",
                 "search",
                 "iso9660",
                 "configfile",
@@ -1818,8 +1819,8 @@ class FLLBuilder(object):
         if self.conf["options"]["readonly_filesystem"] == "squashfs":
             cmd = ["mksquashfs", ".", image_file, "-noappend"]
 
-            shutil.copy(exclude_file, os.path.join(chroot_dir, "tmp"))
-            cmd.extend(["-wildcards", "-ef", "/tmp/fll_rootfs_exclusions"])
+            shutil.copy(exclude_file, os.path.join(chroot_dir, "fll"))
+            cmd.extend(["-wildcards", "-ef", "/fll/fll_rootfs_exclusions"])
 
             # set compression algorithm for squashfs-tools >= 4.1
             squashfs_comp = self.conf["options"].get("squashfs_comp")

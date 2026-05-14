@@ -1,4 +1,6 @@
 boot/initrd.img-*
+fll/*
+fll/.*
 dev/*
 dev/.*
 disks/*
