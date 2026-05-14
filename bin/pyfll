@@ -736,6 +736,7 @@ class FLLBuilder(object):
             f"--directory={chroot_dir}",
             "--as-pid2",
             "--resolv-conf=bind-host",
+            "--timezone=off",
         ]
         for key, value in self.env.items():
             cmd.append(f"--setenv={key}={value}")
