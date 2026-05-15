@@ -1477,8 +1477,9 @@ class FLLBuilder(object):
             for fname in filenames
         )
         img_size = int(total_bytes) + 1 * 1024 * 1024
-        # Round up to a 512-byte sector boundary
-        img_size = ((img_size + 511) // 512) * 512
+        # Round up to a 2048-byte (4-sector) boundary, consistent with
+        # gpthybrid's sgdisk_align=4 and ISO9660 logical block size
+        img_size = ((img_size + 2047) // 2048) * 2048
         self.log.info(f"creating EFI FAT image ({img_size // 1024 // 1024} MiB)...")
 
         # Pre-allocate image file and format as FAT
