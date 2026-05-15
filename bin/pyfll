@@ -1579,7 +1579,10 @@ class FLLBuilder(object):
                 raise FllError
 
         # BIOS El Torito
-        if glob.glob(os.path.join(chroot_dir, "usr/lib/grub/*-pc")):
+        eltorito_dst = os.path.join(boot_dir, "grub/i386-pc/grub_eltorito")
+        if glob.glob(
+            os.path.join(chroot_dir, "usr/lib/grub/*-pc")
+        ) and not os.path.exists(eltorito_dst):
             self.log.info(f"{chroot} - creating grub2 El Torito image...")
             cmd = [
                 "grub-mkimage",
@@ -1593,13 +1596,10 @@ class FLLBuilder(object):
                 "iso9660",
             ]
             self.chroot_exec(chroot, cmd)
-            eltorito_dst = os.path.join(self.temp, "staging/boot/grub/i386-pc")
-            if not os.path.exists(eltorito_dst):
-                os.makedirs(eltorito_dst)
-                shutil.move(
-                    os.path.join(chroot_dir, "fll/grub_eltorito"),
-                    eltorito_dst,
-                )
+            shutil.move(
+                os.path.join(chroot_dir, "fll/grub_eltorito"),
+                eltorito_dst,
+            )
 
         # EFI
         self.log.info(f"{chroot} - creating grub2 EFI boot images...")
