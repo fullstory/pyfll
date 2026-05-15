@@ -196,7 +196,6 @@ if __name__ == "__main__":
         run_process(
             [
                 SGDISK,
-                "--align-end",
                 f"--set-alignment={sgdisk_align}",
                 f"--new={num}:{start}:+{fs['sectsize'] // 1024}KiB",
                 f"--change-name={num}:{fs_name}",
