@@ -1,6 +1,4 @@
 boot/initrd.img-*
-fll/*
-fll/.*
 dev/*
 dev/.*
 disks/*
@@ -22,6 +20,7 @@ etc/ssl/certs/ssl-cert-snakeoil.pem
 etc/ssl/private/ssl-cert-snakeoil.key
 etc/udev/rules.d/70-persistent-*.rules
 etc/X11/xorg.conf
+fll
 home/*
 initrd.img
 initrd.img.old
