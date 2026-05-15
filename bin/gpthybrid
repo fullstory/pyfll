@@ -230,8 +230,14 @@ if __name__ == "__main__":
         verbose=args.verbose,
     )
 
-    # move the secondary header to the end of device (if neccessary), print
-    # and verify the partition table
     run_process([SGDISK, "--move-second-header", args.iso], verbose=args.verbose)
     run_process([SGDISK, "--print", args.iso], verbose=args.verbose)
-    run_process([SGDISK, "--verify", args.iso], verbose=args.verbose)
+    run_process(
+        [
+            SGDISK,
+            f"--set-alignment={sgdisk_align}",
+            "--verify",
+            args.iso
+        ],
+        verbose=args.verbose
+    )
