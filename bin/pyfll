@@ -227,13 +227,11 @@ class FLLBuilder(object):
     }
 
     diverts = [
+        "/usr/bin/dracut",
         "/usr/sbin/policy-rc.d",
         "/usr/sbin/modprobe",
-        "/usr/sbin/insmod",
         "/usr/sbin/update-grub",
         "/usr/sbin/update-initramfs",
-        "/usr/bin/dracut",
-        "/usr/bin/bwrap",
     ]
 
     def __init__(self, options: dict) -> None:
@@ -658,35 +656,6 @@ class FLLBuilder(object):
                 )
                 raise FllError
 
-    def mount_virtfs(self, chroot: str) -> None:
-        """Mount virtual filesystems in a chroot."""
-        chroot_dir = os.path.join(self.temp, chroot)
-        virtfs = {"devpts": "dev/pts", "proc": "proc"}
-
-        for fs, mntpnt in list(virtfs.items()):
-            cmd = ["mount", "-t", fs, f"fll-{fs}", os.path.join(chroot_dir, mntpnt)]
-
-            self.exec_cmd(cmd)
-
-    def umount_virtfs(self, chroot: str) -> None:
-        """Umount any mount points in a chroot."""
-        chroot_dir = os.path.join(self.temp, chroot)
-        umount_list = []
-        try:
-            for line in open("/proc/mounts"):
-                (dev, mntpnt, fs, options, d, p) = line.split()
-                if mntpnt.startswith(chroot_dir):
-                    umount_list.append(mntpnt)
-        except IOError:
-            self.log.exception("failed to open /proc/mounts")
-            raise FllError
-
-        umount_list.sort(key=len)
-        umount_list.reverse()
-
-        for mntpnt in umount_list:
-            self.exec_cmd(["umount", mntpnt])
-
     def nuke_directory(self, dirname: str) -> None:
         """Nuke directory tree."""
         if os.path.isdir(dirname):
@@ -703,7 +672,6 @@ class FLLBuilder(object):
         """Convenience function to nuke chroot given by chroot name."""
         if not self.opts.preserve:
             self.log.info(f"{chroot} - nuking chroot...")
-            self.umount_virtfs(chroot)
             self.nuke_directory(os.path.join(self.temp, chroot))
 
     def cleanup(self) -> None:
@@ -719,7 +687,6 @@ class FLLBuilder(object):
             dirname = os.path.join(self.temp, chroot)
             if os.path.isdir(dirname):
                 self.log.debug(f"cleaning up chroot: {chroot}")
-                self.umount_virtfs(dirname)
                 if not self.opts.preserve:
                     self.nuke_directory(dirname)
 
@@ -763,9 +730,19 @@ class FLLBuilder(object):
             raise FllError
 
     def chroot_exec(self, chroot: str, args: list) -> None:
-        """Run command in a chroot."""
+        """Run command in a chroot via systemd-nspawn."""
         chroot_dir = os.path.join(self.temp, chroot)
-        cmd = ["chroot", chroot_dir]
+        cmd = [
+            "systemd-nspawn",
+            "--quiet",
+            f"--directory={chroot_dir}",
+            "--as-pid2",
+            "--resolv-conf=bind-host",
+            "--timezone=off",
+        ]
+        for key, value in self.env.items():
+            cmd.append(f"--setenv={key}={value}")
+        cmd.append("--")
         cmd.extend(args)
         self.exec_cmd(cmd)
 
@@ -869,10 +846,9 @@ class FLLBuilder(object):
 
         self.log.info(f"{chroot} - bootstrapping {distro} {codename} {arch}...")
         self.debbootstrap(chroot, arch, target, mirror, codename)
-        self.mount_virtfs(chroot)
-        shutil.copy("/etc/hosts", os.path.join(target, "etc"))
-        shutil.copy("/etc/resolv.conf", os.path.join(target, "etc"))
+        self.write_file(chroot, "/etc/hosts")
         os.mkdir(os.path.join(target, "disks"), 0o755)
+        os.mkdir(os.path.join(target, "fll"), 0o755)
 
     def write_apt_lists(
         self, chroot: str, cached: bool = False, src_uri: bool = False
@@ -1097,7 +1073,6 @@ class FLLBuilder(object):
             distro_version_filehandle.write(self.get_distro_stamp(chroot))
         os.chmod(distro_version_filename, 0o444)
 
-        self.write_file(chroot, "/etc/hosts")
         self.write_file(chroot, "/etc/motd.tail")
         self.write_file(chroot, "/etc/plymouth/plymouthd.conf")
 
@@ -1152,7 +1127,8 @@ class FLLBuilder(object):
                     cmd += " -v"
             elif initramfs_tool == "dracut":
                 cmd = "dracut --no-hostonly --no-hostonly-i18n "
-                cmd += f"--add-confdir fll --kver {kernel}"
+                cmd += "--no-hostonly-cmdline --no-hostonly-default-device "
+                cmd += f"--force-add fll --kver {kernel}"
                 if self.opts.verbose or self.opts.debug:
                     cmd += " --verbose"
                 elif self.opts.quiet:
@@ -1168,14 +1144,14 @@ class FLLBuilder(object):
             return
 
         self.log.debug(f"{chroot} - preseeding debconf...")
-        debconf_filename = os.path.join(chroot_dir, "tmp", "fll_debconf_selections")
+        debconf_filename = os.path.join(chroot_dir, "fll", "fll_debconf_selections")
         with open(debconf_filename, "w") as debconf_fh:
             debconf_fh.writelines([f"{d}\n" for d in debconf_list])
 
         cmd = "debconf-set-selections "
         if self.opts.verbose:
             cmd += "--verbose "
-        cmd += "/tmp/fll_debconf_selections"
+        cmd += "/fll/fll_debconf_selections"
         self.chroot_exec(chroot, shlex.split(cmd))
 
     def detect_linux_version(self, chroot: str) -> list:
@@ -1476,22 +1452,18 @@ class FLLBuilder(object):
 
         self.log.info(f"{chroot} - executing postinst scripts...")
 
-        # reset /etc/resolv.conf (systemd-resolved clobbered our settings)
-        os.unlink(os.path.join(chroot_dir, "etc/resolv.conf"))
-        shutil.copy("/etc/resolv.conf", os.path.join(chroot_dir, "etc"))
-
         for script in self.profiles[chroot].postinst:
             sname = os.path.basename(script)
             try:
-                shutil.copy(script, os.path.join(chroot_dir, "tmp"))
-                os.chmod(os.path.join(chroot_dir, "tmp", sname), 0o755)
+                shutil.copy(script, os.path.join(chroot_dir, "fll"))
+                os.chmod(os.path.join(chroot_dir, "fll", sname), 0o755)
             except OSError:
                 self.log.exception(f"error preparing postinst script: {sname}")
                 raise FllError
 
-            cmd = f"/tmp/{sname} postinst"
+            cmd = f"/fll/{sname} postinst"
             self.chroot_exec(chroot, shlex.split(cmd))
-            os.unlink(os.path.join(chroot_dir, "tmp", sname))
+            os.unlink(os.path.join(chroot_dir, "fll", sname))
 
     def _build_efi_fat_img(self, stage_dir: str) -> None:
         """Build a dynamically-sized FAT EFI system partition image from staging/efi/."""
@@ -1535,7 +1507,7 @@ class FLLBuilder(object):
                 "--prefix=/boot/grub",
                 "--format=i386-pc-eltorito",
                 "-o",
-                "/tmp/grub_eltorito",
+                "/fll/grub_eltorito",
                 "biosdisk",
                 "iso9660",
             ]
@@ -1543,7 +1515,7 @@ class FLLBuilder(object):
             eltorito_dst = os.path.join(self.temp, "staging/boot/grub/i386-pc")
             os.makedirs(eltorito_dst, exist_ok=True)
             shutil.move(
-                os.path.join(chroot_dir, "tmp/grub_eltorito"),
+                os.path.join(chroot_dir, "fll/grub_eltorito"),
                 eltorito_dst,
             )
 
@@ -1571,7 +1543,7 @@ class FLLBuilder(object):
 
         # Build memdisk tar; grub-mkimage runs inside the chroot so the tar
         # must be accessible there - it is removed once all images are built
-        memdisk_img = os.path.join(chroot_dir, "tmp/grub_efi_memdisk.img")
+        memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
         with tempfile.TemporaryDirectory() as memdisk_src:
             grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
             os.makedirs(grub_cfg_dir)
@@ -1588,16 +1560,16 @@ class FLLBuilder(object):
             self.log.info(
                 f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
             )
-            efi_out_host = os.path.join(chroot_dir, f"tmp/{efitarget}.efi")
+            efi_out_host = os.path.join(chroot_dir, f"fll/{efitarget}.efi")
             cmd = [
                 "grub-mkimage",
                 "-O",
                 efitype,
                 "-m",
-                "/tmp/grub_efi_memdisk.img",
+                "/fll/grub_efi_memdisk.img",
                 "--prefix=(memdisk)/boot/grub",
                 "-o",
-                f"/tmp/{efitarget}.efi",
+                f"/fll/{efitarget}.efi",
                 "search",
                 "iso9660",
                 "configfile",
@@ -1850,8 +1822,8 @@ class FLLBuilder(object):
         if self.conf["options"]["readonly_filesystem"] == "squashfs":
             cmd = ["mksquashfs", ".", image_file, "-noappend"]
 
-            shutil.copy(exclude_file, os.path.join(chroot_dir, "tmp"))
-            cmd.extend(["-wildcards", "-ef", "/tmp/fll_rootfs_exclusions"])
+            shutil.copy(exclude_file, os.path.join(chroot_dir, "fll"))
+            cmd.extend(["-wildcards", "-ef", "/fll/fll_rootfs_exclusions"])
 
             # set compression algorithm for squashfs-tools >= 4.1
             squashfs_comp = self.conf["options"].get("squashfs_comp")
@@ -1878,9 +1850,7 @@ class FLLBuilder(object):
                 f"{chroot} - creating squashfs ({squashfs_comp}) filesystem..."
             )
             self.chroot_exec(chroot, cmd)
-            self.umount_virtfs(chroot)
         elif self.conf["options"]["readonly_filesystem"] == "erofs":
-            self.umount_virtfs(chroot)
             image_file = os.path.join(self.temp, image_file)
             erofs_compression = self.conf["options"].get("erofs_compression")
             erofs_comp_level = self.conf["options"].get("erofs_comp_level")
