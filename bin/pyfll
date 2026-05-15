@@ -846,7 +846,7 @@ class FLLBuilder(object):
 
         self.log.info(f"{chroot} - bootstrapping {distro} {codename} {arch}...")
         self.debbootstrap(chroot, arch, target, mirror, codename)
-        shutil.copy("/etc/hosts", os.path.join(target, "etc"))
+        self.write_file(chroot, "/etc/hosts")
         os.mkdir(os.path.join(target, "disks"), 0o755)
         os.mkdir(os.path.join(target, "fll"), 0o755)
 
@@ -1073,7 +1073,6 @@ class FLLBuilder(object):
             distro_version_filehandle.write(self.get_distro_stamp(chroot))
         os.chmod(distro_version_filename, 0o444)
 
-        self.write_file(chroot, "/etc/hosts")
         self.write_file(chroot, "/etc/motd.tail")
         self.write_file(chroot, "/etc/plymouth/plymouthd.conf")
 
