@@ -411,6 +411,9 @@ class FLLBuilder(object):
                 pkg_profile.packages.add("grub-efi-ia32-bin")
         elif bootloader == "systemd-boot":
             pkg_profile.packages.update(["systemd-boot", "systemd-boot-efi"])
+        elif bootloader == "refind":
+            pkg_profile.packages.add("refind")
+            pkg_profile.debconf.add("refind refind/install_to_esp boolean false")
 
         linux_meta = ["linux-image", "linux-headers"]
         pkg_profile.packages.update(
@@ -1770,6 +1773,123 @@ class FLLBuilder(object):
                 finally:
                     break
 
+    def stage_refind(self, chroot: str) -> None:
+        """Stage rEFInd EFI binary, assets, and kernel/initramfs onto the ESP."""
+        chroot_dir = os.path.join(self.temp, chroot)
+        stage_dir = os.path.join(self.temp, "staging")
+        arch = self.conf["chroots"][chroot]["packages"]["arch"]
+
+        arch_map = {
+            "amd64": ("refind_x64.efi", "bootx64.efi"),
+            "i386": ("refind_ia32.efi", "bootia32.efi"),
+            "arm64": ("refind_aa64.efi", "bootaa64.efi"),
+        }
+        src_name, dst_name = arch_map.get(arch, ("refind_x64.efi", "bootx64.efi"))
+
+        refind_pkg_dir = os.path.join(chroot_dir, "usr/share/refind/refind")
+        src_efi = os.path.join(refind_pkg_dir, src_name)
+        if not os.path.isfile(src_efi):
+            self.log.critical(f"{chroot} - rEFInd EFI binary not found: {src_efi}")
+            raise FllError
+
+        efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
+        os.makedirs(efi_boot_dir, exist_ok=True)
+        self.log.debug(f"{chroot} - staging {dst_name} to EFI/BOOT/")
+        shutil.copy(src_efi, os.path.join(efi_boot_dir, dst_name))
+
+        efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
+        os.makedirs(efi_boot_dir, exist_ok=True)
+        shutil.copy(src_efi, os.path.join(efi_boot_dir, src_name))
+
+        icons_dst = os.path.join(efi_boot_dir, "icons")
+        if not os.path.isdir(icons_dst):
+            icons_src = os.path.join(refind_pkg_dir, "icons")
+            if os.path.isdir(icons_src):
+                self.log.debug(f"{chroot} - staging rEFInd icons")
+                shutil.copytree(icons_src, icons_dst)
+            else:
+                self.log.warning(f"{chroot} - rEFInd icons not found: {icons_src}")
+
+        fonts_dst = os.path.join(efi_boot_dir, "fonts")
+        if not os.path.isdir(fonts_dst):
+            fonts_src = os.path.join(chroot_dir, "usr/share/refind/fonts")
+            if os.path.isdir(fonts_src):
+                self.log.debug(f"{chroot} - staging rEFInd fonts")
+                shutil.copytree(fonts_src, fonts_dst)
+            else:
+                self.log.warning(f"{chroot} - rEFInd fonts not found: {fonts_src}")
+
+        wallpaper_name = self.conf["distro"]["FLL_WALLPAPER"].lstrip("/")
+        banner_dst = os.path.join(efi_boot_dir, "background.png")
+        if not os.path.isfile(banner_dst):
+            wallpaper_link = os.path.join(chroot_dir, f"{wallpaper_name}-wide.png")
+            if os.path.islink(wallpaper_link):
+                link_target = os.readlink(wallpaper_link)
+                if os.path.isabs(link_target):
+                    real_path = os.path.join(chroot_dir, link_target.lstrip("/"))
+                else:
+                    real_path = os.path.join(
+                        os.path.dirname(wallpaper_link), link_target
+                    )
+                if os.path.isfile(real_path):
+                    self.log.debug(f"{chroot} - staging rEFInd banner: {real_path}")
+                    shutil.copy(real_path, banner_dst)
+
+        distro = self.conf["distro"]["FLL_DISTRO_NAME"]
+        icon_name = f"os_{distro.lower()}.png"
+        icons_staging = os.path.join(efi_boot_dir, "icons")
+        icon_dst = os.path.join(icons_staging, icon_name)
+        if not os.path.isfile(icon_dst):
+            icon_src = os.path.join(
+                chroot_dir,
+                f"etc/calamares/branding/{distro}/{distro}-icon.png",
+            )
+            if os.path.isfile(icon_src):
+                self.log.debug(f"{chroot} - staging rEFInd distro icon: {icon_name}")
+                os.makedirs(icons_staging, exist_ok=True)
+                shutil.copy(icon_src, icon_dst)
+
+        memtest_map = {
+            "bootx64.efi": "usr/lib/memtest86+/memtest86+x64.iso",
+            "bootia32.efi": "usr/lib/memtest86+/memtest86+ia32.iso",
+        }
+        tools_dir = os.path.join(stage_dir, "efi/EFI/tools")
+        os.makedirs(tools_dir, exist_ok=True)
+        for efi_name, iso_rel_path in memtest_map.items():
+            memtest_iso = os.path.join(chroot_dir, iso_rel_path)
+            mt_name = efi_name.replace("boot", "memtest86+")
+            memtest_out = os.path.join(tools_dir, mt_name)
+            if os.path.isfile(memtest_iso) and not os.path.isfile(memtest_out):
+                self.log.debug(f"{chroot} - extracting {mt_name} from memtest ISO")
+                try:
+                    self.exec_cmd(
+                        [
+                            "osirrox",
+                            "-indev",
+                            memtest_iso,
+                            "-extract",
+                            f"/EFI/BOOT/{efi_name}",
+                            memtest_out,
+                        ]
+                    )
+                except FllError:
+                    self.log.warning(
+                        f"{chroot} - failed to extract memtest {mt_name}, skipping"
+                    )
+
+        vmlinuz_files = glob.glob(os.path.join(chroot_dir, "boot", "vmlinuz-*"))
+        initrd_files = glob.glob(os.path.join(chroot_dir, "boot", "initrd.img-*"))
+        if len(vmlinuz_files) != 1 or len(initrd_files) != 1:
+            self.log.critical(
+                f"{chroot} - could not find unique kernel/initramfs for ESP staging"
+            )
+            raise FllError
+        esp_chroot_dir = os.path.join(stage_dir, f"efi/{chroot}")
+        os.makedirs(esp_chroot_dir, exist_ok=True)
+        self.log.info(f"{chroot} - staging kernel and initramfs onto ESP...")
+        shutil.copy(vmlinuz_files[0], os.path.join(esp_chroot_dir, "vmlinuz"))
+        shutil.copy(initrd_files[0], os.path.join(esp_chroot_dir, "initrd"))
+
     def stage_bootloader(self, chroot: str) -> None:
         """Dispatch boot image creation to the configured bootloader."""
         bootloader = self.conf["options"]["bootloader"]
@@ -1777,6 +1897,8 @@ class FLLBuilder(object):
             self.stage_grub(chroot)
         elif bootloader == "systemd-boot":
             self.stage_systemd_boot(chroot)
+        elif bootloader == "refind":
+            self.stage_refind(chroot)
 
     def zero_logs(self, chroot: str, dirname: str, filenames: list) -> None:
         """Truncate all log files."""
@@ -2053,6 +2175,55 @@ class FLLBuilder(object):
         # staging/efi/; build the FAT image from it.
         self._build_efi_fat_img(stage_dir)
 
+    def write_refind_conf(self) -> None:
+        """Write rEFInd configuration and pack the ESP FAT image."""
+        self.log.info("writing rEFInd configuration...")
+        stage_dir = os.path.join(self.temp, "staging")
+        refind_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
+        os.makedirs(refind_boot_dir, exist_ok=True)
+
+        distro = self.conf["distro"]["FLL_DISTRO_NAME"]
+        timeout = self.conf["options"].get("boot_timeout", "30")
+
+        banner_file = os.path.join(refind_boot_dir, "background.png")
+        icon_name = f"os_{distro.lower()}.png"
+        icon_path = (
+            f"/EFI/BOOT/icons/{icon_name}"
+            if os.path.isfile(os.path.join(refind_boot_dir, "icons", icon_name))
+            else "/EFI/BOOT/icons/os_linux.png"
+        )
+
+        with open(os.path.join(refind_boot_dir, "refind.conf"), "w") as f:
+            f.write(f"timeout {timeout}\n")
+            if os.path.isfile(banner_file):
+                f.write("banner /EFI/BOOT/background.png\n")
+                f.write("banner_scale fillscreen\n")
+                f.write("use_graphics_for linux\n")
+            f.write("\n")
+
+            for chroot in self.chroots:
+                cmdline_base = self.config_boot_cmdline(distro, chroot)
+                desktops = sorted(self.profiles[chroot].desktops)
+
+                for number, desktop in enumerate(desktops):
+                    f.write(f'menuentry "{distro} {desktop}" {{\n')
+                    f.write(f"    loader /{chroot}/vmlinuz\n")
+                    f.write(f"    initrd /{chroot}/initrd\n")
+                    f.write(f'    options "{cmdline_base} desktop={desktop}"\n')
+                    f.write(f"    icon {icon_path}\n")
+                    f.write("}\n\n")
+                    if number == len(desktops) - 1:
+                        break
+                else:
+                    f.write(f'menuentry "{distro} {chroot}" {{\n')
+                    f.write(f"    loader /{chroot}/vmlinuz\n")
+                    f.write(f"    initrd /{chroot}/initrd\n")
+                    f.write(f'    options "{cmdline_base}"\n')
+                    f.write(f"    icon {icon_path}\n")
+                    f.write("}\n\n")
+
+        self._build_efi_fat_img(stage_dir)
+
     def write_bootloader_config(self) -> None:
         """Dispatch boot configuration writing to the configured bootloader."""
         bootloader = self.conf["options"]["bootloader"]
@@ -2060,6 +2231,8 @@ class FLLBuilder(object):
             self.write_grub_cfg()
         elif bootloader == "systemd-boot":
             self.write_systemd_loader_conf()
+        elif bootloader == "refind":
+            self.write_refind_conf()
 
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf["distro"]["FLL_IMAGE_DIR"]
