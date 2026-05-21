@@ -1797,10 +1797,6 @@ class FLLBuilder(object):
         self.log.debug(f"{chroot} - staging {dst_name} to EFI/BOOT/")
         shutil.copy(src_efi, os.path.join(efi_boot_dir, dst_name))
 
-        efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
-        os.makedirs(efi_boot_dir, exist_ok=True)
-        shutil.copy(src_efi, os.path.join(efi_boot_dir, src_name))
-
         icons_dst = os.path.join(efi_boot_dir, "icons")
         if not os.path.isdir(icons_dst):
             icons_src = os.path.join(refind_pkg_dir, "icons")
