@@ -26,5 +26,4 @@ packages = """
 
 desktops = """
 	plasma
-	plasmax11
 """
