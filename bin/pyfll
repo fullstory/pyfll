@@ -639,9 +639,11 @@ class FLLBuilder(object):
         atexit.register(self.cleanup)
 
         stage = os.path.join(self.temp, "staging")
-        os.mkdir(stage)
-        os.mkdir(os.path.join(stage, "boot"))
-        os.mkdir(os.path.join(stage, self.conf["distro"]["FLL_IMAGE_DIR"]))
+        os.makedirs(
+            os.path.join(stage, self.conf["distro"]["FLL_IMAGE_DIR"]),
+            0o755,
+            exist_ok=True,
+        )
 
         media_include = self.conf["options"].get("media_include")
         if media_include and os.path.isdir(media_include):
@@ -1501,8 +1503,9 @@ class FLLBuilder(object):
         """Create grub2 BIOS El Torito and EFI boot images."""
         chroot_dir = os.path.join(self.temp, chroot)
         stage_dir = os.path.join(self.temp, "staging")
-        boot_dir = os.path.join(self.temp, "staging", "boot")
 
+        boot_dir = os.path.join(self.temp, "staging", "boot")
+        os.makedirs(boot_dir, 0o755, exist_ok=True)
         # for grub, stage the initramfs and kernel images on the iso
         initrds = glob.glob(os.path.join(chroot_dir, "boot", "initrd.img-*"))
         if len(initrds) == 1:
@@ -1525,8 +1528,7 @@ class FLLBuilder(object):
             raise FllError
 
         grub_dir = os.path.join(boot_dir, "grub")
-        if not os.path.isdir(grub_dir):
-            os.makedirs(grub_dir, 0o755)
+        os.makedirs(grub_dir, 0o755, exist_ok=True)
         if not os.path.isfile(os.path.join(grub_dir, "grub.cfg")):
             shutil.copy(os.path.join(self.opts.share, "data/grub.cfg"), grub_dir)
             shutil.copy(
@@ -2191,6 +2193,8 @@ class FLLBuilder(object):
 
         with open(os.path.join(refind_boot_dir, "refind.conf"), "w") as f:
             f.write(f"timeout {timeout}\n")
+            f.write("scanfor manual, internal, external\n")
+            # f.write("showtools memtest, firmware, reboot, shutdown\n")
             if os.path.isfile(banner_file):
                 f.write("banner /EFI/BOOT/background.png\n")
                 f.write("banner_scale fillscreen\n")
