@@ -21,7 +21,9 @@ import tempfile
 SGDISK = "/usr/sbin/sgdisk"
 
 
-def run_process(cmd, verbose=False, streaming=False):
+def run_process(
+    cmd: list[str], verbose: bool = False, streaming: bool = False
+) -> list[str]:
     """
     Run a subprocess command.
 
@@ -47,21 +49,16 @@ def run_process(cmd, verbose=False, streaming=False):
         raise
 
 
-def extract_persist_uuid(iso, verbose=False):
+def extract_grub_persist_uuid(iso: str, verbose: bool = False) -> str | None:
     """
-    Extract the persist_uuid value from boot configuration inside the ISO image.
-    The UUID is embedded there by pyfll at build time when the ISO is built with
-    the --persist option.
+    Extract the persist_uuid value from /boot/grub/kernels.cfg inside the ISO.
+    Used for grub-based ISOs where the UUID is baked into the ISO9660 tree by
+    pyfll at build time and cannot be patched post-write.
 
-    First tries /boot/grub/kernels.cfg (grub bootloader). If not found, falls
-    back to scanning loader/entries/*.conf files (systemd-boot).
-
-    Returns the UUID string. Exits with an error if no UUID is found.
+    Returns the UUID string, or None if not found.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
-        # Try grub path first
         kernels_cfg = os.path.join(tmpdir, "kernels.cfg")
-        content = None
         try:
             run_process(
                 [
@@ -76,48 +73,198 @@ def extract_persist_uuid(iso, verbose=False):
             )
             with open(kernels_cfg) as f:
                 content = f.read()
-        except subprocess.CalledProcessError:
-            pass
+        except (subprocess.CalledProcessError, OSError):
+            return None
 
-        if content is not None:
-            match = re.search(r"persist_uuid=(\S+)", content)
-            if match:
-                return match.group(1)
+        match = re.search(r"persist_uuid=(\S+)", content)
+        return match.group(1) if match else None
 
-        # Fall back to systemd-boot loader entries
-        entries_dir = os.path.join(tmpdir, "entries")
-        os.makedirs(entries_dir, exist_ok=True)
+
+def detect_bootloader(iso: str, verbose: bool = False) -> str | None:
+    """
+    Detect which bootloader the ISO was built with.
+
+    grub stores its config in the ISO9660 tree (/boot/grub/kernels.cfg).
+
+    systemd-boot and rEFInd both use an ESP FAT image (efi.img) embedded in
+    the ISO9660 tree.  To tell them apart efi.img is extracted once and then
+    inspected with mcopy:
+      - systemd-boot: efi.img contains /loader/loader.conf
+      - rEFInd:       efi.img contains /EFI/BOOT/refind.conf
+
+    Returns one of: "grub", "systemd-boot", "refind", or None.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # grub: config lives directly on the ISO9660 layer
+        kernels_cfg = os.path.join(tmpdir, "kernels.cfg")
         try:
             run_process(
                 [
                     "osirrox",
                     "-indev",
                     iso,
-                    "-extract_l",
-                    "/loader/entries",
-                    entries_dir,
+                    "-extract",
+                    "/boot/grub/kernels.cfg",
+                    kernels_cfg,
                 ],
+                verbose=verbose,
+            )
+            if os.path.isfile(kernels_cfg):
+                return "grub"
+        except subprocess.CalledProcessError:
+            pass
+
+        # systemd-boot / rEFInd: config is inside efi.img on the ISO9660 layer;
+        # extract efi.img once and probe its contents with mcopy.
+        efi_img = os.path.join(tmpdir, "efi.img")
+        try:
+            run_process(
+                ["osirrox", "-indev", iso, "-extract", "/efi.img", efi_img],
                 verbose=verbose,
             )
         except subprocess.CalledProcessError:
             pass
-        else:
-            for entry_file in os.listdir(entries_dir):
-                entry_path = os.path.join(entries_dir, entry_file)
-                if os.path.isfile(entry_path):
-                    with open(entry_path) as f:
-                        content = f.read()
-                    match = re.search(r"persist_uuid=(\S+)", content)
-                    if match:
-                        return match.group(1)
 
-    sys.exit(
-        "error: persist_uuid not found in boot/grub/kernels.cfg or loader/entries/\n"
-        "       Was the ISO built with pyfll --persist?"
-    )
+        if os.path.isfile(efi_img):
+            # systemd-boot drops loader/loader.conf at the FAT root
+            loader_conf = os.path.join(tmpdir, "loader.conf")
+            try:
+                run_process(
+                    ["mcopy", "-i", efi_img, "::/loader/loader.conf", loader_conf],
+                    verbose=verbose,
+                )
+                if os.path.isfile(loader_conf):
+                    return "systemd-boot"
+            except subprocess.CalledProcessError:
+                pass
+
+            # rEFInd drops refind.conf under /EFI/BOOT/ on the FAT volume
+            refind_conf = os.path.join(tmpdir, "refind.conf")
+            try:
+                run_process(
+                    ["mcopy", "-i", efi_img, "::/EFI/BOOT/refind.conf", refind_conf],
+                    verbose=verbose,
+                )
+                if os.path.isfile(refind_conf):
+                    return "refind"
+            except subprocess.CalledProcessError:
+                pass
+
+    return None
 
 
-def storage_partition_dev(device, verbose=False):
+def find_esp_partition(device: str, verbose: bool = False) -> str | None:
+    """
+    Return the device node of the EFI System Partition on *device* by scanning
+    sgdisk --print for a partition with type code EF00.
+
+    Returns the device path string (e.g. /dev/sdb2 or /dev/nvme0n1p2),
+    or None if not found.
+    """
+    output = run_process([SGDISK, "--print", device], verbose=verbose)
+    for line in output:
+        fields = line.split()
+        # sgdisk --print data lines: num  start  end  size  unit  code  name...
+        if len(fields) >= 6 and fields[0].isdigit() and fields[5].upper() == "EF00":
+            partnum = fields[0]
+            if device[-1].isdigit():
+                return f"{device}p{partnum}"
+            return f"{device}{partnum}"
+    return None
+
+
+def inject_persist_uuid_into_esp(
+    esp_dev: str, uuid: str, verbose: bool = False
+) -> None:
+    """
+    Mount the EFI System Partition at *esp_dev*, then write persist_uuid=<uuid>
+    into every boot entry that does not already carry it.
+
+    Handles:
+      - systemd-boot:  /loader/entries/*.conf  (appends to the "options" line)
+      - rEFInd:        /EFI/BOOT/refind.conf   (appends to each "options" line
+                       inside a menuentry block)
+
+    The mount is always cleaned up, even on error.
+    """
+    with tempfile.TemporaryDirectory() as mnt:
+        run_process(["mount", esp_dev, mnt], verbose=verbose)
+        try:
+            _patch_systemd_boot_entries(mnt, uuid, verbose)
+            _patch_refind_conf(mnt, uuid, verbose)
+        finally:
+            run_process(["umount", mnt], verbose=verbose)
+
+
+def _patch_systemd_boot_entries(mnt: str, uuid: str, verbose: bool = False) -> None:
+    """
+    Append persist_uuid=<uuid> to every 'options' line in
+    <mnt>/loader/entries/*.conf that does not already carry it.
+    """
+    entries_dir = os.path.join(mnt, "loader", "entries")
+    if not os.path.isdir(entries_dir):
+        return
+
+    for fname in sorted(os.listdir(entries_dir)):
+        if not fname.endswith(".conf"):
+            continue
+        fpath = os.path.join(entries_dir, fname)
+        with open(fpath) as f:
+            lines = f.readlines()
+
+        changed = False
+        new_lines: list[str] = []
+        for line in lines:
+            if line.startswith("options ") and f"persist_uuid={uuid}" not in line:
+                line = line.rstrip() + f" persist_uuid={uuid}\n"
+                changed = True
+            new_lines.append(line)
+
+        if changed:
+            if verbose:
+                print(f"# patching {fpath}")
+            with open(fpath, "w") as f:
+                f.writelines(new_lines)
+
+
+def _patch_refind_conf(mnt: str, uuid: str, verbose: bool = False) -> None:
+    """
+    Append persist_uuid=<uuid> to every 'options' line inside a menuentry
+    block in <mnt>/EFI/BOOT/refind.conf that does not already carry it.
+    """
+    refind_conf = os.path.join(mnt, "EFI", "BOOT", "refind.conf")
+    if not os.path.isfile(refind_conf):
+        return
+
+    with open(refind_conf) as f:
+        lines = f.readlines()
+
+    in_menuentry = False
+    changed = False
+    new_lines: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("menuentry "):
+            in_menuentry = True
+        elif stripped == "}":
+            in_menuentry = False
+        elif (
+            in_menuentry
+            and stripped.startswith("options ")
+            and f"persist_uuid={uuid}" not in stripped
+        ):
+            line = line.rstrip() + f" persist_uuid={uuid}\n"
+            changed = True
+        new_lines.append(line)
+
+    if changed:
+        if verbose:
+            print(f"# patching {refind_conf}")
+        with open(refind_conf, "w") as f:
+            f.writelines(new_lines)
+
+
+def storage_partition_dev(device: str, verbose: bool = False) -> str:
     """
     Return the device path of the storage partition just appended to
     the device. Reads sgdisk --print in reverse and returns the path
@@ -127,7 +274,10 @@ def storage_partition_dev(device, verbose=False):
     for line in reversed(output):
         fields = line.split()
         if fields and fields[0].isdigit():
-            return os.path.realpath(f"{device}-part{fields[0]}")
+            partnum = fields[0]
+            if device[-1].isdigit():
+                return os.path.realpath(f"{device}p{partnum}")
+            return os.path.realpath(f"{device}{partnum}")
     sys.exit(f"error: could not determine storage partition on {device}")
 
 
@@ -155,7 +305,8 @@ if __name__ == "__main__":
         "--persist",
         action="store_true",
         default=False,
-        help="Append a persistent ext4 storage partition after writing the ISO.",
+        help="UUID for the persistent storage partition. If not given, "
+        + "extracted from boot/grub/kernels.cfg inside the ISO (grub only).",
     )
     cli.add_argument(
         "-u",
@@ -179,14 +330,28 @@ if __name__ == "__main__":
     if not os.path.exists(args.device):
         sys.exit(f"error: device not found: {args.device}")
 
-    persist_uuid = None
     if args.persist:
-        if args.persist_uuid:
-            persist_uuid = args.persist_uuid
-        else:
-            print(f"Extracting persist UUID from {args.iso}...")
-            persist_uuid = extract_persist_uuid(args.iso, verbose=args.verbose)
-        print(f"persist_uuid: {persist_uuid}")
+        print(f"Detecting bootloader in {args.iso}...")
+        bootloader = detect_bootloader(args.iso, verbose=args.verbose)
+        if bootloader is None:
+            sys.exit("error: could not detect bootloader in ISO")
+        print(f"Detected bootloader: {bootloader}")
+
+        if bootloader == "grub":
+            # For grub the persist_uuid is baked into the ISO9660 tree and
+            # cannot be patched post-write; it must be pre-supplied or
+            # extracted from kernels.cfg now, before dd.
+            if args.persist_uuid:
+                persist_uuid = args.persist_uuid
+            else:
+                print(f"Extracting persist_uuid from {args.iso} (grub)...")
+                persist_uuid = extract_grub_persist_uuid(args.iso, verbose=args.verbose)
+                if persist_uuid is None:
+                    sys.exit(
+                        "error: persist_uuid not found in boot/grub/kernels.cfg\n"
+                        + "       Was the ISO built with pyfll --persist?"
+                    )
+            print(f"persist_uuid: {persist_uuid}")
 
     print(f"Wiping {args.device}...")
     run_process(["wipefs", "--all", "--force", args.device], verbose=args.verbose)
@@ -200,6 +365,9 @@ if __name__ == "__main__":
 
     print("Relocating GPT alt header...")
     run_process([SGDISK, "--move-second-header", args.device], verbose=args.verbose)
+
+    print("Settling partition table...")
+    run_process(["udevadm", "settle"], verbose=args.verbose)
 
     if args.persist:
         print(f"Appending storage partition to {args.device}...")
@@ -215,12 +383,39 @@ if __name__ == "__main__":
             verbose=args.verbose,
         )
         run_process(["partprobe", args.device], verbose=args.verbose)
+        run_process(["udevadm", "settle"], verbose=args.verbose)
         part_dev = storage_partition_dev(args.device, verbose=args.verbose)
-        print(f"Formatting {part_dev} as ext4 (UUID: {persist_uuid})...")
-        run_process(
-            ["mkfs.ext4", "-U", persist_uuid, part_dev],
-            verbose=args.verbose,
-        )
+
+        if bootloader == "grub":
+            # grub: UUID was pre-generated by pyfll; force it onto the partition
+            print(f"Formatting {part_dev} as ext4 (UUID: {persist_uuid})...")
+            run_process(
+                ["mkfs.ext4", "-U", persist_uuid, part_dev],
+                verbose=args.verbose,
+            )
+        else:
+            # systemd-boot / rEFInd: format first, then read the real UUID back
+            # with blkid and inject it into the ESP boot entries.
+            print(f"Formatting {part_dev} as ext4...")
+            run_process(["mkfs.ext4", part_dev], verbose=args.verbose)
+
+            blkid_out = run_process(
+                ["blkid", "-s", "UUID", "-o", "value", part_dev],
+                verbose=args.verbose,
+            )
+            persist_uuid = blkid_out[0].strip() if blkid_out else None
+            if not persist_uuid:
+                sys.exit(f"error: could not read UUID from {part_dev} after mkfs.ext4")
+            print(f"persist_uuid: {persist_uuid}")
+
+            esp_dev = find_esp_partition(args.device, verbose=args.verbose)
+            if esp_dev is None:
+                sys.exit(
+                    f"error: EFI System Partition (EF00) not found on {args.device}\n"
+                    + "       Was the ISO built with an ESP-based bootloader?"
+                )
+            print(f"Injecting persist_uuid into ESP ({esp_dev})...")
+            inject_persist_uuid_into_esp(esp_dev, persist_uuid, verbose=args.verbose)
 
     if args.verbose:
         run_process([SGDISK, "-p", args.device], verbose=args.verbose)
