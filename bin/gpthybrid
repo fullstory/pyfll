@@ -19,6 +19,7 @@ import subprocess
 from operator import itemgetter
 
 SGDISK = "/usr/sbin/sgdisk"
+SGDISK_ALIGN = 4
 
 
 def run_process(cmd, verbose=False):
@@ -72,8 +73,6 @@ if __name__ == "__main__":
     )
     args = cli.parse_args()
 
-    # force the sector alignment
-    sgdisk_align = 4
     sgdisk_print = run_process([SGDISK, "--print", args.iso], verbose=args.verbose)
 
     # dump the existing GPT partition table
@@ -157,7 +156,7 @@ if __name__ == "__main__":
         first = run_process(
             [
                 SGDISK,
-                f"--set-alignment={sgdisk_align}",
+                f"--set-alignment={SGDISK_ALIGN}",
                 "--first-aligned-in-largest",
                 args.iso,
             ],
@@ -172,7 +171,7 @@ if __name__ == "__main__":
                 [
                     SGDISK,
                     "--align-end",
-                    f"--set-alignment={sgdisk_align}",
+                    f"--set-alignment={SGDISK_ALIGN}",
                     f"--new={num}:{first}:{start - 1}",
                     f"--change-name={num}:Gap{gap}",
                     f"--typecode={num}:0700",
@@ -196,7 +195,7 @@ if __name__ == "__main__":
         run_process(
             [
                 SGDISK,
-                f"--set-alignment={sgdisk_align}",
+                f"--set-alignment={SGDISK_ALIGN}",
                 f"--new={num}:{start}:+{fs['sectsize'] // 1024}KiB",
                 f"--change-name={num}:{fs_name}",
                 f"--typecode={num}:{fs_type}",
@@ -209,7 +208,7 @@ if __name__ == "__main__":
     first = run_process(
         [
             SGDISK,
-            f"--set-alignment={sgdisk_align}",
+            f"--set-alignment={SGDISK_ALIGN}",
             "--first-aligned-in-largest",
             args.iso,
         ],
@@ -220,7 +219,7 @@ if __name__ == "__main__":
         [
             SGDISK,
             "--align-end",
-            f"--set-alignment={sgdisk_align}",
+            f"--set-alignment={SGDISK_ALIGN}",
             f"--new={num}:{first}:",
             f"--change-name={num}:Gap{gap}",
             f"--typecode={num}:0700",
@@ -232,6 +231,6 @@ if __name__ == "__main__":
     run_process([SGDISK, "--move-second-header", args.iso], verbose=args.verbose)
     run_process([SGDISK, "--print", args.iso], verbose=args.verbose)
     run_process(
-        [SGDISK, f"--set-alignment={sgdisk_align}", "--verify", args.iso],
+        [SGDISK, f"--set-alignment={SGDISK_ALIGN}", "--verify", args.iso],
         verbose=args.verbose,
     )
