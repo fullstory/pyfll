@@ -19,6 +19,7 @@ import sys
 import tempfile
 
 SGDISK = "/usr/sbin/sgdisk"
+SGDISK_ALIGN = 4
 
 
 def run_process(
@@ -164,12 +165,12 @@ def find_esp_partition(device: str, verbose: bool = False) -> str | None:
     output = run_process([SGDISK, "--print", device], verbose=verbose)
     for line in output:
         fields = line.split()
-        # sgdisk --print data lines: num  start  end  size  unit  code  name...
         if len(fields) >= 6 and fields[0].isdigit() and fields[5].upper() == "EF00":
             partnum = fields[0]
-            if device[-1].isdigit():
-                return f"{device}p{partnum}"
-            return f"{device}{partnum}"
+            real_device = os.path.realpath(device)
+            if real_device[-1].isdigit():
+                return f"{real_device}p{partnum}"
+            return f"{real_device}{partnum}"
     return None
 
 
@@ -275,9 +276,13 @@ def storage_partition_dev(device: str, verbose: bool = False) -> str:
         fields = line.split()
         if fields and fields[0].isdigit():
             partnum = fields[0]
-            if device[-1].isdigit():
-                return os.path.realpath(f"{device}p{partnum}")
-            return os.path.realpath(f"{device}{partnum}")
+            real_device = os.path.realpath(device)
+            if real_device[-1].isdigit():
+                # NVMe style: /dev/nvme0n1 -> /dev/nvme0n1p2
+                return os.path.realpath(f"{real_device}p{partnum}")
+            else:
+                # SCSI/SATA style: /dev/sdb -> /dev/sdb2
+                return os.path.realpath(f"{real_device}{partnum}")
     sys.exit(f"error: could not determine storage partition on {device}")
 
 
@@ -419,6 +424,9 @@ if __name__ == "__main__":
 
     if args.verbose:
         run_process([SGDISK, "-p", args.device], verbose=args.verbose)
-    run_process([SGDISK, "--verify", args.device], verbose=args.verbose)
+    run_process(
+        [SGDISK, f"--set-alignment={SGDISK_ALIGN}", "--verify", args.device],
+        verbose=args.verbose,
+    )
 
     print("Done.")
