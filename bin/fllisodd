@@ -22,22 +22,13 @@ SGDISK = "/usr/sbin/sgdisk"
 SGDISK_ALIGN = 4
 
 
-def run_process(
-    cmd: list[str], verbose: bool = False, streaming: bool = False
-) -> list[str]:
+def run_process(cmd: list[str], verbose: bool = False) -> list[str]:
     """
-    Run a subprocess command.
-
-    When streaming=True the process inherits stdout and stderr directly
-    (suitable for dd with status=progress). Otherwise stdout is captured
-    and returned as a list of lines.
+    Run a subprocess command. stdout is captured and returned as a list of lines.
     """
     if verbose:
         print(f"# {shlex.join(cmd)}")
     try:
-        if streaming:
-            subprocess.run(cmd, check=True)
-            return []
         result = subprocess.run(cmd, capture_output=True, encoding="utf-8", check=True)
         if verbose and result.stdout:
             print(result.stdout)
@@ -365,7 +356,6 @@ if __name__ == "__main__":
     run_process(
         ["dd", f"if={args.iso}", f"of={args.device}", "bs=1M", "status=progress"],
         verbose=args.verbose,
-        streaming=True,
     )
 
     print("Relocating GPT alt header...")
