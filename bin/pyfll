@@ -2193,8 +2193,7 @@ class FLLBuilder(object):
 
         with open(os.path.join(refind_boot_dir, "refind.conf"), "w") as f:
             f.write(f"timeout {timeout}\n")
-            f.write("scanfor manual, internal, external\n")
-            # f.write("showtools memtest, firmware, reboot, shutdown\n")
+            f.write("scanfor manual,firmware\n")
             if os.path.isfile(banner_file):
                 f.write("banner /EFI/BOOT/background.png\n")
                 f.write("banner_scale fillscreen\n")
