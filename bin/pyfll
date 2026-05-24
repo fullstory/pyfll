@@ -402,8 +402,8 @@ class FLLBuilder(object):
         pkg_profile.packages.add(initramfs_tool)
 
         bootloader = self.conf["options"]["bootloader"]
-        if bootloader == "grub":
-            if arch in ("amd64", "i386"):
+        if bootloader == "grub" or bootloader == "grub-efi":
+            if arch in ("amd64", "i386") and bootloader == "grub":
                 pkg_profile.packages.add("grub-pc")
             if arch == "amd64":
                 pkg_profile.packages.update(["grub-efi-amd64-bin", "grub-efi-ia32-bin"])
@@ -1475,13 +1475,26 @@ class FLLBuilder(object):
         efi_img = os.path.join(stage_dir, "efi.img")
         efi_dir = os.path.join(stage_dir, "efi")
 
-        # Calculate total content size + 1MiB
-        total_bytes = sum(
-            os.path.getsize(os.path.join(dirpath, fname))
-            for dirpath, dirnames, filenames in os.walk(efi_dir)
-            for fname in filenames
-        )
-        img_size = int(total_bytes) + 1 * 1024 * 1024
+        # Walk the staging tree once, collecting both total file size and
+        # file count.  FAT allocates in whole clusters, so every file wastes
+        # up to one cluster regardless of its actual size.  With hundreds of
+        # small grub .mod/.lst/locale files the cluster waste dominates.
+        # Overhead budget:
+        #   file_count * cluster_size  — worst-case cluster alignment waste
+        #   2% of total_bytes          — FAT tables + reserved sectors,
+        #                                scaled to content so a tiny grub
+        #                                hybrid ESP (2-3 EFI files, <5 MiB)
+        #                                does not balloon to 4+ MiB of waste
+        #   512 KiB minimum            — floor for very small images
+        total_bytes = 0
+        file_count = 0
+        for dirpath, dirnames, filenames in os.walk(efi_dir):
+            for fname in filenames:
+                total_bytes += os.path.getsize(os.path.join(dirpath, fname))
+                file_count += 1
+        fat_cluster_size = 4096  # bytes, standard FAT32 default
+        fat_metadata = max(512 * 1024, int(total_bytes * 0.02))
+        img_size = total_bytes + file_count * fat_cluster_size + fat_metadata
         # Round up to a 2048-byte (4-sector) boundary, consistent with
         # gpthybrid's sgdisk_align=4 and ISO9660 logical block size
         img_size = ((img_size + 2047) // 2048) * 2048
@@ -1699,6 +1712,155 @@ class FLLBuilder(object):
         # Build the FAT EFI system partition image
         self._build_efi_fat_img(stage_dir)
 
+    def stage_grub_efi(self, chroot: str) -> None:
+        """Stage grub EFI binaries, kernel, initramfs, and grub config entirely
+        within the ESP FAT tree. Nothing grub-related is written to the
+        ISO9660 layer for this bootloader."""
+        chroot_dir = os.path.join(self.temp, chroot)
+        stage_dir = os.path.join(self.temp, "staging")
+
+        efitypes = {"x86_64-efi": "bootx64", "i386-efi": "bootia32"}
+        have_efi = any(
+            os.path.isdir(os.path.join(chroot_dir, f"usr/lib/grub/{efitype}"))
+            for efitype in efitypes
+        )
+        if not have_efi:
+            self.log.critical(f"{chroot} - grub EFI directories not found")
+            raise FllError
+
+        efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
+        os.makedirs(efi_boot_dir, exist_ok=True)
+
+        # Build EFI binaries only once (idempotent guard on directory content)
+        if not any(os.listdir(efi_boot_dir)):
+            self.log.info(f"{chroot} - creating grub-efi EFI boot images...")
+
+            # Memdisk stub grub.cfg: locate the FAT volume by searching for
+            # kernels.cfg, which is unique to our build and written only to
+            # the FAT by write_grub_efi_cfg().  search_fs_file must be baked
+            # into the binary (see grub-mkimage modules below) for --file to
+            # work; the generic search module alone does not provide it.
+            fll_dir = os.path.join(chroot_dir, "fll")
+            os.makedirs(fll_dir, exist_ok=True)
+            memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
+            with tempfile.TemporaryDirectory() as memdisk_src:
+                grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
+                os.makedirs(grub_cfg_dir)
+                with open(os.path.join(grub_cfg_dir, "grub.cfg"), "w") as cfg:
+                    cfg.write(
+                        "search --no-floppy --file --set=root /boot/grub/kernels.cfg\n"
+                    )
+                    cfg.write("set prefix=($root)/boot/grub\n")
+                    cfg.write("source $prefix/grub.cfg\n")
+                with tarfile.open(memdisk_img, "w") as tar:
+                    tar.add(os.path.join(memdisk_src, "boot"), arcname="boot")
+
+            for efitype, efitarget in efitypes.items():
+                if not os.path.isdir(
+                    os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
+                ):
+                    continue
+                self.log.info(
+                    f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
+                )
+                cmd = [
+                    "grub-mkimage",
+                    "-O",
+                    efitype,
+                    "-m",
+                    "/fll/grub_efi_memdisk.img",
+                    "--prefix=(memdisk)/boot/grub",
+                    "-o",
+                    f"/fll/{efitarget}.efi",
+                    "search",
+                    "search_fs_file",
+                    "configfile",
+                    "normal",
+                    "memdisk",
+                    "tar",
+                    "part_msdos",
+                    "part_gpt",
+                    "lvm",
+                    "fat",
+                    "ext2",
+                ]
+                self.chroot_exec(chroot, cmd)
+                shutil.move(
+                    os.path.join(chroot_dir, f"fll/{efitarget}.efi"),
+                    os.path.join(efi_boot_dir, f"{efitarget}.efi"),
+                )
+
+            os.unlink(memdisk_img)
+
+            # Stage grub EFI module and font files inside the FAT tree
+            for efitype in efitypes:
+                gfile_dir = os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
+                if not os.path.isdir(gfile_dir):
+                    continue
+                gfiles = [
+                    os.path.join(gfile_dir, f)
+                    for f in os.listdir(gfile_dir)
+                    if f.endswith(".mod") or f.endswith(".lst")
+                ]
+                unicode_pf2 = os.path.join(chroot_dir, "usr/share/grub/unicode.pf2")
+                if os.path.isfile(unicode_pf2):
+                    gfiles.append(unicode_pf2)
+                esp_grub_dir = os.path.join(stage_dir, f"efi/boot/grub/{efitype}")
+                os.makedirs(esp_grub_dir, exist_ok=True)
+                for f in gfiles:
+                    if os.path.isfile(f):
+                        shutil.copy(f, esp_grub_dir)
+
+            # Stage grub data files (locales, tz, theme) inside the FAT tree
+            esp_grub_base = os.path.join(stage_dir, "efi/boot/grub")
+            shutil.copy(os.path.join(self.opts.share, "data/grub.cfg"), esp_grub_base)
+            # unicode.pf2 must be at /boot/grub/unicode.pf2 on the FAT;
+            # grub.cfg calls loadfont at that path before enabling gfxterm
+            unicode_pf2 = os.path.join(chroot_dir, "usr/share/grub/unicode.pf2")
+            if os.path.isfile(unicode_pf2):
+                shutil.copy(unicode_pf2, esp_grub_base)
+            shutil.copytree(
+                os.path.join(self.opts.share, "data/locales"),
+                os.path.join(esp_grub_base, "locales"),
+                dirs_exist_ok=True,
+            )
+            shutil.copytree(
+                os.path.join(self.opts.share, "data/tz"),
+                os.path.join(esp_grub_base, "tz"),
+                dirs_exist_ok=True,
+            )
+            theme_dir = f"themes/{self.conf['distro']['FLL_GFXBOOT_THEME']}"
+            if os.path.isfile(
+                os.path.join(chroot_dir, f"usr/share/grub/{theme_dir}/theme.txt")
+            ):
+                shutil.copytree(
+                    os.path.join(chroot_dir, f"usr/share/grub/{theme_dir}"),
+                    os.path.join(esp_grub_base, theme_dir),
+                    dirs_exist_ok=True,
+                )
+
+            # Stage memtest binaries inside the FAT tree
+            for mt in ["mt86+ia32", "mt86+x64"]:
+                memtest = os.path.join(chroot_dir, "boot", mt)
+                if os.path.isfile(memtest):
+                    self.log.debug(f"copying {mt} to ESP")
+                    shutil.copy(memtest, os.path.join(stage_dir, "efi/boot", mt))
+
+        # Stage kernel and initramfs for this chroot inside the FAT tree.
+        # kernels.cfg entries reference /{chroot}/vmlinuz and /{chroot}/initrd.
+        vmlinuz_files = glob.glob(os.path.join(chroot_dir, "boot", "vmlinuz-*"))
+        initrd_files = glob.glob(os.path.join(chroot_dir, "boot", "initrd.img-*"))
+        if len(vmlinuz_files) != 1 or len(initrd_files) != 1:
+            self.log.critical(
+                f"{chroot} - could not find unique kernel/initramfs for ESP staging"
+            )
+            raise FllError
+        esp_chroot_dir = os.path.join(stage_dir, f"efi/{chroot}")
+        os.makedirs(esp_chroot_dir, exist_ok=True)
+        self.log.info(f"{chroot} - staging kernel and initramfs onto ESP...")
+        shutil.copy(vmlinuz_files[0], os.path.join(esp_chroot_dir, "vmlinuz"))
+        shutil.copy(initrd_files[0], os.path.join(esp_chroot_dir, "initrd"))
+
     def stage_systemd_boot(self, chroot: str) -> None:
         """Stage systemd-boot EFI binaries and copy kernel/initramfs onto the ESP."""
         chroot_dir = os.path.join(self.temp, chroot)
@@ -1893,6 +2055,8 @@ class FLLBuilder(object):
         bootloader = self.conf["options"]["bootloader"]
         if bootloader == "grub":
             self.stage_grub(chroot)
+        elif bootloader == "grub-efi":
+            self.stage_grub_efi(chroot)
         elif bootloader == "systemd-boot":
             self.stage_systemd_boot(chroot)
         elif bootloader == "refind":
@@ -2108,6 +2272,102 @@ class FLLBuilder(object):
                 vcfg.write(f"grub_theme=/boot/{grub_theme}\n")
             vcfg.write(f"timeout={timeout}\n")
 
+    def write_grub_efi_cfg(self) -> None:
+        """Write grub kernels.cfg and variable.cfg into the ESP FAT tree,
+        then build efi.img. All grub config is self-contained in the FAT;
+        nothing is written to the ISO9660 layer."""
+        self.log.info("writing grub-efi configuration onto ESP...")
+        stage_dir = os.path.join(self.temp, "staging")
+        esp_grub_dir = os.path.join(stage_dir, "efi/boot/grub")
+        os.makedirs(esp_grub_dir, exist_ok=True)
+
+        distro = self.conf["distro"]["FLL_DISTRO_NAME"]
+        timeout = self.conf["options"].get("boot_timeout", "-1")
+
+        with open(os.path.join(esp_grub_dir, "kernels.cfg"), "w") as kcfg:
+            for chroot in self.chroots:
+                # Kernel and initramfs live in /{chroot}/ on the FAT volume
+                vmlinuz = f"/{chroot}/vmlinuz"
+                initrd = f"/{chroot}/initrd"
+                arch = self.conf["chroots"][chroot]["packages"]["arch"]
+                cmdline = self.config_boot_cmdline(distro, chroot)
+                indent = ""
+                desktops = sorted(self.profiles[chroot].desktops)
+
+                if arch[0:3] == "amd":
+                    indent += "  "
+                    kcfg.write("if cpuid -l; then\n")
+                    kcfg.write(f'{indent}havekernel="Y"\n')
+
+                if len(self.chroots) > 1 and len(desktops) > 1:
+                    title = f"{distro} {chroot} [{', '.join(desktops)}]"
+                    kcfg.write(
+                        f'{indent}submenu --class={distro}.{arch} "{title}"' + " {\n"
+                    )
+                    indent += "  "
+
+                for desktop in desktops:
+                    title = f"{distro} {chroot} {desktop}"
+                    kcfg.write(
+                        f'{indent}menuentry --class={distro}.{arch} "{title}"' + " {\n"
+                    )
+                    kcfg.write(
+                        f"{indent}  linux {vmlinuz} {cmdline} desktop={desktop} $kopts\n"
+                    )
+                    kcfg.write(f"{indent}  initrd {initrd}\n")
+                    kcfg.write(f"{indent}" + "}\n")
+                else:
+                    if len(desktops) == 0:
+                        title = f"{distro} {chroot}"
+                        kcfg.write(
+                            f'{indent}menuentry --class={distro}.{arch} "{title}"'
+                            + " {\n"
+                        )
+                        kcfg.write(f"{indent}  linux {vmlinuz} {cmdline} $kopts\n")
+                        kcfg.write(f"{indent}  initrd {initrd}\n")
+                        kcfg.write(f"{indent}" + "}\n")
+
+                if len(self.chroots) > 1 and len(desktops) > 1:
+                    indent = indent[:-2]
+                    kcfg.write(f"{indent}" + "}\n")
+
+                if arch[0:3] == "amd":
+                    kcfg.write("fi\n")
+
+            kcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
+            kcfg.write(
+                '  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {\n'
+            )
+            kcfg.write("    echo $@\n")
+            kcfg.write(
+                '    echo "There are no kernels suitable for this machine available."\n'
+            )
+            kcfg.write('    echo ""\n')
+            kcfg.write("    if ! cpuid -l; then\n")
+            kcfg.write('      echo "This machine is NOT 64bit capable."\n')
+            kcfg.write("    fi\n")
+            kcfg.write('    echo ""\n')
+            kcfg.write('    echo "Press Escape to halt computer."\n')
+            kcfg.write(f"    sleep --verbose --interruptible {timeout}\n")
+            kcfg.write("    halt\n")
+            kcfg.write("  }\n")
+            kcfg.write("fi\n")
+
+        self.log.debug("writing variable.cfg for grub-efi")
+        with open(os.path.join(esp_grub_dir, "variable.cfg"), "w") as vcfg:
+            # esp_grub_dir is already staging/efi/boot/grub, so the theme
+            # is one level below — no leading "grub/" in the relative path.
+            # The FAT path written into variable.cfg needs the full prefix.
+            grub_theme_rel = (
+                f"themes/{self.conf['distro']['FLL_GFXBOOT_THEME']}/theme.txt"
+            )
+            if os.path.isfile(os.path.join(esp_grub_dir, grub_theme_rel)):
+                vcfg.write(f"grub_theme=/boot/grub/{grub_theme_rel}\n")
+            vcfg.write(f"timeout={timeout}\n")
+
+        # All ESP content is staged under staging/efi/; build efi.img now.
+        self._build_efi_fat_img(stage_dir)
+
     def write_systemd_loader_conf(self) -> None:
         """Write systemd-boot loader entries and loader.conf; build efi.img."""
         self.log.info("writing systemd-boot loader configuration...")
@@ -2228,6 +2488,8 @@ class FLLBuilder(object):
         bootloader = self.conf["options"]["bootloader"]
         if bootloader == "grub":
             self.write_grub_cfg()
+        elif bootloader == "grub-efi":
+            self.write_grub_efi_cfg()
         elif bootloader == "systemd-boot":
             self.write_systemd_loader_conf()
         elif bootloader == "refind":
@@ -2310,9 +2572,9 @@ class FLLBuilder(object):
             xorriso_cmd += " -no-emul-boot -boot-load-size 4 -boot-info-table"
             xorriso_cmd += " -b boot/grub/i386-pc/grub_eltorito"
             xorriso_cmd += f" --grub2-boot-info --grub2-mbr {grub_mbr_img} "
-        elif bootloader == "systemd-boot":
+        else:
             if not os.path.isfile(os.path.join(stage, "efi.img")):
-                self.log.critical("EFI image not found in staging for systemd-boot")
+                self.log.critical(f"EFI image not found in staging for {bootloader}")
                 raise FllError
 
         gpthybrid_cmd += f" --iso {iso_file} --filesystems"
