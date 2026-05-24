@@ -8,7 +8,6 @@ packages = """
 	avahi-utils
 	build-essential
 	cifs-utils
-	cryptsetup
 	debconf-utils
 	debhelper
 	ethtool
@@ -32,13 +31,13 @@ packages = """
 	smbclient
 	strace
 	syncthing
-	systemd-cryptsetup
 	testdisk
 	tofrodos
 	traceroute
 	xfsprogs
 	unzip
 	vpnc
+	xfsprogs
 	xorriso
 	zip
 """

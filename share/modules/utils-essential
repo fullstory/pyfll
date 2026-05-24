@@ -7,6 +7,7 @@ packages = """
 		btrfsmaintenance
 	cdebootstrap
 	console-data
+	cryptsetup
 	debsums
 	dosfstools
 	e2fsprogs
@@ -25,9 +26,9 @@ packages = """
 		plymouth-themes
 	rsync
 	systemd-cron
+	systemd-cryptsetup
 	wget
 	wpasupplicant
-	xfsprogs
 	xz-utils
 	zstd
 """
