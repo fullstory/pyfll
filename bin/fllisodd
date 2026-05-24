@@ -76,18 +76,21 @@ def detect_bootloader(iso: str, verbose: bool = False) -> str | None:
     """
     Detect which bootloader the ISO was built with.
 
-    grub stores its config in the ISO9660 tree (/boot/grub/kernels.cfg).
+    grub (BIOS/EFI hybrid) stores kernels.cfg directly on the ISO9660 layer and
+    has a minimal efi.img.
 
-    systemd-boot and rEFInd both use an ESP FAT image (efi.img) embedded in
-    the ISO9660 tree.  To tell them apart efi.img is extracted once and then
-    inspected with mcopy:
-      - systemd-boot: efi.img contains /loader/loader.conf
-      - rEFInd:       efi.img contains /EFI/BOOT/refind.conf
+    grub-efi, systemd-boot, and rEFInd all embed an efi.img, containing all
+    required boot artifacts and configuration.
 
-    Returns one of: "grub", "systemd-boot", "refind", or None.
+    To tell them apart, efi.img is extracted once and then probed with mcopy:
+      - grub-efi:       efi.img contains /boot/grub/kernels.cfg
+      - systemd-boot:   efi.img contains /loader/loader.conf
+      - rEFInd:         efi.img contains /EFI/BOOT/refind.conf
+
+    Returns one of: "grub", "grub-efi", "systemd-boot", "refind", or None.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
-        # grub: config lives directly on the ISO9660 layer
+        # grub (BIOS/EFI hybrid): kernels.cfg lives directly on the ISO9660 layer
         kernels_cfg = os.path.join(tmpdir, "kernels.cfg")
         try:
             run_process(
@@ -106,8 +109,6 @@ def detect_bootloader(iso: str, verbose: bool = False) -> str | None:
         except subprocess.CalledProcessError:
             pass
 
-        # systemd-boot / rEFInd: config is inside efi.img on the ISO9660 layer;
-        # extract efi.img once and probe its contents with mcopy.
         efi_img = os.path.join(tmpdir, "efi.img")
         try:
             run_process(
@@ -118,11 +119,35 @@ def detect_bootloader(iso: str, verbose: bool = False) -> str | None:
             pass
 
         if os.path.isfile(efi_img):
-            # systemd-boot drops loader/loader.conf at the FAT root
+            # grub-efi: kernels.cfg lives inside the FAT under boot/grub/
+            kernels_cfg_fat = os.path.join(tmpdir, "kernels.cfg.fat")
+            try:
+                run_process(
+                    [
+                        "mcopy",
+                        "-i",
+                        efi_img,
+                        "::/boot/grub/kernels.cfg",
+                        kernels_cfg_fat,
+                    ],
+                    verbose=verbose,
+                )
+                if os.path.isfile(kernels_cfg_fat):
+                    return "grub-efi"
+            except subprocess.CalledProcessError:
+                pass
+
+            # systemd-boot: loader/loader.conf at the FAT root
             loader_conf = os.path.join(tmpdir, "loader.conf")
             try:
                 run_process(
-                    ["mcopy", "-i", efi_img, "::/loader/loader.conf", loader_conf],
+                    [
+                        "mcopy",
+                        "-i",
+                        efi_img,
+                        "::/loader/loader.conf",
+                        loader_conf,
+                    ],
                     verbose=verbose,
                 )
                 if os.path.isfile(loader_conf):
@@ -130,11 +155,17 @@ def detect_bootloader(iso: str, verbose: bool = False) -> str | None:
             except subprocess.CalledProcessError:
                 pass
 
-            # rEFInd drops refind.conf under /EFI/BOOT/ on the FAT volume
+            # rEFInd: refind.conf under EFI/BOOT/
             refind_conf = os.path.join(tmpdir, "refind.conf")
             try:
                 run_process(
-                    ["mcopy", "-i", efi_img, "::/EFI/BOOT/refind.conf", refind_conf],
+                    [
+                        "mcopy",
+                        "-i",
+                        efi_img,
+                        "::/EFI/BOOT/refind.conf",
+                        refind_conf,
+                    ],
                     verbose=verbose,
                 )
                 if os.path.isfile(refind_conf):
@@ -182,10 +213,39 @@ def inject_persist_uuid_into_esp(
     with tempfile.TemporaryDirectory() as mnt:
         run_process(["mount", esp_dev, mnt], verbose=verbose)
         try:
+            _patch_grub_efi_kernels_cfg(mnt, uuid, verbose)
             _patch_systemd_boot_entries(mnt, uuid, verbose)
             _patch_refind_conf(mnt, uuid, verbose)
         finally:
             run_process(["umount", mnt], verbose=verbose)
+
+
+def _patch_grub_efi_kernels_cfg(mnt: str, uuid: str, verbose: bool = False) -> None:
+    """
+    Append persist_uuid=<uuid> to every 'linux' line in
+    <mnt>/boot/grub/kernels.cfg that does not already carry it.
+    """
+    kernels_cfg = os.path.join(mnt, "boot", "grub", "kernels.cfg")
+    if not os.path.isfile(kernels_cfg):
+        return
+
+    with open(kernels_cfg) as f:
+        lines = f.readlines()
+
+    changed = False
+    new_lines: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("linux ") and f"persist_uuid={uuid}" not in stripped:
+            line = line.rstrip() + f" persist_uuid={uuid}\n"
+            changed = True
+        new_lines.append(line)
+
+    if changed:
+        if verbose:
+            print(f"# patching {kernels_cfg}")
+        with open(kernels_cfg, "w") as f:
+            f.writelines(new_lines)
 
 
 def _patch_systemd_boot_entries(mnt: str, uuid: str, verbose: bool = False) -> None:
@@ -389,8 +449,8 @@ if __name__ == "__main__":
                 verbose=args.verbose,
             )
         else:
-            # systemd-boot / rEFInd: format first, then read the real UUID back
-            # with blkid and inject it into the ESP boot entries.
+            # grub-efi / systemd-boot / rEFInd: format first, then read the
+            # real UUID back with blkid and inject it into the ESP boot entries.
             print(f"Formatting {part_dev} as ext4...")
             run_process(["mkfs.ext4", part_dev], verbose=args.verbose)
 
