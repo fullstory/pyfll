@@ -430,6 +430,7 @@ if __name__ == "__main__":
             [
                 SGDISK,
                 f"--set-alignment={SGDISK_ALIGN}",
+                "--align-end",
                 "--new=0:0:0",
                 "--typecode=0:8300",
                 "--change-name=0:storage",
