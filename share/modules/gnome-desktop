@@ -18,7 +18,6 @@ packages = """
 	qalculate-gtk
 	rhythmbox
 	seahorse
-	seahorse-daemon
 	transmission-gtk
 	guake
 """
