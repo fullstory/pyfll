@@ -1598,7 +1598,7 @@ class FLLBuilder(object):
                         raise FllError
 
         eltorito_dst = os.path.join(boot_dir, "grub/i386-pc/grub_eltorito")
-        if grub_pc_dir_src and not os.path.exists(eltorito_dst):
+        if os.path.isdir(grub_pc_dir_src) and not os.path.exists(eltorito_dst):
             self.log.info(f"{chroot} - creating grub2 El Torito image...")
             cmd = [
                 "grub-mkimage",
