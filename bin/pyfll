@@ -1566,20 +1566,19 @@ class FLLBuilder(object):
                     os.path.join(grub_dir, theme_dir),
                 )
 
-        pc_dirs = glob.glob(os.path.join(chroot_dir, "usr/lib/grub/*-pc"))
-        if pc_dirs:
-            gfile_dir = pc_dirs[0]
-            grub2_modules = glob.glob(os.path.join(gfile_dir, "*.mod"))
+        grub_pc_dir_src = os.path.join(chroot_dir, "usr/lib/grub/i386-pc")
+        if os.path.isdir(grub_pc_dir_src):
+            grub2_modules = glob.glob(os.path.join(grub_pc_dir_src, "*.mod"))
             if grub2_modules:
                 gfiles = [
-                    os.path.join(gfile_dir, f)
-                    for f in os.listdir(gfile_dir)
+                    os.path.join(grub_pc_dir_src, f)
+                    for f in os.listdir(grub_pc_dir_src)
                     if f.endswith(".mod") or f.endswith(".img") or f.endswith(".lst")
                 ]
             else:
                 gfiles = [
-                    os.path.join(gfile_dir, f)
-                    for f in os.listdir(gfile_dir)
+                    os.path.join(grub_pc_dir_src, f)
+                    for f in os.listdir(grub_pc_dir_src)
                     if f.startswith("stage2") or f.startswith("iso9660")
                 ]
 
@@ -1599,7 +1598,7 @@ class FLLBuilder(object):
                         raise FllError
 
         eltorito_dst = os.path.join(boot_dir, "grub/i386-pc/grub_eltorito")
-        if pc_dirs and not os.path.exists(eltorito_dst):
+        if grub_pc_dir_src and not os.path.exists(eltorito_dst):
             self.log.info(f"{chroot} - creating grub2 El Torito image...")
             cmd = [
                 "grub-mkimage",
