@@ -1566,43 +1566,40 @@ class FLLBuilder(object):
                     os.path.join(grub_dir, theme_dir),
                 )
 
-        gfile_dir = glob.glob(os.path.join(chroot_dir, "usr/lib/grub/*-pc"))[0]
+        pc_dirs = glob.glob(os.path.join(chroot_dir, "usr/lib/grub/*-pc"))
+        if pc_dirs:
+            gfile_dir = pc_dirs[0]
+            grub2_modules = glob.glob(os.path.join(gfile_dir, "*.mod"))
+            if grub2_modules:
+                gfiles = [
+                    os.path.join(gfile_dir, f)
+                    for f in os.listdir(gfile_dir)
+                    if f.endswith(".mod") or f.endswith(".img") or f.endswith(".lst")
+                ]
+            else:
+                gfiles = [
+                    os.path.join(gfile_dir, f)
+                    for f in os.listdir(gfile_dir)
+                    if f.startswith("stage2") or f.startswith("iso9660")
+                ]
 
-        grub2_modules = glob.glob(os.path.join(gfile_dir, "*.mod"))
-        if len(grub2_modules) > 0:
-            gfiles = [
-                os.path.join(gfile_dir, f)
-                for f in os.listdir(gfile_dir)
-                if f.endswith(".mod") or f.endswith(".img") or f.endswith(".lst")
-            ]
-        else:
-            gfiles = [
-                os.path.join(gfile_dir, f)
-                for f in os.listdir(gfile_dir)
-                if f.startswith("stage2") or f.startswith("iso9660")
-            ]
-
-        if len(gfiles) > 0:
-            self.log.debug("copying grub stage files to boot dir")
-            grub_dir = os.path.join(boot_dir, "grub", "i386-pc")
-            if not os.path.isdir(grub_dir):
-                os.makedirs(grub_dir, 0o755)
-        else:
-            self.log.exception("grub stage files not found")
-            raise FllError
-
-        for file in gfiles:
-            try:
-                shutil.copy(file, grub_dir)
-            except IOError:
-                self.log.exception("failed to copy grub file to staging dir")
+            if not gfiles:
+                self.log.exception("grub stage files not found")
                 raise FllError
 
-        # BIOS El Torito
+            grub_pc_dir = os.path.join(boot_dir, "grub", "i386-pc")
+            if not os.path.isdir(grub_pc_dir):
+                self.log.debug("copying grub stage files to boot dir")
+                os.makedirs(grub_pc_dir, 0o755)
+                for file in gfiles:
+                    try:
+                        shutil.copy(file, grub_pc_dir)
+                    except IOError:
+                        self.log.exception("failed to copy grub file to staging dir")
+                        raise FllError
+
         eltorito_dst = os.path.join(boot_dir, "grub/i386-pc/grub_eltorito")
-        if glob.glob(
-            os.path.join(chroot_dir, "usr/lib/grub/*-pc")
-        ) and not os.path.exists(eltorito_dst):
+        if pc_dirs and not os.path.exists(eltorito_dst):
             self.log.info(f"{chroot} - creating grub2 El Torito image...")
             cmd = [
                 "grub-mkimage",
@@ -1621,98 +1618,102 @@ class FLLBuilder(object):
                 eltorito_dst,
             )
 
-        # EFI
-        self.log.info(f"{chroot} - creating grub2 EFI boot images...")
+        efitypes = {"x86_64-efi": "bootx64", "i386-efi": "bootia32"}
 
-        # Create staging/efi/EFI/BOOT/ now so grub-mkimage output lands there
-        # directly with no intermediary copies through the chroot's /tmp/
+        have_efi = any(
+            os.path.isdir(os.path.join(chroot_dir, f"usr/lib/grub/{efitype}"))
+            for efitype in efitypes
+        )
+        if not have_efi:
+            return
+
         efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
         os.makedirs(efi_boot_dir, exist_ok=True)
 
-        # Build memdisk tar; grub-mkimage runs inside the chroot so the tar
-        # must be accessible there - it is removed once all images are built
-        memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
-        with tempfile.TemporaryDirectory() as memdisk_src:
-            grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
-            os.makedirs(grub_cfg_dir)
-            with open(os.path.join(grub_cfg_dir, "grub.cfg"), "w") as cfg:
-                cfg.write(f"search --fs-uuid --set=root {self.xorriso_uuid}\n")
-                cfg.write("set prefix=(${root})/boot/grub\n")
-                cfg.write("source $prefix/grub.cfg\n")
-            with tarfile.open(memdisk_img, "w") as tar:
-                tar.add(os.path.join(memdisk_src, "boot"), arcname="boot")
-
-        efitypes = {"x86_64-efi": "bootx64", "i386-efi": "bootia32"}
         for efitype, efitarget in efitypes.items():
             if not os.path.isdir(os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")):
                 continue
-            self.log.info(
-                f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
-            )
-            efi_out_host = os.path.join(chroot_dir, f"fll/{efitarget}.efi")
-            cmd = [
-                "grub-mkimage",
-                "-O",
-                efitype,
-                "-m",
-                "/fll/grub_efi_memdisk.img",
-                "--prefix=(memdisk)/boot/grub",
-                "-o",
-                f"/fll/{efitarget}.efi",
-                "search",
-                "iso9660",
-                "configfile",
-                "normal",
-                "memdisk",
-                "tar",
-                "part_msdos",
-                "part_gpt",
-                "lvm",
-                "fat",
-                "ext2",
-            ]
-            self.chroot_exec(chroot, cmd)
-            shutil.move(efi_out_host, os.path.join(efi_boot_dir, f"{efitarget}.efi"))
 
-        os.unlink(memdisk_img)
+            efi_dst = os.path.join(efi_boot_dir, f"{efitarget}.efi")
+            if not os.path.isfile(efi_dst):
+                self.log.info(f"{chroot} - creating grub2 EFI boot images...")
+                memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
+                with tempfile.TemporaryDirectory() as memdisk_src:
+                    grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
+                    os.makedirs(grub_cfg_dir)
+                    with open(os.path.join(grub_cfg_dir, "grub.cfg"), "w") as cfg:
+                        cfg.write(f"search --fs-uuid --set=root {self.xorriso_uuid}\n")
+                        cfg.write("set prefix=(${root})/boot/grub\n")
+                        cfg.write("source $prefix/grub.cfg\n")
+                    with tarfile.open(memdisk_img, "w") as tar:
+                        tar.add(os.path.join(memdisk_src, "boot"), arcname="boot")
 
-        for efitype in list(efitypes.keys()):
+                self.log.info(
+                    f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
+                )
+                efi_out_host = os.path.join(chroot_dir, f"fll/{efitarget}.efi")
+                cmd = [
+                    "grub-mkimage",
+                    "-O",
+                    efitype,
+                    "-m",
+                    "/fll/grub_efi_memdisk.img",
+                    "--prefix=(memdisk)/boot/grub",
+                    "-o",
+                    f"/fll/{efitarget}.efi",
+                    "search",
+                    "iso9660",
+                    "configfile",
+                    "normal",
+                    "memdisk",
+                    "tar",
+                    "part_msdos",
+                    "part_gpt",
+                    "lvm",
+                    "fat",
+                    "ext2",
+                ]
+                self.chroot_exec(chroot, cmd)
+                shutil.move(efi_out_host, efi_dst)
+                os.unlink(memdisk_img)
+
             gfile_dir = os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
-            if os.path.isdir(gfile_dir):
+            grub_efi_dir = os.path.join(boot_dir, "grub", efitype)
+            if not os.path.isdir(grub_efi_dir):
                 gfiles = [
                     os.path.join(gfile_dir, f)
                     for f in os.listdir(gfile_dir)
                     if f.endswith(".mod") or f.endswith(".lst")
                 ]
-                gfiles.append(os.path.join(chroot_dir, "/usr/share/grub/unicode.pf2"))
-                if len(gfiles) > 0:
+                gfiles.append(os.path.join(chroot_dir, "usr/share/grub/unicode.pf2"))
+                if gfiles:
                     self.log.debug(f"copying grub {efitype} stage files to boot dir")
-                    grub_dir = os.path.join(boot_dir, "grub", efitype)
-                    if not os.path.isdir(grub_dir):
-                        os.makedirs(grub_dir, 0o755)
-                for file in gfiles:
-                    try:
-                        shutil.copy(file, grub_dir)
-                    except IOError:
-                        self.log.exception(
-                            "failed to copy grub efi file to staging dir"
-                        )
-                        raise FllError
+                    os.makedirs(grub_efi_dir, 0o755)
+                    for file in gfiles:
+                        try:
+                            shutil.copy(file, grub_efi_dir)
+                        except IOError:
+                            self.log.exception(
+                                "failed to copy grub efi file to staging dir"
+                            )
+                            raise FllError
 
-        # for grub stage memtest on the iso
-        for mt in ["mt86+ia32", "mt86+x64"]:
+        memtest_arch_map = {
+            "x86_64-efi": "mt86+x64",
+            "i386-efi": "mt86+ia32",
+        }
+        for efitype, mt in memtest_arch_map.items():
+            if not os.path.isdir(os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")):
+                continue
             memtest = os.path.join(chroot_dir, "boot", mt)
             memtest_out = os.path.join(boot_dir, mt)
-            if os.path.isfile(memtest):
+            if os.path.isfile(memtest) and not os.path.isfile(memtest_out):
                 self.log.debug(f"copying {mt} to boot dir")
                 try:
                     shutil.copy(memtest, memtest_out)
                 except IOError:
                     self.log.exception(f"failed to copy {mt} to staging dir")
                     raise FllError
-
-        # Build the FAT EFI system partition image
-        self._build_efi_fat_img(stage_dir)
 
     def stage_grub_efi(self, chroot: str) -> None:
         """Stage grub EFI binaries, kernel, initramfs, and grub config entirely
@@ -2273,6 +2274,12 @@ class FLLBuilder(object):
             if os.path.isfile(os.path.join(boot_dir, grub_theme)):
                 vcfg.write(f"grub_theme=/boot/{grub_theme}\n")
             vcfg.write(f"timeout={timeout}\n")
+
+        # Build the FAT EFI system partition image now that all chroots have
+        # staged their arch-specific EFI content under staging/efi/
+        stage_dir = os.path.join(self.temp, "staging")
+        if os.path.isdir(os.path.join(stage_dir, "efi")):
+            self._build_efi_fat_img(stage_dir)
 
     def write_grub_efi_cfg(self) -> None:
         """Write grub kernels.cfg and variable.cfg into the ESP FAT tree,
