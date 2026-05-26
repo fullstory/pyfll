@@ -406,9 +406,11 @@ class FLLBuilder(object):
             if arch in ("amd64", "i386") and bootloader == "grub":
                 pkg_profile.packages.add("grub-pc")
             if arch == "amd64":
-                pkg_profile.packages.update(["grub-efi-amd64-bin", "grub-efi-ia32-bin"])
+                pkg_profile.packages.add("grub-efi-amd64-bin")
             elif arch == "i386":
                 pkg_profile.packages.add("grub-efi-ia32-bin")
+            elif arch == "arm64":
+                pkg_profile.packages.add("grub-efi-arm64-bin")
         elif bootloader == "systemd-boot":
             pkg_profile.packages.update(["systemd-boot", "systemd-boot-efi"])
         elif bootloader == "refind":
