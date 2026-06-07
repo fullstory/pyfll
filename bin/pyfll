@@ -746,6 +746,7 @@ class FLLBuilder(object):
             "--as-pid2",
             "--resolv-conf=bind-host",
             "--timezone=off",
+            "--restrict-address-families=AF_INET AF_INET6 AF_UNIX",
         ]
         for key, value in self.env.items():
             cmd.append(f"--setenv={key}={value}")
