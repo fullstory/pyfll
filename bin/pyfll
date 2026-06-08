@@ -7,6 +7,7 @@ __license__ = "GPLv2 or any later version"
 
 import argparse
 import atexit
+import concurrent.futures
 import copy
 import datetime
 import glob
@@ -19,6 +20,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -266,6 +268,7 @@ class FLLBuilder(object):
         self.persist_uuid = uuidgen()
         self.timestamp = self.date.strftime("%Y%m%d%H%M")
         self.live_media = str()
+        self._staging_lock = threading.Lock()
 
     def prep_dir(self, dirname: str) -> str:
         """Set up working directories."""
@@ -301,6 +304,7 @@ class FLLBuilder(object):
         logfile.setFormatter(fmt)
         logfile.setLevel(logging.DEBUG)
         self.log.addHandler(logfile)
+        self._logfile_handler = logfile
         os.chown(log_filename, self.opts.uid, self.opts.gid)
         self.log.debug(" ".join(sys.argv))
 
@@ -326,6 +330,10 @@ class FLLBuilder(object):
 
         if self.opts.debug:
             self.init_logger("DEBUG")
+            self.opts.jobs = 1
+        elif self.opts.verbose:
+            self.init_logger("INFO")
+            self.opts.jobs = 1
         else:
             self.init_logger("INFO")
 
@@ -735,7 +743,9 @@ class FLLBuilder(object):
                 if return_code:
                     raise subprocess.CalledProcessError(return_code, shlex.join(cmd))
             else:
-                if self.opts.quiet:
+                if self.opts.verbose:
+                    subprocess.run(cmd, env=self.env, check=True)
+                else:
                     subprocess.run(
                         cmd,
                         env=self.env,
@@ -743,8 +753,6 @@ class FLLBuilder(object):
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                     )
-                else:
-                    subprocess.run(cmd, env=self.env, check=True)
         except KeyboardInterrupt:
             raise FllError
         except subprocess.CalledProcessError:
@@ -802,14 +810,14 @@ class FLLBuilder(object):
             aptget.append("--allow-unauthenticated")
             aptget.extend(["-o", "Acquire::AllowInsecureRepositories=1"])
         aptget.extend(["-o", "Acquire::Languages=none"])
-        if self.opts.debug or self.opts.quiet:
-            aptget.extend(["-o", "Dpkg::Use-Pty=0"])
-            aptget.extend(["-o", "Dpkg::Progress-Fancy=0"])
-            aptget.extend(["-o", "APT::Color=0"])
-        else:
+        if self.opts.verbose:
             aptget.extend(["-o", "Dpkg::Use-Pty=1"])
             aptget.extend(["-o", "Dpkg::Progress-Fancy=1"])
             aptget.extend(["-o", "APT::Color=1"])
+        else:
+            aptget.extend(["-o", "Dpkg::Use-Pty=0"])
+            aptget.extend(["-o", "Dpkg::Progress-Fancy=0"])
+            aptget.extend(["-o", "APT::Color=0"])
 
         apt_recommends = self.conf["options"].get("apt_recommends", "no")
         if apt_recommends == "no":
@@ -817,7 +825,7 @@ class FLLBuilder(object):
 
         if self.opts.debug:
             aptget.extend(["-o", "APT::Get::Show-Versions=1"])
-        elif self.opts.quiet:
+        elif not self.opts.verbose:
             aptget.append("-qq")
 
         aptget.append(command)
@@ -1444,6 +1452,8 @@ class FLLBuilder(object):
 
     def install_flatpaks(self, chroot: str) -> None:
         """Install flatpaks"""
+        if not any([self.profiles[chroot].flatpaks, self.profiles[chroot].flatpaks_beta]):
+            return
         self.log.info(
             f"{chroot} - configuring flatpak remotes and installing flatpaks..."
         )
@@ -1768,38 +1778,36 @@ class FLLBuilder(object):
         efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
         os.makedirs(efi_boot_dir, exist_ok=True)
 
-        # Build EFI binaries only once (idempotent guard on directory content)
-        if not any(os.listdir(efi_boot_dir)):
-            self.log.info(f"{chroot} - creating grub-efi EFI boot images...")
+        # Per-efitype: build the EFI binary and stage module files if this
+        # chroot provides that arch's grub files and the binary is not yet
+        # staged. Each chroot only carries grub files for its own arch, so
+        # each binary is created exactly once by whichever chroot runs first.
+        # Memdisk stub grub.cfg: locate the FAT volume by searching for
+        # kernels.cfg, which is unique to our build and written only to
+        # the FAT by write_grub_efi_cfg().  search_fs_file must be baked
+        # into the binary (see grub-mkimage modules below) for --file to
+        # work; the generic search module alone does not provide it.
+        for efitype, efitarget in efitypes.items():
+            if not os.path.isdir(os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")):
+                continue
 
-            # Memdisk stub grub.cfg: locate the FAT volume by searching for
-            # kernels.cfg, which is unique to our build and written only to
-            # the FAT by write_grub_efi_cfg().  search_fs_file must be baked
-            # into the binary (see grub-mkimage modules below) for --file to
-            # work; the generic search module alone does not provide it.
-            fll_dir = os.path.join(chroot_dir, "fll")
-            os.makedirs(fll_dir, exist_ok=True)
-            memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
-            with tempfile.TemporaryDirectory() as memdisk_src:
-                grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
-                os.makedirs(grub_cfg_dir)
-                with open(os.path.join(grub_cfg_dir, "grub.cfg"), "w") as cfg:
-                    cfg.write(
-                        "search --no-floppy --file --set=root /boot/grub/kernels.cfg\n"
-                    )
-                    cfg.write("set prefix=($root)/boot/grub\n")
-                    cfg.write("source $prefix/grub.cfg\n")
-                with tarfile.open(memdisk_img, "w") as tar:
-                    tar.add(os.path.join(memdisk_src, "boot"), arcname="boot")
-
-            for efitype, efitarget in efitypes.items():
-                if not os.path.isdir(
-                    os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
-                ):
-                    continue
+            efi_dst = os.path.join(efi_boot_dir, f"{efitarget}.efi")
+            if not os.path.isfile(efi_dst):
                 self.log.info(
                     f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
                 )
+                memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
+                with tempfile.TemporaryDirectory() as memdisk_src:
+                    grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
+                    os.makedirs(grub_cfg_dir)
+                    with open(os.path.join(grub_cfg_dir, "grub.cfg"), "w") as cfg:
+                        cfg.write(
+                            "search --no-floppy --file --set=root /boot/grub/kernels.cfg\n"
+                        )
+                        cfg.write("set prefix=($root)/boot/grub\n")
+                        cfg.write("source $prefix/grub.cfg\n")
+                    with tarfile.open(memdisk_img, "w") as tar:
+                        tar.add(os.path.join(memdisk_src, "boot"), arcname="boot")
                 cmd = [
                     "grub-mkimage",
                     "-O",
@@ -1822,34 +1830,28 @@ class FLLBuilder(object):
                     "ext2",
                 ]
                 self.chroot_exec(chroot, cmd)
-                shutil.move(
-                    os.path.join(chroot_dir, f"fll/{efitarget}.efi"),
-                    os.path.join(efi_boot_dir, f"{efitarget}.efi"),
-                )
-
-            os.unlink(memdisk_img)
+                shutil.move(os.path.join(chroot_dir, f"fll/{efitarget}.efi"), efi_dst)
+                os.unlink(memdisk_img)
 
             # Stage grub EFI module and font files inside the FAT tree
-            for efitype in efitypes:
-                gfile_dir = os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
-                if not os.path.isdir(gfile_dir):
-                    continue
-                gfiles = [
-                    os.path.join(gfile_dir, f)
-                    for f in os.listdir(gfile_dir)
-                    if f.endswith(".mod") or f.endswith(".lst")
-                ]
-                unicode_pf2 = os.path.join(chroot_dir, "usr/share/grub/unicode.pf2")
-                if os.path.isfile(unicode_pf2):
-                    gfiles.append(unicode_pf2)
-                esp_grub_dir = os.path.join(stage_dir, f"efi/boot/grub/{efitype}")
-                os.makedirs(esp_grub_dir, exist_ok=True)
-                for f in gfiles:
-                    if os.path.isfile(f):
-                        shutil.copy(f, esp_grub_dir)
+            gfile_dir = os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
+            gfiles = [
+                os.path.join(gfile_dir, f)
+                for f in os.listdir(gfile_dir)
+                if f.endswith(".mod") or f.endswith(".lst")
+            ]
+            unicode_pf2 = os.path.join(chroot_dir, "usr/share/grub/unicode.pf2")
+            if os.path.isfile(unicode_pf2):
+                gfiles.append(unicode_pf2)
+            esp_grub_dir = os.path.join(stage_dir, f"efi/boot/grub/{efitype}")
+            os.makedirs(esp_grub_dir, exist_ok=True)
+            for f in gfiles:
+                if os.path.isfile(f):
+                    shutil.copy(f, esp_grub_dir)
 
-            # Stage grub data files (locales, tz, theme) inside the FAT tree
-            esp_grub_base = os.path.join(stage_dir, "efi/boot/grub")
+        # Stage grub data files (locales, tz, theme) inside the FAT tree — once only
+        esp_grub_base = os.path.join(stage_dir, "efi/boot/grub")
+        if not os.path.isfile(os.path.join(esp_grub_base, "grub.cfg")):
             shutil.copy(os.path.join(self.opts.share, "data/grub.cfg"), esp_grub_base)
             # unicode.pf2 must be at /boot/grub/unicode.pf2 on the FAT;
             # grub.cfg calls loadfont at that path before enabling gfxterm
@@ -1876,12 +1878,12 @@ class FLLBuilder(object):
                     dirs_exist_ok=True,
                 )
 
-            # Stage memtest binaries inside the FAT tree
-            for mt in ["mt86+ia32", "mt86+x64"]:
-                memtest = os.path.join(chroot_dir, "boot", mt)
-                if os.path.isfile(memtest):
-                    self.log.debug(f"copying {mt} to ESP")
-                    shutil.copy(memtest, os.path.join(stage_dir, "efi/boot", mt))
+        # Stage memtest binaries inside the FAT tree
+        for mt in ["mt86+ia32", "mt86+x64"]:
+            memtest = os.path.join(chroot_dir, "boot", mt)
+            if os.path.isfile(memtest):
+                self.log.debug(f"copying {mt} to ESP")
+                shutil.copy(memtest, os.path.join(stage_dir, "efi/boot", mt))
 
         # Stage kernel and initramfs for this chroot inside the FAT tree.
         # kernels.cfg entries reference /{chroot}/vmlinuz and /{chroot}/initrd.
@@ -2728,14 +2730,24 @@ class FLLBuilder(object):
         """Initialise variables for chroot."""
         self.profiles[chroot] = copy.deepcopy(self.parse_package_profile(chroot))
 
-    def main(self) -> None:
-        """Main loop."""
-        self.init_cli_options()
-        self.init_configuration()
-        self.init_logfile()
-        self.init_build_directory()
-        self.init_chroots()
-        for chroot in self.chroots:
+    def _build_chroot(self, chroot: str) -> None:
+        """Run the full build pipeline for a single chroot."""
+        threading.current_thread().name = chroot
+
+        distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
+        log_filename = os.path.join(
+            self.opts.output_dir, f"{distro_name}-{self.timestamp}.{chroot}.fll.log"
+        )
+        fmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s")
+        handler = logging.FileHandler(filename=log_filename, mode="w")
+        handler.setFormatter(fmt)
+        handler.setLevel(logging.DEBUG)
+        thread_id = threading.current_thread().ident
+        handler.addFilter(lambda r: r.thread == thread_id)
+        self.log.addHandler(handler)
+        self.log.info(f"{chroot} - logging to {log_filename}")
+
+        try:
             self.init_chroot(chroot)
             self.chroot_bootstrap(chroot)
             self.dpkg_divert(chroot)
@@ -2751,11 +2763,37 @@ class FLLBuilder(object):
             self.write_final_conffiles(chroot)
             self.dpkg_undo_divert(chroot)
             self.create_initramfs(chroot)
-            self.stage_bootloader(chroot)
+            with self._staging_lock:
+                self.stage_bootloader(chroot)
             self.clean_chroot(chroot)
             self.mkreadonlyfs_chroot(chroot)
             self.stage_chroot(chroot)
             self.nuke_chroot(chroot)
+        finally:
+            self.log.removeHandler(handler)
+            handler.close()
+            os.chown(log_filename, self.opts.uid, self.opts.gid)
+
+    def main(self) -> None:
+        """Main loop."""
+        self.init_cli_options()
+        self.init_configuration()
+        self.init_logfile()
+        self.init_build_directory()
+        self.init_chroots()
+        main_thread_id = threading.current_thread().ident
+
+        def logfile_filter(r):
+            return r.thread == main_thread_id
+
+        self._logfile_handler.addFilter(logfile_filter)
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.opts.jobs) as pool:
+                futures = {pool.submit(self._build_chroot, c): c for c in self.chroots}
+                for fut in concurrent.futures.as_completed(futures):
+                    fut.result()
+        finally:
+            self._logfile_handler.removeFilter(logfile_filter)
         self.write_bootloader_config()
         self.gen_live_media()
         self.log_build_stats()
@@ -2818,6 +2856,16 @@ if __name__ == "__main__":
         default=False,
         help="Enable debug mode. Extra output will be "
         + "to assist in development. Default: %(default)s",
+    )
+    cli.add_argument(
+        "-j",
+        "--jobs",
+        action="store",
+        type=int,
+        default=None,
+        metavar="<N>",
+        help="Number of chroots to build in parallel. "
+        + "Default: all chroots concurrently. Use 1 for serial output.",
     )
     cli.add_argument(
         "-k",
