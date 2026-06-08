@@ -2762,7 +2762,7 @@ class FLLBuilder(object):
         self.init_logfile()
         self.init_build_directory()
         self.init_chroots()
-        with concurrent.futures.ThreadPoolExecutor() as pool:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.opts.jobs) as pool:
             futures = {pool.submit(self._build_chroot, c): c for c in self.chroots}
             for fut in concurrent.futures.as_completed(futures):
                 fut.result()
@@ -2828,6 +2828,16 @@ if __name__ == "__main__":
         default=False,
         help="Enable debug mode. Extra output will be "
         + "to assist in development. Default: %(default)s",
+    )
+    cli.add_argument(
+        "-j",
+        "--jobs",
+        action="store",
+        type=int,
+        default=None,
+        metavar="<N>",
+        help="Number of chroots to build in parallel. "
+        + "Default: all chroots concurrently. Use 1 for serial output.",
     )
     cli.add_argument(
         "-k",
