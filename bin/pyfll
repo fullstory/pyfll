@@ -1266,9 +1266,8 @@ class FLLBuilder(object):
                     continue
                 first = group[0]
                 if first not in installed:
+                    self.log.debug(f"recommended package detected: {first} (via {p})")
                     rec_list.append(first)
-
-        self.log.debug(f"rec_list: {rec_list}")
         return rec_list
 
     def _read_dpkg_status(self, chroot: str) -> dict:
