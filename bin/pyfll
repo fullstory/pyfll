@@ -1776,38 +1776,36 @@ class FLLBuilder(object):
         efi_boot_dir = os.path.join(stage_dir, "efi/EFI/BOOT")
         os.makedirs(efi_boot_dir, exist_ok=True)
 
-        # Build EFI binaries only once (idempotent guard on directory content)
-        if not any(os.listdir(efi_boot_dir)):
-            self.log.info(f"{chroot} - creating grub-efi EFI boot images...")
+        # Per-efitype: build the EFI binary and stage module files if this
+        # chroot provides that arch's grub files and the binary is not yet
+        # staged. Each chroot only carries grub files for its own arch, so
+        # each binary is created exactly once by whichever chroot runs first.
+        # Memdisk stub grub.cfg: locate the FAT volume by searching for
+        # kernels.cfg, which is unique to our build and written only to
+        # the FAT by write_grub_efi_cfg().  search_fs_file must be baked
+        # into the binary (see grub-mkimage modules below) for --file to
+        # work; the generic search module alone does not provide it.
+        for efitype, efitarget in efitypes.items():
+            if not os.path.isdir(os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")):
+                continue
 
-            # Memdisk stub grub.cfg: locate the FAT volume by searching for
-            # kernels.cfg, which is unique to our build and written only to
-            # the FAT by write_grub_efi_cfg().  search_fs_file must be baked
-            # into the binary (see grub-mkimage modules below) for --file to
-            # work; the generic search module alone does not provide it.
-            fll_dir = os.path.join(chroot_dir, "fll")
-            os.makedirs(fll_dir, exist_ok=True)
-            memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
-            with tempfile.TemporaryDirectory() as memdisk_src:
-                grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
-                os.makedirs(grub_cfg_dir)
-                with open(os.path.join(grub_cfg_dir, "grub.cfg"), "w") as cfg:
-                    cfg.write(
-                        "search --no-floppy --file --set=root /boot/grub/kernels.cfg\n"
-                    )
-                    cfg.write("set prefix=($root)/boot/grub\n")
-                    cfg.write("source $prefix/grub.cfg\n")
-                with tarfile.open(memdisk_img, "w") as tar:
-                    tar.add(os.path.join(memdisk_src, "boot"), arcname="boot")
-
-            for efitype, efitarget in efitypes.items():
-                if not os.path.isdir(
-                    os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
-                ):
-                    continue
+            efi_dst = os.path.join(efi_boot_dir, f"{efitarget}.efi")
+            if not os.path.isfile(efi_dst):
                 self.log.info(
                     f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
                 )
+                memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
+                with tempfile.TemporaryDirectory() as memdisk_src:
+                    grub_cfg_dir = os.path.join(memdisk_src, "boot/grub")
+                    os.makedirs(grub_cfg_dir)
+                    with open(os.path.join(grub_cfg_dir, "grub.cfg"), "w") as cfg:
+                        cfg.write(
+                            "search --no-floppy --file --set=root /boot/grub/kernels.cfg\n"
+                        )
+                        cfg.write("set prefix=($root)/boot/grub\n")
+                        cfg.write("source $prefix/grub.cfg\n")
+                    with tarfile.open(memdisk_img, "w") as tar:
+                        tar.add(os.path.join(memdisk_src, "boot"), arcname="boot")
                 cmd = [
                     "grub-mkimage",
                     "-O",
@@ -1830,34 +1828,28 @@ class FLLBuilder(object):
                     "ext2",
                 ]
                 self.chroot_exec(chroot, cmd)
-                shutil.move(
-                    os.path.join(chroot_dir, f"fll/{efitarget}.efi"),
-                    os.path.join(efi_boot_dir, f"{efitarget}.efi"),
-                )
-
-            os.unlink(memdisk_img)
+                shutil.move(os.path.join(chroot_dir, f"fll/{efitarget}.efi"), efi_dst)
+                os.unlink(memdisk_img)
 
             # Stage grub EFI module and font files inside the FAT tree
-            for efitype in efitypes:
-                gfile_dir = os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
-                if not os.path.isdir(gfile_dir):
-                    continue
-                gfiles = [
-                    os.path.join(gfile_dir, f)
-                    for f in os.listdir(gfile_dir)
-                    if f.endswith(".mod") or f.endswith(".lst")
-                ]
-                unicode_pf2 = os.path.join(chroot_dir, "usr/share/grub/unicode.pf2")
-                if os.path.isfile(unicode_pf2):
-                    gfiles.append(unicode_pf2)
-                esp_grub_dir = os.path.join(stage_dir, f"efi/boot/grub/{efitype}")
-                os.makedirs(esp_grub_dir, exist_ok=True)
-                for f in gfiles:
-                    if os.path.isfile(f):
-                        shutil.copy(f, esp_grub_dir)
+            gfile_dir = os.path.join(chroot_dir, f"usr/lib/grub/{efitype}")
+            gfiles = [
+                os.path.join(gfile_dir, f)
+                for f in os.listdir(gfile_dir)
+                if f.endswith(".mod") or f.endswith(".lst")
+            ]
+            unicode_pf2 = os.path.join(chroot_dir, "usr/share/grub/unicode.pf2")
+            if os.path.isfile(unicode_pf2):
+                gfiles.append(unicode_pf2)
+            esp_grub_dir = os.path.join(stage_dir, f"efi/boot/grub/{efitype}")
+            os.makedirs(esp_grub_dir, exist_ok=True)
+            for f in gfiles:
+                if os.path.isfile(f):
+                    shutil.copy(f, esp_grub_dir)
 
-            # Stage grub data files (locales, tz, theme) inside the FAT tree
-            esp_grub_base = os.path.join(stage_dir, "efi/boot/grub")
+        # Stage grub data files (locales, tz, theme) inside the FAT tree — once only
+        esp_grub_base = os.path.join(stage_dir, "efi/boot/grub")
+        if not os.path.isfile(os.path.join(esp_grub_base, "grub.cfg")):
             shutil.copy(os.path.join(self.opts.share, "data/grub.cfg"), esp_grub_base)
             # unicode.pf2 must be at /boot/grub/unicode.pf2 on the FAT;
             # grub.cfg calls loadfont at that path before enabling gfxterm
@@ -1884,12 +1876,12 @@ class FLLBuilder(object):
                     dirs_exist_ok=True,
                 )
 
-            # Stage memtest binaries inside the FAT tree
-            for mt in ["mt86+ia32", "mt86+x64"]:
-                memtest = os.path.join(chroot_dir, "boot", mt)
-                if os.path.isfile(memtest):
-                    self.log.debug(f"copying {mt} to ESP")
-                    shutil.copy(memtest, os.path.join(stage_dir, "efi/boot", mt))
+        # Stage memtest binaries inside the FAT tree
+        for mt in ["mt86+ia32", "mt86+x64"]:
+            memtest = os.path.join(chroot_dir, "boot", mt)
+            if os.path.isfile(memtest):
+                self.log.debug(f"copying {mt} to ESP")
+                shutil.copy(memtest, os.path.join(stage_dir, "efi/boot", mt))
 
         # Stage kernel and initramfs for this chroot inside the FAT tree.
         # kernels.cfg entries reference /{chroot}/vmlinuz and /{chroot}/initrd.
