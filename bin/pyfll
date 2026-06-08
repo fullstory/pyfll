@@ -1259,26 +1259,36 @@ class FLLBuilder(object):
         self.log.debug(f"rec_list: {rec_list}")
         return rec_list
 
-    def get_source_package(
-        self, pkg: str, depcache: apt_pkg.DepCache, records: apt_pkg.PackageRecords
-    ) -> list:
-        """Get the source package name of a given package."""
-        version = depcache.get_candidate_ver(pkg)
-
-        if not version:
-            return list()
-        file, index = version.file_list.pop(0)
-        records.lookup((file, index))
-
-        srcpkg = pkg.name
-        srcver = version.ver_str
-        if records.source_pkg != "":
-            srcpkg = records.source_pkg
-
-        if records.source_ver != "":
-            srcver = records.source_ver
-
-        return [srcpkg, srcver]
+    def _read_dpkg_status(self, chroot: str) -> dict:
+        """Parse /var/lib/dpkg/status; return {name: {version, source, source_version}}
+        for each installed package."""
+        status_file = os.path.join(self.temp, chroot, "var/lib/dpkg/status")
+        packages = {}
+        with open(status_file) as f:
+            for stanza_text in f.read().split("\n\n"):
+                stanza = {}
+                for line in stanza_text.splitlines():
+                    if line and not line.startswith(" "):
+                        key, _, val = line.partition(": ")
+                        stanza[key] = val
+                if "installed" not in stanza.get("Status", ""):
+                    continue
+                name = stanza.get("Package")
+                ver = stanza.get("Version")
+                if not name or not ver:
+                    continue
+                src = stanza.get("Source", name)
+                if "(" in src:
+                    srcver = src[src.index("(") + 1 : src.index(")")]
+                    src = src[: src.index(" (")]
+                else:
+                    srcver = ver
+                packages[name] = {
+                    "version": ver,
+                    "source": src,
+                    "source_version": srcver,
+                }
+        return packages
 
     def write_manifest(self, chroot: str) -> None:
         """Collect package and source package URI information from each
@@ -1288,17 +1298,12 @@ class FLLBuilder(object):
         )
         self.log.info(f"{chroot} - writing package manifest...")
 
-        cache = apt_pkg.Cache(apt.progress.base.OpProgress())
-        records = apt_pkg.PackageRecords(cache)
-        depcache = apt_pkg.DepCache(cache)
-
-        manifest = dict(
-            [
-                (p.name, p.current_ver.ver_str)
-                for p in cache.packages
-                if p.current_ver and not p.name.startswith("cdebootstrap-helper")
-            ]
-        )
+        status = self._read_dpkg_status(chroot)
+        manifest = {
+            name: data["version"]
+            for name, data in status.items()
+            if not name.startswith("cdebootstrap-helper")
+        }
         # Needed to detect installed linux-image
         self.profiles[chroot].manifest = manifest
 
@@ -1334,12 +1339,8 @@ class FLLBuilder(object):
             if pkg.startswith("cdebootstrap-helper"):
                 continue
 
-            srcpv = self.get_source_package(cache[pkg], depcache, records)
-            srcpkg = srcpv[0]
-            srcver = srcpv[1]
-            if not srcpkg:
-                self.log.critical(f"failed to lookup srcpkg name for {pkg}")
-                raise FllError
+            srcpkg = status[pkg]["source"]
+            srcver = status[pkg]["source_version"]
             self.log.debug(f"{pkg} -> {srcpkg}")
 
             if srcpkg in srcpkg_seen:
@@ -1385,10 +1386,8 @@ class FLLBuilder(object):
     def install_packages(self, chroot: str) -> None:
         """Install packages."""
         cache = apt_pkg.Cache(apt.progress.base.OpProgress())
-        if cache.ver_file_count < 200:
-            cache = apt_pkg.Cache(apt.progress.base.OpProgress())
 
-        pkgs_base = [pkg.name for pkg in cache.packages if pkg.current_ver]
+        pkgs_base = list(self._read_dpkg_status(chroot).keys())
         pkgs_want = deduplicate_list(pkgs_base + list(self.profiles[chroot].packages))
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
         rec_pkgs = self.detect_recommended_packages(pkgs_dict, cache)
