@@ -755,6 +755,29 @@ class FLLBuilder(object):
         cmd.extend(args)
         self.exec_cmd(cmd)
 
+    def chroot_output(self, chroot: str, args: list) -> str:
+        """Run command in a chroot and return captured stdout."""
+        chroot_dir = os.path.join(self.temp, chroot)
+        cmd = [
+            "systemd-nspawn",
+            "--quiet",
+            f"--directory={chroot_dir}",
+            "--as-pid2",
+            "--resolv-conf=bind-host",
+            "--timezone=off",
+            "--restrict-address-families=AF_INET AF_INET6 AF_UNIX",
+        ]
+        for key, value in self.env.items():
+            cmd.append(f"--setenv={key}={value}")
+        cmd.append("--")
+        cmd.extend(args)
+        self.log.debug(shlex.join(cmd))
+        result = subprocess.run(cmd, env=self.env, capture_output=True, text=True)
+        if result.returncode != 0:
+            self.log.critical(result.stderr.strip())
+            raise FllError
+        return result.stdout
+
     def apt_get(
         self, chroot: str, command: str, args: list = [], insecure: bool = False
     ) -> None:
@@ -1334,39 +1357,27 @@ class FLLBuilder(object):
 
         self.log.info(f"{chroot} - writing source package URIs...")
         srcpkg_seen = dict()
-        uris = []
+        srcpkg_specs = []
         for pkg in packages:
             if pkg.startswith("cdebootstrap-helper"):
                 continue
-
             srcpkg = status[pkg]["source"]
             srcver = status[pkg]["source_version"]
             self.log.debug(f"{pkg} -> {srcpkg}")
-
-            if srcpkg in srcpkg_seen:
-                self.log.debug(f"already processed {srcpkg}, skipping...")
-                continue
-            else:
+            if srcpkg not in srcpkg_seen:
                 srcpkg_seen[srcpkg] = True
+                srcpkg_specs.append(f"{srcpkg}={srcver}")
 
-            try:
-                u = []
-                sources = apt_pkg.SourceRecords()
-                sources.restart()
-                while sources.lookup(srcpkg):
-                    if sources.version == srcver:
-                        u.extend(
-                            [
-                                sources.index.archive_uri(sources.files[f][2])
-                                for f in range(len(sources.files))
-                            ]
-                        )
-                self.log.debug(u)
-                uris.extend(u)
-            except (apt_pkg.Error, SystemError) as e:
-                self.log.critical(f"failed to query source uris for {srcpkg}: {e}")
-                raise FllError
-
+        uris = []
+        for spec in srcpkg_specs:
+            output = self.chroot_output(
+                chroot, ["apt-get", "source", "--print-uris", spec]
+            )
+            uris.extend(
+                line.split("'")[1]
+                for line in output.splitlines()
+                if line.startswith("'")
+            )
         uris.sort()
 
         sources_list = deduplicate_list(uris)
