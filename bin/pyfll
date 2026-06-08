@@ -7,6 +7,7 @@ __license__ = "GPLv2 or any later version"
 
 import argparse
 import atexit
+import concurrent.futures
 import copy
 import datetime
 import glob
@@ -19,6 +20,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -266,6 +268,7 @@ class FLLBuilder(object):
         self.persist_uuid = uuidgen()
         self.timestamp = self.date.strftime("%Y%m%d%H%M")
         self.live_media = str()
+        self._staging_lock = threading.Lock()
 
     def prep_dir(self, dirname: str) -> str:
         """Set up working directories."""
@@ -2728,6 +2731,30 @@ class FLLBuilder(object):
         """Initialise variables for chroot."""
         self.profiles[chroot] = copy.deepcopy(self.parse_package_profile(chroot))
 
+    def _build_chroot(self, chroot: str) -> None:
+        """Run the full build pipeline for a single chroot."""
+        self.init_chroot(chroot)
+        self.chroot_bootstrap(chroot)
+        self.dpkg_divert(chroot)
+        self.write_default_conffiles(chroot)
+        self.write_distro_defaults(chroot)
+        self.preseed_debconf(chroot)
+        self.prime_apt(chroot)
+        self.install_packages(chroot)
+        self.install_flatpaks(chroot)
+        self.configure_locales(chroot)
+        self.post_installation(chroot)
+        self.write_manifest(chroot)
+        self.write_final_conffiles(chroot)
+        self.dpkg_undo_divert(chroot)
+        self.create_initramfs(chroot)
+        with self._staging_lock:
+            self.stage_bootloader(chroot)
+        self.clean_chroot(chroot)
+        self.mkreadonlyfs_chroot(chroot)
+        self.stage_chroot(chroot)
+        self.nuke_chroot(chroot)
+
     def main(self) -> None:
         """Main loop."""
         self.init_cli_options()
@@ -2735,27 +2762,10 @@ class FLLBuilder(object):
         self.init_logfile()
         self.init_build_directory()
         self.init_chroots()
-        for chroot in self.chroots:
-            self.init_chroot(chroot)
-            self.chroot_bootstrap(chroot)
-            self.dpkg_divert(chroot)
-            self.write_default_conffiles(chroot)
-            self.write_distro_defaults(chroot)
-            self.preseed_debconf(chroot)
-            self.prime_apt(chroot)
-            self.install_packages(chroot)
-            self.install_flatpaks(chroot)
-            self.configure_locales(chroot)
-            self.post_installation(chroot)
-            self.write_manifest(chroot)
-            self.write_final_conffiles(chroot)
-            self.dpkg_undo_divert(chroot)
-            self.create_initramfs(chroot)
-            self.stage_bootloader(chroot)
-            self.clean_chroot(chroot)
-            self.mkreadonlyfs_chroot(chroot)
-            self.stage_chroot(chroot)
-            self.nuke_chroot(chroot)
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            futures = {pool.submit(self._build_chroot, c): c for c in self.chroots}
+            for fut in concurrent.futures.as_completed(futures):
+                fut.result()
         self.write_bootloader_config()
         self.gen_live_media()
         self.log_build_stats()
