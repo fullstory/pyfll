@@ -2733,27 +2733,47 @@ class FLLBuilder(object):
 
     def _build_chroot(self, chroot: str) -> None:
         """Run the full build pipeline for a single chroot."""
-        self.init_chroot(chroot)
-        self.chroot_bootstrap(chroot)
-        self.dpkg_divert(chroot)
-        self.write_default_conffiles(chroot)
-        self.write_distro_defaults(chroot)
-        self.preseed_debconf(chroot)
-        self.prime_apt(chroot)
-        self.install_packages(chroot)
-        self.install_flatpaks(chroot)
-        self.configure_locales(chroot)
-        self.post_installation(chroot)
-        self.write_manifest(chroot)
-        self.write_final_conffiles(chroot)
-        self.dpkg_undo_divert(chroot)
-        self.create_initramfs(chroot)
-        with self._staging_lock:
-            self.stage_bootloader(chroot)
-        self.clean_chroot(chroot)
-        self.mkreadonlyfs_chroot(chroot)
-        self.stage_chroot(chroot)
-        self.nuke_chroot(chroot)
+        threading.current_thread().name = chroot
+
+        distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
+        log_filename = os.path.join(
+            self.opts.output_dir, f"{distro_name}-{self.timestamp}.{chroot}.fll.log"
+        )
+        fmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s")
+        handler = logging.FileHandler(filename=log_filename, mode="w")
+        handler.setFormatter(fmt)
+        handler.setLevel(logging.DEBUG)
+        thread_id = threading.current_thread().ident
+        handler.addFilter(lambda r: r.thread == thread_id)
+        self.log.addHandler(handler)
+        self.log.info(f"{chroot} - logging to {log_filename}")
+
+        try:
+            self.init_chroot(chroot)
+            self.chroot_bootstrap(chroot)
+            self.dpkg_divert(chroot)
+            self.write_default_conffiles(chroot)
+            self.write_distro_defaults(chroot)
+            self.preseed_debconf(chroot)
+            self.prime_apt(chroot)
+            self.install_packages(chroot)
+            self.install_flatpaks(chroot)
+            self.configure_locales(chroot)
+            self.post_installation(chroot)
+            self.write_manifest(chroot)
+            self.write_final_conffiles(chroot)
+            self.dpkg_undo_divert(chroot)
+            self.create_initramfs(chroot)
+            with self._staging_lock:
+                self.stage_bootloader(chroot)
+            self.clean_chroot(chroot)
+            self.mkreadonlyfs_chroot(chroot)
+            self.stage_chroot(chroot)
+            self.nuke_chroot(chroot)
+        finally:
+            self.log.removeHandler(handler)
+            handler.close()
+            os.chown(log_filename, self.opts.uid, self.opts.gid)
 
     def main(self) -> None:
         """Main loop."""
