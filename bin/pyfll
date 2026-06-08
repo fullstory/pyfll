@@ -330,6 +330,10 @@ class FLLBuilder(object):
 
         if self.opts.debug:
             self.init_logger("DEBUG")
+            self.opts.jobs = 1
+        elif self.opts.verbose:
+            self.init_logger("INFO")
+            self.opts.jobs = 1
         else:
             self.init_logger("INFO")
 
@@ -739,7 +743,9 @@ class FLLBuilder(object):
                 if return_code:
                     raise subprocess.CalledProcessError(return_code, shlex.join(cmd))
             else:
-                if self.opts.quiet:
+                if self.opts.verbose:
+                    subprocess.run(cmd, env=self.env, check=True)
+                else:
                     subprocess.run(
                         cmd,
                         env=self.env,
@@ -747,8 +753,6 @@ class FLLBuilder(object):
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                     )
-                else:
-                    subprocess.run(cmd, env=self.env, check=True)
         except KeyboardInterrupt:
             raise FllError
         except subprocess.CalledProcessError:
@@ -806,14 +810,14 @@ class FLLBuilder(object):
             aptget.append("--allow-unauthenticated")
             aptget.extend(["-o", "Acquire::AllowInsecureRepositories=1"])
         aptget.extend(["-o", "Acquire::Languages=none"])
-        if self.opts.debug or self.opts.quiet:
-            aptget.extend(["-o", "Dpkg::Use-Pty=0"])
-            aptget.extend(["-o", "Dpkg::Progress-Fancy=0"])
-            aptget.extend(["-o", "APT::Color=0"])
-        else:
+        if self.opts.verbose:
             aptget.extend(["-o", "Dpkg::Use-Pty=1"])
             aptget.extend(["-o", "Dpkg::Progress-Fancy=1"])
             aptget.extend(["-o", "APT::Color=1"])
+        else:
+            aptget.extend(["-o", "Dpkg::Use-Pty=0"])
+            aptget.extend(["-o", "Dpkg::Progress-Fancy=0"])
+            aptget.extend(["-o", "APT::Color=0"])
 
         apt_recommends = self.conf["options"].get("apt_recommends", "no")
         if apt_recommends == "no":
@@ -821,7 +825,7 @@ class FLLBuilder(object):
 
         if self.opts.debug:
             aptget.extend(["-o", "APT::Get::Show-Versions=1"])
-        elif self.opts.quiet:
+        elif not self.opts.verbose:
             aptget.append("-qq")
 
         aptget.append(command)
