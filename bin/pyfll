@@ -10,6 +10,7 @@ import atexit
 import copy
 import datetime
 import glob
+import hashlib
 import logging
 import os
 import shlex
@@ -25,9 +26,8 @@ from io import open
 
 import apt
 import apt_pkg
-import hashlib
-from debian.debian_support import Version
 from configobj import ConfigObj, flatten_errors
+from debian.debian_support import Version
 from validate import Validator
 
 
