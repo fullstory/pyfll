@@ -976,7 +976,6 @@ class FLLBuilder(object):
         keys and initialize apt_pkg config."""
         self.log.info(f"{chroot} - preparing apt...")
         chroot_dir = os.path.join(self.temp, chroot)
-        arch = self.conf["chroots"][chroot]["packages"]["arch"]
 
         apt_preferences = self.conf["options"].get("apt_preferences")
         if apt_preferences:
@@ -1009,7 +1008,6 @@ class FLLBuilder(object):
 
         self.apt_get(chroot, "update")
         self.apt_get(chroot, "dist-upgrade")
-
 
     def dpkg_divert(self, chroot: str) -> None:
         """Divert some facilities and replace temporaily with /bin/true (or
