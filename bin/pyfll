@@ -9,7 +9,6 @@ import argparse
 import atexit
 import copy
 import datetime
-import functools
 import glob
 import logging
 import os
@@ -27,6 +26,7 @@ from io import open
 import apt
 import apt_pkg
 import hashlib
+from debian.debian_support import Version
 from configobj import ConfigObj, flatten_errors
 from validate import Validator
 
@@ -1174,8 +1174,7 @@ class FLLBuilder(object):
         ]
 
         if len(linux_images) > 0:
-            linux_images.sort(key=functools.cmp_to_key(apt_pkg.version_compare))
-            linux_images.reverse()
+            linux_images.sort(key=Version, reverse=True)
             return linux_images
 
         self.log.critical(f"{chroot} - failed to detect linux version")
@@ -1235,10 +1234,7 @@ class FLLBuilder(object):
                     continue
                 version = versions[0]
                 for other_version in versions:
-                    if (
-                        apt_pkg.version_compare(version.ver_str, other_version.ver_str)
-                        < 0
-                    ):
+                    if Version(version.ver_str) < Version(other_version.ver_str):
                         version = other_version
                 current = version
 

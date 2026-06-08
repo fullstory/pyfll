@@ -31,6 +31,7 @@ It is the primary build tool behind [aptosid](http://aptosid.com/) and supports 
 |---|---|
 | `python` ≥ 3.8 | Runtime |
 | `python3-apt` | APT integration |
+| `python3-debian` | Debian version string comparison |
 | `python3-configobj` | Configuration parsing |
 | `cdebootstrap` \| `debootstrap` \| `mmdebstrap` | Bootstrap utility |
 | `xorriso` | ISO creation |
@@ -49,7 +50,7 @@ It is the primary build tool behind [aptosid](http://aptosid.com/) and supports 
 Install all required dependencies on Debian/Ubuntu:
 
 ```bash
-sudo apt install python3-apt python3-configobj gdisk xorriso \
+sudo apt install python3-apt python3-debian python3-configobj gdisk xorriso \
     cdebootstrap erofs-utils squashfs-tools git mtools systemd-container
 ```
 
