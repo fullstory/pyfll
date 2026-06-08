@@ -2780,7 +2780,10 @@ class FLLBuilder(object):
         self.init_build_directory()
         self.init_chroots()
         main_thread_id = threading.current_thread().ident
-        logfile_filter = lambda r: r.thread == main_thread_id
+
+        def logfile_filter(r):
+            return r.thread == main_thread_id
+
         self._logfile_handler.addFilter(logfile_filter)
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=self.opts.jobs) as pool:
