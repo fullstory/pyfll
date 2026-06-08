@@ -24,11 +24,24 @@ import uuid
 from dataclasses import dataclass, field
 from io import open
 
-import apt
-import apt_pkg
 from configobj import ConfigObj, flatten_errors
 from debian.debian_support import Version
 from validate import Validator
+
+
+def _parse_dep_groups(dep_str: str) -> list:
+    """Parse a Depends/Recommends string into a list of OR groups.
+    Each group is a list of package names (version constraints stripped)."""
+    groups = []
+    for group in dep_str.split(","):
+        alts = []
+        for alt in group.split("|"):
+            alt = alt.strip()
+            if alt:
+                alts.append(alt.split()[0])
+        if alts:
+            groups.append(alts)
+    return groups
 
 
 def deduplicate_list(original_list: list) -> list:
@@ -76,25 +89,23 @@ class FllLocales(object):
     Debian packages using it's detect_locale_packages method.
 
     Arguments:
-    cache    - an apt_pkg cache object
-    packages - a list or dict of package names which are installed, or are
-               going to be installed. Locale specific packages are selected
-               for packages in this data structure.
-    map      - a dict which maps package names with a list of package prefixes
-               from which the locale string pattern matching can be used
-               to match locale support packages. The prefered input for map is:
-               ConfigObj('data/fll-locales-pkg-map').
+    available - dict of available packages {name: {version, recommends}}
+    packages  - a list or dict of package names which are installed, or are
+                going to be installed. Locale specific packages are selected
+                for packages in this data structure.
+    map       - a dict which maps package names with a list of package prefixes
+                from which the locale string pattern matching can be used
+                to match locale support packages. The prefered input for map is:
+                ConfigObj('data/fll-locales-pkg-map').
     """
 
-    def __init__(self, cache: apt_pkg.Cache, packages: list, locale_map: dict) -> None:
+    def __init__(self, available: dict, packages: list, locale_map: dict) -> None:
         self.loc_pkgs_set = set()
-        for pkg in cache.packages:
-            if not pkg.version_list:
-                continue
-            if pkg.name not in packages:
+        for name in available:
+            if name not in packages:
                 continue
             for loc_pkg in list(locale_map.keys()):
-                if pkg.name == loc_pkg:
+                if name == loc_pkg:
                     loc_pkg_prefix_list = locale_map.get(loc_pkg)
                     if not loc_pkg_prefix_list:
                         break
@@ -105,12 +116,10 @@ class FllLocales(object):
         self.loc_pkgs_list_dict = dict()
         for loc_pkg in self.loc_pkgs_set:
             self.loc_pkgs_list_dict[loc_pkg] = list()
-        for pkg in cache.packages:
-            if not pkg.version_list:
-                continue
+        for name in available:
             for loc_pkg in self.loc_pkgs_set:
-                if pkg.name.startswith(loc_pkg + "-"):
-                    self.loc_pkgs_list_dict[loc_pkg].append(pkg.name)
+                if name.startswith(loc_pkg + "-"):
+                    self.loc_pkgs_list_dict[loc_pkg].append(name)
 
     def compute_locale_loc_suf_list(self, locale: str) -> list:
         """
@@ -996,11 +1005,6 @@ class FLLBuilder(object):
         self.apt_get(chroot, "update")
         self.apt_get(chroot, "dist-upgrade")
 
-        apt_pkg.config.set("RootDir", chroot_dir)
-        apt_pkg.config.set("APT::Architecture", arch)
-        apt_pkg.init()
-        self.log.debug(f"apt_pkg architecture: {apt_pkg.config['RootDir']}")
-        self.log.debug(f"apt_pkg architecture: {apt_pkg.config['APT::Architecture']}")
 
     def dpkg_divert(self, chroot: str) -> None:
         """Divert some facilities and replace temporaily with /bin/true (or
@@ -1204,7 +1208,7 @@ class FLLBuilder(object):
         raise FllError
 
     def detect_locale_packages(
-        self, locales: list, wanted: list, cache: apt_pkg.Cache
+        self, locales: list, wanted: list, available: dict
     ) -> list:
         """Provide automated detection for extra locales packages."""
         self.log.debug(f"detecting packages for locales: {' '.join(locales)}")
@@ -1214,7 +1218,7 @@ class FLLBuilder(object):
         self.log.debug("locales_pkg_map:")
         self.log.debug(locales_pkg_map)
 
-        fll_locales = FllLocales(cache, wanted, locales_pkg_map)
+        fll_locales = FllLocales(available, wanted, locales_pkg_map)
         locales_list = []
         for locale in sorted(locales):
             try:
@@ -1228,7 +1232,9 @@ class FLLBuilder(object):
         self.log.debug(f"locales_list: {' '.join(locales_list)}")
         return locales_list
 
-    def detect_recommended_packages(self, wanted: dict, cache: apt_pkg.Cache) -> list:
+    def detect_recommended_packages(
+        self, wanted: dict, available: dict, installed: set
+    ) -> list:
         """Provide automated detection for packages in recommends whitelist."""
         apt_recommends = self.conf["options"].get("apt_recommends")
         if apt_recommends == "yes":
@@ -1249,35 +1255,18 @@ class FLLBuilder(object):
         for p in wanted.keys():
             if p not in rec_dict:
                 continue
-            package = cache[p]
-            current = package.current_ver
-            if not current:
-                versions = package.version_list
-                if not versions:
+            pkg_data = available.get(p)
+            if not pkg_data:
+                continue
+            recommends_str = pkg_data.get("recommends", "")
+            if not recommends_str:
+                continue
+            for group in _parse_dep_groups(recommends_str):
+                if any(alt in wanted for alt in group):
                     continue
-                version = versions[0]
-                for other_version in versions:
-                    if Version(version.ver_str) < Version(other_version.ver_str):
-                        version = other_version
-                current = version
-
-            depends = current.depends_list
-            recommends = depends.get("Recommends", [])
-            for dependency in recommends:
-                depdone = 0
-                for deppart in dependency:
-                    if depdone > 0:
-                        continue
-                    name = deppart.target_pkg.name
-                    if name in wanted.keys():
-                        depdone = 1
-                        continue
-                if depdone == 0:
-                    name = dependency[0].target_pkg.name
-                    dep = cache[name]
-                    if dep.current_ver:
-                        continue
-                    rec_list.append(dep.name)
+                first = group[0]
+                if first not in installed:
+                    rec_list.append(first)
 
         self.log.debug(f"rec_list: {rec_list}")
         return rec_list
@@ -1311,6 +1300,37 @@ class FLLBuilder(object):
                     "source": src,
                     "source_version": srcver,
                 }
+        return packages
+
+    def _read_apt_packages(self, chroot: str) -> dict:
+        """Parse apt Packages files; return {name: {version, recommends}}
+        for all available packages, keeping the highest version when a package
+        appears in multiple index files."""
+        packages = {}
+        lists_dir = os.path.join(self.temp, chroot, "var/lib/apt/lists")
+        if not os.path.isdir(lists_dir):
+            return packages
+        for fname in sorted(os.listdir(lists_dir)):
+            if not fname.endswith("_Packages"):
+                continue
+            with open(os.path.join(lists_dir, fname)) as f:
+                for stanza_text in f.read().split("\n\n"):
+                    stanza = {}
+                    for line in stanza_text.splitlines():
+                        if line and not line.startswith(" "):
+                            key, _, val = line.partition(": ")
+                            stanza[key] = val
+                    name = stanza.get("Package")
+                    ver = stanza.get("Version")
+                    if not name or not ver:
+                        continue
+                    if name in packages:
+                        if Version(ver) <= Version(packages[name]["version"]):
+                            continue
+                    packages[name] = {
+                        "version": ver,
+                        "recommends": stanza.get("Recommends", ""),
+                    }
         return packages
 
     def write_manifest(self, chroot: str) -> None:
@@ -1400,12 +1420,13 @@ class FLLBuilder(object):
 
     def install_packages(self, chroot: str) -> None:
         """Install packages."""
-        cache = apt_pkg.Cache(apt.progress.base.OpProgress())
+        available = self._read_apt_packages(chroot)
+        installed = set(self._read_dpkg_status(chroot).keys())
 
-        pkgs_base = list(self._read_dpkg_status(chroot).keys())
+        pkgs_base = list(installed)
         pkgs_want = deduplicate_list(pkgs_base + list(self.profiles[chroot].packages))
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
-        rec_pkgs = self.detect_recommended_packages(pkgs_dict, cache)
+        rec_pkgs = self.detect_recommended_packages(pkgs_dict, available, installed)
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + rec_pkgs)
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
         loc_list = (
@@ -1413,7 +1434,7 @@ class FLLBuilder(object):
             if self.conf["chroots"][chroot]["packages"].get("locales")
             else self.opts.locales
         )
-        loc_pkgs = self.detect_locale_packages(loc_list, pkgs_dict, cache)
+        loc_pkgs = self.detect_locale_packages(loc_list, pkgs_dict, available)
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + loc_pkgs)
 
         self.log.info(f"{chroot} - installing packages...")
