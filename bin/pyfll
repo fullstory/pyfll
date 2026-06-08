@@ -118,7 +118,7 @@ class FllLocales(object):
             self.loc_pkgs_list_dict[loc_pkg] = list()
         for name in available:
             for loc_pkg in self.loc_pkgs_set:
-                if name.startswith(loc_pkg + "-"):
+                if name == loc_pkg or name.startswith(loc_pkg + "-"):
                     self.loc_pkgs_list_dict[loc_pkg].append(name)
 
     def compute_locale_loc_suf_list(self, locale: str) -> list:
@@ -156,6 +156,7 @@ class FllLocales(object):
         locale - a locale string (eg. en_AU, pt_PT etc.)
         """
         suffixes = self.compute_locale_loc_suf_list(locale)
+        ll = locale.lower().split("_")[0]
 
         loc_pkg_dict = dict()
         for pkg in self.loc_pkgs_set:
@@ -171,11 +172,15 @@ class FllLocales(object):
 
         packages = list()
         for pkg in self.loc_pkgs_set:
-            pkg_candidates = loc_pkg_dict.get(pkg)
-            if not pkg_candidates:
+            loc_pkgs_list = self.loc_pkgs_list_dict.get(pkg)
+            if not loc_pkgs_list:
                 continue
-            best = min(pkg_candidates)
-            packages.append(pkg_candidates[best])
+            pkg_candidates = loc_pkg_dict.get(pkg)
+            if pkg_candidates:
+                best = min(pkg_candidates)
+                packages.append(pkg_candidates[best])
+            elif ll != "en" and pkg in loc_pkgs_list:
+                packages.append(pkg)
 
         return packages
 

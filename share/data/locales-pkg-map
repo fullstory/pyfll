@@ -10,15 +10,9 @@ featherpad = featherpad-l10n,
 
 firefox = firefox-l10n,
 
-gcompris = gcompris-sound,
-
 gimp = gimp-help,
 
 k3b = k3b-i18n,
-
-koffice = koffice-l10n,
-
-qt6-style-kvantum = qt6-style-kvantum-l10n,
 
 hunspell-en-us = hunspell,
 
@@ -30,12 +24,8 @@ nm-tray = nm-tray-l10n,
 
 pcmanfm-qt = pcmanfm-qt-l10n,
 
-plasma-desktop = kde-l10n,
-
 qpdfview = qpdfview-translations,
 
 qterminal = qterminal-l10n,
-
-sylpheed = sylpheed-i18n,
 
 vlc = vlc-l10n,
