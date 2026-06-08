@@ -26,6 +26,7 @@ from io import open
 
 import apt
 import apt_pkg
+import hashlib
 from configobj import ConfigObj, flatten_errors
 from validate import Validator
 
@@ -2528,10 +2529,13 @@ class FLLBuilder(object):
         self.log.debug(f"boot_cmdline: {cmdline}")
         return cmdline
 
-    def hash_hashsums(self, filename: str):
-        """Calculate hashsums of a file and return it."""
-        hashsums = apt_pkg.Hashes(open(filename, "rb")).hashes
-        return hashsums.find("SHA256").hashvalue, hashsums.find("SHA512").hashvalue
+    def hashsum(self, filename: str) -> str:
+        """Return SHA-256 hex digest of a file."""
+        h = hashlib.sha256()
+        with open(filename, "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
+                h.update(chunk)
+        return h.hexdigest()
 
     def sign_file(self, filename) -> None:
         """Sign a file with hashkey if available."""
@@ -2559,7 +2563,6 @@ class FLLBuilder(object):
         iso_file = os.path.join(self.opts.output_dir, iso_name)
 
         sha256_file = iso_file + ".sha256"
-        sha512_file = iso_file + ".sha512"
 
         xorriso_cmd = "xorriso -report_about HINT -as mkisofs -graft-points"
         # add -iso-level 3 to support multi-extent files > 4 GiB
@@ -2619,23 +2622,20 @@ class FLLBuilder(object):
         os.chown(iso_file, self.opts.uid, self.opts.gid)
         self.live_media = iso_file
 
-        self.log.info("calculating hashsums of live media iso image...")
+        self.log.info("calculating hashsum of live media iso image...")
         try:
-            sha256sum, sha512sum = self.hash_hashsums(iso_file)
-            with open(sha256_file, "w") as sha256:
-                sha256.write("%s *%s\n" % (sha256sum, os.path.basename(iso_file)))
-            with open(sha512_file, "w") as sha512:
-                sha512.write("%s *%s\n" % (sha512sum, os.path.basename(iso_file)))
+            sha256sum = self.hashsum(iso_file)
+            with open(sha256_file, "w") as f:
+                f.write("%s *%s\n" % (sha256sum, os.path.basename(iso_file)))
         except IOError:
-            self.log.exception("failed to write hashsums files")
+            self.log.exception("failed to write hashsum file")
             raise FllError
         finally:
-            for hashsum_file in [sha256_file, sha512_file]:
-                os.chown(hashsum_file, self.opts.uid, self.opts.gid)
-                if self.opts.hashkey:
-                    self.log.info(f"signing {hashsum_file}...")
-                    self.sign_file(hashsum_file)
-                    os.chown(hashsum_file + ".gpg", self.opts.uid, self.opts.gid)
+            os.chown(sha256_file, self.opts.uid, self.opts.gid)
+            if self.opts.hashkey:
+                self.log.info(f"signing {sha256_file}...")
+                self.sign_file(sha256_file)
+                os.chown(sha256_file + ".gpg", self.opts.uid, self.opts.gid)
 
         for f in glob.glob("%s*" % os.path.splitext(iso_file)[0]):
             self.log.info(f)
