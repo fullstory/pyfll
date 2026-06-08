@@ -1452,6 +1452,8 @@ class FLLBuilder(object):
 
     def install_flatpaks(self, chroot: str) -> None:
         """Install flatpaks"""
+        if not any([self.profiles[chroot].flatpaks, self.profiles[chroot].flatpaks_beta]):
+            return
         self.log.info(
             f"{chroot} - configuring flatpak remotes and installing flatpaks..."
         )
