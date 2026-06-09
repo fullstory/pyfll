@@ -269,6 +269,7 @@ class FLLBuilder(object):
         self.timestamp = self.date.strftime("%Y%m%d%H%M")
         self.live_media = str()
         self._staging_lock = threading.Lock()
+        self._bootstrap_sem = threading.Semaphore(2)
 
     def prep_dir(self, dirname: str) -> str:
         """Set up working directories."""
@@ -2749,7 +2750,8 @@ class FLLBuilder(object):
 
         try:
             self.init_chroot(chroot)
-            self.chroot_bootstrap(chroot)
+            with self._bootstrap_sem:
+                self.chroot_bootstrap(chroot)
             self.dpkg_divert(chroot)
             self.write_default_conffiles(chroot)
             self.write_distro_defaults(chroot)
