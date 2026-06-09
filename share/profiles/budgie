@@ -31,7 +31,6 @@ packages = """
 	budgie-core
 	budgie-countdown-applet
 	budgie-desktop
-	budgie-desktop-doc
 	budgie-desktop-environment
 	budgie-desktop-view
 	budgie-dropby-applet
@@ -63,8 +62,7 @@ packages = """
 	evince
 	gedit
 	gimp
-	gir1.2-budgie-1.0
-	gir1.2-budgieraven-1.0
+	gir1.2-budgieraven-3.0
 	gnome-disk-utility
 	gnome-font-viewer
 	gnome-themes-extra
