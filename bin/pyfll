@@ -295,7 +295,7 @@ class FLLBuilder(object):
         """Set up a log file."""
         distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
         log_filename = os.path.join(
-            self.opts.output_dir, f"{distro_name}-{self.timestamp}.iso.fll.log"
+            self.opts.output_dir, f"{distro_name}-{self.timestamp}.fll.log"
         )
         log_filename = os.path.realpath(log_filename)
         dirname = os.path.dirname(log_filename)
