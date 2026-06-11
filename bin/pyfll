@@ -804,14 +804,11 @@ class FLLBuilder(object):
             aptget.append("--allow-unauthenticated")
             aptget.extend(["-o", "Acquire::AllowInsecureRepositories=1"])
         aptget.extend(["-o", "Acquire::Languages=none"])
-        if self.opts.verbose:
-            aptget.extend(["-o", "Dpkg::Use-Pty=1"])
-            aptget.extend(["-o", "Dpkg::Progress-Fancy=1"])
-            aptget.extend(["-o", "APT::Color=1"])
-        else:
-            aptget.extend(["-o", "Dpkg::Use-Pty=0"])
-            aptget.extend(["-o", "Dpkg::Progress-Fancy=0"])
-            aptget.extend(["-o", "APT::Color=0"])
+        # Progress and colour are always off: output is captured via PIPE and
+        # replayed through the logger
+        aptget.extend(["-o", "Dpkg::Use-Pty=0"])
+        aptget.extend(["-o", "Dpkg::Progress-Fancy=0"])
+        aptget.extend(["-o", "APT::Color=0"])
 
         apt_recommends = self.conf["options"].get("apt_recommends", "no")
         if apt_recommends == "no":
@@ -2145,8 +2142,7 @@ class FLLBuilder(object):
             if squashfs_throttle:
                 cmd.extend(["-throttle", f"{squashfs_throttle}"])
 
-            if self.opts.debug or self.opts.quiet:
-                cmd.append("-no-progress")
+            cmd.append("-no-progress")
 
             # can only be last argument
             cmd.extend(["-e", image_file])
@@ -2182,10 +2178,10 @@ class FLLBuilder(object):
                     else:
                         if os.path.exists(os.path.join(chroot_dir, exclude)):
                             cmd.insert(1, f"--exclude-path={exclude}")
-            if self.opts.debug or self.opts.quiet:
-                cmd.insert(1, "--quiet")
-            elif self.opts.debug:
+            if self.opts.debug:
                 cmd.insert(1, "-d9")
+            else:
+                cmd.insert(1, "-d0")
             self.log.info(
                 f"{chroot} - creating erofs ({erofs_compression}) filesystem..."
             )
