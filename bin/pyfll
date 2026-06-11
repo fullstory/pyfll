@@ -728,8 +728,6 @@ class FLLBuilder(object):
         """Execute subprocess, always writing stdout+stderr to the log."""
         self.log.debug(shlex.join(cmd))
 
-        log_it = self.opts.verbose or self.opts.debug
-
         try:
             proc = subprocess.Popen(
                 cmd,
@@ -739,10 +737,7 @@ class FLLBuilder(object):
                 universal_newlines=True,
             )
             for line in iter(proc.stdout.readline, ""):
-                line = line.rstrip()
-                self.log.debug(line)
-                if log_it:
-                    print(line)
+                self.log.info(line.rstrip())
             proc.stdout.close()
             return_code = proc.wait()
             if return_code:
