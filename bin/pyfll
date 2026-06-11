@@ -2603,12 +2603,8 @@ class FLLBuilder(object):
 
         xorriso_cmd = "xorriso -report_about HINT -as mkisofs -graft-points"
         # add -iso-level 3 to support multi-extent files > 4 GiB
-        xorriso_cmd += " -pad -l -iso-level 3"
-        gpthybrid_cmd = os.path.join(self.opts.bin, "gpthybrid")
-
-        if self.opts.verbose:
-            xorriso_cmd += " -v"
-            gpthybrid_cmd += " --verbose"
+        xorriso_cmd += " -pad -l -iso-level 3 -v"
+        gpthybrid_cmd = os.path.join(self.opts.bin, "gpthybrid") + " --verbose"
 
         bootloader = self.conf["options"]["bootloader"]
         if bootloader == "grub":
@@ -2688,8 +2684,7 @@ class FLLBuilder(object):
                 fllisodd_cmd += " --persist"
                 if self.conf["options"]["bootloader"] == "grub":
                     fllisodd_cmd += f" --persist-uuid {self.persist_uuid}"
-            if self.opts.verbose:
-                fllisodd_cmd += " --verbose"
+            fllisodd_cmd += " --verbose"
             self.exec_cmd(shlex.split(fllisodd_cmd))
 
     def log_build_stats(self) -> None:
