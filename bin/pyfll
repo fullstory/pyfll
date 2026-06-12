@@ -267,6 +267,9 @@ class FLLBuilder(object):
         self.xorriso_uuid = self.date.strftime("%Y-%m-%d-%H-%M-%S-00")
         self.persist_uuid = uuidgen()
         self.timestamp = self.date.strftime("%Y%m%d%H%M")
+        # Unique suffix for log filenames so concurrent invocations in the
+        # same build directory do not clobber each other's logs.
+        self.run_id = uuidgen()[:8]
         self.live_media = str()
         self._staging_lock = threading.Lock()
         self._bootstrap_sem = threading.Semaphore(2)
@@ -295,7 +298,7 @@ class FLLBuilder(object):
         """Set up a log file."""
         distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
         log_filename = os.path.join(
-            self.opts.output_dir, f"{distro_name}-{self.timestamp}.fll.log"
+            self.opts.output_dir, f"{distro_name}-{self.timestamp}-{self.run_id}.fll.log"
         )
         log_filename = os.path.realpath(log_filename)
         dirname = os.path.dirname(log_filename)
@@ -2733,7 +2736,7 @@ class FLLBuilder(object):
 
         distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
         log_filename = os.path.join(
-            self.opts.output_dir, f"{distro_name}-{self.timestamp}-{chroot}.chroot.log"
+            self.opts.output_dir, f"{distro_name}-{self.timestamp}-{chroot}-{self.run_id}.chroot.log"
         )
         fmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s")
         handler = logging.FileHandler(filename=log_filename, mode="w")
