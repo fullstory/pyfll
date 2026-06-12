@@ -298,7 +298,7 @@ class FLLBuilder(object):
         """Set up a log file."""
         distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
         log_filename = os.path.join(
-            self.opts.output_dir, f"{distro_name}-{self.timestamp}-{self.run_id}.fll.log"
+            self.opts.output_dir, f"{distro_name}-{self.timestamp}.{self.run_id}.log"
         )
         log_filename = os.path.realpath(log_filename)
         dirname = os.path.dirname(log_filename)
@@ -311,19 +311,6 @@ class FLLBuilder(object):
         self._logfile_handler = logfile
         os.chown(log_filename, self.opts.uid, self.opts.gid)
         self.log.debug(" ".join(sys.argv))
-
-    def rename_logfile(self) -> None:
-        """Rename the main thread log file to match the ISO filename."""
-        new_log_filename = self.live_media + ".log"
-
-        old_log_filename = self._logfile_handler.baseFilename
-        if old_log_filename == new_log_filename:
-            return
-
-        self.log.removeHandler(self._logfile_handler)
-        self._logfile_handler.close()
-        os.rename(old_log_filename, new_log_filename)
-        os.chown(new_log_filename, self.opts.uid, self.opts.gid)
 
     def init_cli_options(self) -> None:
         """Check and provide default class options."""
@@ -2736,7 +2723,7 @@ class FLLBuilder(object):
 
         distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
         log_filename = os.path.join(
-            self.opts.output_dir, f"{distro_name}-{self.timestamp}-{chroot}-{self.run_id}.chroot.log"
+            self.opts.output_dir, f"{distro_name}-{self.timestamp}.{self.run_id}.{chroot}.log"
         )
         fmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s")
         handler = logging.FileHandler(filename=log_filename, mode="w")
@@ -2802,7 +2789,6 @@ class FLLBuilder(object):
         self.log_build_stats()
         self.write_configuration()
         self.write_quickemu_conf()
-        self.rename_logfile()
 
 
 if __name__ == "__main__":
