@@ -2727,7 +2727,7 @@ class FLLBuilder(object):
 
         distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
         log_filename = os.path.join(
-            self.opts.output_dir, f"{distro_name}-{self.timestamp}.{self.run_id}.{chroot}.log"
+            self.opts.output_dir, f"{distro_name}-{self.timestamp}.{self.run_id}.log.{chroot}"
         )
         fmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s")
         handler = logging.FileHandler(filename=log_filename, mode="w")
