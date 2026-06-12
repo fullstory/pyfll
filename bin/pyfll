@@ -820,7 +820,9 @@ class FLLBuilder(object):
 
         if self.opts.debug:
             aptget.extend(["-o", "APT::Get::Show-Versions=1"])
-        elif not self.opts.verbose:
+        if self.opts.verbose:
+            aptget.append("-q")
+        else:
             aptget.append("-qq")
 
         aptget.append(command)
