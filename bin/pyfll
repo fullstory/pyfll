@@ -2582,7 +2582,7 @@ class FLLBuilder(object):
         distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
         image_dir = self.conf["distro"]["FLL_IMAGE_DIR"]
 
-        iso_name = f"{distro_name}-{self.timestamp}-{self.chroots[0]}"
+        iso_name = f"{distro_name}-{self.timestamp}.{self.run_id}.{self.chroots[0]}"
         for index, chroot in enumerate(self.chroots[1:]):
             common_prefix = os.path.commonprefix([self.chroots[index], chroot])
             iso_name += f"+{chroot.replace(common_prefix, '')}"
