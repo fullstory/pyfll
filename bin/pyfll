@@ -402,7 +402,11 @@ class FLLBuilder(object):
 
     def write_configuration(self) -> None:
         """Save build configuration with live media. Use only at end."""
-        self.conf.filename = f"{self.live_media}.fll.conf"
+        distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
+        self.conf.filename = os.path.join(
+            self.opts.output_dir,
+            f"{distro_name}-{self.timestamp}.{self.run_id}.fll.conf",
+        )
         self.conf.write()
         os.chown(self.conf.filename, self.opts.uid, self.opts.gid)
 
