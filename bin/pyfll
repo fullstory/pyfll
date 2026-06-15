@@ -1395,20 +1395,18 @@ class FLLBuilder(object):
                 srcpkg_seen[srcpkg] = True
                 srcpkg_specs.append(f"{pkg}={pkgver}")
 
-        uris = []
-        for spec in srcpkg_specs:
-            try:
-                output = self.chroot_output(
-                    chroot, ["apt-get", "source", "--print-uris", spec]
-                )
-            except FllError:
-                self.log.critical(f"failed to retrieve source URIs for {spec}")
-                raise
-            uris.extend(
-                line.split("'")[1]
-                for line in output.splitlines()
-                if line.startswith("'")
+        try:
+            output = self.chroot_output(
+                chroot, ["apt-get", "source", "--print-uris"] + srcpkg_specs
             )
+        except FllError:
+            self.log.critical("failed to retrieve source URIs")
+            raise
+        uris = [
+            line.split("'")[1]
+            for line in output.splitlines()
+            if line.startswith("'")
+        ]
         uris.sort()
 
         sources_list = deduplicate_list(uris)
