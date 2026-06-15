@@ -1389,11 +1389,11 @@ class FLLBuilder(object):
             if pkg.startswith("cdebootstrap-helper"):
                 continue
             srcpkg = status[pkg]["source"]
-            srcver = status[pkg]["source_version"]
+            pkgver = status[pkg]["version"]
             self.log.debug(f"{pkg} -> {srcpkg}")
             if srcpkg not in srcpkg_seen:
                 srcpkg_seen[srcpkg] = True
-                srcpkg_specs.append(f"{srcpkg}={srcver}")
+                srcpkg_specs.append(f"{pkg}={pkgver}")
 
         uris = []
         for spec in srcpkg_specs:
