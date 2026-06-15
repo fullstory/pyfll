@@ -1390,7 +1390,6 @@ class FLLBuilder(object):
                 continue
             srcpkg = status[pkg]["source"]
             pkgver = status[pkg]["version"]
-            self.log.debug(f"{pkg} -> {srcpkg}")
             if srcpkg not in srcpkg_seen:
                 srcpkg_seen[srcpkg] = True
                 srcpkg_specs.append(f"{pkg}={pkgver}")
