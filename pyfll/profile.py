@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 
-def _parse_dep_groups(dep_str: str) -> list:
+def parse_dependency_groups(dep_str: str) -> list:
     """Parse a Depends/Recommends string into a list of OR groups.
     Each group is a list of package names (version constraints stripped)."""
     groups = []
@@ -17,7 +17,7 @@ def _parse_dep_groups(dep_str: str) -> list:
 
 
 @dataclass
-class PkgProfile:
+class FllProfile:
     """
     Holds the package-related data collected from a single profile file and
     all modules it references.
@@ -43,7 +43,7 @@ class PkgProfile:
     manifest: dict = field(default_factory=dict)
 
     def merge(self, other):
-        """Add all items from another PkgProfile into this one."""
+        """Add all items from another FllProfile into this one."""
         self.debconf.update(other.debconf)
         self.packages.update(other.packages)
         self.flatpaks.update(other.flatpaks)

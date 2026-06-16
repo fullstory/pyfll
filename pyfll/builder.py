@@ -25,7 +25,7 @@ from pyfll.exceptions import FllError, FllLocalesError
 from pyfll.gpt import run_gpthybrid
 from pyfll.isodd import write_iso
 from pyfll.locales import FllLocales
-from pyfll.profile import PkgProfile, _parse_dep_groups
+from pyfll.profile import FllProfile, parse_dependency_groups
 from pyfll.util import deduplicate_list, multiline_to_list, uuidgen
 
 
@@ -208,9 +208,9 @@ class FLLBuilder(BootloaderMixin):
 
     def expand_pkg_profile(
         self, chroot: str, profile: str, modules_dir: str
-    ) -> PkgProfile:
-        """Return a PkgProfile for a given chroot and profile."""
-        pkg_profile = PkgProfile()
+    ) -> FllProfile:
+        """Return a FllProfile for a given chroot and profile."""
+        pkg_profile = FllProfile()
         for package in self.conf["chroots"][chroot]["packages"].get("packages"):
             pkg_profile.packages.add(package)
         arch = self.conf["chroots"][chroot]["packages"]["arch"]
@@ -394,13 +394,13 @@ class FLLBuilder(BootloaderMixin):
 
         return pkg_profile
 
-    def parse_package_profile(self, chroot: str) -> PkgProfile:
+    def parse_package_profile(self, chroot: str) -> FllProfile:
         """Parse packages profile for each chroot."""
         profiles = self.conf["chroots"][chroot]["packages"]["profile"]
         profile_dir = os.path.join(self.opts.share, "profiles")
         modules_dir = os.path.join(self.opts.share, "modules")
 
-        chroot_profile = PkgProfile()
+        chroot_profile = FllProfile()
         for profile_name in profiles:
             self.log.info(f"{chroot} - processing package profile: {profile_name}")
             profile_path = os.path.join(profile_dir, profile_name)
@@ -1061,7 +1061,7 @@ class FLLBuilder(BootloaderMixin):
             recommends_str = pkg_data.get("recommends", "")
             if not recommends_str:
                 continue
-            for group in _parse_dep_groups(recommends_str):
+            for group in parse_dependency_groups(recommends_str):
                 if any(alt in wanted for alt in group):
                     continue
                 first = group[0]
