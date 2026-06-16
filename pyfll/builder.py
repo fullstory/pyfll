@@ -15,7 +15,6 @@ import tarfile
 import tempfile
 import threading
 import time
-from io import open
 
 from configobj import ConfigObj, flatten_errors
 from debian.debian_support import Version
