@@ -813,9 +813,10 @@ class FLLBuilder(BootloaderMixin):
         chroot_dir = os.path.join(self.temp, chroot)
         for divert in self.diverts:
             self.log.debug(f"diverting {divert}")
-            cmd = "dpkg-divert --add --local --divert " + divert + ".REAL --rename "
-            cmd += divert
-            self.chroot_exec(chroot, shlex.split(cmd))
+            self.chroot_exec(chroot, [
+                "dpkg-divert", "--add", "--local",
+                "--divert", f"{divert}.REAL", "--rename", divert,
+            ])
 
             if divert == "/usr/sbin/policy-rc.d":
                 self.write_file(chroot_dir, divert)
@@ -829,8 +830,7 @@ class FLLBuilder(BootloaderMixin):
         for divert in self.diverts:
             self.log.debug(f"undoing diversion: {divert}")
             os.unlink(os.path.join(chroot_dir, divert.lstrip("/")))
-            cmd = "dpkg-divert --remove --rename " + divert
-            self.chroot_exec(chroot, shlex.split(cmd))
+            self.chroot_exec(chroot, ["dpkg-divert", "--remove", "--rename", divert])
 
     def write_file(self, chroot: str, filename: str, mode: int = 0o644) -> None:
         """Write a file in a chroot. Templates defined below."""
@@ -958,18 +958,24 @@ class FLLBuilder(BootloaderMixin):
         for kernel in kvers:
             cmd = ""
             if initramfs_tool == "initramfs-tools":
-                cmd = f"update-initramfs -c -k {kernel}"
+                cmd = ["update-initramfs", "-c", "-k", kernel]
                 if self.opts.verbose or self.opts.debug:
-                    cmd += " -v"
+                    cmd.append("-v")
             elif initramfs_tool == "dracut":
-                cmd = "dracut --no-hostonly --no-hostonly-i18n "
-                cmd += "--no-hostonly-cmdline --no-hostonly-default-device "
-                cmd += f"--force-add fll --kver {kernel}"
+                cmd = [
+                    "dracut",
+                    "--no-hostonly",
+                    "--no-hostonly-i18n",
+                    "--no-hostonly-cmdline",
+                    "--no-hostonly-default-device",
+                    "--force-add", "fll",
+                    "--kver", kernel,
+                ]
                 if self.opts.verbose or self.opts.debug:
-                    cmd += " --verbose"
+                    cmd.append("--verbose")
                 elif self.opts.quiet:
-                    cmd += " --quiet"
-            self.chroot_exec(chroot, shlex.split(cmd))
+                    cmd.append("--quiet")
+            self.chroot_exec(chroot, cmd)
 
     def preseed_debconf(self, chroot: str) -> None:
         """Preseed debconf with values read from package lists."""
@@ -984,11 +990,11 @@ class FLLBuilder(BootloaderMixin):
         with open(debconf_filename, "w") as debconf_fh:
             debconf_fh.writelines([f"{d}\n" for d in debconf_list])
 
-        cmd = "debconf-set-selections "
+        cmd = ["debconf-set-selections"]
         if self.opts.verbose:
-            cmd += "--verbose "
-        cmd += "/fll/fll_debconf_selections"
-        self.chroot_exec(chroot, shlex.split(cmd))
+            cmd.append("--verbose")
+        cmd.append("/fll/fll_debconf_selections")
+        self.chroot_exec(chroot, cmd)
 
     def detect_linux_version(self, chroot: str) -> list:
         """Return version string of a singularly installed linux-image."""
@@ -1244,46 +1250,34 @@ class FLLBuilder(BootloaderMixin):
         self.log.info(
             f"{chroot} - configuring flatpak remotes and installing flatpaks..."
         )
-        flatpak_cmd = "flatpak"
+        flatpak_base = ["flatpak"]
         if self.opts.verbose:
-            flatpak_cmd += " --verbose"
+            flatpak_base.append("--verbose")
         elif self.opts.debug:
-            flatpak_cmd += " -vv"
+            flatpak_base.append("-vv")
         flatpaks = self.profiles[chroot].flatpaks
         if "flatpak" in self.profiles[chroot].packages:
-            flathub_remote = "flathub https://flathub.org/repo/flathub.flatpakrepo"
-            self.chroot_exec(
-                chroot,
-                shlex.split(
-                    f"{flatpak_cmd} remote-add --if-not-exists {flathub_remote}"
-                ),
-            )
+            self.chroot_exec(chroot, [
+                *flatpak_base, "remote-add", "--if-not-exists",
+                "flathub", "https://flathub.org/repo/flathub.flatpakrepo",
+            ])
             for flatpak in flatpaks:
-                self.chroot_exec(
-                    chroot,
-                    shlex.split(
-                        f"{flatpak_cmd} install --noninteractive --assumeyes flathub {flatpak}"
-                    ),
-                )
+                self.chroot_exec(chroot, [
+                    *flatpak_base, "install", "--noninteractive", "--assumeyes",
+                    "flathub", flatpak,
+                ])
 
         flatpaks_beta = self.profiles[chroot].flatpaks_beta
         if len(flatpaks_beta) > 0:
-            flathub_beta_remote = (
-                "flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo"
-            )
-            self.chroot_exec(
-                chroot,
-                shlex.split(
-                    f"{flatpak_cmd} remote-add --if-not-exists {flathub_beta_remote}"
-                ),
-            )
+            self.chroot_exec(chroot, [
+                *flatpak_base, "remote-add", "--if-not-exists",
+                "flathub-beta", "https://flathub.org/beta-repo/flathub-beta.flatpakrepo",
+            ])
             for flatpak in flatpaks_beta:
-                self.chroot_exec(
-                    chroot,
-                    shlex.split(
-                        f"{flatpak_cmd} install --noninteractive --assumeyes flathub-beta {flatpak}"
-                    ),
-                )
+                self.chroot_exec(chroot, [
+                    *flatpak_base, "install", "--noninteractive", "--assumeyes",
+                    "flathub-beta", flatpak,
+                ])
 
     def post_installation(self, chroot: str) -> None:
         """Run package module postinst scripts in a chroot."""
@@ -1300,8 +1294,7 @@ class FLLBuilder(BootloaderMixin):
                 self.log.exception(f"error preparing postinst script: {sname}")
                 raise FllError
 
-            cmd = f"/fll/{sname} postinst"
-            self.chroot_exec(chroot, shlex.split(cmd))
+            self.chroot_exec(chroot, [f"/fll/{sname}", "postinst"])
             os.unlink(os.path.join(chroot_dir, "fll", sname))
 
     def zero_logs(self, chroot: str, dirname: str, filenames: list) -> None:
@@ -1318,9 +1311,9 @@ class FLLBuilder(BootloaderMixin):
         self.log.debug(f"{chroot} - purging unwanted content...")
         chroot_dir = os.path.join(self.temp, chroot)
 
-        self.chroot_exec(chroot, shlex.split("dpkg --purge fll-live-initramfs"))
-        self.chroot_exec(chroot, shlex.split("apt-get clean"))
-        self.chroot_exec(chroot, shlex.split("dpkg --clear-avail"))
+        self.chroot_exec(chroot, ["dpkg", "--purge", "fll-live-initramfs"])
+        self.chroot_exec(chroot, ["apt-get", "clean"])
+        self.chroot_exec(chroot, ["dpkg", "--clear-avail"])
 
         for dirpath, dirnames, files in os.walk(os.path.join(chroot_dir, "var/log")):
             self.zero_logs(chroot, dirpath, files)
