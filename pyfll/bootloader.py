@@ -11,6 +11,13 @@ from pyfll.util import host_timezone
 class BootloaderMixin:
     """Mixin providing bootloader staging and configuration methods for FLLBuilder."""
 
+    BOOTLOADER_REGISTRY = {
+        "grub":         ("stage_grub",         "write_grub_cfg"),
+        "grub-efi":     ("stage_grub_efi",     "write_grub_efi_cfg"),
+        "systemd-boot": ("stage_systemd_boot", "write_systemd_loader_conf"),
+        "refind":       ("stage_refind",       "write_refind_conf"),
+    }
+
     def _build_efi_fat_img(self, stage_dir: str) -> None:
         """Build a dynamically-sized FAT EFI system partition image from staging/efi/."""
         efi_img = os.path.join(stage_dir, "efi.img")
@@ -586,14 +593,12 @@ class BootloaderMixin:
     def stage_bootloader(self, chroot: str) -> None:
         """Dispatch boot image creation to the configured bootloader."""
         bootloader = self.conf["options"]["bootloader"]
-        if bootloader == "grub":
-            self.stage_grub(chroot)
-        elif bootloader == "grub-efi":
-            self.stage_grub_efi(chroot)
-        elif bootloader == "systemd-boot":
-            self.stage_systemd_boot(chroot)
-        elif bootloader == "refind":
-            self.stage_refind(chroot)
+        try:
+            stage_fn, _ = self.BOOTLOADER_REGISTRY[bootloader]
+        except KeyError:
+            self.log.critical(f"unknown bootloader: {bootloader!r}")
+            raise FllError
+        getattr(self, stage_fn)(chroot)
 
     def write_grub_cfg(self) -> None:
         """Write grub.cfg for live media."""
@@ -914,14 +919,12 @@ class BootloaderMixin:
     def write_bootloader_config(self) -> None:
         """Dispatch boot configuration writing to the configured bootloader."""
         bootloader = self.conf["options"]["bootloader"]
-        if bootloader == "grub":
-            self.write_grub_cfg()
-        elif bootloader == "grub-efi":
-            self.write_grub_efi_cfg()
-        elif bootloader == "systemd-boot":
-            self.write_systemd_loader_conf()
-        elif bootloader == "refind":
-            self.write_refind_conf()
+        try:
+            _, config_fn = self.BOOTLOADER_REGISTRY[bootloader]
+        except KeyError:
+            self.log.critical(f"unknown bootloader: {bootloader!r}")
+            raise FllError
+        getattr(self, config_fn)()
 
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf["distro"]["FLL_IMAGE_DIR"]
