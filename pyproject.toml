@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyfll"
+version = "2026.01"
+description = "F*** Live Linux media mastering utility"
+requires-python = ">=3.11"
+dependencies = [
+    "configobj",
+    "python-debian",
+]
+
+[project.scripts]
+pyfll     = "pyfll.builder:main"
+gpthybrid = "pyfll.gpt:main"
+fllisodd  = "pyfll.isodd:main"
+
+[tool.setuptools]
+script-files = ["fll"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pyfll*"]

@@ -1,4 +1,6 @@
+__pycache__
 bin/__pycache__
+pyfll/__pycache__
 fll.*.conf
 share/profiles/*.local
 share/profiles/*.local.*

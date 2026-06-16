@@ -2,56 +2,29 @@
 
 **FULLSTORY live Linux media mastering utility**
 
-`pyfll` is a Python tool for building bootable Debian-based live ISO images. It bootstraps one or more chroot environments, installs packages according to a declarative configuration file, and produces a hybrid ISO with a compressed read-only filesystem — ready to write to USB or burn to disc.
+`pyfll` is a Python tool for building bootable Debian-based live ISO images. It bootstraps one or more chroot environments, installs packages according to a declarative configuration, and produces a hybrid ISO with a compressed read-only filesystem — ready to write to USB or burn to disc.
 
-It is the primary build tool behind [aptosid](http://aptosid.com/) and supports a wide range of desktop environments and architectures out of the box.
-
----
-
-## Features
-
-- Declarative, INI-style configuration via `fll.conf` (powered by [ConfigObj](https://configobj.readthedocs.io/))
-- Supports multiple simultaneous chroot builds in a single run
-- Choice of bootstrapper: `cdebootstrap`, `debootstrap`, or `mmdebstrap`
-- Choice of read-only filesystem: `squashfs` (default) or `erofs`
-- Choice of bootloader: GRUB (BIOS/GPT), GRUB EFI, rEFInd, or systemd-boot
-- Choice of initramfs generator: `dracut` (default) or `initramfs-tools`
-- Multi-architecture support: `amd64` and `i386`
-- Modular profile and module system for desktop environments and extra feature sets
-- Optional APT cache proxy support (`apt-cacher-ng` / `auto-apt-proxy`)
-- Custom repository injection via deb822-style sources files with embedded GPG keys
+It is the primary build tool behind [aptosid](http://aptosid.com/).
 
 ---
 
 ## Requirements
 
-### Required
-
 | Package | Purpose |
 |---|---|
-| `python` ≥ 3.8 | Runtime |
-| `python3-apt` | APT integration |
+| `python3` ≥ 3.11 | Runtime |
 | `python3-debian` | Debian version string comparison |
 | `python3-configobj` | Configuration parsing |
 | `cdebootstrap` \| `debootstrap` \| `mmdebstrap` | Bootstrap utility |
 | `xorriso` | ISO creation |
 | `squashfs-tools` \| `erofs-utils` | Read-only filesystem |
-| `gdisk` | GPT hybrid support for GRUB |
-| `mtools` | FAT image handling |
+| `gdisk` | GPT hybrid support |
+| `mtools` | FAT image handling for EFI partition |
 | `systemd-container` | Chroot execution via `systemd-nspawn` |
 
-### Recommended
-
-| Package | Purpose |
-|---|---|
-| `apt-cacher-ng` | Local APT cache to speed up repeated builds |
-| `auto-apt-proxy` | Automatic cache proxy detection |
-
-Install all required dependencies on Debian/Ubuntu:
-
 ```bash
-sudo apt install python3-apt python3-debian python3-configobj gdisk xorriso \
-    cdebootstrap erofs-utils squashfs-tools git mtools systemd-container
+sudo apt install python3-debian python3-configobj gdisk xorriso \
+    cdebootstrap erofs-utils squashfs-tools mtools systemd-container
 ```
 
 ---
@@ -59,21 +32,14 @@ sudo apt install python3-apt python3-debian python3-configobj gdisk xorriso \
 ## Quickstart
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/fullstory/pyfll.git
 cd pyfll
-
-# 2. Copy and edit the configuration
 cp fll.conf fll.local.conf
 editor fll.local.conf
-
-# 3. Run the build (requires root)
-sudo ./fll -c fll.local.conf -b /tmp/fll/
+./fll -c fll.local.conf -b /tmp/fll/
 ```
 
-The resulting ISO will be written to the build directory (`/tmp/fll/` in the example above).
-
-For a full list of options:
+`fll` is the execution wrapper: it escalates to root via `sudo` or `su`, then calls `bin/pyfll` with the caller's uid/gid so output files are owned by the invoking user. For all options:
 
 ```bash
 ./fll --help
@@ -83,125 +49,160 @@ For a full list of options:
 
 ## Configuration
 
-`fll.conf` (and your local override `fll.local.conf`) uses a hierarchical INI format defined by the [ConfigObj](https://configobj.readthedocs.io/en/stable/index.html) library. You must define at least one `[chroots]` entry. Most settings have sensible defaults defined in `share/fll.conf.spec`; you only need to specify values you want to override.
+`fll.conf` uses a hierarchical INI format parsed by [ConfigObj](https://configobj.readthedocs.io/). The full schema with all defaults is defined in `share/fll.conf.spec` — you only need to specify values you want to override.
 
-### Chroot definition
-
-Each chroot entry produces one squashfs (or erofs) image on the ISO. The name becomes the image filename and must not contain spaces.
+### Minimal chroot definition
 
 ```ini
-['chroots']
+[chroots]
 
-[[ 'debian-sid-amd64-kde' ]]
+[[ debian-sid-amd64-kde ]]
 
-  [[[ 'packages' ]]]
+  [[[ packages ]]]
   distro   = debian
   codename = sid
   arch     = amd64
-  linux    = aptosid-amd64       # linux-image- / linux-headers- suffix
-  profile  = kde-lite            # one or more profiles from share/profiles/
-  browser  = firefox             # x-www-browser alternative(s)
-  modules  = firmware, cli-fancy # extra feature modules from share/modules/
-  locales  = en_AU, en_US, de_DE
+  linux    = amd64                # suffix appended to linux-image- and linux-headers-
+  profile  = kde-lite             # one or more profiles from share/profiles/
+  browser  = firefox              # x-www-browser alternative
+  modules  = firmware, cli-fancy  # extra feature modules from share/modules/
 
-  [[[ 'repos' ]]]
-  [[[[ 'debian' ]]]]
+  [[[ repos ]]]
+  [[[[ debian ]]]]
   uri        = https://deb.debian.org/debian/
   suite      = sid
   components = main non-free-firmware
-
-  [[[[ 'aptosid' ]]]]
-  uri        = http://aptosid.com/debian/
-  suite      = sid
-  components = main fix.main
-  keyring    = aptosid-archive-keyring
 ```
 
-Multiple chroots can be stacked in a single `fll.conf`, each producing its own squashfs on the resulting ISO — useful for shipping multiple desktop flavours from a single build run.
+Multiple chroots can be defined in one config file. Each produces its own squashfs or erofs image on the ISO — useful for shipping multiple desktop flavours from a single build run.
 
-### Global options (excerpt)
+### Key global options
 
 ```ini
-[ 'options' ]
+[ options ]
 bootloader          = grub          # grub | grub-efi | refind | systemd-boot
-bootstrapper        = cdebootstrap  # cdebootstrap | debootstrap | mmdebstrap
+bootstrapper        = mmdebstrap    # cdebootstrap | debootstrap | mmdebstrap
 initramfs_tool      = dracut        # dracut | initramfs-tools
 readonly_filesystem = squashfs      # squashfs | erofs
 squashfs_comp       = zstd          # gzip | lz4 | lzo | xz | zstd
 apt_recommends      = no
 ```
 
-See `share/fll.conf.spec` for the full schema and all defaults.
-
 ### Adding a custom repository
 
-Use `sources_uri` to point to a deb822-style `.sources` file with an embedded GPG public key — no separate keyring package needed:
+Use `sources_uri` to fetch a deb822-style `.sources` file directly — no separate keyring package needed:
 
 ```ini
-[[[[ 'myrepo' ]]]]
+[[[[ myrepo ]]]]
 sources_uri = https://example.com/debian/myrepo.sources
+```
+
+Or specify a repository inline with a named keyring:
+
+```ini
+[[[[ aptosid ]]]]
+uri        = http://aptosid.com/debian/
+suite      = sid
+components = main fix.main
+keyring    = aptosid-archive-keyring
 ```
 
 ---
 
 ## Profiles
 
-Profiles live under `share/profiles/` and define the package set for a desktop environment or environment combination. Each profile is a named list of packages (and optional groups) that gets installed into the chroot on top of the bootstrapped base system.
+Profiles live under `share/profiles/` and define the package set for a desktop environment or base system type. A profile is a ConfigObj file with the following keys:
 
-The `profile` key in a chroot definition accepts a comma-separated list; profiles compose, so you can combine a desktop with a supplementary profile (e.g. `profile = kde-lite, xfce-lite` produces a chroot with both).
+```
+desc = """
+    Human-readable description shown in build log.
+"""
 
-### Available profiles
+modules = """
+    essential
+    hwsupport-essential
+    kde-essential
+    kde-basic
+    xserver
+"""
 
-| Profile | Description |
-|---|---|
-| `kde-lite` | KDE Plasma desktop, trimmed package selection |
-| `kde` | KDE Plasma desktop, standard package selection |
-| `kde-stripped` | KDE Plasma desktop, minimal package selection |
-| `kde-full` | KDE Plasma desktop, full package selection |
-| `gnome-lite` | GNOME desktop, trimmed package selection |
-| `xfce-lite` | Xfce desktop |
-| `lxqt-lite` | LXQt desktop |
-| `lxqt-stripped` | LXQt desktop, minimal selection |
-| `lxde-lite` | LXDE desktop |
-| `cinnamon-lite` | Cinnamon desktop |
-| `mate` | MATE desktop |
-| `budgie` | Budgie desktop |
-| `hyprland` | Hyprland Wayland compositor |
-| `sway` | Sway Wayland compositor |
-| `labwc` | labwc stacking Wayland compositor |
-| `kodi` | Kodi media centre |
-| `minimal` | Console-only base system, no X |
-| `minimal-x` | Minimal base with X, no desktop |
+packages = """
+    some-extra-package
+"""
 
-Profiles can be mixed to produce combined desktops — the example `fll.conf` ships several such combinations (e.g. `kfce` = KDE + Xfce, `lxkde` = LXQt + KDE, `ginnamon` = GNOME + Cinnamon, `knome` = KDE + GNOME).
+desktops = """
+    plasma
+"""
+```
 
-### Writing your own profile
+- **`modules`** — names of module files from `share/modules/` to compose into this profile (evaluated recursively)
+- **`packages`** — additional packages on top of what modules provide
+- **`desktops`** — desktop session names (used to generate per-session boot menu entries)
+- **`groups`** — supplementary groups to add the live user to
 
-A profile file is a plain text list of Debian package names, one per line, with support for group references. Place it under `share/profiles/<name>` and reference it by that name in `fll.conf`.
+The `profile` key in a chroot definition accepts a space-separated list. Profiles compose — their package sets, modules, desktops, and groups are merged. A profile may also ship a companion `<name>.postinst` shell script that is executed inside the chroot after all packages are installed.
 
 ---
 
 ## Modules
 
-Modules live under `share/modules/` and represent optional, self-contained feature bundles that are layered on top of a profile. They are specified via the `modules` key and also accept a comma-separated list.
+Modules live under `share/modules/` and are the primary unit of package composition. A profile is typically a thin list of module references; the modules do the actual package selection.
 
-### Available modules
+```
+desc = """
+    Fancy versions of common command line utilities.
+"""
 
-| Module | Description |
-|---|---|
-| `firmware` | Non-free firmware packages for broad hardware support (Wi-Fi adapters, GPU microcode, etc.) |
-| `cli-fancy` | Useful command-line tools and shell enhancements for a richer terminal experience |
-| `qemu` | QEMU/KVM virtualisation support and guest tools |
-
-Modules are additive and independent of each other — combine freely:
-
-```ini
-modules = firmware, cli-fancy, qemu
+packages = """
+    bat
+    btop
+    liquidprompt
+    zoxide
+"""
 ```
 
-### Writing your own module
+Supported keys:
 
-A module file follows the same format as a profile (a package list with optional group references). Place it under `share/modules/<name>` and add the name to the `modules` key in your chroot definition.
+| Key | Purpose |
+|---|---|
+| `desc` | Description shown in build log |
+| `packages` | Debian package names to install |
+| `packages_amd64` | Architecture-specific packages (also `packages_i386`, `packages_arm64`) |
+| `debconf` | `debconf-set-selections` lines preseeded before installation |
+| `groups` | Supplementary groups to add the live user to |
+| `desktops` | Desktop session names |
+| `flatpaks` | Flatpak app IDs to install from Flathub |
+| `flatpaks_beta` | Flatpak app IDs to install from Flathub Beta |
+
+A module may also ship a companion `<name>.postinst` script. Postinst scripts are run inside the chroot via `systemd-nspawn` after package installation with the argument `postinst`.
+
+### Recommended packages
+
+The special module `share/modules/recommends` lists packages whose apt Recommends are selectively honoured even when `apt_recommends = no`. Any package listed there will have its recommended dependencies pulled in if those dependencies are already in the wanted package set.
+
+---
+
+## Utilities
+
+### `bin/gpthybrid`
+
+Converts an ISO produced by xorriso into a GPT hybrid image with proper partition entries for BIOS boot, EFI, and each squashfs/erofs payload. Run automatically by `pyfll` at the end of a build, but can also be used standalone:
+
+```bash
+bin/gpthybrid --iso output.iso --filesystems live/filesystem.squashfs efi.img
+```
+
+### `bin/fllisodd`
+
+Writes a live ISO to a USB device using `dd`, with optional persistence partition setup:
+
+```bash
+# Write ISO to USB
+sudo bin/fllisodd --iso output.iso --target /dev/sdX
+
+# Write ISO with a persistence overlay partition
+sudo bin/fllisodd --iso output.iso --target /dev/sdX --persist
+```
 
 ---
 
@@ -209,14 +210,27 @@ A module file follows the same format as a profile (a package list with optional
 
 ```
 pyfll/
-├── fll              # Main executable
-├── fll.conf         # Default/example configuration
-├── bin/             # Helper scripts
-├── share/
-│   ├── fll.conf.spec    # Configuration schema and defaults
-│   ├── profiles/        # Desktop environment package lists
-│   └── modules/         # Optional feature modules (firmware, cli-fancy, qemu, …)
-└── debian/          # Debian packaging metadata
+├── fll                 # Execution wrapper (handles sudo/uid-gid)
+├── bin/
+│   ├── pyfll           # Main build entry point (called by fll)
+│   ├── gpthybrid       # GPT hybrid ISO tool
+│   └── fllisodd        # ISO-to-USB writer
+├── fll.conf            # Example configuration
+├── pyfll/              # Python package
+│   ├── builder.py      # FLLBuilder orchestration
+│   ├── bootloader.py   # Bootloader staging (BootloaderMixin)
+│   ├── apt.py          # Package installation (AptMixin)
+│   ├── chroot.py       # Subprocess/nspawn execution (ChrootExecMixin)
+│   ├── profile.py      # Profile data model and parsing (PackageProfileMixin)
+│   ├── locales.py      # Locale package detection
+│   ├── gpt.py          # GPT hybrid ISO manipulation
+│   └── isodd.py        # ISO-to-device writer
+└── share/
+    ├── fll.conf.spec   # Configuration schema and defaults
+    ├── fll.profile.spec
+    ├── fll.module.spec
+    ├── profiles/       # Desktop environment profiles
+    └── modules/        # Composable feature modules
 ```
 
 ---
