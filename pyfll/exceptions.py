@@ -4,7 +4,7 @@ class FllError(Exception):
     pass
 
 
-class FllLocalesError(Exception):
+class FllLocalesError(FllError):
     """An error class for use by FllLocales."""
 
     pass
