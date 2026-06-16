@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
+
 # https://www.rodsbooks.com/gdisk/hybrid.html
 import argparse
 from operator import itemgetter

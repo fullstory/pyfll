@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-only
+# Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
+
 import argparse
 import os
 import re
