@@ -9,9 +9,11 @@ ROOTEXEC=yes
 # Locate directory we are called from
 THIS_DIR=$(dirname $(readlink -f ${0}))
 
-# Locate the real program
+# Locate pyfll: prefer source tree layout, fall back to installed PATH
 if [ -f "${THIS_DIR}/bin/pyfll" ]; then
 	FLL="${THIS_DIR}/bin/pyfll"
+elif command -v pyfll >/dev/null 2>&1; then
+	FLL="$(command -v pyfll)"
 else
 	echo "Error locating pyfll, aborting." >&2
 	exit 1
@@ -32,11 +34,11 @@ done
 
 if [ "${ROOTEXEC}" = yes ]; then
 	if groups | grep -wq sudo; then
-		exec sudo /usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}
+		exec sudo "${FLL}" --uid ${USER_UID} --gid ${USER_GID} ${@}
 	else
-		ROOT_CMD="/usr/bin/python3 ${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
+		ROOT_CMD="${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
 		exec su --command "${ROOT_CMD}" root
 	fi
 else
-	exec /usr/bin/python3 ${FLL} ${@}
+	exec "${FLL}" ${@}
 fi

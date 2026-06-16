@@ -13,9 +13,12 @@ dependencies = [
 ]
 
 [project.scripts]
-pyfll    = "pyfll.builder:main"
+pyfll     = "pyfll.builder:main"
 gpthybrid = "pyfll.gpt:main"
 fllisodd  = "pyfll.isodd:main"
+
+[tool.setuptools]
+script-files = ["fll"]
 
 [tool.setuptools.packages.find]
 where = ["."]
