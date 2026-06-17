@@ -66,6 +66,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         self.date = datetime.datetime.now(datetime.UTC)
         self.xorriso_uuid = self.date.strftime("%Y-%m-%d-%H-%M-%S-00")
         self.persist_uuid = uuidgen()
+        self.persist_luks_uuid = uuidgen()
         self.timestamp = self.date.strftime("%Y%m%d%H%M")
         self.run_id = uuidgen()[:8]
         self.live_media = str()
@@ -624,11 +625,26 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                     self.opts.write_iso,
                     persist=self.opts.persist,
                     persist_uuid=grub_uuid,
+                    encrypt=self.opts.encrypt,
                     verbose=self.opts.verbose,
                     log_fn=self.log.info,
                 )
             except subprocess.CalledProcessError:
                 self.log.exception("fllisodd failed")
+                raise FllError
+
+        if self.opts.upgrade:
+            from pyfll.isodd import upgrade_iso
+            try:
+                upgrade_iso(
+                    iso_file,
+                    self.opts.upgrade,
+                    encrypt=self.opts.encrypt,
+                    verbose=self.opts.verbose,
+                    log_fn=self.log.info,
+                )
+            except subprocess.CalledProcessError:
+                self.log.exception("upgrade_iso failed")
                 raise FllError
 
     def log_build_stats(self) -> None:
@@ -910,6 +926,29 @@ def main() -> None:
         metavar="<device>",
         help="Write final live media to device with dd via fllisodd. "
         + "WARNING: destroys all existing data on target device!!!",
+    )
+    cli.add_argument(
+        "--upgrade",
+        action="store",
+        default=None,
+        type=str,
+        metavar="<device>",
+        help=(
+            "After building the ISO, upgrade it onto <device> in-place using "
+            "dd conv=notrunc. The btrfs persist partition is preserved; "
+            "@root is reset, @home is untouched. Supply --encrypt if the "
+            "persist partition is encrypted."
+        ),
+    )
+    cli.add_argument(
+        "--encrypt",
+        action="store_true",
+        default=False,
+        help=(
+            "Encrypt the persist partition with LUKS2 using an interactive "
+            "passphrase. Requires --persist. Also signals --upgrade that the "
+            "persist partition is encrypted and requires unlocking."
+        ),
     )
 
     # These options are managed by the fll shell snippet non-interactively
