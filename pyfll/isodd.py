@@ -645,6 +645,15 @@ def upgrade_iso(
     elif encrypt:
         sys.exit("error: could not read fll-persist partition sectors before upgrade")
 
+    if has_persist:
+        new_iso_mib = iso_size_mib(iso)
+        persist_start_mib = persist_part_sectors[0] // MIB_SECTORS
+        if new_iso_mib >= persist_start_mib:
+            sys.exit(
+                f"error: new ISO ({new_iso_mib} MiB) would overwrite fll-persist "
+                f"(starts at {persist_start_mib} MiB) -- upgrade aborted"
+            )
+
     log_fn(f"Upgrading ISO on {device} (dd conv=notrunc)...")
     subprocess.run(
         ["dd", f"if={iso}", f"of={device}", "bs=1M", "conv=notrunc", "status=progress"],
