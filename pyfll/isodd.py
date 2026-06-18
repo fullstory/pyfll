@@ -4,6 +4,7 @@
 import argparse
 import os
 import re
+import subprocess
 import sys
 import tempfile
 
@@ -11,6 +12,7 @@ from pyfll.util import run_process
 
 SGDISK = "/usr/sbin/sgdisk"
 SGDISK_ALIGN = 4
+MIB_SECTORS = 2048
 
 
 def extract_grub_persist_uuid(
@@ -200,7 +202,8 @@ def _patch_grub_efi_kernels_cfg(
     for line in lines:
         stripped = line.strip()
         if stripped.startswith("linux ") and f"persist_uuid={uuid}" not in stripped:
-            line = line.rstrip() + f" persist_uuid={uuid}\n"
+            rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
+            line = rstripped + f" persist_uuid={uuid}\n"
             changed = True
         new_lines.append(line)
 
@@ -231,7 +234,8 @@ def _patch_systemd_boot_entries(
         new_lines: list[str] = []
         for line in lines:
             if line.startswith("options ") and f"persist_uuid={uuid}" not in line:
-                line = line.rstrip() + f" persist_uuid={uuid}\n"
+                rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
+                line = rstripped + f" persist_uuid={uuid}\n"
                 changed = True
             new_lines.append(line)
 
@@ -268,7 +272,11 @@ def _patch_refind_conf(
             and stripped.startswith("options ")
             and f"persist_uuid={uuid}" not in stripped
         ):
-            line = line.rstrip() + f" persist_uuid={uuid}\n"
+            rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
+            if rstripped.endswith('"'):
+                line = rstripped[:-1] + f' persist_uuid={uuid}"\n'
+            else:
+                line = rstripped + f" persist_uuid={uuid}\n"
             changed = True
         new_lines.append(line)
 
@@ -300,16 +308,232 @@ def storage_partition_dev(
     sys.exit(f"error: could not determine storage partition on {device}")
 
 
+def read_last_partition_sectors(
+    device: str, verbose: bool = False, log_fn=print
+) -> tuple[int, int, str, str] | None:
+    """Return (start, end, typecode, name) of the last partition on *device*, or None.
+
+    sgdisk --print columns: Number Start End Size(value) Size(unit) Code Name...
+    """
+    output = run_process([SGDISK, "--print", device], verbose=verbose, log_fn=log_fn)
+    for line in reversed(output):
+        fields = line.split()
+        if fields and fields[0].isdigit():
+            if len(fields) >= 6:
+                start, end, typecode = int(fields[1]), int(fields[2]), fields[5]
+                name = " ".join(fields[6:]) if len(fields) > 6 else ""
+                return (start, end, typecode, name)
+    return None
+
+
+def iso_size_mib(iso: str) -> int:
+    size = os.path.getsize(iso)
+    return (size + (1024 * 1024 - 1)) // (1024 * 1024)
+
+
+def setup_btrfs_persist(
+    btrfs_dev: str, persist_uuid: str, verbose: bool = False, log_fn=print
+) -> None:
+    cmd = ["mkfs.btrfs", "-L", "fll-persist"]
+    if persist_uuid:
+        cmd += ["-U", persist_uuid]
+    cmd.append(btrfs_dev)
+    run_process(cmd, verbose=verbose, log_fn=log_fn)
+    with tempfile.TemporaryDirectory() as mnt:
+        run_process(
+            ["mount", "-o", "subvolid=5", "-t", "btrfs", btrfs_dev, mnt],
+            verbose=verbose,
+            log_fn=log_fn,
+        )
+        try:
+            run_process(
+                ["btrfs", "subvolume", "create", os.path.join(mnt, "@root")],
+                verbose=verbose,
+                log_fn=log_fn,
+            )
+            run_process(
+                ["btrfs", "subvolume", "create", os.path.join(mnt, "@home")],
+                verbose=verbose,
+                log_fn=log_fn,
+            )
+        finally:
+            run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
+
+
+def luks_format_and_open(
+    part_dev: str,
+    luks_uuid: str,
+    mapper_name: str,
+    verbose: bool = False,
+    log_fn=print,
+) -> None:
+    subprocess.run(
+        ["cryptsetup", "luksFormat", "--uuid", luks_uuid, part_dev],
+        check=True,
+    )
+    subprocess.run(
+        ["cryptsetup", "luksOpen", part_dev, mapper_name],
+        check=True,
+    )
+
+
+def luks_close(mapper_name: str, verbose: bool = False, log_fn=print) -> None:
+    run_process(
+        ["cryptsetup", "luksClose", mapper_name],
+        verbose=verbose,
+        log_fn=log_fn,
+    )
+
+
+def luks_open_interactive(
+    part_dev: str, mapper_name: str, verbose: bool = False
+) -> None:
+    subprocess.run(
+        ["cryptsetup", "luksOpen", part_dev, mapper_name],
+        check=True,
+    )
+
+
+def inject_luks_uuid_into_esp(
+    esp_dev: str, luks_uuid: str, verbose: bool = False, log_fn=print
+) -> None:
+    """Mount the EFI System Partition and write persist_luks_uuid=<luks_uuid>
+    into every boot entry that does not already carry it.
+
+    Handles grub-efi, systemd-boot, and rEFInd configurations.
+    The mount is always cleaned up, even on error.
+    """
+    with tempfile.TemporaryDirectory() as mnt:
+        run_process(["mount", esp_dev, mnt], verbose=verbose, log_fn=log_fn)
+        try:
+            # grub-efi kernels.cfg
+            kernels_cfg = os.path.join(mnt, "boot", "grub", "kernels.cfg")
+            if os.path.isfile(kernels_cfg):
+                with open(kernels_cfg) as f:
+                    lines = f.readlines()
+                changed = False
+                new_lines: list[str] = []
+                for line in lines:
+                    stripped = line.strip()
+                    if (
+                        stripped.startswith("linux ")
+                        and f"persist_luks_uuid={luks_uuid}" not in stripped
+                    ):
+                        rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
+                        line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
+                        changed = True
+                    new_lines.append(line)
+                if changed:
+                    if verbose:
+                        log_fn(f"# patching {kernels_cfg}")
+                    with open(kernels_cfg, "w") as f:
+                        f.writelines(new_lines)
+
+            # systemd-boot entries
+            entries_dir = os.path.join(mnt, "loader", "entries")
+            if os.path.isdir(entries_dir):
+                for fname in sorted(os.listdir(entries_dir)):
+                    if not fname.endswith(".conf"):
+                        continue
+                    fpath = os.path.join(entries_dir, fname)
+                    with open(fpath) as f:
+                        lines = f.readlines()
+                    changed = False
+                    new_lines = []
+                    for line in lines:
+                        if (
+                            line.startswith("options ")
+                            and f"persist_luks_uuid={luks_uuid}" not in line
+                        ):
+                            rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
+                            line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
+                            changed = True
+                        new_lines.append(line)
+                    if changed:
+                        if verbose:
+                            log_fn(f"# patching {fpath}")
+                        with open(fpath, "w") as f:
+                            f.writelines(new_lines)
+
+            # rEFInd conf
+            refind_conf = os.path.join(mnt, "EFI", "BOOT", "refind.conf")
+            if os.path.isfile(refind_conf):
+                with open(refind_conf) as f:
+                    lines = f.readlines()
+                in_menuentry = False
+                changed = False
+                new_lines = []
+                for line in lines:
+                    stripped = line.strip()
+                    if stripped.startswith("menuentry "):
+                        in_menuentry = True
+                    elif stripped == "}":
+                        in_menuentry = False
+                    elif (
+                        in_menuentry
+                        and stripped.startswith("options ")
+                        and f"persist_luks_uuid={luks_uuid}" not in stripped
+                    ):
+                        rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
+                        if rstripped.endswith('"'):
+                            line = rstripped[:-1] + f' persist_luks_uuid={luks_uuid}"\n'
+                        else:
+                            line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
+                        changed = True
+                    new_lines.append(line)
+                if changed:
+                    if verbose:
+                        log_fn(f"# patching {refind_conf}")
+                    with open(refind_conf, "w") as f:
+                        f.writelines(new_lines)
+        finally:
+            run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
+
+
+def reset_system_subvol(
+    btrfs_dev: str, verbose: bool = False, log_fn=print
+) -> None:
+    try:
+        run_process(
+            ["udevadm", "settle", "--timeout=10"],
+            verbose=verbose,
+            log_fn=log_fn,
+        )
+    except Exception:
+        pass
+    with tempfile.TemporaryDirectory() as mnt:
+        run_process(
+            ["mount", "-o", "subvolid=5", "-t", "btrfs", btrfs_dev, mnt],
+            verbose=verbose,
+            log_fn=log_fn,
+        )
+        try:
+            run_process(
+                ["btrfs", "subvolume", "delete", os.path.join(mnt, "@root")],
+                verbose=verbose,
+                log_fn=log_fn,
+            )
+            run_process(
+                ["btrfs", "subvolume", "create", os.path.join(mnt, "@root")],
+                verbose=verbose,
+                log_fn=log_fn,
+            )
+        finally:
+            run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
+
+
 def write_iso(
     iso: str,
     device: str,
     persist: bool = False,
     persist_uuid: str | None = None,
+    persist_luks_uuid: str | None = None,
+    encrypt: bool = False,
     verbose: bool = False,
     log_fn=print,
 ) -> None:
     """Write *iso* to *device* with dd and optionally create a persistent
-    ext4 storage partition."""
+    btrfs storage partition."""
     bootloader = None
 
     if persist:
@@ -353,54 +577,81 @@ def write_iso(
     run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
     if persist:
-        log_fn(f"Appending storage partition to {device}...")
+        log_fn(f"Creating gap and persist partitions on {device}...")
+        gap_mib = max(1024, (iso_size_mib(iso) + 1) // 2)
+        gap_start_sector = (iso_size_mib(iso) + 1) * MIB_SECTORS
+        gap_end_sector = gap_start_sector + (gap_mib * MIB_SECTORS) - 1
+
         run_process(
             [
                 SGDISK,
                 f"--set-alignment={SGDISK_ALIGN}",
-                "--align-end",
-                "--new=0:0:0",
-                "--typecode=0:8300",
-                "--change-name=0:storage",
+                f"--new=0:{gap_start_sector}:{gap_end_sector}",
+                "--typecode=0:0700",
+                "--change-name=0:fll-gap",
                 device,
             ],
             verbose=verbose,
             log_fn=log_fn,
         )
+
+        run_process(
+            [
+                SGDISK,
+                "--align-end",
+                f"--set-alignment={SGDISK_ALIGN}",
+                "--new=0:0:0",
+                "--typecode=0:8300",
+                "--change-name=0:fll-persist",
+                device,
+            ],
+            verbose=verbose,
+            log_fn=log_fn,
+        )
+
         run_process(["partprobe", device], verbose=verbose, log_fn=log_fn)
         run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
         part_dev = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
 
-        if bootloader == "grub":
-            log_fn(f"Formatting {part_dev} as ext4 (UUID: {persist_uuid})...")
-            run_process(
-                ["mkfs.ext4", "-U", persist_uuid, part_dev],
-                verbose=verbose,
-                log_fn=log_fn,
+        if encrypt:
+            if not persist_luks_uuid:
+                import uuid as _uuid
+                persist_luks_uuid = str(_uuid.uuid4())
+            luks_format_and_open(
+                part_dev, persist_luks_uuid, "fll-persist-setup",
+                verbose=verbose, log_fn=log_fn,
             )
+            btrfs_dev = "/dev/mapper/fll-persist-setup"
         else:
-            log_fn(f"Formatting {part_dev} as ext4...")
-            run_process(
-                ["mkfs.ext4", part_dev], verbose=verbose, log_fn=log_fn
-            )
+            btrfs_dev = part_dev
 
+        if persist_uuid:
+            setup_btrfs_persist(btrfs_dev, persist_uuid, verbose, log_fn)
+        else:
+            setup_btrfs_persist(btrfs_dev, "", verbose, log_fn)
             blkid_out = run_process(
-                ["blkid", "-s", "UUID", "-o", "value", part_dev],
+                ["blkid", "-s", "UUID", "-o", "value", btrfs_dev],
                 verbose=verbose,
                 log_fn=log_fn,
             )
             persist_uuid = blkid_out[0].strip() if blkid_out else None
             if not persist_uuid:
-                sys.exit(f"error: could not read UUID from {part_dev} after mkfs.ext4")
-            log_fn(f"persist_uuid: {persist_uuid}")
+                sys.exit(
+                    f"error: could not read UUID from {btrfs_dev} after mkfs.btrfs"
+                )
 
+        if encrypt:
+            luks_close("fll-persist-setup", verbose=verbose, log_fn=log_fn)
+            esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
+            if esp_dev:
+                inject_luks_uuid_into_esp(
+                    esp_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn
+                )
+
+        if bootloader != "grub":
             esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
             if esp_dev is None:
-                sys.exit(
-                    f"error: EFI System Partition (EF00) not found on {device}\n"
-                    "       Was the ISO built with an ESP-based bootloader?"
-                )
-            log_fn(f"Injecting persist_uuid into ESP ({esp_dev})...")
+                sys.exit("error: EFI System Partition not found on device")
             inject_persist_uuid_into_esp(
                 esp_dev, persist_uuid, verbose=verbose, log_fn=log_fn
             )
@@ -414,11 +665,183 @@ def write_iso(
     log_fn("Done.")
 
 
+def upgrade_iso(
+    iso: str,
+    device: str,
+    persist_uuid: str | None = None,
+    encrypt: bool = False,
+    verbose: bool = False,
+    log_fn=print,
+) -> None:
+    """Write *iso* to *device* with dd conv=notrunc, then reset @root."""
+
+    if not persist_uuid:
+        persist_uuid = extract_grub_persist_uuid(iso, verbose=verbose, log_fn=log_fn)
+    if not persist_uuid:
+        bootloader = detect_bootloader(iso, verbose=verbose, log_fn=log_fn)
+        if bootloader != "grub":
+            esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
+            if esp_dev:
+                with tempfile.TemporaryDirectory() as mnt:
+                    run_process(
+                        ["mount", "-o", "ro", esp_dev, mnt],
+                        verbose=verbose,
+                        log_fn=log_fn,
+                    )
+                    try:
+                        for dirpath, _, filenames in os.walk(mnt):
+                            for fname in filenames:
+                                fpath = os.path.join(dirpath, fname)
+                                try:
+                                    with open(fpath) as f:
+                                        content = f.read()
+                                    m = re.search(r"persist_uuid=(\S+)", content)
+                                    if m:
+                                        persist_uuid = m.group(1)
+                                        break
+                                except (OSError, UnicodeDecodeError):
+                                    pass
+                            if persist_uuid:
+                                break
+                    finally:
+                        run_process(
+                            ["umount", mnt], verbose=verbose, log_fn=log_fn
+                        )
+    if not persist_uuid:
+        sys.exit("error: could not determine persist_uuid for upgrade")
+
+    # Save persist partition sectors before dd overwrites the partition table.
+    persist_part_sectors = read_last_partition_sectors(
+        device, verbose=verbose, log_fn=log_fn
+    )
+    has_persist = (
+        persist_part_sectors is not None
+        and persist_part_sectors[3] == "fll-persist"
+    )
+    persist_luks_uuid = None
+
+    if has_persist:
+        log_fn(
+            f"Persist partition: start={persist_part_sectors[0]}"
+            f" end={persist_part_sectors[1]}"
+            f" type={persist_part_sectors[2]}"
+        )
+        if encrypt:
+            part_dev_pre = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
+            luks_uuid_lines = subprocess.run(
+                ["blkid", "-s", "UUID", "-o", "value", part_dev_pre],
+                capture_output=True,
+                encoding="utf-8",
+            )
+            persist_luks_uuid = luks_uuid_lines.stdout.strip() if luks_uuid_lines.returncode == 0 else None
+            if not persist_luks_uuid:
+                sys.exit(f"error: could not read LUKS UUID from {part_dev_pre} before upgrade")
+            log_fn(f"Persist LUKS UUID: {persist_luks_uuid}")
+    elif encrypt:
+        sys.exit("error: could not read fll-persist partition sectors before upgrade")
+
+    log_fn(f"Upgrading ISO on {device} (dd conv=notrunc)...")
+    subprocess.run(
+        ["dd", f"if={iso}", f"of={device}", "bs=1M", "conv=notrunc", "status=progress"],
+        check=True,
+    )
+
+    log_fn("Relocating GPT alt header...")
+    run_process([SGDISK, "--move-second-header", device], verbose=verbose, log_fn=log_fn)
+    run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
+
+    if has_persist:
+        gap_start_lines = run_process(
+            [SGDISK, "--first-aligned-in-largest", device],
+            verbose=verbose,
+            log_fn=log_fn,
+        )
+        gap_start_sector = int(gap_start_lines[0].strip())
+        gap_end_sector = persist_part_sectors[0] - 1
+        log_fn(f"Recreating fll-gap partition ({gap_start_sector}:{gap_end_sector})...")
+        run_process(
+            [
+                SGDISK,
+                f"--set-alignment={SGDISK_ALIGN}",
+                f"--new=0:{gap_start_sector}:{gap_end_sector}",
+                "--typecode=0:0700",
+                "--change-name=0:fll-gap",
+                device,
+            ],
+            verbose=verbose,
+            log_fn=log_fn,
+        )
+        run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
+
+    if encrypt:
+        # Re-add the persist partition entry that dd erased from the partition table.
+        start, end, typecode, name = persist_part_sectors
+        sgdisk_cmd = [
+            SGDISK,
+            f"--set-alignment={SGDISK_ALIGN}",
+            f"--new=0:{start}:{end}",
+            f"--typecode=0:{typecode}",
+        ]
+        if name:
+            sgdisk_cmd.append(f"--change-name=0:{name}")
+        sgdisk_cmd.append(device)
+        log_fn("Restoring persist partition entry...")
+        run_process(sgdisk_cmd, verbose=verbose, log_fn=log_fn)
+        run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
+
+        part_dev = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
+        result = subprocess.run(
+            ["cryptsetup", "isLuks", part_dev],
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            sys.exit(f"error: {part_dev} is not a LUKS container after restore")
+        luks_open_interactive(part_dev, "fll-persist-upgrade", verbose=verbose)
+        btrfs_dev = "/dev/mapper/fll-persist-upgrade"
+
+        # Read the actual btrfs UUID from the opened LUKS volume; the new ISO
+        # may have a different persist_uuid baked in, so we must use the real one.
+        btrfs_uuid_lines = subprocess.run(
+            ["blkid", "-s", "UUID", "-o", "value", btrfs_dev],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        if btrfs_uuid_lines.returncode == 0 and btrfs_uuid_lines.stdout.strip():
+            persist_uuid = btrfs_uuid_lines.stdout.strip()
+            log_fn(f"Persist btrfs UUID: {persist_uuid}")
+    else:
+        btrfs_dev = f"/dev/disk/by-uuid/{persist_uuid}"
+
+    reset_system_subvol(btrfs_dev, verbose=verbose, log_fn=log_fn)
+
+    if encrypt:
+        luks_close("fll-persist-upgrade", verbose=verbose, log_fn=log_fn)
+
+        # Re-inject the correct UUIDs into the new ISO's ESP; dd overwrote the
+        # ESP with the new ISO's freshly-generated UUIDs which don't match the
+        # existing persist partition on disk.
+        esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
+        if esp_dev:
+            inject_luks_uuid_into_esp(
+                esp_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn
+            )
+            inject_persist_uuid_into_esp(
+                esp_dev, persist_uuid, verbose=verbose, log_fn=log_fn
+            )
+
+    run_process(
+        [SGDISK, f"--set-alignment={SGDISK_ALIGN}", "--verify", device],
+        verbose=verbose,
+        log_fn=log_fn,
+    )
+    log_fn("Upgrade complete.")
+
+
 def main() -> None:
     __description__ = """
 Write a fll live media ISO image to a block device with dd, and
-optionally create a persistent ext4 storage partition using the
-persist_uuid embedded in the ISO's boot configuration by pyfll.
+optionally create a persistent btrfs storage partition, or upgrade
+an existing device in-place while preserving the persist partition.
 """
     cli = argparse.ArgumentParser(
         description="Write fll live media ISO to a block device.",
@@ -443,15 +866,7 @@ persist_uuid embedded in the ISO's boot configuration by pyfll.
         "--persist",
         action="store_true",
         default=False,
-        help="Create a persistent ext4 storage partition.",
-    )
-    cli.add_argument(
-        "-u",
-        "--persist-uuid",
-        default=None,
-        metavar="<uuid>",
-        help="UUID for the persistent storage partition. If not given, "
-        + "extracted from boot/grub/kernels.cfg inside the ISO.",
+        help="Create a persistent btrfs storage partition.",
     )
     cli.add_argument(
         "-v",
@@ -460,17 +875,50 @@ persist_uuid embedded in the ISO's boot configuration by pyfll.
         default=False,
         help="Show commands and extra output.",
     )
+    cli.add_argument(
+        "-U",
+        "--upgrade",
+        action="store_true",
+        default=False,
+        help=(
+            "Upgrade mode: write the new ISO with dd conv=notrunc (persist "
+            "partition untouched), then reset @root. @home is never touched."
+        ),
+    )
+    cli.add_argument(
+        "-e",
+        "--encrypt",
+        action="store_true",
+        default=False,
+        help=(
+            "Encrypt the persist partition with LUKS2 using an interactive "
+            "passphrase. Only valid with --persist. The same passphrase unlocks "
+            "the device at boot and at upgrade time."
+        ),
+    )
     args = cli.parse_args()
 
     if not os.path.isfile(args.iso):
         sys.exit(f"error: ISO not found: {args.iso}")
     if not os.path.exists(args.device):
         sys.exit(f"error: device not found: {args.device}")
+    if args.persist and args.upgrade:
+        sys.exit("error: --persist and --upgrade are mutually exclusive")
+    if args.encrypt and not args.persist and not args.upgrade:
+        sys.exit("error: --encrypt requires --persist or --upgrade")
 
-    write_iso(
-        args.iso,
-        args.device,
-        persist=args.persist,
-        persist_uuid=args.persist_uuid,
-        verbose=args.verbose,
-    )
+    if args.upgrade:
+        upgrade_iso(
+            args.iso,
+            args.device,
+            encrypt=args.encrypt,
+            verbose=args.verbose,
+        )
+    else:
+        write_iso(
+            args.iso,
+            args.device,
+            persist=args.persist,
+            encrypt=args.encrypt,
+            verbose=args.verbose,
+        )

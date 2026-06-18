@@ -19,12 +19,15 @@ It is the primary build tool behind [aptosid](http://aptosid.com/).
 | `xorriso` | ISO creation |
 | `squashfs-tools` \| `erofs-utils` | Read-only filesystem |
 | `gdisk` | GPT hybrid support |
+| `btrfs-progs` | btrfs subvolume management for the persist partition |
 | `mtools` | FAT image handling for EFI partition |
 | `systemd-container` | Chroot execution via `systemd-nspawn` |
+| `cryptsetup` | LUKS2 encryption of the persist partition (optional) |
 
 ```bash
 sudo apt install python3-debian python3-configobj gdisk xorriso \
-    cdebootstrap erofs-utils squashfs-tools mtools systemd-container
+    cdebootstrap erofs-utils squashfs-tools mtools systemd-container \
+    btrfs-progs
 ```
 
 ---
@@ -106,6 +109,81 @@ suite      = sid
 components = main fix.main
 keyring    = aptosid-archive-keyring
 ```
+
+---
+
+## Persistent storage
+
+When the `-p` / `--persist` flag is passed to `pyfll`, a persistent btrfs
+storage partition is created on the target device alongside the live ISO data.
+This partition survives upgrades and provides two features:
+
+- **Persistent system state** — changes made to the live system (packages
+  installed, configuration edits) are written to an overlay COW layer and
+  survive reboots.
+- **Persistent home directory** — `/home` is stored on a dedicated btrfs
+  subvolume and is never affected by upgrades or system resets.
+
+### Partition layout
+
+```
+[ ISO data: ESP + erofs read-only rootfs    ]
+[ fll-gap  (type 0700, 2× ISO size)         ]  ← headroom for future upgrades
+[ fll-persist  (type 8300, btrfs)           ]  ← all remaining space
+```
+
+The gap partition is sized at twice the ISO to allow future ISOs to be written
+in-place without overwriting the persist partition.
+
+### btrfs subvolume layout
+
+```
+@root          COW overlay layer (reset on upgrade)
+  <rootfs_uuid>/
+    upper/       overlay upperdir
+    work/        overlay workdir
+@home            persistent /home (never reset)
+```
+
+### Writing with persist
+
+```bash
+sudo ./fll -c fll.local.conf -b /tmp/fll/ --persist --write-iso /dev/sdX
+```
+
+### Upgrading in-place
+
+```bash
+sudo ./fll -c fll.local.conf -b /tmp/fll/ --persist --upgrade /dev/sdX
+```
+
+`--upgrade` writes the new ISO with `dd conv=notrunc` so the persist
+partition is untouched, then resets `@root` so the next boot starts with a
+clean COW layer. `@home` is never touched. `--write-iso` and `--upgrade` are
+independent and may be combined or used separately.
+
+### Encrypted persist partition
+
+To encrypt the persist partition at rest with LUKS2:
+
+```bash
+sudo ./fll -c fll.local.conf -b /tmp/fll/ \
+    --persist --encrypt --write-iso /dev/sdX
+```
+
+You will be prompted for a passphrase at write time. At boot, `fll.initramfs`
+prompts for the passphrase interactively via Plymouth (or the console if
+Plymouth is not active).
+
+For encrypted upgrades, pass `--encrypt` along with `--upgrade`:
+
+```bash
+sudo ./fll -c fll.local.conf -b /tmp/fll/ \
+    --persist --encrypt --upgrade /dev/sdX
+```
+
+You will be prompted for the passphrase to open the existing LUKS container
+on the build host before `@root` is reset.
 
 ---
 
@@ -194,14 +272,25 @@ bin/gpthybrid --iso output.iso --filesystems live/filesystem.squashfs efi.img
 
 ### `bin/fllisodd`
 
-Writes a live ISO to a USB device using `dd`, with optional persistence partition setup:
+Writes a live ISO to a block device using `dd`, with optional btrfs persist
+partition, in-place upgrade, and LUKS2 encryption support. Also callable via
+`pyfll --write-iso` and `pyfll --upgrade`.
 
 ```bash
-# Write ISO to USB
-sudo bin/fllisodd --iso output.iso --target /dev/sdX
+# Plain write
+sudo bin/fllisodd --iso output.iso --device /dev/sdX
 
-# Write ISO with a persistence overlay partition
-sudo bin/fllisodd --iso output.iso --target /dev/sdX --persist
+# Write with btrfs persist partition
+sudo bin/fllisodd --iso output.iso --device /dev/sdX --persist
+
+# Write with encrypted persist partition (prompts for passphrase)
+sudo bin/fllisodd --iso output.iso --device /dev/sdX --persist --encrypt
+
+# Upgrade ISO in-place, preserving the persist partition
+sudo bin/fllisodd --iso output.iso --device /dev/sdX --upgrade
+
+# Upgrade an encrypted device (prompts for passphrase)
+sudo bin/fllisodd --iso output.iso --device /dev/sdX --upgrade --encrypt
 ```
 
 ---

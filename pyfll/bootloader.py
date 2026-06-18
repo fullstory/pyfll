@@ -944,8 +944,10 @@ class BootloaderMixin:
         )
         if self.conf["options"]["readonly_filesystem"] == "erofs":
             cmdline += f" rootfs_uuid={rootfs_uuid}"
-            if self.opts.persist and self.conf["options"]["bootloader"] == "grub":
+            if self.opts.persist:
                 cmdline += f" persist_uuid={self.persist_uuid}"
+                if self.opts.encrypt:
+                    cmdline += f" persist_luks_uuid={self.persist_luks_uuid}"
         if self.conf["options"]["initramfs_tool"] == "initramfs-tools":
             cmdline = "boot=fll " + cmdline
         elif self.conf["options"]["initramfs_tool"] == "dracut":
