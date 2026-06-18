@@ -17,10 +17,12 @@ def run_process(
             log_fn(result.stdout.rstrip())
         return result.stdout.splitlines()
     except FileNotFoundError as exc:
-        log_fn(f"command not found: {cmd[0]}\n{exc}")
+        if verbose:
+            log_fn(f"command not found: {cmd[0]}\n{exc}")
         raise
     except subprocess.CalledProcessError as exc:
-        log_fn(f"command failed: {shlex.join(cmd)}\n{exc}")
+        if verbose:
+            log_fn(f"command failed: {shlex.join(cmd)}\n{exc}")
         raise
 
 
