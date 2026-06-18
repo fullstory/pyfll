@@ -306,6 +306,24 @@ def storage_partition_dev(
     sys.exit(f"error: could not determine storage partition on {device}")
 
 
+def read_last_partition_sectors(
+    device: str, verbose: bool = False, log_fn=print
+) -> tuple[int, int, str, str] | None:
+    """Return (start, end, typecode, name) of the last partition on *device*, or None.
+
+    sgdisk --print columns: Number Start End Size(value) Size(unit) Code Name...
+    """
+    output = run_process([SGDISK, "--print", device], verbose=verbose, log_fn=log_fn)
+    for line in reversed(output):
+        fields = line.split()
+        if fields and fields[0].isdigit():
+            if len(fields) >= 6:
+                start, end, typecode = int(fields[1]), int(fields[2]), fields[5]
+                name = " ".join(fields[6:]) if len(fields) > 6 else ""
+                return (start, end, typecode, name)
+    return None
+
+
 def iso_size_mib(iso: str) -> int:
     size = os.path.getsize(iso)
     return (size + (1024 * 1024 - 1)) // (1024 * 1024)
@@ -688,6 +706,20 @@ def upgrade_iso(
     if not persist_uuid:
         sys.exit("error: could not determine persist_uuid for upgrade")
 
+    # Save persist partition sectors before dd overwrites the partition table.
+    persist_part_sectors = None
+    if encrypt:
+        persist_part_sectors = read_last_partition_sectors(
+            device, verbose=verbose, log_fn=log_fn
+        )
+        if persist_part_sectors is None:
+            sys.exit("error: could not read persist partition sectors before upgrade")
+        log_fn(
+            f"Persist partition: start={persist_part_sectors[0]}"
+            f" end={persist_part_sectors[1]}"
+            f" type={persist_part_sectors[2]}"
+        )
+
     log_fn(f"Upgrading ISO on {device} (dd conv=notrunc)...")
     subprocess.run(
         ["dd", f"if={iso}", f"of={device}", "bs=1M", "conv=notrunc", "status=progress"],
@@ -699,7 +731,28 @@ def upgrade_iso(
     run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
     if encrypt:
+        # Re-add the persist partition entry that dd erased from the partition table.
+        start, end, typecode, name = persist_part_sectors
+        sgdisk_cmd = [
+            SGDISK,
+            f"--set-alignment={SGDISK_ALIGN}",
+            f"--new=0:{start}:{end}",
+            f"--typecode=0:{typecode}",
+        ]
+        if name:
+            sgdisk_cmd.append(f"--change-name=0:{name}")
+        sgdisk_cmd.append(device)
+        log_fn("Restoring persist partition entry...")
+        run_process(sgdisk_cmd, verbose=verbose, log_fn=log_fn)
+        run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
+
         part_dev = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
+        result = subprocess.run(
+            ["cryptsetup", "isLuks", part_dev],
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            sys.exit(f"error: {part_dev} is not a LUKS container after restore")
         luks_open_interactive(part_dev, "fll-persist-upgrade", verbose=verbose)
         btrfs_dev = "/dev/mapper/fll-persist-upgrade"
     else:
