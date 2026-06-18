@@ -202,7 +202,8 @@ def _patch_grub_efi_kernels_cfg(
     for line in lines:
         stripped = line.strip()
         if stripped.startswith("linux ") and f"persist_uuid={uuid}" not in stripped:
-            line = line.rstrip() + f" persist_uuid={uuid}\n"
+            rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
+            line = rstripped + f" persist_uuid={uuid}\n"
             changed = True
         new_lines.append(line)
 
@@ -233,7 +234,8 @@ def _patch_systemd_boot_entries(
         new_lines: list[str] = []
         for line in lines:
             if line.startswith("options ") and f"persist_uuid={uuid}" not in line:
-                line = line.rstrip() + f" persist_uuid={uuid}\n"
+                rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
+                line = rstripped + f" persist_uuid={uuid}\n"
                 changed = True
             new_lines.append(line)
 
@@ -270,7 +272,7 @@ def _patch_refind_conf(
             and stripped.startswith("options ")
             and f"persist_uuid={uuid}" not in stripped
         ):
-            rstripped = line.rstrip()
+            rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
             if rstripped.endswith('"'):
                 line = rstripped[:-1] + f' persist_uuid={uuid}"\n'
             else:
@@ -417,7 +419,8 @@ def inject_luks_uuid_into_esp(
                         stripped.startswith("linux ")
                         and f"persist_luks_uuid={luks_uuid}" not in stripped
                     ):
-                        line = line.rstrip() + f" persist_luks_uuid={luks_uuid}\n"
+                        rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
+                        line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
                         changed = True
                     new_lines.append(line)
                 if changed:
@@ -442,7 +445,8 @@ def inject_luks_uuid_into_esp(
                             line.startswith("options ")
                             and f"persist_luks_uuid={luks_uuid}" not in line
                         ):
-                            line = line.rstrip() + f" persist_luks_uuid={luks_uuid}\n"
+                            rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
+                            line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
                             changed = True
                         new_lines.append(line)
                     if changed:
@@ -470,7 +474,7 @@ def inject_luks_uuid_into_esp(
                         and stripped.startswith("options ")
                         and f"persist_luks_uuid={luks_uuid}" not in stripped
                     ):
-                        rstripped = line.rstrip()
+                        rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
                         if rstripped.endswith('"'):
                             line = rstripped[:-1] + f' persist_luks_uuid={luks_uuid}"\n'
                         else:
@@ -706,8 +710,9 @@ def upgrade_iso(
     if not persist_uuid:
         sys.exit("error: could not determine persist_uuid for upgrade")
 
-    # Save persist partition sectors before dd overwrites the partition table.
+    # Save persist partition sectors and LUKS UUID before dd overwrites the partition table.
     persist_part_sectors = None
+    persist_luks_uuid = None
     if encrypt:
         persist_part_sectors = read_last_partition_sectors(
             device, verbose=verbose, log_fn=log_fn
@@ -719,6 +724,16 @@ def upgrade_iso(
             f" end={persist_part_sectors[1]}"
             f" type={persist_part_sectors[2]}"
         )
+        part_dev_pre = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
+        luks_uuid_lines = subprocess.run(
+            ["blkid", "-s", "UUID", "-o", "value", part_dev_pre],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        persist_luks_uuid = luks_uuid_lines.stdout.strip() if luks_uuid_lines.returncode == 0 else None
+        if not persist_luks_uuid:
+            sys.exit(f"error: could not read LUKS UUID from {part_dev_pre} before upgrade")
+        log_fn(f"Persist LUKS UUID: {persist_luks_uuid}")
 
     log_fn(f"Upgrading ISO on {device} (dd conv=notrunc)...")
     subprocess.run(
@@ -755,6 +770,17 @@ def upgrade_iso(
             sys.exit(f"error: {part_dev} is not a LUKS container after restore")
         luks_open_interactive(part_dev, "fll-persist-upgrade", verbose=verbose)
         btrfs_dev = "/dev/mapper/fll-persist-upgrade"
+
+        # Read the actual btrfs UUID from the opened LUKS volume; the new ISO
+        # may have a different persist_uuid baked in, so we must use the real one.
+        btrfs_uuid_lines = subprocess.run(
+            ["blkid", "-s", "UUID", "-o", "value", btrfs_dev],
+            capture_output=True,
+            encoding="utf-8",
+        )
+        if btrfs_uuid_lines.returncode == 0 and btrfs_uuid_lines.stdout.strip():
+            persist_uuid = btrfs_uuid_lines.stdout.strip()
+            log_fn(f"Persist btrfs UUID: {persist_uuid}")
     else:
         btrfs_dev = f"/dev/disk/by-uuid/{persist_uuid}"
 
@@ -762,6 +788,18 @@ def upgrade_iso(
 
     if encrypt:
         luks_close("fll-persist-upgrade", verbose=verbose, log_fn=log_fn)
+
+        # Re-inject the correct UUIDs into the new ISO's ESP; dd overwrote the
+        # ESP with the new ISO's freshly-generated UUIDs which don't match the
+        # existing persist partition on disk.
+        esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
+        if esp_dev:
+            inject_luks_uuid_into_esp(
+                esp_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn
+            )
+            inject_persist_uuid_into_esp(
+                esp_dev, persist_uuid, verbose=verbose, log_fn=log_fn
+            )
 
     run_process(
         [SGDISK, f"--set-alignment={SGDISK_ALIGN}", "--verify", device],
