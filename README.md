@@ -128,21 +128,22 @@ This partition survives upgrades and provides two features:
 
 ```
 [ ISO data: ESP + erofs read-only rootfs    ]
-[ fll-gap  (type 0700, 2× ISO size)         ]  ← headroom for future upgrades
+[ fll-gap  (type 0700, ½ × ISO size, min 1 GiB)  ]  ← headroom for future upgrades
 [ fll-persist  (type 8300, btrfs)           ]  ← all remaining space
 ```
 
-The gap partition is sized at twice the ISO to allow future ISOs to be written
-in-place without overwriting the persist partition.
+The gap partition is sized at half the current ISO (minimum 1 GiB), so that
+a future ISO of up to 1.5× the original size can be written in-place without
+overwriting the persist partition.
 
 ### btrfs subvolume layout
 
 ```
-@root          COW overlay layer (reset on upgrade)
-  <rootfs_uuid>/
-    upper/       overlay upperdir
-    work/        overlay workdir
-@home            persistent /home (never reset)
+@root                   COW overlay layer (reset on upgrade)
+  <rootfs_uuid>/          one directory per read-only chroot on the ISO
+    upper/                overlay upperdir
+    work/                 overlay workdir
+@home                   persistent /home (never reset)
 ```
 
 ### Writing with persist
