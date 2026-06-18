@@ -578,7 +578,7 @@ def write_iso(
 
     if persist:
         log_fn(f"Creating gap and persist partitions on {device}...")
-        gap_mib = iso_size_mib(iso) * 2
+        gap_mib = max(1024, (iso_size_mib(iso) + 1) // 2)
         gap_start_sector = (iso_size_mib(iso) + 1) * MIB_SECTORS
         gap_end_sector = gap_start_sector + (gap_mib * MIB_SECTORS) - 1
 
