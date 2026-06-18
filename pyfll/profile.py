@@ -446,9 +446,6 @@ class PackageProfileMixin:
 
     def write_manifest(self, chroot: str) -> None:
         """Collect package and source package URI information from each chroot."""
-        image_dir = os.path.join(
-            self.temp, "staging", self.conf["distro"]["FLL_IMAGE_DIR"]
-        )
         self.log.info(f"{chroot} - writing package manifest...")
 
         status = self._read_dpkg_status(chroot)
@@ -464,8 +461,9 @@ class PackageProfileMixin:
         pkg_maxlen = len(packages[-1])
         packages.sort()
 
-        manifest_name = self.get_distro_imagefile(chroot) + ".manifest"
-        manifest_file = os.path.join(image_dir, manifest_name)
+        distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
+        manifest_name = f"{distro_name}-{self.timestamp}.{self.run_id}.manifest.{chroot}"
+        manifest_file = os.path.join(self.opts.output_dir, manifest_name)
 
         try:
             with open(manifest_file, "w") as manifest_fh:
@@ -512,8 +510,8 @@ class PackageProfileMixin:
 
         sources_list = deduplicate_list(uris)
 
-        sources_name = self.get_distro_imagefile(chroot) + ".sources"
-        sources_file = os.path.join(image_dir, sources_name)
+        sources_name = f"{distro_name}-{self.timestamp}.{self.run_id}.sources.{chroot}"
+        sources_file = os.path.join(self.opts.output_dir, sources_name)
 
         try:
             with open(sources_file, "w") as sources_fh:
