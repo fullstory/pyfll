@@ -270,7 +270,11 @@ def _patch_refind_conf(
             and stripped.startswith("options ")
             and f"persist_uuid={uuid}" not in stripped
         ):
-            line = line.rstrip() + f" persist_uuid={uuid}\n"
+            rstripped = line.rstrip()
+            if rstripped.endswith('"'):
+                line = rstripped[:-1] + f' persist_uuid={uuid}"\n'
+            else:
+                line = rstripped + f" persist_uuid={uuid}\n"
             changed = True
         new_lines.append(line)
 
@@ -448,7 +452,11 @@ def inject_luks_uuid_into_esp(
                         and stripped.startswith("options ")
                         and f"persist_luks_uuid={luks_uuid}" not in stripped
                     ):
-                        line = line.rstrip() + f" persist_luks_uuid={luks_uuid}\n"
+                        rstripped = line.rstrip()
+                        if rstripped.endswith('"'):
+                            line = rstripped[:-1] + f' persist_luks_uuid={luks_uuid}"\n'
+                        else:
+                            line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
                         changed = True
                     new_lines.append(line)
                 if changed:
@@ -497,6 +505,7 @@ def write_iso(
     device: str,
     persist: bool = False,
     persist_uuid: str | None = None,
+    persist_luks_uuid: str | None = None,
     encrypt: bool = False,
     verbose: bool = False,
     log_fn=print,
@@ -583,17 +592,20 @@ def write_iso(
         part_dev = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
 
         if encrypt:
-            import uuid as _uuid
-            luks_uuid = str(_uuid.uuid4())
+            if not persist_luks_uuid:
+                import uuid as _uuid
+                persist_luks_uuid = str(_uuid.uuid4())
             luks_format_and_open(
-                part_dev, luks_uuid, "fll-persist-setup",
+                part_dev, persist_luks_uuid, "fll-persist-setup",
                 verbose=verbose, log_fn=log_fn,
             )
             btrfs_dev = "/dev/mapper/fll-persist-setup"
         else:
             btrfs_dev = part_dev
 
-        if bootloader != "grub":
+        if persist_uuid:
+            setup_btrfs_persist(btrfs_dev, persist_uuid, verbose, log_fn)
+        else:
             setup_btrfs_persist(btrfs_dev, "", verbose, log_fn)
             blkid_out = run_process(
                 ["blkid", "-s", "UUID", "-o", "value", btrfs_dev],
@@ -605,15 +617,13 @@ def write_iso(
                 sys.exit(
                     f"error: could not read UUID from {btrfs_dev} after mkfs.btrfs"
                 )
-        else:
-            setup_btrfs_persist(btrfs_dev, persist_uuid, verbose, log_fn)
 
         if encrypt:
             luks_close("fll-persist-setup", verbose=verbose, log_fn=log_fn)
             esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
             if esp_dev:
                 inject_luks_uuid_into_esp(
-                    esp_dev, luks_uuid, verbose=verbose, log_fn=log_fn
+                    esp_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn
                 )
 
         if bootloader != "grub":

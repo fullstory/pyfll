@@ -613,18 +613,13 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             self.exec_cmd(["update-grub"])
 
         if self.opts.write_iso:
-            grub_uuid = (
-                self.persist_uuid
-                if self.opts.persist
-                and self.conf["options"]["bootloader"] == "grub"
-                else None
-            )
             try:
                 write_iso(
                     iso_file,
                     self.opts.write_iso,
                     persist=self.opts.persist,
-                    persist_uuid=grub_uuid,
+                    persist_uuid=self.persist_uuid if self.opts.persist else None,
+                    persist_luks_uuid=self.persist_luks_uuid if self.opts.encrypt else None,
                     encrypt=self.opts.encrypt,
                     verbose=self.opts.verbose,
                     log_fn=self.log.info,
