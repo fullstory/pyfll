@@ -710,30 +710,35 @@ def upgrade_iso(
     if not persist_uuid:
         sys.exit("error: could not determine persist_uuid for upgrade")
 
-    # Save persist partition sectors and LUKS UUID before dd overwrites the partition table.
-    persist_part_sectors = None
+    # Save persist partition sectors before dd overwrites the partition table.
+    persist_part_sectors = read_last_partition_sectors(
+        device, verbose=verbose, log_fn=log_fn
+    )
+    has_persist = (
+        persist_part_sectors is not None
+        and persist_part_sectors[3] == "fll-persist"
+    )
     persist_luks_uuid = None
-    if encrypt:
-        persist_part_sectors = read_last_partition_sectors(
-            device, verbose=verbose, log_fn=log_fn
-        )
-        if persist_part_sectors is None:
-            sys.exit("error: could not read persist partition sectors before upgrade")
+
+    if has_persist:
         log_fn(
             f"Persist partition: start={persist_part_sectors[0]}"
             f" end={persist_part_sectors[1]}"
             f" type={persist_part_sectors[2]}"
         )
-        part_dev_pre = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
-        luks_uuid_lines = subprocess.run(
-            ["blkid", "-s", "UUID", "-o", "value", part_dev_pre],
-            capture_output=True,
-            encoding="utf-8",
-        )
-        persist_luks_uuid = luks_uuid_lines.stdout.strip() if luks_uuid_lines.returncode == 0 else None
-        if not persist_luks_uuid:
-            sys.exit(f"error: could not read LUKS UUID from {part_dev_pre} before upgrade")
-        log_fn(f"Persist LUKS UUID: {persist_luks_uuid}")
+        if encrypt:
+            part_dev_pre = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
+            luks_uuid_lines = subprocess.run(
+                ["blkid", "-s", "UUID", "-o", "value", part_dev_pre],
+                capture_output=True,
+                encoding="utf-8",
+            )
+            persist_luks_uuid = luks_uuid_lines.stdout.strip() if luks_uuid_lines.returncode == 0 else None
+            if not persist_luks_uuid:
+                sys.exit(f"error: could not read LUKS UUID from {part_dev_pre} before upgrade")
+            log_fn(f"Persist LUKS UUID: {persist_luks_uuid}")
+    elif encrypt:
+        sys.exit("error: could not read fll-persist partition sectors before upgrade")
 
     log_fn(f"Upgrading ISO on {device} (dd conv=notrunc)...")
     subprocess.run(
@@ -744,6 +749,29 @@ def upgrade_iso(
     log_fn("Relocating GPT alt header...")
     run_process([SGDISK, "--move-second-header", device], verbose=verbose, log_fn=log_fn)
     run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
+
+    if has_persist:
+        gap_start_lines = run_process(
+            [SGDISK, "--first-aligned-in-largest", device],
+            verbose=verbose,
+            log_fn=log_fn,
+        )
+        gap_start_sector = int(gap_start_lines[0].strip())
+        gap_end_sector = persist_part_sectors[0] - 1
+        log_fn(f"Recreating fll-gap partition ({gap_start_sector}:{gap_end_sector})...")
+        run_process(
+            [
+                SGDISK,
+                f"--set-alignment={SGDISK_ALIGN}",
+                f"--new=0:{gap_start_sector}:{gap_end_sector}",
+                "--typecode=0:0700",
+                "--change-name=0:fll-gap",
+                device,
+            ],
+            verbose=verbose,
+            log_fn=log_fn,
+        )
+        run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
     if encrypt:
         # Re-add the persist partition entry that dd erased from the partition table.
