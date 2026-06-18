@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
 
-import argparse
 import os
 import re
 import subprocess
@@ -166,11 +165,11 @@ def find_esp_partition(
     return None
 
 
-def inject_persist_uuid_into_esp(
-    esp_dev: str, uuid: str, verbose: bool = False, log_fn=print
+def inject_cmdline_param_into_esp(
+    esp_dev: str, param: str, value: str, verbose: bool = False, log_fn=print
 ) -> None:
-    """Mount the EFI System Partition and write persist_uuid=<uuid> into every
-    boot entry that does not already carry it.
+    """Mount the EFI System Partition and write param=value into every boot
+    entry that does not already carry it.
 
     Handles grub-efi, systemd-boot, and rEFInd configurations.
     The mount is always cleaned up, even on error.
@@ -178,17 +177,17 @@ def inject_persist_uuid_into_esp(
     with tempfile.TemporaryDirectory() as mnt:
         run_process(["mount", esp_dev, mnt], verbose=verbose, log_fn=log_fn)
         try:
-            _patch_grub_efi_kernels_cfg(mnt, uuid, verbose=verbose, log_fn=log_fn)
-            _patch_systemd_boot_entries(mnt, uuid, verbose=verbose, log_fn=log_fn)
-            _patch_refind_conf(mnt, uuid, verbose=verbose, log_fn=log_fn)
+            _patch_grub_efi_kernels_cfg(mnt, param, value, verbose=verbose, log_fn=log_fn)
+            _patch_systemd_boot_entries(mnt, param, value, verbose=verbose, log_fn=log_fn)
+            _patch_refind_conf(mnt, param, value, verbose=verbose, log_fn=log_fn)
         finally:
             run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
 
 
 def _patch_grub_efi_kernels_cfg(
-    mnt: str, uuid: str, verbose: bool = False, log_fn=print
+    mnt: str, param: str, value: str, verbose: bool = False, log_fn=print
 ) -> None:
-    """Append persist_uuid=<uuid> to every 'linux' line in
+    """Append param=value to every 'linux' line in
     <mnt>/boot/grub/kernels.cfg that does not already carry it."""
     kernels_cfg = os.path.join(mnt, "boot", "grub", "kernels.cfg")
     if not os.path.isfile(kernels_cfg):
@@ -201,9 +200,9 @@ def _patch_grub_efi_kernels_cfg(
     new_lines: list[str] = []
     for line in lines:
         stripped = line.strip()
-        if stripped.startswith("linux ") and f"persist_uuid={uuid}" not in stripped:
-            rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
-            line = rstripped + f" persist_uuid={uuid}\n"
+        if stripped.startswith("linux ") and f"{param}={value}" not in stripped:
+            rstripped = re.sub(rf"\s+{param}=\S+", "", line.rstrip())
+            line = rstripped + f" {param}={value}\n"
             changed = True
         new_lines.append(line)
 
@@ -215,9 +214,9 @@ def _patch_grub_efi_kernels_cfg(
 
 
 def _patch_systemd_boot_entries(
-    mnt: str, uuid: str, verbose: bool = False, log_fn=print
+    mnt: str, param: str, value: str, verbose: bool = False, log_fn=print
 ) -> None:
-    """Append persist_uuid=<uuid> to every 'options' line in
+    """Append param=value to every 'options' line in
     <mnt>/loader/entries/*.conf that does not already carry it."""
     entries_dir = os.path.join(mnt, "loader", "entries")
     if not os.path.isdir(entries_dir):
@@ -233,9 +232,9 @@ def _patch_systemd_boot_entries(
         changed = False
         new_lines: list[str] = []
         for line in lines:
-            if line.startswith("options ") and f"persist_uuid={uuid}" not in line:
-                rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
-                line = rstripped + f" persist_uuid={uuid}\n"
+            if line.startswith("options ") and f"{param}={value}" not in line:
+                rstripped = re.sub(rf"\s+{param}=\S+", "", line.rstrip())
+                line = rstripped + f" {param}={value}\n"
                 changed = True
             new_lines.append(line)
 
@@ -247,10 +246,10 @@ def _patch_systemd_boot_entries(
 
 
 def _patch_refind_conf(
-    mnt: str, uuid: str, verbose: bool = False, log_fn=print
+    mnt: str, param: str, value: str, verbose: bool = False, log_fn=print
 ) -> None:
-    """Append persist_uuid=<uuid> to every 'options' line inside a menuentry
-    block in <mnt>/EFI/BOOT/refind.conf that does not already carry it."""
+    """Append param=value to every 'options' line inside a menuentry block in
+    <mnt>/EFI/BOOT/refind.conf that does not already carry it."""
     refind_conf = os.path.join(mnt, "EFI", "BOOT", "refind.conf")
     if not os.path.isfile(refind_conf):
         return
@@ -270,13 +269,13 @@ def _patch_refind_conf(
         elif (
             in_menuentry
             and stripped.startswith("options ")
-            and f"persist_uuid={uuid}" not in stripped
+            and f"{param}={value}" not in stripped
         ):
-            rstripped = re.sub(r"\s+persist_uuid=\S+", "", line.rstrip())
+            rstripped = re.sub(rf"\s+{param}=\S+", "", line.rstrip())
             if rstripped.endswith('"'):
-                line = rstripped[:-1] + f' persist_uuid={uuid}"\n'
+                line = rstripped[:-1] + f' {param}={value}"\n'
             else:
-                line = rstripped + f" persist_uuid={uuid}\n"
+                line = rstripped + f" {param}={value}\n"
             changed = True
         new_lines.append(line)
 
@@ -392,102 +391,6 @@ def luks_open_interactive(
         ["cryptsetup", "luksOpen", part_dev, mapper_name],
         check=True,
     )
-
-
-def inject_luks_uuid_into_esp(
-    esp_dev: str, luks_uuid: str, verbose: bool = False, log_fn=print
-) -> None:
-    """Mount the EFI System Partition and write persist_luks_uuid=<luks_uuid>
-    into every boot entry that does not already carry it.
-
-    Handles grub-efi, systemd-boot, and rEFInd configurations.
-    The mount is always cleaned up, even on error.
-    """
-    with tempfile.TemporaryDirectory() as mnt:
-        run_process(["mount", esp_dev, mnt], verbose=verbose, log_fn=log_fn)
-        try:
-            # grub-efi kernels.cfg
-            kernels_cfg = os.path.join(mnt, "boot", "grub", "kernels.cfg")
-            if os.path.isfile(kernels_cfg):
-                with open(kernels_cfg) as f:
-                    lines = f.readlines()
-                changed = False
-                new_lines: list[str] = []
-                for line in lines:
-                    stripped = line.strip()
-                    if (
-                        stripped.startswith("linux ")
-                        and f"persist_luks_uuid={luks_uuid}" not in stripped
-                    ):
-                        rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
-                        line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
-                        changed = True
-                    new_lines.append(line)
-                if changed:
-                    if verbose:
-                        log_fn(f"# patching {kernels_cfg}")
-                    with open(kernels_cfg, "w") as f:
-                        f.writelines(new_lines)
-
-            # systemd-boot entries
-            entries_dir = os.path.join(mnt, "loader", "entries")
-            if os.path.isdir(entries_dir):
-                for fname in sorted(os.listdir(entries_dir)):
-                    if not fname.endswith(".conf"):
-                        continue
-                    fpath = os.path.join(entries_dir, fname)
-                    with open(fpath) as f:
-                        lines = f.readlines()
-                    changed = False
-                    new_lines = []
-                    for line in lines:
-                        if (
-                            line.startswith("options ")
-                            and f"persist_luks_uuid={luks_uuid}" not in line
-                        ):
-                            rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
-                            line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
-                            changed = True
-                        new_lines.append(line)
-                    if changed:
-                        if verbose:
-                            log_fn(f"# patching {fpath}")
-                        with open(fpath, "w") as f:
-                            f.writelines(new_lines)
-
-            # rEFInd conf
-            refind_conf = os.path.join(mnt, "EFI", "BOOT", "refind.conf")
-            if os.path.isfile(refind_conf):
-                with open(refind_conf) as f:
-                    lines = f.readlines()
-                in_menuentry = False
-                changed = False
-                new_lines = []
-                for line in lines:
-                    stripped = line.strip()
-                    if stripped.startswith("menuentry "):
-                        in_menuentry = True
-                    elif stripped == "}":
-                        in_menuentry = False
-                    elif (
-                        in_menuentry
-                        and stripped.startswith("options ")
-                        and f"persist_luks_uuid={luks_uuid}" not in stripped
-                    ):
-                        rstripped = re.sub(r"\s+persist_luks_uuid=\S+", "", line.rstrip())
-                        if rstripped.endswith('"'):
-                            line = rstripped[:-1] + f' persist_luks_uuid={luks_uuid}"\n'
-                        else:
-                            line = rstripped + f" persist_luks_uuid={luks_uuid}\n"
-                        changed = True
-                    new_lines.append(line)
-                if changed:
-                    if verbose:
-                        log_fn(f"# patching {refind_conf}")
-                    with open(refind_conf, "w") as f:
-                        f.writelines(new_lines)
-        finally:
-            run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
 
 
 def reset_system_subvol(
@@ -644,16 +547,18 @@ def write_iso(
             luks_close("fll-persist-setup", verbose=verbose, log_fn=log_fn)
             esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
             if esp_dev:
-                inject_luks_uuid_into_esp(
-                    esp_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn
+                inject_cmdline_param_into_esp(
+                    esp_dev, "persist_luks_uuid", persist_luks_uuid,
+                    verbose=verbose, log_fn=log_fn,
                 )
 
         if bootloader != "grub":
             esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
             if esp_dev is None:
                 sys.exit("error: EFI System Partition not found on device")
-            inject_persist_uuid_into_esp(
-                esp_dev, persist_uuid, verbose=verbose, log_fn=log_fn
+            inject_cmdline_param_into_esp(
+                esp_dev, "persist_uuid", persist_uuid,
+                verbose=verbose, log_fn=log_fn,
             )
 
     run_process(
@@ -822,11 +727,13 @@ def upgrade_iso(
         # existing persist partition on disk.
         esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
         if esp_dev:
-            inject_luks_uuid_into_esp(
-                esp_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn
+            inject_cmdline_param_into_esp(
+                esp_dev, "persist_luks_uuid", persist_luks_uuid,
+                verbose=verbose, log_fn=log_fn,
             )
-            inject_persist_uuid_into_esp(
-                esp_dev, persist_uuid, verbose=verbose, log_fn=log_fn
+            inject_cmdline_param_into_esp(
+                esp_dev, "persist_uuid", persist_uuid,
+                verbose=verbose, log_fn=log_fn,
             )
 
     run_process(
@@ -835,90 +742,3 @@ def upgrade_iso(
         log_fn=log_fn,
     )
     log_fn("Upgrade complete.")
-
-
-def main() -> None:
-    __description__ = """
-Write a fll live media ISO image to a block device with dd, and
-optionally create a persistent btrfs storage partition, or upgrade
-an existing device in-place while preserving the persist partition.
-"""
-    cli = argparse.ArgumentParser(
-        description="Write fll live media ISO to a block device.",
-        epilog=__description__,
-    )
-    cli.add_argument(
-        "-i",
-        "--iso",
-        required=True,
-        metavar="<iso>",
-        help="Path to the fll live media ISO image.",
-    )
-    cli.add_argument(
-        "-d",
-        "--device",
-        required=True,
-        metavar="<device>",
-        help="Target block device. WARNING: destroys all existing data.",
-    )
-    cli.add_argument(
-        "-p",
-        "--persist",
-        action="store_true",
-        default=False,
-        help="Create a persistent btrfs storage partition.",
-    )
-    cli.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        help="Show commands and extra output.",
-    )
-    cli.add_argument(
-        "-U",
-        "--upgrade",
-        action="store_true",
-        default=False,
-        help=(
-            "Upgrade mode: write the new ISO with dd conv=notrunc (persist "
-            "partition untouched), then reset @root. @home is never touched."
-        ),
-    )
-    cli.add_argument(
-        "-e",
-        "--encrypt",
-        action="store_true",
-        default=False,
-        help=(
-            "Encrypt the persist partition with LUKS2 using an interactive "
-            "passphrase. Only valid with --persist. The same passphrase unlocks "
-            "the device at boot and at upgrade time."
-        ),
-    )
-    args = cli.parse_args()
-
-    if not os.path.isfile(args.iso):
-        sys.exit(f"error: ISO not found: {args.iso}")
-    if not os.path.exists(args.device):
-        sys.exit(f"error: device not found: {args.device}")
-    if args.persist and args.upgrade:
-        sys.exit("error: --persist and --upgrade are mutually exclusive")
-    if args.encrypt and not args.persist and not args.upgrade:
-        sys.exit("error: --encrypt requires --persist or --upgrade")
-
-    if args.upgrade:
-        upgrade_iso(
-            args.iso,
-            args.device,
-            encrypt=args.encrypt,
-            verbose=args.verbose,
-        )
-    else:
-        write_iso(
-            args.iso,
-            args.device,
-            persist=args.persist,
-            encrypt=args.encrypt,
-            verbose=args.verbose,
-        )

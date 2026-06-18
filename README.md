@@ -270,29 +270,6 @@ Converts an ISO produced by xorriso into a GPT hybrid image with proper partitio
 bin/gpthybrid --iso output.iso --filesystems live/filesystem.squashfs efi.img
 ```
 
-### `bin/fllisodd`
-
-Writes a live ISO to a block device using `dd`, with optional btrfs persist
-partition, in-place upgrade, and LUKS2 encryption support. Also callable via
-`pyfll --write-iso` and `pyfll --upgrade`.
-
-```bash
-# Plain write
-sudo bin/fllisodd --iso output.iso --device /dev/sdX
-
-# Write with btrfs persist partition
-sudo bin/fllisodd --iso output.iso --device /dev/sdX --persist
-
-# Write with encrypted persist partition (prompts for passphrase)
-sudo bin/fllisodd --iso output.iso --device /dev/sdX --persist --encrypt
-
-# Upgrade ISO in-place, preserving the persist partition
-sudo bin/fllisodd --iso output.iso --device /dev/sdX --upgrade
-
-# Upgrade an encrypted device (prompts for passphrase)
-sudo bin/fllisodd --iso output.iso --device /dev/sdX --upgrade --encrypt
-```
-
 ---
 
 ## Repository layout
@@ -302,8 +279,7 @@ pyfll/
 ├── fll                 # Execution wrapper (handles sudo/uid-gid)
 ├── bin/
 │   ├── pyfll           # Main build entry point (called by fll)
-│   ├── gpthybrid       # GPT hybrid ISO tool
-│   └── fllisodd        # ISO-to-USB writer
+│   └── gpthybrid       # GPT hybrid ISO tool
 ├── fll.conf            # Example configuration
 ├── pyfll/              # Python package
 │   ├── builder.py      # FLLBuilder orchestration
