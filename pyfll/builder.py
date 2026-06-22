@@ -168,7 +168,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         self.validate_configobj(self.conf)
 
     def validate_configobj(self, obj: ConfigObj) -> None:
-        self.log.debug(f"vaildating {obj.filename}")
+        self.log.debug(f"validating {obj.filename}")
         validator = Validator()
         result = obj.validate(validator, preserve_errors=True)
         fatal_error = False
