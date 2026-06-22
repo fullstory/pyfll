@@ -527,6 +527,17 @@ def luks_set_uuid(
     )
 
 
+def btrfs_check(btrfs_dev: str, verbose: bool = False, log_fn=print) -> None:
+    """Run a read-only btrfs consistency check, raising on failure. Never
+    repairs -- ``--repair`` can worsen corruption. The filesystem must be
+    unmounted."""
+    run_process(
+        ["btrfs", "check", "--readonly", btrfs_dev],
+        verbose=verbose,
+        log_fn=log_fn,
+    )
+
+
 def reset_system_subvol(
     btrfs_dev: str, verbose: bool = False, log_fn=print
 ) -> None:
@@ -767,6 +778,42 @@ def upgrade_iso(
                 f"error: new ISO ({new_iso_mib} MiB) would overwrite fll-persist "
                 f"(starts at {persist_start_mib} MiB) -- upgrade aborted"
             )
+
+    if has_persist:
+        # Pre-flight: verify the persist filesystem is sound before writing
+        # anything. Run while the original partition table is still intact (the
+        # fll-persist entry survives until dd), so a failure aborts with the
+        # existing install untouched.
+        check_abort = (
+            "error: btrfs check failed on the persist filesystem; upgrade "
+            "aborted (run 'btrfs check' manually to inspect)"
+        )
+        part_dev_pre = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
+        if encrypt:
+            result = subprocess.run(
+                ["cryptsetup", "isLuks", part_dev_pre],
+                capture_output=True,
+            )
+            if result.returncode != 0:
+                sys.exit(f"error: {part_dev_pre} is not a LUKS container")
+            log_fn("Unlocking persist partition to verify it (you will be "
+                   "prompted again to apply the upgrade)...")
+            luks_open_interactive(part_dev_pre, "fll-persist-check", verbose=verbose)
+            try:
+                log_fn("Checking persist filesystem before upgrade...")
+                btrfs_check(
+                    "/dev/mapper/fll-persist-check", verbose=verbose, log_fn=log_fn
+                )
+            except subprocess.CalledProcessError:
+                luks_close("fll-persist-check", verbose=verbose, log_fn=log_fn)
+                sys.exit(check_abort)
+            luks_close("fll-persist-check", verbose=verbose, log_fn=log_fn)
+        else:
+            try:
+                log_fn("Checking persist filesystem before upgrade...")
+                btrfs_check(part_dev_pre, verbose=verbose, log_fn=log_fn)
+            except subprocess.CalledProcessError:
+                sys.exit(check_abort)
 
     log_fn(f"Upgrading ISO on {device} (dd conv=notrunc)...")
     subprocess.run(
