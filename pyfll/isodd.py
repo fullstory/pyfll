@@ -687,8 +687,9 @@ def upgrade_iso(
         )
         run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
-    if encrypt:
-        # Re-add the persist partition entry that dd erased from the partition table.
+        # Re-add the persist partition entry that dd erased from the partition
+        # table. Required for both encrypted and plain persist partitions: the
+        # new ISO's GPT (written by dd) does not carry fll-gap/fll-persist.
         start, end, typecode, name = persist_part_sectors
         sgdisk_cmd = [
             SGDISK,
@@ -703,47 +704,83 @@ def upgrade_iso(
         run_process(sgdisk_cmd, verbose=verbose, log_fn=log_fn)
         run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
-        part_dev = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
-        result = subprocess.run(
-            ["cryptsetup", "isLuks", part_dev],
-            capture_output=True,
-        )
-        if result.returncode != 0:
-            sys.exit(f"error: {part_dev} is not a LUKS container after restore")
-        luks_open_interactive(part_dev, "fll-persist-upgrade", verbose=verbose)
-        btrfs_dev = "/dev/mapper/fll-persist-upgrade"
+        if encrypt:
+            part_dev = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
+            result = subprocess.run(
+                ["cryptsetup", "isLuks", part_dev],
+                capture_output=True,
+            )
+            if result.returncode != 0:
+                sys.exit(f"error: {part_dev} is not a LUKS container after restore")
+            luks_open_interactive(part_dev, "fll-persist-upgrade", verbose=verbose)
+            btrfs_dev = "/dev/mapper/fll-persist-upgrade"
 
-        # Read the actual btrfs UUID from the opened LUKS volume; the new ISO
-        # may have a different persist_uuid baked in, so we must use the real one.
-        btrfs_uuid_lines = subprocess.run(
-            ["blkid", "-s", "UUID", "-o", "value", btrfs_dev],
-            capture_output=True,
-            encoding="utf-8",
-        )
-        if btrfs_uuid_lines.returncode == 0 and btrfs_uuid_lines.stdout.strip():
-            persist_uuid = btrfs_uuid_lines.stdout.strip()
+            # Read the actual btrfs UUID from the opened LUKS volume; the new
+            # ISO may have a different persist_uuid baked in, so we must use
+            # the real one.
+            btrfs_uuid_lines = subprocess.run(
+                ["blkid", "-s", "UUID", "-o", "value", btrfs_dev],
+                capture_output=True,
+                encoding="utf-8",
+            )
+            if btrfs_uuid_lines.returncode == 0 and btrfs_uuid_lines.stdout.strip():
+                persist_uuid = btrfs_uuid_lines.stdout.strip()
+                log_fn(f"Persist btrfs UUID: {persist_uuid}")
+        else:
+            # The on-disk btrfs persist partition keeps the UUID it was
+            # formatted with at original write time; the freshly built ISO
+            # carries a different persist_uuid. Mount by partition device
+            # (independent of UUID) and read the real on-disk UUID so the boot
+            # config can be pointed back at it below.
+            part_dev = storage_partition_dev(device, verbose=verbose, log_fn=log_fn)
+            btrfs_dev = part_dev
+            blkid_out = run_process(
+                ["blkid", "-s", "UUID", "-o", "value", part_dev],
+                verbose=verbose,
+                log_fn=log_fn,
+            )
+            disk_uuid = blkid_out[0].strip() if blkid_out else None
+            if disk_uuid:
+                persist_uuid = disk_uuid
             log_fn(f"Persist btrfs UUID: {persist_uuid}")
-    else:
-        btrfs_dev = f"/dev/disk/by-uuid/{persist_uuid}"
 
-    reset_system_subvol(btrfs_dev, verbose=verbose, log_fn=log_fn)
+        reset_system_subvol(btrfs_dev, verbose=verbose, log_fn=log_fn)
 
-    if encrypt:
-        luks_close("fll-persist-upgrade", verbose=verbose, log_fn=log_fn)
+        if encrypt:
+            luks_close("fll-persist-upgrade", verbose=verbose, log_fn=log_fn)
 
-        # Re-inject the correct UUIDs into the new ISO's ESP; dd overwrote the
-        # ESP with the new ISO's freshly-generated UUIDs which don't match the
-        # existing persist partition on disk.
-        esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
-        if esp_dev:
-            inject_cmdline_param_into_esp(
-                esp_dev, "persist_luks_uuid", persist_luks_uuid,
-                verbose=verbose, log_fn=log_fn,
-            )
-            inject_cmdline_param_into_esp(
-                esp_dev, "persist_uuid", persist_uuid,
-                verbose=verbose, log_fn=log_fn,
-            )
+            # Re-inject the correct UUIDs into the new ISO's ESP; dd overwrote
+            # the ESP with the new ISO's freshly-generated UUIDs which don't
+            # match the existing persist partition on disk.
+            esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
+            if esp_dev:
+                inject_cmdline_param_into_esp(
+                    esp_dev, "persist_luks_uuid", persist_luks_uuid,
+                    verbose=verbose, log_fn=log_fn,
+                )
+                inject_cmdline_param_into_esp(
+                    esp_dev, "persist_uuid", persist_uuid,
+                    verbose=verbose, log_fn=log_fn,
+                )
+        else:
+            # Point the upgraded ISO's boot config at the existing on-disk
+            # persist UUID. Only ESP-based bootloaders can be patched after dd;
+            # pure grub bakes persist_uuid into the ISO9660 layer, which is not
+            # rewritable here, so its on-disk UUID may diverge from the config.
+            bootloader = detect_bootloader(iso, verbose=verbose, log_fn=log_fn)
+            if bootloader == "grub":
+                log_fn(
+                    "warning: grub bakes persist_uuid into the ISO9660 layer and "
+                    "it cannot be re-synced after upgrade; on-disk persist UUID "
+                    f"is {persist_uuid}"
+                )
+            else:
+                esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
+                if esp_dev:
+                    inject_cmdline_param_into_esp(
+                        esp_dev, "persist_uuid", persist_uuid,
+                        verbose=verbose, log_fn=log_fn,
+                    )
 
     run_process(
         [SGDISK, f"--set-alignment={SGDISK_ALIGN}", "--verify", device],
