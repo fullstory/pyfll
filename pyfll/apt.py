@@ -84,6 +84,25 @@ class AptMixin:
         if bootstrapper == "cdebootstrap":
             self.chroot_exec(chroot, ["dpkg", "--purge", "cdebootstrap-helper-rc.d"])
 
+    def _detect_apt_proxy(self) -> str | None:
+        """Return the apt proxy base URL from auto-apt-proxy, or None.
+
+        Never fatal: a missing tool, a non-zero exit, or empty output all just
+        mean "no proxy", so the caller falls back to the direct mirror URI.
+        """
+        auto_apt_proxy = shutil.which("auto-apt-proxy")
+        if not auto_apt_proxy:
+            return None
+        try:
+            result = subprocess.run(
+                [auto_apt_proxy], stdout=subprocess.PIPE, check=True
+            )
+        except (OSError, subprocess.CalledProcessError):
+            self.log.warning("auto-apt-proxy failed; continuing without apt proxy")
+            return None
+        proxy = result.stdout.decode("utf-8").strip()
+        return proxy or None
+
     def chroot_bootstrap(self, chroot: str) -> None:
         """Bootstrap a distro root filesystem with the configured bootstrapper."""
         distro = self.conf["chroots"][chroot]["packages"]["distro"]
@@ -95,13 +114,9 @@ class AptMixin:
             mirror = dist_repo["cached"]
         else:
             mirror = dist_repo["uri"]
-            auto_apt_proxy = shutil.which("auto-apt-proxy")
-            if auto_apt_proxy:
-                apt_proxy = subprocess.run(
-                    [auto_apt_proxy], stdout=subprocess.PIPE
-                ).stdout.decode("utf-8")
-                if apt_proxy:
-                    mirror = apt_proxy.rstrip() + "/" + mirror.split("//")[1]
+            apt_proxy = self._detect_apt_proxy()
+            if apt_proxy:
+                mirror = apt_proxy + "/" + mirror.split("//")[1]
 
         target = os.path.join(self.temp, chroot)
 
@@ -117,18 +132,13 @@ class AptMixin:
         """Write apt source lists to /etc/apt/sources.list.d/*."""
         distro = self.conf["chroots"][chroot]["packages"]["distro"]
         chroot_dir = os.path.join(self.temp, chroot)
-        auto_apt_proxy = shutil.which("auto-apt-proxy")
-        apt_proxy = None
-        if auto_apt_proxy:
-            apt_proxy = subprocess.run(
-                [auto_apt_proxy], stdout=subprocess.PIPE
-            ).stdout.decode("utf-8")
+        apt_proxy = self._detect_apt_proxy()
         for dist_repo in self.conf["chroots"][chroot]["repos"].keys():
             repo = self.conf["chroots"][chroot]["repos"][dist_repo]
             repo_uri = repo.get("uri")
             cached_uri = repo.get("cached")
             if not cached_uri and apt_proxy and repo_uri:
-                cached_uri = apt_proxy.rstrip() + "/" + repo_uri.split("//")[1]
+                cached_uri = apt_proxy + "/" + repo_uri.split("//")[1]
             sources_uri = repo.get("sources_uri")
             if sources_uri:
                 cmd = ["wget", "--quiet", sources_uri, "-O"]
@@ -158,33 +168,29 @@ class AptMixin:
             )
 
             self.log.debug(f"creating {sources_file}")
-            sources_file_fh = None
             try:
-                sources_file_fh = open(sources_file, "w")
-                if src_uri:
-                    sources_file_fh.write("Types: deb deb-src\n")
-                else:
-                    sources_file_fh.write("Types: deb\n")
-                if cached and cached_uri:
-                    sources_file_fh.write(f"URIs: {cached_uri}\n")
-                else:
-                    sources_file_fh.write(f"URIs: {repo_uri}\n")
-                sources_file_fh.write(f"Suites: {repo['suite']}\n")
-                sources_file_fh.write(f"Components: {repo['components']}\n")
-                if repo.get("keyring"):
-                    sources_file_fh.write(
-                        f"Signed-by: /usr/share/keyrings/{repo['keyring']}.gpg\n"
-                    )
-                else:
-                    sources_file_fh.write(
-                        f"Signed-by: /usr/share/keyrings/{distro}-archive-keyring.gpg\n"
-                    )
+                with open(sources_file, "w") as sources_file_fh:
+                    if src_uri:
+                        sources_file_fh.write("Types: deb deb-src\n")
+                    else:
+                        sources_file_fh.write("Types: deb\n")
+                    if cached and cached_uri:
+                        sources_file_fh.write(f"URIs: {cached_uri}\n")
+                    else:
+                        sources_file_fh.write(f"URIs: {repo_uri}\n")
+                    sources_file_fh.write(f"Suites: {repo['suite']}\n")
+                    sources_file_fh.write(f"Components: {repo['components']}\n")
+                    if repo.get("keyring"):
+                        sources_file_fh.write(
+                            f"Signed-by: /usr/share/keyrings/{repo['keyring']}.gpg\n"
+                        )
+                    else:
+                        sources_file_fh.write(
+                            f"Signed-by: /usr/share/keyrings/{distro}-archive-keyring.gpg\n"
+                        )
             except OSError:
                 self.log.exception(f"failed to open {sources_file}")
                 raise FllError
-            finally:
-                if sources_file_fh:
-                    sources_file_fh.close()
 
     def prime_apt(self, chroot: str) -> None:
         """Prepare apt for work in each build chroot. Fetch all required gpg
