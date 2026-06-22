@@ -148,25 +148,12 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
     def get_distro_stamp(self, chroot: str) -> str:
         """Return a string suitable for the distro stamp file."""
         profiles = " ".join(self.conf["chroots"][chroot]["packages"]["profile"])
-        codename = self.conf["chroots"][chroot]["packages"]["codename"]
-        defaults = self.conf["distro"]
-        stamp = defaults["FLL_DISTRO_NAME"]
-        if defaults.get("FLL_DISTRO_VERSION") == "snapshot":
-            stamp += f" - {profiles}"
-            try:
-                stamp += f" {codename}"
-            except KeyError:
-                pass
-        else:
-            if defaults.get("FLL_DISTRO_CODENAME_REV"):
-                stamp += f" - {defaults['FLL_DISTRO_CODENAME']}"
-                stamp += f" {defaults['FLL_DISTRO_CODENAME_REV']}-"
-            elif defaults.get("FLL_DISTRO_CODENAME"):
-                stamp += f" - {defaults['FLL_DISTRO_CODENAME']}"
-
-            stamp += f" {profiles}"
-
-        stamp += f" - {self.timestamp}"
+        stamp = self.conf["distro"]["FLL_DISTRO_NAME"]
+        if self.conf["distro"].get("FLL_DISTRO_CODENAME"):
+            stamp += f" {self.conf["distro"]['FLL_DISTRO_CODENAME']}"
+        if self.conf["distro"].get("FLL_DISTRO_CODENAME_REV"):
+            stamp += f" {self.conf["distro"]['FLL_DISTRO_CODENAME_REV']}"
+        stamp += f" - {profiles} - {self.timestamp}"
 
         self.log.debug("stamp: %s" % stamp)
         return stamp
