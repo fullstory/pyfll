@@ -142,7 +142,7 @@ class BootloaderMixin:
                 for file in gfiles:
                     try:
                         shutil.copy(file, grub_pc_dir)
-                    except IOError:
+                    except OSError:
                         self.log.exception("failed to copy grub file to staging dir")
                         raise FllError
 
@@ -240,7 +240,7 @@ class BootloaderMixin:
                     for file in gfiles:
                         try:
                             shutil.copy(file, grub_efi_dir)
-                        except IOError:
+                        except OSError:
                             self.log.exception(
                                 "failed to copy grub efi file to staging dir"
                             )
@@ -259,7 +259,7 @@ class BootloaderMixin:
                 self.log.debug(f"copying {mt} to boot dir")
                 try:
                     shutil.copy(memtest, memtest_out)
-                except IOError:
+                except OSError:
                     self.log.exception(f"failed to copy {mt} to staging dir")
                     raise FllError
 

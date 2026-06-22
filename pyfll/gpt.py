@@ -148,16 +148,18 @@ def run_gpthybrid(
         )
 
     # fill remaining free space with a final gap partition
-    first = run_process(
-        [
-            SGDISK,
-            f"--set-alignment={SGDISK_ALIGN}",
-            "--first-aligned-in-largest",
-            iso,
-        ],
-        verbose=verbose,
-        log_fn=log_fn,
-    )[0]
+    first = int(
+        run_process(
+            [
+                SGDISK,
+                f"--set-alignment={SGDISK_ALIGN}",
+                "--first-aligned-in-largest",
+                iso,
+            ],
+            verbose=verbose,
+            log_fn=log_fn,
+        )[0]
+    )
     num += 1
     run_process(
         [

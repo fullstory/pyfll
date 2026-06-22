@@ -3,6 +3,7 @@
 
 import os
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -39,7 +40,7 @@ def extract_grub_persist_uuid(
             )
             with open(kernels_cfg) as f:
                 content = f.read()
-        except (Exception, OSError):
+        except Exception:
             return None
 
         match = re.search(r"persist_uuid=(\S+)", content)
@@ -474,14 +475,16 @@ def luks_format_and_open(
     verbose: bool = False,
     log_fn=print,
 ) -> None:
-    subprocess.run(
-        ["cryptsetup", "luksFormat", "--uuid", luks_uuid, part_dev],
-        check=True,
-    )
-    subprocess.run(
-        ["cryptsetup", "luksOpen", part_dev, mapper_name],
-        check=True,
-    )
+    # subprocess.run directly (not run_process): luksFormat/luksOpen prompt
+    # interactively for a passphrase and need the real tty.
+    format_cmd = ["cryptsetup", "luksFormat", "--uuid", luks_uuid, part_dev]
+    open_cmd = ["cryptsetup", "luksOpen", part_dev, mapper_name]
+    if verbose:
+        log_fn(f"# {shlex.join(format_cmd)}")
+    subprocess.run(format_cmd, check=True)
+    if verbose:
+        log_fn(f"# {shlex.join(open_cmd)}")
+    subprocess.run(open_cmd, check=True)
 
 
 def luks_close(mapper_name: str, verbose: bool = False, log_fn=print) -> None:
@@ -493,12 +496,14 @@ def luks_close(mapper_name: str, verbose: bool = False, log_fn=print) -> None:
 
 
 def luks_open_interactive(
-    part_dev: str, mapper_name: str, verbose: bool = False
+    part_dev: str, mapper_name: str, verbose: bool = False, log_fn=print
 ) -> None:
-    subprocess.run(
-        ["cryptsetup", "luksOpen", part_dev, mapper_name],
-        check=True,
-    )
+    # subprocess.run directly (not run_process): luksOpen prompts
+    # interactively for a passphrase and needs the real tty.
+    open_cmd = ["cryptsetup", "luksOpen", part_dev, mapper_name]
+    if verbose:
+        log_fn(f"# {shlex.join(open_cmd)}")
+    subprocess.run(open_cmd, check=True)
 
 
 def btrfs_set_uuid(
@@ -798,7 +803,9 @@ def upgrade_iso(
                 sys.exit(f"error: {part_dev_pre} is not a LUKS container")
             log_fn("Unlocking persist partition to verify it (you will be "
                    "prompted again to apply the upgrade)...")
-            luks_open_interactive(part_dev_pre, "fll-persist-check", verbose=verbose)
+            luks_open_interactive(
+                part_dev_pre, "fll-persist-check", verbose=verbose, log_fn=log_fn
+            )
             try:
                 log_fn("Checking persist filesystem before upgrade...")
                 btrfs_check(
@@ -878,7 +885,9 @@ def upgrade_iso(
             log_fn(f"Re-stamping LUKS header UUID -> {persist_luks_uuid}...")
             luks_set_uuid(part_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn)
             run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
-            luks_open_interactive(part_dev, "fll-persist-upgrade", verbose=verbose)
+            luks_open_interactive(
+                part_dev, "fll-persist-upgrade", verbose=verbose, log_fn=log_fn
+            )
             btrfs_dev = "/dev/mapper/fll-persist-upgrade"
         else:
             btrfs_dev = part_dev

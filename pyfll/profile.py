@@ -303,7 +303,7 @@ class PackageProfileMixin:
         return chroot_profile
 
     def detect_linux_version(self, chroot: str) -> list:
-        """Return version string of a singularly installed linux-image."""
+        """Return a list of installed linux-image version strings, newest first."""
         linux = self.conf["chroots"][chroot]["packages"]["linux"]
         linux_meta = f"linux-image-{linux}"
         linux_images = [
@@ -473,7 +473,7 @@ class PackageProfileMixin:
                         for pkg in packages
                     ]
                 )
-        except IOError:
+        except OSError:
             self.log.exception(f"failed to write file: {manifest_file}")
             raise FllError
         finally:
@@ -516,7 +516,7 @@ class PackageProfileMixin:
         try:
             with open(sources_file, "w") as sources_fh:
                 sources_fh.writelines([f"{s}\n" for s in sources_list])
-        except IOError:
+        except OSError:
             self.log.exception(f"failed to write filename: {sources_file}")
             raise FllError
         finally:

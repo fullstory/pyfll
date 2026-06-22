@@ -12,7 +12,7 @@ class AptMixin:
     """Mixin providing apt/dpkg operations, chroot bootstrap, and package installation."""
 
     def apt_get(
-        self, chroot: str, command: str, args: list = [], insecure: bool = False
+        self, chroot: str, command: str, args: list | None = None, insecure: bool = False
     ) -> None:
         """An apt-get install wrapper. Automatic installation of recommended
         packages defaults to disabled."""
@@ -85,7 +85,7 @@ class AptMixin:
             self.chroot_exec(chroot, ["dpkg", "--purge", "cdebootstrap-helper-rc.d"])
 
     def chroot_bootstrap(self, chroot: str) -> None:
-        """Bootstrap a distro root filesystem with cdebootstrap."""
+        """Bootstrap a distro root filesystem with the configured bootstrapper."""
         distro = self.conf["chroots"][chroot]["packages"]["distro"]
         codename = self.conf["chroots"][chroot]["packages"]["codename"]
         arch = self.conf["chroots"][chroot]["packages"]["arch"]
@@ -157,7 +157,7 @@ class AptMixin:
                 chroot_dir, "etc/apt/sources.list.d", dist_repo + ".sources"
             )
 
-            self.log.debug("creating %s" % sources_file)
+            self.log.debug(f"creating {sources_file}")
             sources_file_fh = None
             try:
                 sources_file_fh = open(sources_file, "w")
@@ -179,8 +179,8 @@ class AptMixin:
                     sources_file_fh.write(
                         f"Signed-by: /usr/share/keyrings/{distro}-archive-keyring.gpg\n"
                     )
-            except IOError:
-                self.log.exception("failed to open %s" % sources_file)
+            except OSError:
+                self.log.exception(f"failed to open {sources_file}")
                 raise FllError
             finally:
                 if sources_file_fh:
@@ -199,7 +199,7 @@ class AptMixin:
             )
             try:
                 shutil.copy(apt_preferences, os.path.join(chroot_dir, "etc/apt/"))
-            except IOError:
+            except OSError:
                 self.log.error(f"failed to import apt preferences: {apt_preferences}")
                 raise FllError
 

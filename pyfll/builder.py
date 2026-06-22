@@ -157,7 +157,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             stamp += f" {self.conf["distro"]['FLL_DISTRO_CODENAME_REV']}"
         stamp += f" - {profiles} - {self.timestamp}"
 
-        self.log.debug("stamp: %s" % stamp)
+        self.log.debug(f"stamp: {stamp}")
         return stamp
 
     def init_configuration(self) -> None:
@@ -222,7 +222,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                     dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns(".git*"),
                 )
-            except IOError:
+            except OSError:
                 self.log.exception(
                     f"problem copying media_include data to staging dir: {media_include}"
                 )
@@ -234,7 +234,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             self.log.debug(f"nuking directory: {dirname}")
             try:
                 shutil.rmtree(dirname)
-            except IOError:
+            except OSError:
                 self.log.exception(f"unable to remove {dirname}")
                 raise FllError
         else:
@@ -364,7 +364,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                     os.path.join(chroot_dir, "etc/systemd/resolved.conf"), "a"
                 ) as resolvedconf:
                     resolvedconf.write("DNS=\n")
-            except IOError:
+            except OSError:
                 self.log.exception("failed to setup resolv.conf and resolved.conf")
                 raise FllError
 
@@ -392,7 +392,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                 h.update(chunk)
         return h.hexdigest()
 
-    def sign_file(self, filename) -> None:
+    def sign_file(self, filename: str) -> None:
         """Sign a file with hashkey if available."""
         if self.opts.hashkey:
             self.log.info(f"signing file: {filename}")
@@ -483,7 +483,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         try:
             os.chmod(image_file, 0o644)
             shutil.move(image_file, image_dir)
-        except IOError:
+        except OSError:
             self.log.exception("failed to move readonly rootfs image to staging dir")
             raise FllError
 
@@ -583,7 +583,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             sha256sum = self.hashsum(iso_file)
             with open(sha256_file, "w") as f:
                 f.write("%s *%s\n" % (sha256sum, os.path.basename(iso_file)))
-        except IOError:
+        except OSError:
             self.log.exception("failed to write hashsum file")
             raise FllError
         finally:
@@ -646,7 +646,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         for chroot in self.chroots:
             if not self.conf["chroots"].get(chroot):
                 self.log.error(f"chroot '{chroot}' not defined in {self.opts.config}")
-                raise FllError()
+                raise FllError
             self.conf["chroots"][chroot]["uuid"] = uuidgen()
             self.log.debug(f"uuid for {chroot}: {self.conf['chroots'][chroot]['uuid']}")
 
