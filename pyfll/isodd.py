@@ -204,22 +204,31 @@ def read_iso_persist_uuids(
             with open(kernels_cfg_fat) as f:
                 texts.append(f.read())
 
-        # systemd-boot: loader/entries/*.conf
-        entries_dir = os.path.join(tmp, "entries")
+        # systemd-boot: loader/entries/*.conf. Loop-mount the FAT image
+        # read-only and read the entries directly, rather than relying on
+        # mtools' directory-copy semantics. upgrade_iso always runs as root,
+        # so a loop mount is available here.
+        mnt = os.path.join(tmp, "efi_mnt")
+        os.mkdir(mnt)
         try:
             run_process(
-                ["mcopy", "-s", "-i", efi_img, "::/loader/entries", entries_dir],
+                ["mount", "-t", "vfat", "-o", "loop,ro", efi_img, mnt],
                 verbose=verbose, log_fn=log_fn,
             )
         except Exception:
-            pass
-        for dirpath, _, filenames in os.walk(entries_dir):
-            for fname in filenames:
-                try:
-                    with open(os.path.join(dirpath, fname)) as f:
-                        texts.append(f.read())
-                except OSError:
-                    pass
+            mnt = None
+        if mnt:
+            try:
+                entries_dir = os.path.join(mnt, "loader", "entries")
+                if os.path.isdir(entries_dir):
+                    for fname in sorted(os.listdir(entries_dir)):
+                        try:
+                            with open(os.path.join(entries_dir, fname)) as f:
+                                texts.append(f.read())
+                        except OSError:
+                            pass
+            finally:
+                run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
 
         # rEFInd: EFI/BOOT/refind.conf
         refind_conf = os.path.join(tmp, "refind.conf")
