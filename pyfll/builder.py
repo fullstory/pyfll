@@ -909,6 +909,7 @@ def main() -> None:
         + "WARNING: destroys all existing data on target device!!!",
     )
     cli.add_argument(
+        "-u",
         "--upgrade",
         action="store",
         default=None,
@@ -922,6 +923,7 @@ def main() -> None:
         ),
     )
     cli.add_argument(
+        "-e",
         "--encrypt",
         action="store_true",
         default=False,
