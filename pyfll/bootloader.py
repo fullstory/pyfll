@@ -451,10 +451,10 @@ class BootloaderMixin:
         # for systemd-boot stage memtest on the ESP
         memtest_binaries = {
             "bootx64.efi": os.path.join(
-                chroot_dir, "/usr/lib/memtest86+/memtest86+x64.iso"
+                chroot_dir, "usr/lib/memtest86+/memtest86+x64.iso"
             ),
             "bootia32.efi": os.path.join(
-                chroot_dir, "/usr/lib/memtest86+/memtest86+ia32.iso"
+                chroot_dir, "usr/lib/memtest86+/memtest86+ia32.iso"
             ),
         }
         for memtest_efi, memtest_iso in memtest_binaries.items():
