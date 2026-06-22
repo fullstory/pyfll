@@ -183,9 +183,8 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                 error = "missing value or section"
             self.log.critical(f"{error}: {section_string}")
             fatal_error = True
-        else:
-            if fatal_error:
-                raise FllError
+        if fatal_error:
+            raise FllError
 
     def write_configuration(self) -> None:
         """Save build configuration with live media. Use only at end."""
