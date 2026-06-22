@@ -137,6 +137,8 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         elif self.opts.verbose:
             self.init_logger("INFO")
             self.opts.jobs = 1
+        elif self.opts.quiet:
+            self.init_logger("WARNING")
         else:
             self.init_logger("INFO")
 
