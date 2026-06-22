@@ -459,7 +459,7 @@ class BootloaderMixin:
         }
         for memtest_efi, memtest_iso in memtest_binaries.items():
             memtest_out = os.path.join(stage_dir, f"efi/{memtest_efi}")
-            if os.path.isfile(memtest_iso):
+            if os.path.isfile(memtest_iso) and not os.path.isfile(memtest_out):
                 self.log.debug(f"extracting {memtest_efi} ...")
                 try:
                     self.exec_cmd(
@@ -472,13 +472,10 @@ class BootloaderMixin:
                             memtest_out,
                         ]
                     )
-                except IOError:
-                    self.log.exception(
-                        f"failed to extract {memtest_efi} from {memtest_iso}"
+                except FllError:
+                    self.log.warning(
+                        f"failed to extract {memtest_efi} from {memtest_iso}, skipping"
                     )
-                    raise FllError
-                finally:
-                    break
 
     def stage_refind(self, chroot: str) -> None:
         """Stage rEFInd EFI binary, assets, and kernel/initramfs onto the ESP."""
