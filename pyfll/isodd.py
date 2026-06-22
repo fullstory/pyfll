@@ -526,7 +526,7 @@ def luks_set_uuid(
 ) -> None:
     """Re-stamp a LUKS header's UUID. The container must not be active."""
     run_process(
-        ["cryptsetup", "luksUUID", part_dev, "--uuid", new_uuid],
+        ["cryptsetup", "-q", "luksUUID", part_dev, "--uuid", new_uuid],
         verbose=verbose,
         log_fn=log_fn,
     )
