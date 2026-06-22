@@ -40,7 +40,7 @@ def extract_grub_persist_uuid(
             )
             with open(kernels_cfg) as f:
                 content = f.read()
-        except Exception:
+        except (subprocess.CalledProcessError, OSError):
             return None
 
         match = re.search(r"persist_uuid=(\S+)", content)
@@ -75,7 +75,7 @@ def detect_bootloader(
             )
             if os.path.isfile(kernels_cfg):
                 return "grub"
-        except Exception:
+        except (subprocess.CalledProcessError, OSError):
             pass
 
         efi_img = os.path.join(tmpdir, "efi.img")
@@ -85,7 +85,7 @@ def detect_bootloader(
                 verbose=verbose,
                 log_fn=log_fn,
             )
-        except Exception:
+        except (subprocess.CalledProcessError, OSError):
             pass
 
         if os.path.isfile(efi_img):
@@ -104,7 +104,7 @@ def detect_bootloader(
                 )
                 if os.path.isfile(kernels_cfg_fat):
                     return "grub-efi"
-            except Exception:
+            except (subprocess.CalledProcessError, OSError):
                 pass
 
             loader_conf = os.path.join(tmpdir, "loader.conf")
@@ -122,7 +122,7 @@ def detect_bootloader(
                 )
                 if os.path.isfile(loader_conf):
                     return "systemd-boot"
-            except Exception:
+            except (subprocess.CalledProcessError, OSError):
                 pass
 
             refind_conf = os.path.join(tmpdir, "refind.conf")
@@ -140,7 +140,7 @@ def detect_bootloader(
                 )
                 if os.path.isfile(refind_conf):
                     return "refind"
-            except Exception:
+            except (subprocess.CalledProcessError, OSError):
                 pass
 
     return None
@@ -172,7 +172,7 @@ def read_iso_persist_uuids(
                  "/boot/grub/kernels.cfg", kernels_cfg],
                 verbose=verbose, log_fn=log_fn,
             )
-        except Exception:
+        except (subprocess.CalledProcessError, OSError):
             pass
         if os.path.isfile(kernels_cfg):
             with open(kernels_cfg) as f:
@@ -185,7 +185,7 @@ def read_iso_persist_uuids(
                 ["osirrox", "-indev", iso, "-extract", "/efi.img", efi_img],
                 verbose=verbose, log_fn=log_fn,
             )
-        except Exception:
+        except (subprocess.CalledProcessError, OSError):
             return None, None
         if not os.path.isfile(efi_img):
             return None, None
@@ -199,7 +199,7 @@ def read_iso_persist_uuids(
                 ["mcopy", "-i", efi_img, "::/boot/grub/kernels.cfg", kernels_cfg_fat],
                 verbose=verbose, log_fn=log_fn,
             )
-        except Exception:
+        except (subprocess.CalledProcessError, OSError):
             pass
         if os.path.isfile(kernels_cfg_fat):
             with open(kernels_cfg_fat) as f:
@@ -216,7 +216,7 @@ def read_iso_persist_uuids(
                 ["mount", "-t", "vfat", "-o", "loop,ro", efi_img, mnt],
                 verbose=verbose, log_fn=log_fn,
             )
-        except Exception:
+        except (subprocess.CalledProcessError, OSError):
             mnt = None
         if mnt:
             try:
@@ -238,7 +238,7 @@ def read_iso_persist_uuids(
                 ["mcopy", "-i", efi_img, "::/EFI/BOOT/refind.conf", refind_conf],
                 verbose=verbose, log_fn=log_fn,
             )
-        except Exception:
+        except (subprocess.CalledProcessError, OSError):
             pass
         if os.path.isfile(refind_conf):
             with open(refind_conf) as f:
@@ -552,7 +552,7 @@ def reset_system_subvol(
             verbose=verbose,
             log_fn=log_fn,
         )
-    except Exception:
+    except (subprocess.CalledProcessError, OSError):
         pass
     with tempfile.TemporaryDirectory() as mnt:
         run_process(

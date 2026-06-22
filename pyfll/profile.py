@@ -457,8 +457,10 @@ class PackageProfileMixin:
         self.profiles[chroot].manifest = manifest
 
         packages = list(manifest.keys())
-        packages.sort(key=len)
-        pkg_maxlen = len(packages[-1])
+        if not packages:
+            self.log.critical(f"{chroot} - no installed packages found in dpkg status")
+            raise FllError
+        pkg_maxlen = max(len(pkg) for pkg in packages)
         packages.sort()
 
         distro_name = self.conf["distro"]["FLL_DISTRO_NAME"]
