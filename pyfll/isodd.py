@@ -477,7 +477,9 @@ def luks_format_and_open(
 ) -> None:
     # subprocess.run directly (not run_process): luksFormat/luksOpen prompt
     # interactively for a passphrase and need the real tty.
-    format_cmd = ["cryptsetup", "luksFormat", "--uuid", luks_uuid, part_dev]
+    # -q skips the "Are you sure? (Type yes)" overwrite confirmation -- redundant
+    # here since dd has already overwritten the whole device by this point.
+    format_cmd = ["cryptsetup", "-q", "luksFormat", "--uuid", luks_uuid, part_dev]
     open_cmd = ["cryptsetup", "luksOpen", part_dev, mapper_name]
     if verbose:
         log_fn(f"# {shlex.join(format_cmd)}")
@@ -717,7 +719,16 @@ def write_iso(
         log_fn=log_fn,
     )
 
-    log_fn("Done.")
+    if persist:
+        log_fn("Persist partition ready:")
+        log_fn(f"  device:            {part_dev}")
+        log_fn("  label:             fll-persist")
+        log_fn("  filesystem:        btrfs (subvolumes @root, @home)")
+        log_fn(f"  persist_uuid:      {persist_uuid}")
+        if encrypt:
+            log_fn("  encryption:        LUKS2")
+            log_fn(f"  persist_luks_uuid: {persist_luks_uuid}")
+    log_fn(f"Live media written to {device}. Done.")
 
 
 def upgrade_iso(
