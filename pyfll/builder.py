@@ -183,7 +183,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         validator = Validator()
         result = obj.validate(validator, preserve_errors=True)
         fatal_error = False
-        for entry in flatten_errors(self.conf, result):
+        for entry in flatten_errors(obj, result):
             section_list, key, error = entry
             if key is not None:
                 section_list.append(key)
