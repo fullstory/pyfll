@@ -789,9 +789,7 @@ def main() -> None:
         type=str,
         metavar="<config file>",
         required=True,
-        help="Configuration file. This option may be used "
-        + "more than once to process multiple configurations. "
-        + "A configuration file must be specified.",
+        help="Configuration file. A configuration file must be specified.",
     )
     cli.add_argument(
         "-C",
