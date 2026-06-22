@@ -236,7 +236,7 @@ class AptMixin:
             ])
 
             if divert == "/usr/sbin/policy-rc.d":
-                self.write_file(chroot_dir, divert)
+                self.write_file(chroot, divert)
                 os.chmod(os.path.join(chroot_dir, divert.lstrip("/")), 0o755)
             else:
                 os.symlink("/bin/true", os.path.join(chroot_dir, divert.lstrip("/")))
