@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
 
+import argparse
 import os
 import re
 import shlex
@@ -922,3 +923,96 @@ def upgrade_iso(
         log_fn=log_fn,
     )
     log_fn("Upgrade complete.")
+
+
+def main() -> None:
+    """Standalone entry point: write or upgrade fll live media onto a device.
+
+    Decoupled from a full pyfll build -- it operates on any already-built ISO,
+    reading the persist UUIDs baked into the ISO's boot config and reconciling
+    the device's persist partition to match (re-stamping on upgrade). The same
+    write_iso/upgrade_iso functions back pyfll's --write-iso/--upgrade options.
+    """
+    cli = argparse.ArgumentParser(
+        prog="isodd",
+        description=(
+            "Write or upgrade fll live media onto a block device, optionally "
+            "provisioning a persistent (optionally LUKS-encrypted) btrfs "
+            "storage partition."
+        ),
+    )
+    cli.add_argument("iso", metavar="<iso>", help="Path to the fll ISO image.")
+    cli.add_argument(
+        "device",
+        metavar="<device>",
+        help="Target block device, e.g. /dev/sdX. WARNING: a fresh write "
+        "destroys all existing data on the device!",
+    )
+    cli.add_argument(
+        "-p",
+        "--persist",
+        action="store_true",
+        default=False,
+        help="Create a persistent btrfs storage partition (@root is reset on "
+        "upgrade, @home is preserved). Implied by --encrypt. Ignored with "
+        "--upgrade, which always conforms an existing persist partition.",
+    )
+    cli.add_argument(
+        "-e",
+        "--encrypt",
+        action="store_true",
+        default=False,
+        help="LUKS2-encrypt the persist partition (fresh write), or indicate "
+        "the existing persist partition is encrypted (--upgrade). Prompts for "
+        "a passphrase.",
+    )
+    cli.add_argument(
+        "-u",
+        "--upgrade",
+        action="store_true",
+        default=False,
+        help="Upgrade the ISO in place with dd conv=notrunc: @home and the "
+        "persist partition are preserved, @root is reset, and the persist "
+        "UUIDs are re-stamped to match the new ISO. Mutually exclusive with a "
+        "fresh write.",
+    )
+    cli.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="Show process output and extra informational data.",
+    )
+    args = cli.parse_args()
+
+    if os.geteuid() != 0:
+        sys.exit("error: isodd must be run as root")
+    if not os.path.isfile(args.iso):
+        sys.exit(f"error: iso not found: {args.iso}")
+    if not os.path.exists(args.device):
+        sys.exit(f"error: device not found: {args.device}")
+
+    try:
+        if args.upgrade:
+            if args.persist:
+                sys.exit("error: --persist is not valid with --upgrade")
+            upgrade_iso(
+                args.iso,
+                args.device,
+                encrypt=args.encrypt,
+                verbose=args.verbose,
+            )
+        else:
+            write_iso(
+                args.iso,
+                args.device,
+                persist=args.persist or args.encrypt,
+                encrypt=args.encrypt,
+                verbose=args.verbose,
+            )
+    except (subprocess.CalledProcessError, OSError) as exc:
+        sys.exit(f"error: isodd failed: {exc}")
+
+
+if __name__ == "__main__":
+    main()

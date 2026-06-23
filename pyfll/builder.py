@@ -597,7 +597,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                     log_fn=self.log.info,
                 )
             except subprocess.CalledProcessError:
-                self.log.exception("fllisodd failed")
+                self.log.exception("isodd failed")
                 raise FllError
 
         if self.opts.upgrade:
@@ -889,7 +889,7 @@ def main() -> None:
         default=None,
         type=str,
         metavar="<device>",
-        help="Write final live media to device with dd via fllisodd. "
+        help="Write final live media to device with dd via isodd. "
         + "WARNING: destroys all existing data on target device!!!",
     )
     cli.add_argument(
