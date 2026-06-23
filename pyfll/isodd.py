@@ -442,7 +442,7 @@ def iso_size_mib(iso: str) -> int:
 def setup_btrfs_persist(
     btrfs_dev: str, persist_uuid: str, verbose: bool = False, log_fn=print
 ) -> None:
-    cmd = ["mkfs.btrfs", "-L", "fll-persist"]
+    cmd = ["mkfs.btrfs", "-f", "-L", "fll-persist"]
     if persist_uuid:
         cmd += ["-U", persist_uuid]
     cmd.append(btrfs_dev)
