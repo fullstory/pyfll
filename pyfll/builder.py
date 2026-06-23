@@ -368,22 +368,6 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                 self.log.exception("failed to setup resolv.conf and resolved.conf")
                 raise FllError
 
-        homed_privkey = self.conf["options"].get("homed_privkey")
-        homed_pubkey = self.conf["options"].get("homed_pubkey")
-        if homed_privkey and homed_pubkey:
-            self.log.info(f"{chroot} - copying systemd-homed keys to chroot...")
-            try:
-                os.makedirs(os.path.join(chroot_dir, "var/lib/systemd/home/"))
-                shutil.copy(
-                    homed_privkey, os.path.join(chroot_dir, "var/lib/systemd/home/")
-                )
-                shutil.copy(
-                    homed_pubkey, os.path.join(chroot_dir, "var/lib/systemd/home/")
-                )
-            except FileNotFoundError:
-                self.log.exception("homed configuration failed")
-                raise FllError
-
     def hashsum(self, filename: str) -> str:
         """Return SHA-256 hex digest of a file."""
         h = hashlib.sha256()

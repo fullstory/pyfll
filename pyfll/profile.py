@@ -105,6 +105,9 @@ class PackageProfileMixin:
             pkg_profile.packages.add("refind")
             pkg_profile.debconf.add("refind refind/install_to_esp boolean false")
 
+        if self.conf["options"].get("homed"):
+            pkg_profile.packages.add("systemd-homed")
+
         linux_meta = ["linux-image", "linux-headers"]
         pkg_profile.packages.update(
             ["-".join([prefix, linux]) for prefix in linux_meta]
