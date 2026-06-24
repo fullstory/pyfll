@@ -1,0 +1,14 @@
+#!/usr/bin/python3 -tt
+# SPDX-License-Identifier: GPL-2.0-only
+# Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
+
+import os
+import sys
+
+try:
+    from pyfll.isodd import main
+except ModuleNotFoundError:
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    from pyfll.isodd import main
+
+main()
