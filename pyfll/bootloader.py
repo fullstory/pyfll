@@ -197,7 +197,7 @@ class BootloaderMixin:
                         tar.add(os.path.join(memdisk_src, "boot"), arcname="boot")
 
                 self.log.info(
-                    f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
+                    f"{chroot} - creating grub2 {efitype} EFI image ({efitarget}.efi)..."
                 )
                 efi_out_host = os.path.join(chroot_dir, f"fll/{efitarget}.efi")
                 cmd = [
@@ -298,7 +298,7 @@ class BootloaderMixin:
             efi_dst = os.path.join(efi_boot_dir, f"{efitarget}.efi")
             if not os.path.isfile(efi_dst):
                 self.log.info(
-                    f"{chroot} - creating grub {efitype} EFI image ({efitarget}.efi)..."
+                    f"{chroot} - creating grub2 {efitype} EFI image ({efitarget}.efi)..."
                 )
                 memdisk_img = os.path.join(chroot_dir, "fll/grub_efi_memdisk.img")
                 with tempfile.TemporaryDirectory() as memdisk_src:
