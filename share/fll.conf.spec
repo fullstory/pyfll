@@ -50,6 +50,7 @@ boot_timeout    = string(default='30')
 bootstrapper    = option('cdebootstrap', 'debootstrap', 'mmdebstrap', default='cdebootstrap')
 homed           = boolean(default=False)
 initramfs_tool  = option('dracut', 'initramfs-tools', default='dracut')
+initramfs_comp  = option('gzip', 'bzip2', 'lzma', 'xz', 'lzo', 'lz4', 'zstd', default=None)
 bootloader      = option('grub', 'grub-efi', 'systemd-boot', 'refind', default='grub')
 media_include   = string(default=None)
 

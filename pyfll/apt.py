@@ -357,6 +357,7 @@ class AptMixin:
     def create_initramfs(self, chroot: str) -> None:
         """Create an initramfs"""
         initramfs_tool = self.conf["options"].get("initramfs_tool")
+        initramfs_comp = self.conf["options"].get("initramfs_comp")
         kvers = self.detect_linux_version(chroot)
         for kernel in kvers:
             cmd = ""
@@ -374,6 +375,8 @@ class AptMixin:
                     "--force-add", "fll",
                     "--kver", kernel,
                 ]
+                if initramfs_comp:
+                    cmd.append(f"--{initramfs_comp}")
                 if self.opts.verbose or self.opts.debug:
                     cmd.append("--verbose")
                 elif self.opts.quiet:
