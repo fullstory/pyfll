@@ -37,7 +37,7 @@ class ChrootExecMixin:
             self.log.exception(f"problem executing command: {shlex.join(cmd)}")
             raise FllError
 
-    def _nspawn_cmd(self, chroot: str, args: list) -> list:
+    def _nspawn_cmd(self, chroot: str, args: list, capability: str = None) -> list:
         """Build the systemd-nspawn command line to run *args* in a chroot."""
         chroot_dir = os.path.join(self.temp, chroot)
         cmd = [
@@ -47,17 +47,19 @@ class ChrootExecMixin:
             "--as-pid2",
             "--resolv-conf=bind-host",
             "--timezone=off",
-            "--restrict-address-families=AF_INET AF_INET6 AF_UNIX",
+            "--restrict-address-families=AF_INET AF_INET6 AF_UNIX AF_NETLINK",
         ]
+        if capability:
+            cmd.append(f"--capability={capability}")
         for key, value in self.env.items():
             cmd.append(f"--setenv={key}={value}")
         cmd.append("--")
         cmd.extend(args)
         return cmd
 
-    def chroot_exec(self, chroot: str, args: list) -> None:
+    def chroot_exec(self, chroot: str, args: list, capability: str = None) -> None:
         """Run command in a chroot via systemd-nspawn."""
-        self.exec_cmd(self._nspawn_cmd(chroot, args))
+        self.exec_cmd(self._nspawn_cmd(chroot, args, capability=capability))
 
     def chroot_output(self, chroot: str, args: list) -> str:
         """Run command in a chroot and return captured stdout."""

@@ -317,24 +317,24 @@ class AptMixin:
             self.chroot_exec(chroot, [
                 *flatpak_base, "remote-add", "--if-not-exists",
                 "flathub", "https://flathub.org/repo/flathub.flatpakrepo",
-            ])
+            ], capability="all")
             for flatpak in flatpaks:
                 self.chroot_exec(chroot, [
                     *flatpak_base, "install", "--noninteractive", "--assumeyes",
                     "flathub", flatpak,
-                ])
+                ], capability="all")
 
         flatpaks_beta = self.profiles[chroot].flatpaks_beta
         if len(flatpaks_beta) > 0:
             self.chroot_exec(chroot, [
                 *flatpak_base, "remote-add", "--if-not-exists",
                 "flathub-beta", "https://flathub.org/beta-repo/flathub-beta.flatpakrepo",
-            ])
+            ], capability="all")
             for flatpak in flatpaks_beta:
                 self.chroot_exec(chroot, [
                     *flatpak_base, "install", "--noninteractive", "--assumeyes",
                     "flathub-beta", flatpak,
-                ])
+                ], capability="all")
 
     def post_installation(self, chroot: str) -> None:
         """Run package module postinst scripts in a chroot."""
