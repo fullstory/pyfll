@@ -4,7 +4,6 @@
 import argparse
 import atexit
 import concurrent.futures
-import copy
 import datetime
 import glob
 import hashlib
@@ -633,6 +632,10 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                 raise FllError
             self.conf["chroots"][chroot]["uuid"] = uuidgen()
             self.log.debug(f"uuid for {chroot}: {self.conf['chroots'][chroot]['uuid']}")
+            # Resolve the merged profile now (config + profile + modules) so a
+            # bad desktop= default fails fast here, before any chroot assembly.
+            self.profiles[chroot] = self.parse_package_profile(chroot)
+            self.validate_desktop(chroot)
 
         if self.opts.persist:
             self.log.debug("forcing readonly_filesystem=erofs for rootfs")
@@ -649,9 +652,22 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         os.chown(quickemu_conf, self.opts.uid, self.opts.gid)
         self.log.info(f"quickemu --vm {quickemu_conf}")
 
-    def init_chroot(self, chroot: str) -> None:
-        """Initialise variables for chroot."""
-        self.profiles[chroot] = copy.deepcopy(self.parse_package_profile(chroot))
+    def validate_desktop(self, chroot: str) -> None:
+        """Fail the build early if a chroot's `desktop` default is not among the
+        sessions provided by its profile(s). Called from init_chroots(), before
+        any chroot assembly, so a typo aborts cheaply rather than after a full
+        bootstrap. An empty `desktop` (the spec default) means 'let the
+        bootloader pick alphabetically', which is always valid."""
+        default = self.conf["chroots"][chroot]["packages"].get("desktop")
+        if not default:
+            return
+        desktops = self.profiles[chroot].desktops
+        if default not in desktops:
+            self.log.critical(
+                f"{chroot}: desktop={default!r} is not among the sessions "
+                f"provided by its profile(s): {sorted(desktops)}"
+            )
+            raise FllError
 
     def _build_chroot(self, chroot: str) -> None:
         """Run the full build pipeline for a single chroot."""
@@ -672,7 +688,6 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         self.log.info(f"{chroot} - logging to {log_filename}")
 
         try:
-            self.init_chroot(chroot)
             with self._bootstrap_sem:
                 self.chroot_bootstrap(chroot)
             self.dpkg_divert(chroot)

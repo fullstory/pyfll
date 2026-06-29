@@ -616,7 +616,7 @@ class BootloaderMixin:
                 arch = self.conf["chroots"][chroot]["packages"]["arch"]
                 cmdline = self.config_boot_cmdline(distro, chroot)
                 indent = ""
-                desktops = sorted(self.profiles[chroot].desktops)
+                desktops = self.ordered_desktops(chroot)
 
                 for filename in [vmlinuz, initrd]:
                     if not os.path.isfile(os.path.join(boot_dir, filename)):
@@ -725,7 +725,7 @@ class BootloaderMixin:
                 arch = self.conf["chroots"][chroot]["packages"]["arch"]
                 cmdline = self.config_boot_cmdline(distro, chroot)
                 indent = ""
-                desktops = sorted(self.profiles[chroot].desktops)
+                desktops = self.ordered_desktops(chroot)
 
                 if arch[0:3] == "amd":
                     indent += "  "
@@ -822,7 +822,7 @@ class BootloaderMixin:
         first_entry = None
         for chroot in self.chroots:
             cmdline_base = self.config_boot_cmdline(distro, chroot)
-            desktops = sorted(self.profiles[chroot].desktops)
+            desktops = self.ordered_desktops(chroot)
 
             entries = []
             if desktops:
@@ -895,7 +895,7 @@ class BootloaderMixin:
 
             for chroot in self.chroots:
                 cmdline_base = self.config_boot_cmdline(distro, chroot)
-                desktops = sorted(self.profiles[chroot].desktops)
+                desktops = self.ordered_desktops(chroot)
 
                 for number, desktop in enumerate(desktops):
                     f.write(f'menuentry "{distro} {desktop}" {{\n')
@@ -925,6 +925,21 @@ class BootloaderMixin:
             self.log.critical(f"unknown bootloader: {bootloader!r}")
             raise FllError
         getattr(self, config_fn)()
+
+    def ordered_desktops(self, chroot: str) -> list:
+        """Sessions for this chroot, sorted, with the configured default
+        desktop (the chroot's `desktop` key, if any) moved to the front. Every
+        bootloader backend treats the first entry as the default, so fronting
+        it pins the default boot entry — and thus the desktop= cheatcode that
+        fll_desktop turns into the autologin session — without per-bootloader
+        directives. The `desktop` value is validated against this set at build
+        init, so it is trusted here."""
+        desktops = sorted(self.profiles[chroot].desktops)
+        default = self.conf["chroots"][chroot]["packages"].get("desktop")
+        if default:
+            desktops.remove(default)
+            desktops.insert(0, default)
+        return desktops
 
     def config_boot_cmdline(self, distro: str, chroot: str) -> str:
         image_dir = self.conf["distro"]["FLL_IMAGE_DIR"]
