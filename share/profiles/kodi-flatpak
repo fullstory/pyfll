@@ -25,6 +25,7 @@ flatpaks_beta = """
 
 desktops = """
 	kodi-flatpak
+	kodi-plasma-toggle
 """
 
 groups = """
