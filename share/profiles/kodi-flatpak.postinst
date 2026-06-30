@@ -1,0 +1,26 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	say "Writing /etc/systemd/system/sddm.service.d/override.conf"
+	mkdir -p /etc/systemd/system/sddm.service.d
+	cat <<EOF > /etc/systemd/system/sddm.service.d/override.conf
+[Unit]
+After=network-online.target
+Wants=network-online.target
+EOF
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
