@@ -180,7 +180,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             section_string = " => ".join(section_list)
             if not error:
                 error = "missing value or section"
-            self.log.critical(f"{error}: {section_string}")
+            self.log.critical(f"{obj.filename}: {error}: {section_string}")
             fatal_error = True
         if fatal_error:
             raise FllError
