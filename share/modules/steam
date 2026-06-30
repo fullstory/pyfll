@@ -3,36 +3,40 @@ desc = """
 	archive must be configured in Debian's repository sources configuration.
 """
 
-packages_amd64 = """
+packages = """
 	steam-devices
 	steam-installer
 	steam-libs
-	steam-libs-i386
 		libasound2-plugins
-		libasound2-plugins:i386
 		libegl1
 		libegl1:i386
 		libfontconfig1
-		libfontconfig1:i386
 		libsdl2-2.0-0
-		libsdl2-2.0-0:i386
 		libusb-1.0-0
-		libusb-1.0-0:i386
 		libva-drm2
-		libva-drm2:i386
 		libva-glx2
-		libva-glx2:i386
 		libxcb-dri2-0
-		libxcb-dri2-0:i386
 		libxdamage1
-		libxdamage1:i386
 		libxkbcommon-x11-0
-		libxkbcommon-x11-0:i386
 		libxkbcommon0
-		libxkbcommon0:i386
 		libxss1
-		libxss1:i386
 		mesa-vulkan-drivers
-		mesa-vulkan-drivers:i386
 		xdg-utils
+"""
+
+packages_amd64 = """
+	steam-libs-i386
+		libasound2-plugins:i386
+		libegl1:i386
+		libfontconfig1:i386
+		libsdl2-2.0-0:i386
+		libusb-1.0-0:i386
+		libva-drm2:i386
+		libva-glx2:i386
+		libxcb-dri2-0:i386
+		libxdamage1:i386
+		libxkbcommon-x11-0:i386
+		libxkbcommon0:i386
+		libxss1:i386
+		mesa-vulkan-drivers:i386
 """
