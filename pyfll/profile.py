@@ -40,6 +40,7 @@ class FllProfile:
         flatpaks_beta - flatpak app IDs from flathub-beta
         desktops      - X11/wayland session .desktop file names
         groups        - groups to add live user into
+        preinst       - paths to preinst scripts to run pre-installation
         postinst      - paths to postinst scripts to run post-installation
         manifest      - package manifest data
     """
@@ -50,6 +51,7 @@ class FllProfile:
     flatpaks_beta: set = field(default_factory=set)
     desktops: set = field(default_factory=set)
     groups: set = field(default_factory=set)
+    preinst: set = field(default_factory=set)
     postinst: set = field(default_factory=set)
     manifest: dict = field(default_factory=dict)
 
@@ -61,6 +63,7 @@ class FllProfile:
         self.flatpaks_beta.update(other.flatpaks_beta)
         self.desktops.update(other.desktops)
         self.groups.update(other.groups)
+        self.preinst.update(other.preinst)
         self.postinst.update(other.postinst)
 
 
@@ -184,6 +187,10 @@ class PackageProfileMixin:
                 modules.add(module)
                 self.log.debug(f"  {module}")
 
+        if os.path.isfile(profile + ".preinst"):
+            self.log.debug(f"registering preinst script: {profile}.preinst")
+            pkg_profile.preinst.add(profile + ".preinst")
+
         if os.path.isfile(profile + ".postinst"):
             self.log.debug(f"registering postinst script: {profile}.postinst")
             pkg_profile.postinst.add(profile + ".postinst")
@@ -247,6 +254,10 @@ class PackageProfileMixin:
                     pkg_profile.groups.add(line)
                     self.log.debug(f"  {line}")
 
+            if os.path.isfile(module_file + ".preinst"):
+                self.log.debug(f"registering preinst script: {module_file}.preinst")
+                pkg_profile.preinst.add(module_file + ".preinst")
+
             if os.path.isfile(module_file + ".postinst"):
                 self.log.debug(f"registering postinst script: {module_file}.postinst")
                 pkg_profile.postinst.add(module_file + ".postinst")
@@ -297,6 +308,10 @@ class PackageProfileMixin:
 
         self.log.debug(f"groups summary for {chroot}:")
         for item in sorted(chroot_profile.groups):
+            self.log.debug(f"  {item}")
+
+        self.log.debug(f"preinst summary for {chroot}:")
+        for item in sorted(chroot_profile.preinst):
             self.log.debug(f"  {item}")
 
         self.log.debug(f"postinst summary for {chroot}:")

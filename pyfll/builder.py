@@ -695,6 +695,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             self.write_distro_defaults(chroot)
             self.preseed_debconf(chroot)
             self.prime_apt(chroot)
+            self.pre_installation(chroot)
             self.install_packages(chroot)
             self.install_flatpaks(chroot)
             self.configure_locales(chroot)

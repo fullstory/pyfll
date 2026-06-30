@@ -336,6 +336,24 @@ class AptMixin:
                     "flathub-beta", flatpak,
                 ], capability="all")
 
+    def pre_installation(self, chroot: str) -> None:
+        """Run package module preinst scripts in a chroot."""
+        chroot_dir = os.path.join(self.temp, chroot)
+
+        self.log.info(f"{chroot} - executing preinst scripts...")
+
+        for script in self.profiles[chroot].preinst:
+            sname = os.path.basename(script)
+            try:
+                shutil.copy(script, os.path.join(chroot_dir, "fll"))
+                os.chmod(os.path.join(chroot_dir, "fll", sname), 0o755)
+            except OSError:
+                self.log.exception(f"error preparing preinst script: {sname}")
+                raise FllError
+
+            self.chroot_exec(chroot, [f"/fll/{sname}", "preinst"])
+            os.unlink(os.path.join(chroot_dir, "fll", sname))
+
     def post_installation(self, chroot: str) -> None:
         """Run package module postinst scripts in a chroot."""
         chroot_dir = os.path.join(self.temp, chroot)
