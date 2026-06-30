@@ -1,0 +1,27 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_preinst() {
+	say "enabling dpkg multiarch (amd64 + i386)"
+	dpkg --add-architecture i386
+	apt update
+}
+
+if ! dpkg --print-architecture | grep -qw amd64; then
+	say "amd64 architecture  only - ${0}"
+	exit 1
+fi
+
+case "${1}" in
+	preinst)
+		do_preinst
+		;;
+	*)
+		echo "Usage: ${0} preinst"
+		;;
+esac
+
+:
