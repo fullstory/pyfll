@@ -401,6 +401,45 @@ class AptMixin:
                     cmd.append("--quiet")
             self.chroot_exec(chroot, cmd)
 
+    def hold_kernel_packages(self, chroot: str) -> None:
+        """Hold kernel and header packages in the live image.
+
+        The live-boot artifacts (vmlinuz and the initrd) live on read-only or
+        FAT media that an apt transaction cannot safely rewrite, so the kernel
+        is a property of the image and is refreshed only as a unit via a
+        whole-image ``--upgrade <iso>``.  Hold both the metapackages and the
+        installed versioned packages so apt can neither bump the versioned
+        kernel directly nor pull a newer sibling transitively through the meta.
+        On a dracut-only system this also freezes the initrd, as dracut rebuilds
+        it on kernel events only.  Calamares releases the hold on install.
+
+        Requires a populated manifest (write_manifest), so call after it.
+        """
+        flavour = self.conf["chroots"][chroot]["packages"]["linux"]
+        manifest = self.profiles[chroot].manifest
+
+        # Explicit whitelist: the image/headers metapackages, plus for every
+        # installed kernel version the versioned image and headers packages and
+        # the shared headers "common" package (which drops the flavour suffix).
+        candidates = {f"linux-image-{flavour}", f"linux-headers-{flavour}"}
+        for kver in self.detect_linux_version(chroot):
+            candidates.add(f"linux-image-{kver}")
+            candidates.add(f"linux-headers-{kver}")
+            suffix = f"-{flavour}"
+            abi = kver[: -len(suffix)] if kver.endswith(suffix) else kver
+            candidates.add(f"linux-headers-{abi}-common")
+
+        # Intersect with the manifest so we hold only packages actually
+        # installed: apt-mark errors on unknown names, and this drops any
+        # derived name (e.g. -common) that a given kernel does not ship.
+        packages = sorted(p for p in candidates if p in manifest)
+        if not packages:
+            self.log.warning(f"{chroot} - no kernel packages found to hold")
+            return
+
+        self.log.info(f"{chroot} - holding kernel packages: {' '.join(packages)}")
+        self.chroot_exec(chroot, ["apt-mark", "hold"] + packages)
+
     def zero_logs(self, chroot: str, dirname: str, filenames: list) -> None:
         """Truncate all log files."""
         chrootdir = dirname.partition(chroot)[2]

@@ -701,6 +701,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             self.configure_locales(chroot)
             self.post_installation(chroot)
             self.write_manifest(chroot)
+            self.hold_kernel_packages(chroot)
             self.write_final_conffiles(chroot)
             self.dpkg_undo_divert(chroot)
             self.create_initramfs(chroot)
