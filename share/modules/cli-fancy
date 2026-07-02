@@ -5,6 +5,7 @@ desc = """
 packages = """
 	bat
 	btop
+	fzf
 	liquidprompt
 	most
 	zoxide
