@@ -27,7 +27,7 @@ packages = """
 	network-manager
 	nm-tray
 	playerctl
-	polkit-kde-agent-1
+	hyprpolkitagent
 	slurp
 	thunar
 	tuigreet
