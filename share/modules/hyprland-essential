@@ -26,6 +26,7 @@ packages = """
 	mousepad
 	network-manager
 	nm-tray
+		qt6-svg-plugins
 	playerctl
 	hyprpolkitagent
 	slurp
