@@ -385,6 +385,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Add the isodd ISO-to-disk utility and a quickemu configuration writer.
   * Allow pinning the default desktop; add minimal, kodi-plasma and steam
     profiles.
+  * plymouth: use spinner theme by default
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

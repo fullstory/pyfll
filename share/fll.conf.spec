@@ -46,7 +46,7 @@
 apt_preferences = string(default=None)
 apt_recommends  = option('yes', 'no', default='no')
 boot_cmdline    = string(default='systemd.show_status=1 quiet splash')
-boot_theme      = string(default='bgrt')
+boot_theme      = string(default='spinner')
 boot_timeout    = string(default='30')
 bootstrapper    = option('cdebootstrap', 'debootstrap', 'mmdebstrap', default='cdebootstrap')
 homed           = boolean(default=False)

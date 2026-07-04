@@ -313,7 +313,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                 filehandle.write('echo "$0 denied action: $1 $2" >&2\n')
                 filehandle.write("exit 101\n")
             elif filename == "/etc/plymouth/plymouthd.conf":
-                boot_theme = self.conf["options"].get("boot_theme", "bgrt")
+                boot_theme = self.conf["options"].get("boot_theme", "spinner")
                 self.log.debug(f"{chroot} - setting {boot_theme} plymouth theme")
                 filehandle.write("[Daemon]\n")
                 filehandle.write(f"Theme={boot_theme}\n")
