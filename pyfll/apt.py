@@ -437,7 +437,8 @@ class AptMixin:
             self.log.warning(f"{chroot} - no kernel packages found to hold")
             return
 
-        self.log.info(f"{chroot} - holding kernel packages: {' '.join(packages)}")
+        log_it = self.log.info if self.opts.verbose else self.log.debug
+        log_it(f"{chroot} - holding kernel packages: {' '.join(packages)}")
         self.chroot_exec(chroot, ["apt-mark", "hold"] + packages)
 
     def zero_logs(self, chroot: str, dirname: str, filenames: list) -> None:
