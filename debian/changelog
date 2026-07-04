@@ -1,4 +1,4 @@
-pyfll (2025.01) UNRELEASED; urgency=low
+pyfll (2026.1) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
 
@@ -366,8 +366,27 @@ pyfll (2025.01) UNRELEASED; urgency=low
     with lxqt-panel >= 2.3.2-1.
   * memtest: handle x64+ia32 variants and allow in efi environment.
   * Swap anacron+cron for systemd-cron
+  * Build chroots with systemd-nspawn instead of chroot, and build multiple
+    chroots in parallel with configurable concurrency and per-chroot logging.
+  * Refactor bin/pyfll into a Python package and modernise it: ruff and
+    basedpyright passes, type hints, and use python3-debian/hashlib in place
+    of apt_pkg.
+  * Add systemd-boot, rEFInd and pure-EFI grub as bootloader options.
+  * Add read-write and upgradable btrfs/luks persistence, with in-place
+    upgrade of the live media.
+  * Add flatpak support (fll.conf, profiles and modules) and a Kodi flatpak
+    session profile, kodi-session-aptosid.
+  * Introduce the FllProfile dataclass and validate profiles and modules via
+    configobj. Closes: #16.
+  * Support per-profile and per-module preinst scripts.
+  * hyprland: run a uwsm-managed systemd session with the hyprland native
+    polkit agent, and pull qt6-svg-plugins so nm-tray renders its icons.
+  * Make pyfll quiet by default, with richer per-run and per-chroot logging.
+  * Add the isodd ISO-to-disk utility and a quickemu configuration writer.
+  * Allow pinning the default desktop; add minimal, kodi-plasma and steam
+    profiles.
 
- -- Kel Modderman <kelvmod@gmail.com>  Sat, 02 Aug 2025 20:49:02 +1000
+ -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
 pyfll (2013.01) hesperides; urgency=low
 
