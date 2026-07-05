@@ -5,8 +5,10 @@ desc = """
 packages = """
 	brightness-udev
 	brightnessctl
+	cliphist
 	dbus-broker
 	dbus-user-session
+	flameshot
 	gnome-themes-extra
 		librsvg2-common
 	greetd
@@ -28,16 +30,17 @@ packages = """
 	network-manager
 	nm-tray
 		qt6-svg-plugins
+	pcmanfm-qt
 	playerctl
 	hyprpolkitagent
 	slurp
-	thunar
 	tuigreet
 	uwsm
 	waybar
 		fonts-font-awesome
 		fonts-material-design-icons-iconfont
 	wireplumber
+	wl-clipboard
 	wlogout
 	xdg-desktop-portal-gtk
 	xdg-desktop-portal-hyprland
