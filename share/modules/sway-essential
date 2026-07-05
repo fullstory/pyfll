@@ -21,6 +21,7 @@ packages = """
 	network-manager
 	nm-tray
 	playerctl
+        qt6-svg-plugins
 	slurp
 	srain
 	thunar
