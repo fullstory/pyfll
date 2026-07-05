@@ -27,8 +27,7 @@ packages = """
 	mako-notifier
 	mint-y-icons
 	network-manager
-	nm-tray
-		qt6-svg-plugins
+	network-manager-applet
 	pcmanfm-qt
 	playerctl
 	hyprpolkitagent

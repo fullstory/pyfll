@@ -19,9 +19,8 @@ packages = """
 	mint-y-icons
 	mousepad
 	network-manager
-	nm-tray
+	network-manager-applet
 	playerctl
-        qt6-svg-plugins
 	slurp
 	srain
 	thunar

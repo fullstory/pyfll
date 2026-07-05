@@ -11,7 +11,7 @@ packages = """
 	libnotify-bin
 	lightdm
 	mousepad
-	nm-tray
+	network-manager-applet
 	zoitechat
 	hunspell-en-us
 	libglib2.0-bin

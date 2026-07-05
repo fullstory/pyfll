@@ -21,7 +21,7 @@ packages = """
 	mate-polkit-bin
 	mint-y-icons
 	network-manager
-	nm-tray
+	network-manager-applet
 	playerctl
 	sfwbar
 	slurp
