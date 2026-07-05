@@ -636,7 +636,7 @@ class BootloaderMixin:
                     indent += "  "
 
                 for desktop in desktops:
-                    title = f"{distro} {chroot} {desktop}"
+                    title = f"{distro} {desktop}"
                     # arch is passed to the --class option so that a 64bit fred icon
                     # may be displayed next to the menu entry by gfxboot theme
                     kcfg.write(
@@ -649,7 +649,7 @@ class BootloaderMixin:
                     kcfg.write(f"{indent}" + "}\n")
                 else:
                     if len(desktops) == 0:
-                        title = f"{distro} {chroot}"
+                        title = f"{distro}"
                         kcfg.write(
                             f'{indent}menuentry --class={distro}.{arch} "{title}"'
                             + " {\n"
@@ -740,7 +740,7 @@ class BootloaderMixin:
                     indent += "  "
 
                 for desktop in desktops:
-                    title = f"{distro} {chroot} {desktop}"
+                    title = f"{distro} {desktop}"
                     kcfg.write(
                         f'{indent}menuentry --class={distro}.{arch} "{title}"' + " {\n"
                     )
@@ -751,7 +751,7 @@ class BootloaderMixin:
                     kcfg.write(f"{indent}" + "}\n")
                 else:
                     if len(desktops) == 0:
-                        title = f"{distro} {chroot}"
+                        title = f"{distro}"
                         kcfg.write(
                             f'{indent}menuentry --class={distro}.{arch} "{title}"'
                             + " {\n"
