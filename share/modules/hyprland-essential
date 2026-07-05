@@ -8,6 +8,7 @@ packages = """
 	cliphist
 	dbus-broker
 	dbus-user-session
+	featherpad
 	gnome-themes-extra
 		librsvg2-common
 	greetd
@@ -25,7 +26,6 @@ packages = """
 	kvirc
 	mako-notifier
 	mint-y-icons
-	mousepad
 	network-manager
 	nm-tray
 		qt6-svg-plugins
@@ -44,6 +44,5 @@ packages = """
 	wlogout
 	xdg-desktop-portal-gtk
 	xdg-desktop-portal-hyprland
-	xdg-desktop-portal-kde
 	zenity
 """
