@@ -5,6 +5,7 @@ desc = """
 
 packages = """
 	bash
+	calamares
 	calamares-settings-aptosid
 	cups-browsed
 	fll-live-initscripts
