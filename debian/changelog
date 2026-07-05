@@ -386,6 +386,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Allow pinning the default desktop; add minimal, kodi-plasma and steam
     profiles.
   * plymouth: use spinner theme by default
+  * hyprland-essential: adopt the Hypr ecosystem launcher/idle/logout tools —
+    add hyprlauncher and hyprshutdown, drop wofi, swayidle, wlopm and gtklock,
+    and replace the transitional hyprland-qtutils with hyprland-guiutils.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

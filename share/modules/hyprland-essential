@@ -11,14 +11,15 @@ packages = """
 		librsvg2-common
 	greetd
 	grim
-	gtklock
 	hypridle
 	hyprland
 	hyprland-protocols
-	hyprland-qtutils
+	hyprland-guiutils
+	hyprlauncher
 	hyprlock
 	hyprpaper
 	hyprpicker
+	hyprshutdown
 	kitty
 	kvirc
 	mako-notifier
@@ -33,14 +34,11 @@ packages = """
 	thunar
 	tuigreet
 	uwsm
-	swayidle
 	waybar
 		fonts-font-awesome
 		fonts-material-design-icons-iconfont
 	wireplumber
 	wlogout
-	wlopm
-	wofi
 	xdg-desktop-portal-gtk
 	xdg-desktop-portal-hyprland
 	xdg-desktop-portal-kde
