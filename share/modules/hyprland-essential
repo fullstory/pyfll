@@ -8,7 +8,6 @@ packages = """
 	cliphist
 	dbus-broker
 	dbus-user-session
-	flameshot
 	gnome-themes-extra
 		librsvg2-common
 	greetd
@@ -34,6 +33,7 @@ packages = """
 	playerctl
 	hyprpolkitagent
 	slurp
+	swappy
 	tuigreet
 	uwsm
 	waybar
