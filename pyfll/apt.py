@@ -296,7 +296,137 @@ class AptMixin:
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + loc_pkgs)
 
         self.log.info(f"{chroot} - installing packages...")
-        self.apt_get(chroot, "install", args=pkgs_want)
+        try:
+            self.apt_get(chroot, "install", args=pkgs_want)
+        except FllError:
+            self.diagnose_install_failure(chroot, pkgs_want, installed)
+            raise
+
+    def diagnose_install_failure(
+        self, chroot: str, wanted: list, installed: set
+    ) -> None:
+        """Explain a failed 'apt-get install' in human terms.
+
+        The real install runs with -qq and streams apt's output at debug level,
+        so a resolution failure surfaces only as a generic non-zero exit. Here
+        we work out which of the requested packages is to blame: first the names
+        that exist in no configured repository, then - by re-running the
+        selection under --simulate, which reproduces a resolution failure
+        without downloading - apt's own unmet-dependency diagnosis.
+
+        Best-effort and never raises: analysis must not mask the original error.
+        """
+        try:
+            self.log.error(f"{chroot} - analysing package installation failure...")
+
+            # Only packages apt was asked to bring in can be at fault; the rest
+            # are already installed.
+            additions = sorted(set(wanted) - installed)
+            available = self._available_package_names(chroot)
+
+            unknown = [p for p in additions if p not in available]
+            if unknown:
+                self.log.error(
+                    f"{chroot} - {len(unknown)} requested package(s) not found in "
+                    f"any configured repository (typo, rename, or a missing "
+                    f"component/suite?):"
+                )
+                for pkg in unknown:
+                    self.log.error(f"{chroot} -     {pkg}")
+
+            # Drop the unknown names so apt gets past "unable to locate" and can
+            # report deeper conflicts among packages that do exist.
+            solvable = [p for p in wanted if p in available]
+            rc, output = self._apt_simulate(chroot, solvable)
+            if rc == 0:
+                if not unknown:
+                    self.log.error(
+                        f"{chroot} - dependencies resolve cleanly; the failure was "
+                        f"during download, unpacking or configuration - see the "
+                        f"chroot log above for the failing package."
+                    )
+                return
+
+            reasons = self._parse_apt_problems(output)
+            if reasons:
+                self.log.error(f"{chroot} - apt could not satisfy the selection:")
+                for line in reasons:
+                    self.log.error(f"{chroot} -     {line}")
+                culprits = sorted(
+                    p for p in additions
+                    if any(r.split(" :", 1)[0] == p for r in reasons)
+                )
+                if culprits:
+                    self.log.error(
+                        f"{chroot} - selected package(s) directly implicated: "
+                        f"{' '.join(culprits)}"
+                    )
+        except Exception:
+            self.log.debug(
+                f"{chroot} - package failure analysis failed", exc_info=True
+            )
+
+    def _available_package_names(self, chroot: str) -> set:
+        """Return every installable name (real packages plus Provides) from the
+        apt indexes, for spotting requested names that exist nowhere."""
+        names = set()
+        lists_dir = os.path.join(self.temp, chroot, "var/lib/apt/lists")
+        if not os.path.isdir(lists_dir):
+            return names
+        for fname in os.listdir(lists_dir):
+            if not fname.endswith("_Packages"):
+                continue
+            with open(os.path.join(lists_dir, fname)) as f:
+                for line in f:
+                    if line.startswith("Package: "):
+                        names.add(line[9:].strip())
+                    elif line.startswith("Provides: "):
+                        for prov in line[10:].split(","):
+                            prov = prov.strip().split(" ")[0]
+                            if prov:
+                                names.add(prov)
+        return names
+
+    def _apt_simulate(self, chroot: str, packages: list) -> tuple:
+        """Run 'apt-get install --simulate' for *packages*, returning
+        (returncode, combined_output). Mirrors the recommends policy of the real
+        install so the resolver behaves identically."""
+        aptget = [
+            "apt-get", "install", "--simulate",
+            "-o", "Acquire::Languages=none",
+            "-o", "APT::Color=0",
+        ]
+        if self.conf["options"].get("apt_recommends", "no") == "no":
+            aptget.extend(["-o", "APT::Install-Recommends=0"])
+        aptget.extend(packages)
+        result = subprocess.run(
+            self._nspawn_cmd(chroot, aptget),
+            env=self.env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        return result.returncode, result.stdout
+
+    def _parse_apt_problems(self, output: str) -> list:
+        """Pull the useful lines out of apt's simulate output: the indented
+        entries under "unmet dependencies:" plus any 'E:' error lines."""
+        problems = []
+        in_block = False
+        for line in output.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                in_block = False
+            elif "have unmet dependencies:" in stripped:
+                in_block = True
+            elif line.startswith("E:"):
+                in_block = False
+                problems.append(stripped)
+            elif in_block and line[:1].isspace():
+                problems.append(stripped)
+            elif in_block:
+                in_block = False
+        return problems
 
     def install_flatpaks(self, chroot: str) -> None:
         """Install flatpaks"""

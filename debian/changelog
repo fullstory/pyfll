@@ -389,6 +389,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * hyprland-essential: adopt the Hypr ecosystem launcher/idle/logout tools —
     add hyprlauncher and hyprshutdown, drop wofi, swayidle, wlopm and gtklock,
     and replace the transitional hyprland-qtutils with hyprland-guiutils.
+  * Diagnose apt install issues upon failure.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
