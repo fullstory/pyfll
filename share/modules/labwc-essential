@@ -17,6 +17,8 @@ packages = """
 	kanshi
 	kitty
 	labwc
+        labwc-menu-generator
+        labwc-tweaks
 	mako-notifier
 	mate-polkit-bin
 	mint-y-icons
