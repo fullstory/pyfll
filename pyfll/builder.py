@@ -71,6 +71,9 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         self.live_media = str()
         self._staging_lock = threading.Lock()
         self._bootstrap_sem = threading.Semaphore(2)
+        self._abort = threading.Event()
+        self._procs = set()
+        self._procs_lock = threading.Lock()
 
     def prep_dir(self, dirname: str) -> str:
         """Set up working directories."""
@@ -716,6 +719,23 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             handler.close()
             os.chown(log_filename, self.opts.uid, self.opts.gid)
 
+    def _abort_builds(self) -> None:
+        """Signal all chroot workers to stop and SIGTERM their running
+        subprocesses, so a failure (or interrupt) in one chroot doesn't leave
+        the others grinding on. systemd-nspawn tears its payload down cleanly on
+        SIGTERM; the workers then unwind at their next command."""
+        if self._abort.is_set():
+            return
+        self.log.warning("aborting remaining chroot builds...")
+        self._abort.set()
+        with self._procs_lock:
+            procs = list(self._procs)
+        for proc in procs:
+            try:
+                proc.terminate()
+            except OSError:
+                pass
+
     def main(self) -> None:
         """Main loop."""
         self.init_cli_options()
@@ -734,8 +754,12 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                 max_workers=self.opts.jobs
             ) as pool:
                 futures = {pool.submit(self._build_chroot, c): c for c in self.chroots}
-                for fut in concurrent.futures.as_completed(futures):
-                    fut.result()
+                try:
+                    for fut in concurrent.futures.as_completed(futures):
+                        fut.result()
+                except BaseException:
+                    self._abort_builds()
+                    raise
         finally:
             self._logfile_handler.removeFilter(logfile_filter)
         self.write_bootloader_config()

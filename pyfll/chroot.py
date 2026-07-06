@@ -17,10 +17,14 @@ class ChrootExecMixin:
         With *quiet*, a failure is logged at debug level (not as an ERROR with
         traceback); the caller takes over reporting - e.g. apt install, where a
         dedicated analysis follows."""
+        if self._abort.is_set():
+            raise FllError
+
         self.log.debug(shlex.join(cmd))
 
         log_it = self.log.info if self.opts.verbose else self.log.debug
 
+        proc = None
         try:
             proc = subprocess.Popen(
                 cmd,
@@ -29,6 +33,11 @@ class ChrootExecMixin:
                 stderr=subprocess.STDOUT,
                 universal_newlines=True,
             )
+            with self._procs_lock:
+                self._procs.add(proc)
+            # Lost the race with an abort fired between the check and the add.
+            if self._abort.is_set():
+                proc.terminate()
             for line in iter(proc.stdout.readline, ""):
                 log_it(line.rstrip())
             proc.stdout.close()
@@ -38,11 +47,16 @@ class ChrootExecMixin:
         except KeyboardInterrupt:
             raise FllError
         except subprocess.CalledProcessError:
-            if quiet:
+            # A terminated child (sibling chroot failed) is expected noise.
+            if quiet or self._abort.is_set():
                 self.log.debug(f"command failed: {shlex.join(cmd)}")
             else:
                 self.log.exception(f"problem executing command: {shlex.join(cmd)}")
             raise FllError
+        finally:
+            if proc is not None:
+                with self._procs_lock:
+                    self._procs.discard(proc)
 
     def _nspawn_cmd(self, chroot: str, args: list, capability: str = None) -> list:
         """Build the systemd-nspawn command line to run *args* in a chroot."""

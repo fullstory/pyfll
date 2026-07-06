@@ -304,7 +304,9 @@ class AptMixin:
         try:
             self.apt_get(chroot, "install", args=pkgs_want, quiet=True)
         except FllError:
-            self.diagnose_install_failure(chroot, pkgs_want, installed)
+            # Skip analysis when a sibling chroot's failure aborted us.
+            if not self._abort.is_set():
+                self.diagnose_install_failure(chroot, pkgs_want, installed)
             raise
 
     def diagnose_install_failure(
