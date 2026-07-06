@@ -12,7 +12,12 @@ class AptMixin:
     """Mixin providing apt/dpkg operations, chroot bootstrap, and package installation."""
 
     def apt_get(
-        self, chroot: str, command: str, args: list | None = None, insecure: bool = False
+        self,
+        chroot: str,
+        command: str,
+        args: list | None = None,
+        insecure: bool = False,
+        quiet: bool = False,
     ) -> None:
         """An apt-get install wrapper. Automatic installation of recommended
         packages defaults to disabled."""
@@ -40,7 +45,7 @@ class AptMixin:
         if args:
             aptget.extend(args)
 
-        self.chroot_exec(chroot, aptget)
+        self.chroot_exec(chroot, aptget, quiet=quiet)
 
     def debbootstrap(
         self, chroot: str, arch: str, target: str, mirror: str, codename: str
@@ -297,7 +302,7 @@ class AptMixin:
 
         self.log.info(f"{chroot} - installing packages...")
         try:
-            self.apt_get(chroot, "install", args=pkgs_want)
+            self.apt_get(chroot, "install", args=pkgs_want, quiet=True)
         except FllError:
             self.diagnose_install_failure(chroot, pkgs_want, installed)
             raise
