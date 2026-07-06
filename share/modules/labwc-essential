@@ -23,11 +23,13 @@ packages = """
 	network-manager
 	network-manager-applet
 	playerctl
-	sfwbar
 	slurp
 	tuigreet
 	swaybg
 	swayidle
+	waybar
+		fonts-font-awesome
+		fonts-material-design-icons-iconfont
 	wireplumber
 	wlogout
 	wlopm

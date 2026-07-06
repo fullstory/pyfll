@@ -6,6 +6,7 @@ packages = """
 	bibata-cursor-theme
 	brightness-udev
 	brightnessctl
+	cliphist
 	dbus-broker
 	dbus-user-session
 	gnome-themes-extra
@@ -13,6 +14,7 @@ packages = """
 	greetd
 	grim
 	gtklock
+	hyprpicker
 	kitty
 	mako-notifier
 	mate-polkit-bin
@@ -22,6 +24,7 @@ packages = """
 	network-manager-applet
 	playerctl
 	slurp
+	swappy
 	srain
 	thunar
 	tuigreet
@@ -32,6 +35,7 @@ packages = """
 		fonts-font-awesome
 		fonts-material-design-icons-iconfont
 	wireplumber
+	wl-clipboard
 	wlogout
 	wofi
 	xdg-desktop-portal-gtk
