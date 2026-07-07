@@ -18,7 +18,6 @@ packages = """
 	hyprland
 	hyprland-protocols
 	hyprland-guiutils
-	hyprlauncher
 	hyprlock
 	hyprpaper
 	hyprpicker
@@ -44,6 +43,7 @@ packages = """
 	wireplumber
 	wl-clipboard
 	wlogout
+	wofi
 	wlopm
 	xdg-desktop-portal-gtk
 	xdg-desktop-portal-hyprland
