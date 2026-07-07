@@ -8,6 +8,7 @@ packages = """
 	brightnessctl
 	dbus-broker
 	dbus-user-session
+	featherpad
 	gnome-themes-extra
 		librsvg2-common
 	greetd
@@ -17,13 +18,14 @@ packages = """
 	kanshi
 	kitty
 	labwc
-        labwc-menu-generator
-        labwc-tweaks
+		labwc-menu-generator
+		labwc-tweaks
 	mako-notifier
 	mate-polkit-bin
 	mint-y-icons
 	network-manager
 	network-manager-applet
+	pcmanfm-qt
 	playerctl
 	slurp
 	tuigreet
@@ -38,4 +40,5 @@ packages = """
 	wofi
 	xdg-desktop-portal-wlr
 	xdg-desktop-portal-gtk
+	zenity
 """

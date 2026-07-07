@@ -3,12 +3,12 @@ desc = """
 """
 
 packages = """
-	blueman
-	celluloid
-	eom
-	gvfs-backends
-	pcmanfm
-	pluma
+	gnome-disk-utility
+	gparted
+	haruna
+	lxqt-archiver
+	pavucontrol-qt
 	pqiv
+	qalculate-qt
 	zathura
 """

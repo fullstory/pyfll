@@ -13,6 +13,7 @@ packages = """
 		librsvg2-common
 	greetd
 	grim
+	hyprcursor-util
 	hypridle
 	hyprland
 	hyprland-protocols
@@ -22,8 +23,10 @@ packages = """
 	hyprpaper
 	hyprpicker
 	hyprshutdown
+	kanshi
 	kitty
 	kvirc
+	lxqt-archiver
 	mako-notifier
 	mint-y-icons
 	network-manager
@@ -41,6 +44,7 @@ packages = """
 	wireplumber
 	wl-clipboard
 	wlogout
+	wlopm
 	xdg-desktop-portal-gtk
 	xdg-desktop-portal-hyprland
 	zenity

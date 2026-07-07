@@ -23,16 +23,14 @@ modules = """
 
 packages = """
 	cliphist
-	engrampa
+	lxqt-archiver
 	fonts-font-awesome
 	freerdp3-wayland
 	gnome-keyring
 		libpam-gnome-keyring
 	kooha
-	libreoffice-gtk3
-	nwg-look
-	pluma-plugins
-	qalculate-gtk
+	libreoffice-qt6
+	qalculate-qt
 	qt6-wayland
 		layer-shell-qt
 	qtwayland5
