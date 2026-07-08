@@ -9,7 +9,6 @@ packages = """
 	cliphist
 	dbus-broker
 	dbus-user-session
-	featherpad
 	gnome-themes-extra
 		librsvg2-common
 	greetd
@@ -17,16 +16,17 @@ packages = """
 	gtklock
 	kanshi
 	kitty
-	kvirc
+	zoitechat
 	labwc
 		labwc-menu-generator
 		labwc-tweaks
 	mako-notifier
 	mate-polkit-bin
 	mint-y-icons
+	mousepad
 	network-manager
 	network-manager-applet
-	pcmanfm-qt
+	thunar
 	playerctl
 	slurp
 	swappy

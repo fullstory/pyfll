@@ -3,12 +3,17 @@ desc = """
 """
 
 packages = """
+	celluloid
+	file-roller
 	gnome-disk-utility
 	gparted
-	lxqt-archiver
-	nomacs
-	pavucontrol-qt
-	qalculate-qt
-	qpdfview
-	vlc
+	gvfs-backends
+	pavucontrol
+	pqiv
+	qalculate-gtk
+	thunar-archive-plugin
+	thunar-font-manager
+	thunar-volman
+	tumbler
+	zathura
 """
