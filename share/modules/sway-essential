@@ -31,6 +31,7 @@ packages = """
 	sway
 	swaybg
 	swayidle
+	uwsm
 	waybar
 		fonts-font-awesome
 		fonts-material-design-icons-iconfont
