@@ -3,6 +3,7 @@ desc = """
 """
 
 packages = """
+	bibata-cursor-theme
 	brightness-udev
 	brightnessctl
 	cliphist
@@ -13,6 +14,7 @@ packages = """
 		librsvg2-common
 	greetd
 	grim
+	gtklock
 	hyprcursor-util
 	hypridle
 	hyprland

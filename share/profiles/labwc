@@ -14,7 +14,6 @@ modules = """
 	hwsupport-extra
 	labwc-essential
 	labwc-extra
-	libreoffice-suite
 	utils-essential
 	utils-extra
 	utils-x
@@ -22,32 +21,6 @@ modules = """
 """
 
 packages = """
-	cliphist
-	lxqt-archiver
-	fonts-font-awesome
-	freerdp3-wayland
-	gnome-keyring
-		libpam-gnome-keyring
-	kooha
-	libreoffice-qt6
-	qalculate-qt
-	qt6-wayland
-		layer-shell-qt
-	qtwayland5
-	seahorse
-	squeekboard
-	swappy
-	wev
-	wl-clipboard
-	wl-mirror
-	wl-present
-	wayout
-	wlr-randr
-	wlrctl
-	wlsunset
-	wob
-	wshowkeys
-	wtype
 """
 
 desktops = """

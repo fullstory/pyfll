@@ -6,6 +6,7 @@ packages = """
 	bibata-cursor-theme
 	brightness-udev
 	brightnessctl
+	cliphist
 	dbus-broker
 	dbus-user-session
 	featherpad
@@ -14,9 +15,9 @@ packages = """
 	greetd
 	grim
 	gtklock
-	srain
 	kanshi
 	kitty
+	kvirc
 	labwc
 		labwc-menu-generator
 		labwc-tweaks
@@ -28,6 +29,7 @@ packages = """
 	pcmanfm-qt
 	playerctl
 	slurp
+	swappy
 	tuigreet
 	swaybg
 	swayidle
@@ -36,6 +38,7 @@ packages = """
 		fonts-font-awesome
 		fonts-material-design-icons-iconfont
 	wireplumber
+	wl-clipboard
 	wlogout
 	wlopm
 	wofi
