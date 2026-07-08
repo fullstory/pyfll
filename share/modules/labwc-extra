@@ -6,9 +6,9 @@ packages = """
 	gnome-disk-utility
 	gparted
 	lxqt-archiver
+	nomacs
 	pavucontrol-qt
-	pqiv
 	qalculate-qt
+	qpdfview
 	vlc
-	zathura
 """

@@ -5,10 +5,10 @@ desc = """
 packages = """
 	gnome-disk-utility
 	gparted
+	lximage-qt
 	lxqt-archiver
 	pavucontrol-qt
-	pqiv
 	qalculate-qt
+	qpdfview
 	vlc
-	zathura
 """
