@@ -3,11 +3,11 @@ desc = """
 """
 
 packages = """
-	celluloid
 	file-roller
 	gnome-disk-utility
 	gparted
 	gvfs-backends
+	mpv
 	pavucontrol
 	pqiv
 	qalculate-gtk
