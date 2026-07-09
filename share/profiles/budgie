@@ -32,6 +32,7 @@ packages = """
 	budgie-countdown-applet
 	budgie-desktop
 	budgie-desktop-environment
+        budgie-desktop-services
 	budgie-desktop-view
 	budgie-dropby-applet
 	budgie-extras-common
@@ -62,11 +63,17 @@ packages = """
 	evince
 	gedit
 	gimp
+        gir1.2-budgie-3.0
 	gir1.2-budgieraven-3.0
 	gnome-disk-utility
 	gnome-font-viewer
 	gnome-themes-extra
 	zoitechat
+        libbudgie-appindexer0
+        libbudgie-plugin0
+        libbudgie-private0
+        libbudgie-windowing0
+        libbudgietheme0
 	libreoffice-gtk3
 		gstreamer1.0-gtk3
 	librsvg2-common
