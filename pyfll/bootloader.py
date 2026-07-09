@@ -629,7 +629,7 @@ class BootloaderMixin:
                     kcfg.write(f'{indent}havekernel="Y"\n')
 
                 if len(self.chroots) > 1 and len(desktops) > 1:
-                    title = f"{distro} {chroot} [{', '.join(desktops)}]"
+                    title = f"{distro} [{', '.join(desktops)}]"
                     kcfg.write(
                         f'{indent}submenu --class={distro}.{arch} "{title}"' + " {\n"
                     )
