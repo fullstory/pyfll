@@ -89,5 +89,5 @@ packages = """
 """
 
 desktops = """
-	budgie
+	budgie-desktop
 """
