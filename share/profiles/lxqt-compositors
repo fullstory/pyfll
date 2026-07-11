@@ -21,7 +21,9 @@ packages = """
 	hyprland-protocols
 	kwin-wayland
 	labwc
+	miriway
 	sway
+	swaybg
 	wayfire
 	wayfire-plugin-winshadows
 """
@@ -30,6 +32,7 @@ desktops = """
 	lxqt-labwc
 	lxqt-kwin
 	lxqt-hyprland
+	lxqt-miriway
 	lxqt-sway
 	lxqt-wayfire
 	lxqt-openbox
