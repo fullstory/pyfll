@@ -31,7 +31,6 @@ packages = """
 	smbclient
 	strace
 	syncthing
-	testdisk
 	tofrodos
 	traceroute
 	xfsprogs
