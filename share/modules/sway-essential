@@ -13,6 +13,7 @@ packages = """
 		librsvg2-common
 	greetd
 	grim
+	gtkgreet
 	gtklock
 	hyprpicker
 	kitty
@@ -27,7 +28,6 @@ packages = """
 	swappy
 	srain
 	thunar
-	tuigreet
 	sway
 	swaybg
 	swayidle

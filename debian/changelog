@@ -405,6 +405,8 @@ pyfll (2026.1) UNRELEASED; urgency=low
     wlogout's own default (loginctl lock-session) is now correct for
     every Wayland spin, so the compositor's native locker is used
     consistently.
+  * sway-essential: replace tuigreet with gtkgreet as the greetd
+    greeter.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
