@@ -4,9 +4,7 @@ desc = """
 
 packages = """
 	bibata-cursor-theme
-	ca-certificates
-	dbus-x11
-		dbus-user-session
+	dbus-user-session
 	gnome-themes-extra
 	kdialog
 	lxqt-core
@@ -36,7 +34,5 @@ packages = """
 	openbox
 		obconf-qt
 	sddm
-	udisks2
 	xscreensaver
-		xdg-utils
 """

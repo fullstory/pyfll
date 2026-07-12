@@ -6,4 +6,5 @@ packages = """
 	btrfs-assistant
 	spice-vdagent
 	syncthingtray
+	xdg-utils
 """

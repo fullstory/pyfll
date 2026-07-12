@@ -7,7 +7,6 @@ packages = """
 	qalculate-qt
 	qdiskinfo
 	mpv
-		xdg-utils
 		yt-dlp
 	nomacs
 	transmission-qt
