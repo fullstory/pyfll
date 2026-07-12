@@ -400,6 +400,11 @@ pyfll (2026.1) UNRELEASED; urgency=low
     log.
   * apt: trace a failing package back to the profile, module or
     recommends whitelist file that pulled it in.
+  * distro-hyprland, distro-sway, distro-labwc: drop these postinst
+    scripts. They only rewrote the wlogout Lock action to gtklock -i;
+    wlogout's own default (loginctl lock-session) is now correct for
+    every Wayland spin, so the compositor's native locker is used
+    consistently.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
