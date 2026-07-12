@@ -11,6 +11,10 @@ from pyfll.exceptions import FllError, FllLocalesError
 from pyfll.locales import FllLocales
 from pyfll.util import deduplicate_list, multiline_to_list
 
+# Path, relative to --share, of the whitelist controlling which packages'
+# Recommends get pulled in. Also used as the label surfaced in failure analysis.
+RECOMMENDS_WHITELIST = os.path.join("modules", "recommends")
+
 
 def parse_dependency_groups(dep_str: str) -> list:
     """Parse a Depends/Recommends string into a list of OR groups.
@@ -36,6 +40,8 @@ class FllProfile:
     Attributes:
         debconf       - debconf pre-seed lines loaded pre-installation
         packages      - Debian package names
+        sources       - package name -> set of profile/module files declaring it
+        recommended_by - recommended package -> set of packages that recommend it
         flatpaks      - flatpak app IDs from flathub
         flatpaks_beta - flatpak app IDs from flathub-beta
         desktops      - X11/wayland session .desktop file names
@@ -47,6 +53,8 @@ class FllProfile:
 
     debconf: set = field(default_factory=set)
     packages: set = field(default_factory=set)
+    sources: dict = field(default_factory=dict)
+    recommended_by: dict = field(default_factory=dict)
     flatpaks: set = field(default_factory=set)
     flatpaks_beta: set = field(default_factory=set)
     desktops: set = field(default_factory=set)
@@ -55,10 +63,19 @@ class FllProfile:
     postinst: set = field(default_factory=set)
     manifest: dict = field(default_factory=dict)
 
+    def add_package(self, name, source=None):
+        """Add a package, optionally recording the file it was declared in
+        (used to trace an install failure back to a profile or module)."""
+        self.packages.add(name)
+        if source:
+            self.sources.setdefault(name, set()).add(source)
+
     def merge(self, other):
         """Add all items from another FllProfile into this one."""
         self.debconf.update(other.debconf)
         self.packages.update(other.packages)
+        for name, origins in other.sources.items():
+            self.sources.setdefault(name, set()).update(origins)
         self.flatpaks.update(other.flatpaks)
         self.flatpaks_beta.update(other.flatpaks_beta)
         self.desktops.update(other.desktops)
@@ -126,6 +143,7 @@ class PackageProfileMixin:
         fll_profile_spec = os.path.join(self.opts.share, "fll.profile.spec")
         profile_conf = ConfigObj(profile, configspec=fll_profile_spec)
         self.validate_configobj(profile_conf)
+        profile_origin = os.path.relpath(profile, self.opts.share)
 
         if "desc" in profile_conf:
             for line in multiline_to_list(profile_conf["desc"]):
@@ -140,14 +158,14 @@ class PackageProfileMixin:
         if "packages" in profile_conf:
             self.log.debug("packages:")
             for line in multiline_to_list(profile_conf["packages"]):
-                pkg_profile.packages.add(line)
+                pkg_profile.add_package(line, profile_origin)
                 self.log.debug(f"  {line}")
 
         packages_arch = f"packages_{arch}"
         if packages_arch in profile_conf:
             self.log.debug(f"packages_{arch}:")
             for line in multiline_to_list(profile_conf[packages_arch]):
-                pkg_profile.packages.add(line)
+                pkg_profile.add_package(line, profile_origin)
                 self.log.debug(f"  {line}")
 
         if "flatpaks" in profile_conf:
@@ -206,6 +224,7 @@ class PackageProfileMixin:
 
             module_conf = ConfigObj(module_file, configspec=fll_module_spec)
             self.validate_configobj(module_conf)
+            module_origin = os.path.relpath(module_file, self.opts.share)
 
             if "desc" in module_conf:
                 for line in multiline_to_list(module_conf["desc"]):
@@ -220,14 +239,14 @@ class PackageProfileMixin:
             if "packages" in module_conf:
                 self.log.debug("packages:")
                 for line in multiline_to_list(module_conf["packages"]):
-                    pkg_profile.packages.add(line)
+                    pkg_profile.add_package(line, module_origin)
                     self.log.debug(f"  {line}")
 
             packages_arch = f"packages_{arch}"
             if packages_arch in module_conf:
                 self.log.debug(f"packages_{arch}:")
                 for line in multiline_to_list(module_conf[packages_arch]):
-                    pkg_profile.packages.add(line)
+                    pkg_profile.add_package(line, module_origin)
                     self.log.debug(f"  {line}")
 
             if "flatpaks" in module_conf:
@@ -363,15 +382,19 @@ class PackageProfileMixin:
         return locales_list
 
     def detect_recommended_packages(
-        self, wanted: dict, available: dict, installed: set
+        self, wanted: dict, available: dict, installed: set, recommended_by: dict = None
     ) -> list:
-        """Provide automated detection for packages in recommends whitelist."""
+        """Provide automated detection for packages in recommends whitelist.
+
+        When *recommended_by* is given, records each detected package ->
+        the package that recommended it, so an install failure can be traced
+        back to its origin."""
         apt_recommends = self.conf["options"].get("apt_recommends")
         if apt_recommends == "yes":
             return []
 
         self.log.debug("detecting whitelisted recommended packages...")
-        rec_module = ConfigObj(os.path.join(self.opts.share, "modules", "recommends"))
+        rec_module = ConfigObj(os.path.join(self.opts.share, RECOMMENDS_WHITELIST))
         try:
             rec_dict = dict(
                 [(p, True) for p in multiline_to_list(rec_module["packages"])]
@@ -398,6 +421,8 @@ class PackageProfileMixin:
                 if first not in installed:
                     self.log.debug(f"recommended package detected: {first} (via {p})")
                     rec_list.append(first)
+                    if recommended_by is not None:
+                        recommended_by.setdefault(first, set()).add(p)
         return rec_list
 
     def _read_dpkg_status(self, chroot: str) -> dict:

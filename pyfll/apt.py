@@ -6,6 +6,7 @@ import shutil
 import subprocess
 
 from pyfll.exceptions import FllError
+from pyfll.profile import RECOMMENDS_WHITELIST
 
 
 class AptMixin:
@@ -289,7 +290,10 @@ class AptMixin:
         pkgs_base = list(installed)
         pkgs_want = deduplicate_list(pkgs_base + list(self.profiles[chroot].packages))
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
-        rec_pkgs = self.detect_recommended_packages(pkgs_dict, available, installed)
+        rec_pkgs = self.detect_recommended_packages(
+            pkgs_dict, available, installed,
+            recommended_by=self.profiles[chroot].recommended_by,
+        )
         pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + rec_pkgs)
         pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
         loc_list = (
@@ -354,14 +358,67 @@ class AptMixin:
                     )
                 return
 
-            reasons = self._parse_apt_problems(output)
-            if reasons:
+            diagnosis, cascade = self._parse_apt_problems(output)
+            if diagnosis:
                 self.log.error(f"{chroot} - apt could not satisfy the selection:")
-                for line in reasons:
+                for line in diagnosis:
+                    self.log.error(f"{chroot} -     {line}")
+                # The conflict is over a package the resolver picked, usually a
+                # library rather than an authored name. Trace it back to the
+                # profile/module package list, the only thing the user actually
+                # controls, naming the file each culprit is in. A whitelisted
+                # recommend is the most common cause and we already know which
+                # package pulled it in, so check that first.
+                profile = self.profiles[chroot]
+                authored = set(profile.packages)
+                for pkg in self._conflict_subjects(diagnosis):
+                    recommenders = profile.recommended_by.get(pkg)
+                    if recommenders:
+                        self.log.error(
+                            f"{chroot} - {pkg} was added as a Recommends of "
+                            f"{self._pkg_origins(profile, recommenders)}, "
+                            f"whitelisted in {RECOMMENDS_WHITELIST}"
+                        )
+                    elif pkg in authored:
+                        src = profile.sources.get(pkg)
+                        where = ", ".join(sorted(src)) if src else "the build config"
+                        self.log.error(
+                            f"{chroot} - {pkg} is named directly in {where}"
+                        )
+                    elif pullers := self._selected_rdepends(chroot, pkg, authored):
+                        self.log.error(
+                            f"{chroot} - {pkg} was pulled in by "
+                            f"{self._pkg_origins(profile, pullers)}"
+                        )
+                    else:
+                        self.log.error(
+                            f"{chroot} - {pkg} could not be traced to a "
+                            f"profile/module package (installed as a dependency)"
+                        )
+
+            # The solver names its conflicting packages in the indented lines
+            # after 'E:'. When it did, the cascade of downstream "not going to
+            # be installed" lines is noise: demote it to debug (still in the
+            # full log file) and lead with the diagnosis above. Otherwise the
+            # cascade is all we have, so show it and point at the culprits.
+            detailed = any(not line.startswith("E:") for line in diagnosis)
+            if cascade and detailed:
+                for line in cascade:
+                    self.log.debug(f"{chroot} -     {line}")
+                self.log.error(
+                    f"{chroot} - ({len(cascade)} downstream unmet-dependency "
+                    f"line(s) suppressed; see debug log for the full cascade)"
+                )
+            elif cascade:
+                if not diagnosis:
+                    self.log.error(
+                        f"{chroot} - apt could not satisfy the selection:"
+                    )
+                for line in cascade:
                     self.log.error(f"{chroot} -     {line}")
                 culprits = sorted(
                     p for p in additions
-                    if any(r.split(" :", 1)[0] == p for r in reasons)
+                    if any(r.split(" :", 1)[0] == p for r in cascade)
                 )
                 if culprits:
                     self.log.error(
@@ -415,25 +472,92 @@ class AptMixin:
         )
         return result.returncode, result.stdout
 
-    def _parse_apt_problems(self, output: str) -> list:
-        """Pull the useful lines out of apt's simulate output: the indented
-        entries under "unmet dependencies:" plus any 'E:' error lines."""
-        problems = []
-        in_block = False
+    def _parse_apt_problems(self, output: str) -> tuple:
+        """Split apt's simulate output into (diagnosis, cascade).
+
+        diagnosis: the 'E:' error line(s) and the indented lines the solver
+            prints after them - its conflicting assignments, i.e. the actual
+            reason the selection is unsatisfiable.
+        cascade: the '<pkg> : Depends: ...' entries under "unmet
+            dependencies:", which are mostly downstream fallout once the root
+            conflict is known.
+        """
+        diagnosis = []
+        cascade = []
+        target = None
         for line in output.splitlines():
             stripped = line.strip()
             if not stripped:
-                in_block = False
+                target = None
             elif "have unmet dependencies:" in stripped:
-                in_block = True
+                target = cascade
             elif line.startswith("E:"):
-                in_block = False
-                problems.append(stripped)
-            elif in_block and line[:1].isspace():
-                problems.append(stripped)
-            elif in_block:
-                in_block = False
-        return problems
+                target = diagnosis
+                diagnosis.append(stripped)
+            elif target is not None and line[:1].isspace():
+                target.append(stripped)
+            else:
+                target = None
+        return diagnosis, cascade
+
+    def _conflict_subjects(self, diagnosis: list) -> list:
+        """Extract the package names from the solver's numbered conflicting-
+        assignment lines ('1. <name>:<arch>=<ver> is selected for install'),
+        stripping the :architecture and =version suffixes."""
+        subjects = []
+        for line in diagnosis:
+            head, sep, rest = line.partition(".")
+            if not (sep and head.strip().isdigit() and rest.strip()):
+                continue
+            token = rest.strip().split()[0]
+            name = token.split("=", 1)[0].split(":", 1)[0]
+            if name and name not in subjects:
+                subjects.append(name)
+        return subjects
+
+    def _pkg_origins(self, profile, pkgs: list) -> str:
+        """Render *pkgs* with the profile/module file each was declared in, e.g.
+        'mpv (modules/hyprland-extra)'. Packages with no recorded source (added
+        from build config rather than a file) are shown bare."""
+        parts = []
+        for pkg in sorted(pkgs):
+            sources = profile.sources.get(pkg)
+            if sources:
+                parts.append(f"{pkg} ({', '.join(sorted(sources))})")
+            else:
+                parts.append(pkg)
+        return ", ".join(parts)
+
+    def _selected_rdepends(self, chroot: str, pkg: str, selected: set) -> list:
+        """Return the members of *selected* that reverse-depend on *pkg*,
+        directly or transitively, per apt-cache. Identifies which profile/module
+        package dragged an otherwise-uninstallable package into the resolution."""
+        aptcache = [
+            "apt-cache", "rdepends", "--recurse",
+            "--no-suggests", "--no-conflicts", "--no-breaks",
+            "--no-replaces", "--no-enhances",
+        ]
+        # Mirror the install's recommends policy so the trace only follows
+        # edges the resolver actually would have.
+        if self.conf["options"].get("apt_recommends", "no") == "no":
+            aptcache.append("--no-recommends")
+        aptcache.append(pkg)
+        result = subprocess.run(
+            self._nspawn_cmd(chroot, aptcache),
+            env=self.env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+        names = set()
+        for line in result.stdout.splitlines():
+            # Dependents are indented; alternatives carry a leading '|'.
+            if not line[:1].isspace():
+                continue
+            name = line.strip().lstrip("|").strip().split(" ")[0].split(":", 1)[0]
+            if name:
+                names.add(name)
+        return sorted((names & selected) - {pkg})
 
     def install_flatpaks(self, chroot: str) -> None:
         """Install flatpaks"""

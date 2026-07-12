@@ -395,6 +395,11 @@ pyfll (2026.1) UNRELEASED; urgency=low
     essential) and pick up the session-wide Qt/GTK theme environment.
   * lxqt-compositors: add the Miriway compositor (and swaybg for
     wallpaper) as a new LXQt Wayland session option.
+  * apt: on package install failure, lead with apt's own conflict
+    diagnosis and move the noisy unmet-dependency cascade to the debug
+    log.
+  * apt: trace a failing package back to the profile, module or
+    recommends whitelist file that pulled it in.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
