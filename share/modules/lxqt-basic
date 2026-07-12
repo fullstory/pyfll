@@ -6,7 +6,9 @@ packages = """
 	featherpad
 	gvfs-backends
 	gvfs-fuse
+	kdialog
 	kvirc
+	nm-tray
 	pavucontrol-qt
 	screengrab
 """

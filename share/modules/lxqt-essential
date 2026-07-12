@@ -7,7 +7,6 @@ packages = """
 	dbus-user-session
 	dbus-x11
 	gnome-themes-extra
-	kdialog
 	lxqt-core
 		lximage-qt
 		lxqt-about
@@ -31,7 +30,6 @@ packages = """
 		gtklock
 			librsvg2-common
 	mint-y-icons
-	nm-tray
 	openbox
 		obconf-qt
 	sddm
