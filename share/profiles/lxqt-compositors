@@ -10,7 +10,10 @@ modules = """
 	distro-tools-x
 	essential
 	hwsupport-essential
+	labwc-essential
+	hyprland-essential
 	lxqt-essential
+	sway-essential
 	utils-essential
 	utils-x
 	xserver
@@ -18,12 +21,10 @@ modules = """
 
 packages = """
 	hyprland
-	hyprland-protocols
 	kwin-wayland
 	labwc
 	miriway
 	sway
-	swaybg
 	wayfire
 	wayfire-plugin-winshadows
 """

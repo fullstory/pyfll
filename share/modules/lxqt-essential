@@ -5,6 +5,7 @@ desc = """
 packages = """
 	bibata-cursor-theme
 	dbus-user-session
+	dbus-x11
 	gnome-themes-extra
 	kdialog
 	lxqt-core
