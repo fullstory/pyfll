@@ -561,11 +561,10 @@ class PackageProfileMixin:
                         for pkg in packages
                     ]
                 )
+            os.chown(manifest_file, self.opts.uid, self.opts.gid)
         except OSError:
             self.log.exception(f"failed to write file: {manifest_file}")
             raise FllError
-        finally:
-            os.chown(manifest_file, self.opts.uid, self.opts.gid)
 
         if self.opts.binary:
             return
@@ -588,8 +587,7 @@ class PackageProfileMixin:
         try:
             with open(sources_file, "w") as sources_fh:
                 sources_fh.writelines([f"{s}\n" for s in sources_list])
+            os.chown(sources_file, self.opts.uid, self.opts.gid)
         except OSError:
             self.log.exception(f"failed to write filename: {sources_file}")
             raise FllError
-        finally:
-            os.chown(sources_file, self.opts.uid, self.opts.gid)

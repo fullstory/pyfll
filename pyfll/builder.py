@@ -569,15 +569,15 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             sha256sum = self.hashsum(iso_file)
             with open(sha256_file, "w") as f:
                 f.write("%s *%s\n" % (sha256sum, os.path.basename(iso_file)))
+            os.chown(sha256_file, self.opts.uid, self.opts.gid)
         except OSError:
             self.log.exception("failed to write hashsum file")
             raise FllError
-        finally:
-            os.chown(sha256_file, self.opts.uid, self.opts.gid)
-            if self.opts.hashkey:
-                self.log.info(f"signing {sha256_file}...")
-                self.sign_file(sha256_file)
-                os.chown(sha256_file + ".gpg", self.opts.uid, self.opts.gid)
+
+        if self.opts.hashkey:
+            self.log.info(f"signing {sha256_file}...")
+            self.sign_file(sha256_file)
+            os.chown(sha256_file + ".gpg", self.opts.uid, self.opts.gid)
 
         for f in glob.glob("%s*" % os.path.splitext(iso_file)[0]):
             self.log.info(f)
