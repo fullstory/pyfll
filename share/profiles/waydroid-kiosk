@@ -7,10 +7,12 @@ desc = """
 
 modules = """
 	distro
+	distro-tools
 	essential
 	hwsupport-essential
 	cage-kiosk-essential
 	utils-essential
+	xserver
 """
 
 packages = """
