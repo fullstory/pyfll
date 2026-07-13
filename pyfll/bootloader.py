@@ -627,6 +627,8 @@ class BootloaderMixin:
                     indent += "  "
                     kcfg.write("if cpuid -l; then\n")
                     kcfg.write(f'{indent}havekernel="Y"\n')
+                else:
+                    kcfg.write(f'{indent}havekernel="Y"\n')
 
                 if len(self.chroots) > 1 and len(desktops) > 1:
                     title = f"{distro} [{', '.join(desktops)}]"
@@ -730,6 +732,8 @@ class BootloaderMixin:
                 if arch[0:3] == "amd":
                     indent += "  "
                     kcfg.write("if cpuid -l; then\n")
+                    kcfg.write(f'{indent}havekernel="Y"\n')
+                else:
                     kcfg.write(f'{indent}havekernel="Y"\n')
 
                 if len(self.chroots) > 1 and len(desktops) > 1:
