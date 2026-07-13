@@ -416,6 +416,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * rename firefox-kiosk profile to browser-kiosk: fullscreen user-
     managed default browser (x-www-browser) via browser-kiosk-aptosid,
     instead of a locked Firefox --kiosk.
+  * pyfll: exit with status 130 (rather than 0) on Ctrl+c
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
