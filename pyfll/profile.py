@@ -503,6 +503,33 @@ class PackageProfileMixin:
                     }
         return packages
 
+    def _resolve_source_uris(self, chroot: str, srcpkg_specs: list) -> str:
+        """Retrieve 'apt-get source --print-uris' output for srcpkg_specs.
+
+        A single unresolvable spec (a repo with no deb-src, a source renamed
+        or superseded in the pool since the chroot was populated, etc.) fails
+        the whole batch, so on failure retry package-by-package and skip+warn
+        on individual misses instead of aborting manifest generation."""
+        try:
+            return self.chroot_output(
+                chroot, ["apt-get", "source", "--print-uris"] + srcpkg_specs
+            )
+        except FllError:
+            self.log.warning(
+                f"{chroot} - bulk source URI resolution failed; "
+                "retrying package-by-package"
+            )
+
+        output = ""
+        for spec in srcpkg_specs:
+            try:
+                output += self.chroot_output(
+                    chroot, ["apt-get", "source", "--print-uris", spec], quiet=True
+                )
+            except FllError:
+                self.log.warning(f"{chroot} - could not resolve source package: {spec}")
+        return output
+
     def write_manifest(self, chroot: str) -> None:
         """Collect package and source package URI information from each chroot."""
         self.log.info(f"{chroot} - writing package manifest...")
@@ -545,14 +572,7 @@ class PackageProfileMixin:
 
         self.log.info(f"{chroot} - writing source package URIs...")
         srcpkg_specs = source_pkg_specs(status, packages)
-
-        try:
-            output = self.chroot_output(
-                chroot, ["apt-get", "source", "--print-uris"] + srcpkg_specs
-            )
-        except FllError:
-            self.log.critical("failed to retrieve source URIs")
-            raise
+        output = self._resolve_source_uris(chroot, srcpkg_specs)
         uris = [
             line.split("'")[1]
             for line in output.splitlines()

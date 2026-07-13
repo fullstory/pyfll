@@ -86,12 +86,22 @@ class ChrootExecMixin:
             self._nspawn_cmd(chroot, args, capability=capability), quiet=quiet
         )
 
-    def chroot_output(self, chroot: str, args: list) -> str:
-        """Run command in a chroot and return captured stdout."""
+    def chroot_output(self, chroot: str, args: list, quiet: bool = False) -> str:
+        """Run command in a chroot and return captured stdout.
+
+        With *quiet*, a failure is logged at debug level (not CRITICAL) - e.g.
+        a caller probing whether an individual package resolves, where a miss
+        is expected and handled rather than fatal."""
         cmd = self._nspawn_cmd(chroot, args)
         self.log.debug(shlex.join(cmd))
         result = subprocess.run(cmd, env=self.env, capture_output=True, text=True)
         if result.returncode != 0:
-            self.log.critical(result.stderr.strip())
+            # nspawn can route the child's real error text onto its own
+            # stdout; fall back to it when stderr is empty.
+            message = result.stderr.strip() or result.stdout.strip()
+            if quiet:
+                self.log.debug(f"command failed: {shlex.join(cmd)}\n{message}")
+            else:
+                self.log.critical(message)
             raise FllError
         return result.stdout

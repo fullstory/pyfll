@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
 
+import logging
 import os
 
+from pyfll.exceptions import FllError
 from pyfll.profile import (
     PackageProfileMixin,
     parse_dependency_groups,
@@ -134,3 +136,66 @@ def test_read_apt_packages_missing_lists_dir(tmp_path):
     profile = PackageProfileMixin.__new__(PackageProfileMixin)
     profile.temp = str(tmp_path)
     assert profile._read_apt_packages("chroot") == {}
+
+
+def _make_profile_with_log():
+    profile = PackageProfileMixin.__new__(PackageProfileMixin)
+    profile.log = logging.getLogger("test_resolve_source_uris")
+    return profile
+
+
+def test_resolve_source_uris_bulk_success(caplog):
+    profile = _make_profile_with_log()
+    calls = []
+
+    def fake_chroot_output(chroot, args, quiet=False):
+        calls.append(args)
+        return "'http://example/foo_1.0.dsc' foo_1.0.dsc 100 SHA256:abc\n"
+
+    profile.chroot_output = fake_chroot_output
+
+    output = profile._resolve_source_uris("chroot", ["foo=1.0", "bar=2.0"])
+
+    assert len(calls) == 1
+    assert calls[0] == ["apt-get", "source", "--print-uris", "foo=1.0", "bar=2.0"]
+    assert "foo_1.0.dsc" in output
+
+
+def test_resolve_source_uris_falls_back_per_package_and_skips_failures(caplog):
+    """One unresolvable spec must not take down the whole batch (the bug
+    behind the fll-live-boot/libxml2 failures in a real sid build log)."""
+    profile = _make_profile_with_log()
+    calls = []
+
+    def fake_chroot_output(chroot, args, quiet=False):
+        calls.append((args, quiet))
+        if len(args) > 4:
+            # the bulk attempt: simulate one bad spec poisoning the batch
+            raise FllError
+        spec = args[-1]
+        if spec == "broken=1.0":
+            raise FllError
+        return f"'http://example/{spec}.dsc' ok 1 SHA256:abc\n"
+
+    profile.chroot_output = fake_chroot_output
+
+    with caplog.at_level(logging.WARNING):
+        output = profile._resolve_source_uris(
+            "chroot", ["foo=1.0", "broken=1.0", "bar=2.0"]
+        )
+
+    # bulk attempt, then one call per spec
+    assert len(calls) == 1 + 3
+    assert calls[0][0] == [
+        "apt-get", "source", "--print-uris", "foo=1.0", "broken=1.0", "bar=2.0",
+    ]
+    # per-package retries are quiet (skip+warn is expected, not fatal)
+    assert all(quiet for _, quiet in calls[1:])
+
+    assert "foo=1.0" in output
+    assert "bar=2.0" in output
+    assert "broken=1.0" not in output
+
+    warnings = [r.message for r in caplog.records]
+    assert any("bulk source URI resolution failed" in w for w in warnings)
+    assert any("could not resolve source package: broken=1.0" in w for w in warnings)
