@@ -9,6 +9,7 @@ packages = """
 	cage
 	dbus-user-session
 	greetd
+	network-manager
 	pipewire
 	pipewire-pulse
 	uwsm
