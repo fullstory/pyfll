@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 
+from pyfll.exceptions import FllError
 from pyfll.util import run_process
 
 SGDISK = "/usr/sbin/sgdisk"
@@ -414,7 +415,7 @@ def storage_partition_dev(
                 return os.path.realpath(f"{real_device}p{partnum}")
             else:
                 return os.path.realpath(f"{real_device}{partnum}")
-    sys.exit(f"error: could not determine storage partition on {device}")
+    raise FllError(f"error: could not determine storage partition on {device}")
 
 
 def read_last_partition_sectors(
@@ -596,7 +597,7 @@ def write_iso(
         log_fn(f"Detecting bootloader in {iso}...")
         bootloader = detect_bootloader(iso, verbose=verbose, log_fn=log_fn)
         if bootloader is None:
-            sys.exit("error: could not detect bootloader in ISO")
+            raise FllError("error: could not detect bootloader in ISO")
         log_fn(f"Detected bootloader: {bootloader}")
 
         if bootloader == "grub":
@@ -606,7 +607,7 @@ def write_iso(
                     iso, verbose=verbose, log_fn=log_fn
                 )
                 if persist_uuid is None:
-                    sys.exit(
+                    raise FllError(
                         "error: persist_uuid not found in boot/grub/kernels.cfg\n"
                         "       Was the ISO built with pyfll --persist?"
                     )
@@ -692,7 +693,7 @@ def write_iso(
             )
             persist_uuid = blkid_out[0].strip() if blkid_out else None
             if not persist_uuid:
-                sys.exit(
+                raise FllError(
                     f"error: could not read UUID from {btrfs_dev} after mkfs.btrfs"
                 )
 
@@ -708,7 +709,7 @@ def write_iso(
         if bootloader != "grub":
             esp_dev = find_esp_partition(device, verbose=verbose, log_fn=log_fn)
             if esp_dev is None:
-                sys.exit("error: EFI System Partition not found on device")
+                raise FllError("error: EFI System Partition not found on device")
             inject_cmdline_param_into_esp(
                 esp_dev, "persist_uuid", persist_uuid,
                 verbose=verbose, log_fn=log_fn,
@@ -760,9 +761,9 @@ def upgrade_iso(
     if not persist_luks_uuid:
         persist_luks_uuid = iso_persist_luks_uuid
     if not persist_uuid:
-        sys.exit("error: could not determine target persist_uuid from ISO boot config")
+        raise FllError("error: could not determine target persist_uuid from ISO boot config")
     if encrypt and not persist_luks_uuid:
-        sys.exit(
+        raise FllError(
             "error: could not determine target persist_luks_uuid from ISO boot config"
         )
     log_fn(f"Target persist_uuid: {persist_uuid}")
@@ -785,13 +786,13 @@ def upgrade_iso(
             f" type={persist_part_sectors[2]}"
         )
     elif encrypt:
-        sys.exit("error: could not read fll-persist partition sectors before upgrade")
+        raise FllError("error: could not read fll-persist partition sectors before upgrade")
 
     if has_persist:
         new_iso_mib = iso_size_mib(iso)
         persist_start_mib = persist_part_sectors[0] // MIB_SECTORS
         if new_iso_mib >= persist_start_mib:
-            sys.exit(
+            raise FllError(
                 f"error: new ISO ({new_iso_mib} MiB) would overwrite fll-persist "
                 f"(starts at {persist_start_mib} MiB) -- upgrade aborted"
             )
@@ -812,7 +813,7 @@ def upgrade_iso(
                 capture_output=True,
             )
             if result.returncode != 0:
-                sys.exit(f"error: {part_dev_pre} is not a LUKS container")
+                raise FllError(f"error: {part_dev_pre} is not a LUKS container")
             log_fn("Unlocking persist partition to verify it (you will be "
                    "prompted again to apply the upgrade)...")
             luks_open_interactive(
@@ -825,14 +826,14 @@ def upgrade_iso(
                 )
             except subprocess.CalledProcessError:
                 luks_close("fll-persist-check", verbose=verbose, log_fn=log_fn)
-                sys.exit(check_abort)
+                raise FllError(check_abort)
             luks_close("fll-persist-check", verbose=verbose, log_fn=log_fn)
         else:
             try:
                 log_fn("Checking persist filesystem before upgrade...")
                 btrfs_check(part_dev_pre, verbose=verbose, log_fn=log_fn)
             except subprocess.CalledProcessError:
-                sys.exit(check_abort)
+                raise FllError(check_abort)
 
     log_fn(f"Upgrading ISO on {device} (dd conv=notrunc)...")
     subprocess.run(
@@ -892,7 +893,7 @@ def upgrade_iso(
                 capture_output=True,
             )
             if result.returncode != 0:
-                sys.exit(f"error: {part_dev} is not a LUKS container after restore")
+                raise FllError(f"error: {part_dev} is not a LUKS container after restore")
             # Conform the LUKS header UUID to the new boot config, then unlock.
             log_fn(f"Re-stamping LUKS header UUID -> {persist_luks_uuid}...")
             luks_set_uuid(part_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn)
@@ -1010,6 +1011,8 @@ def main() -> None:
                 encrypt=args.encrypt,
                 verbose=args.verbose,
             )
+    except FllError as exc:
+        sys.exit(str(exc))
     except (subprocess.CalledProcessError, OSError) as exc:
         sys.exit(f"error: isodd failed: {exc}")
 

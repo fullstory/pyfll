@@ -598,7 +598,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                     verbose=self.opts.verbose,
                     log_fn=self.log.info,
                 )
-            except subprocess.CalledProcessError:
+            except (subprocess.CalledProcessError, FllError):
                 self.log.exception("isodd failed")
                 raise FllError
 
@@ -612,7 +612,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                     verbose=self.opts.verbose,
                     log_fn=self.log.info,
                 )
-            except subprocess.CalledProcessError:
+            except (subprocess.CalledProcessError, FllError):
                 self.log.exception("upgrade_iso failed")
                 raise FllError
 
