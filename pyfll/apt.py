@@ -723,7 +723,7 @@ class AptMixin:
 
     def zero_logs(self, chroot: str, dirname: str, filenames: list) -> None:
         """Truncate all log files."""
-        chrootdir = dirname.partition(chroot)[2]
+        chrootdir = os.path.relpath(dirname, os.path.join(self.temp, chroot))
 
         for f in filenames:
             if not os.path.isfile(os.path.join(dirname, f)):

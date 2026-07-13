@@ -430,6 +430,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
     level.
   * Improve proxy URI handling such that it can handle all valid characters
     that may appear in an address, remove sed command.
+  * Properly split paths in zero_logs().
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

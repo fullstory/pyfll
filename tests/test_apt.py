@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
 
 import logging
+import os
 
 from pyfll.apt import AptMixin, proxy_uri
 
@@ -126,3 +127,24 @@ def test_write_apt_lists_rewrites_uris_line_with_hash_and_ampersand(tmp_path, mo
     assert "URIs: http://localhost:3142/apt.example#weird&value\n" in text
     assert "Types: deb\n" in text
     assert "Suites: sid\n" in text
+
+
+def test_zero_logs_handles_chroot_name_embedded_in_build_path(tmp_path):
+    """dirname.partition(chroot)[2] split at the FIRST occurrence of the
+    chroot name anywhere in the path -- including inside the build dir
+    itself (e.g. a build root of /srv/amd64/build with chroot 'amd64')."""
+    chroot = "amd64"
+    temp = tmp_path / "amd64" / "build"
+    dirname = temp / chroot / "var" / "log" / "apt"
+    dirname.mkdir(parents=True)
+    (dirname / "history.log").write_text("junk\n")
+
+    written = []
+
+    profile = AptMixin.__new__(AptMixin)
+    profile.temp = str(temp)
+    profile.write_file = lambda chroot, filename, mode=0o644: written.append(filename)
+
+    profile.zero_logs(chroot, str(dirname), ["history.log"])
+
+    assert written == [os.path.join("var", "log", "apt", "history.log")]
