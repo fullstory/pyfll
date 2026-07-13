@@ -1,0 +1,22 @@
+desc = """
+	Waydroid kiosk appliance. Boots straight into full-screen Waydroid
+	(Android in a container) running in the cage compositor, uwsm-managed.
+	Proof of concept: Waydroid needs a one-time "waydroid init" (image
+	download) and the binder kernel modules at runtime.
+"""
+
+modules = """
+	distro
+	essential
+	hwsupport-essential
+	cage-kiosk-essential
+	utils-essential
+"""
+
+packages = """
+	waydroid-kiosk-aptosid
+"""
+
+desktops = """
+	waydroid-kiosk
+"""

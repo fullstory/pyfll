@@ -408,6 +408,11 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * sway-essential: replace tuigreet with gtkgreet as the greetd
     greeter.
   * sway-essential: add cage to host the gtkgreet greeter.
+  * add cage-kiosk-essential module and firefox-kiosk / waydroid-kiosk
+    appliance profiles (proof of concept): single-app Wayland kiosks in
+    the cage compositor, uwsm-managed. waydroid-kiosk.postinst downloads
+    the Android images at build time into waydroid's preinstalled path
+    so they are not downloaded into the runtime RAM overlay.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

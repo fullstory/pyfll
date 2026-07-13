@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+"""Download the Waydroid Android images into a preinstalled path at build time."""
+
+import json
+import os
+import shutil
+import sys
+import tempfile
+import urllib.request
+import zipfile
+
+# waydroid's first-precedence preinstalled_images_path (the override slot): at
+# runtime "waydroid init" uses images here in place (read-only, on the squashfs)
+# instead of downloading them into the RAM-backed /var/lib/waydroid overlay.
+# waydroid-init.service runs that init.
+IMAGES = "/etc/waydroid-extra/images"
+SYSTEM_OTA = "https://ota.waydro.id/system/lineage/waydroid_x86_64/VANILLA.json"
+VENDOR_OTA = "https://ota.waydro.id/vendor/waydroid_x86_64/MAINLINE.json"
+
+
+def latest(ota_url):
+    with urllib.request.urlopen(ota_url, timeout=120) as response:
+        return max(json.load(response)["response"], key=lambda e: e["datetime"])
+
+
+def fetch_extract(entry):
+    # Plain urlopen, like waydroid's own downloader: a browser User-Agent makes
+    # SourceForge serve its HTML interstitial instead of redirecting to the file.
+    fd, tmp = tempfile.mkstemp(suffix=".zip")
+    os.close(fd)
+    try:
+        with urllib.request.urlopen(entry["url"], timeout=120) as response, \
+                open(tmp, "wb") as handle:
+            shutil.copyfileobj(response, handle)
+        with zipfile.ZipFile(tmp) as archive:
+            archive.extractall(IMAGES)
+    finally:
+        os.unlink(tmp)
+
+
+def main(argv):
+    if len(argv) < 2 or argv[1] != "postinst":
+        print(f"Usage: {argv[0]} postinst", file=sys.stderr)
+        return 0
+    if os.path.exists(os.path.join(IMAGES, "system.img")):
+        return 0
+    print(f"I: Downloading Waydroid images into {IMAGES}...")
+    os.makedirs(IMAGES, exist_ok=True)
+    fetch_extract(latest(SYSTEM_OTA))
+    fetch_extract(latest(VENDOR_OTA))
+    print("I: downloaded Waydroid system + vendor images")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

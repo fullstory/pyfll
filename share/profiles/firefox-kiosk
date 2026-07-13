@@ -1,0 +1,21 @@
+desc = """
+	Firefox kiosk appliance. Boots straight into full-screen Firefox running
+	in the cage compositor, uwsm-managed for a proper systemd/XDG session.
+	Proof of concept.
+"""
+
+modules = """
+	distro
+	essential
+	hwsupport-essential
+	cage-kiosk-essential
+	utils-essential
+"""
+
+packages = """
+	firefox-kiosk-aptosid
+"""
+
+desktops = """
+	firefox-kiosk
+"""

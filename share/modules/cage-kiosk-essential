@@ -1,0 +1,19 @@
+desc = """
+	Shared plumbing for cage-based Wayland kiosk appliance sessions: the
+	cage compositor, uwsm session manager, greetd autologin, and the
+	socket-activated audio and portal stack that uwsm's graphical-session.target
+	brings up (pipewire and friends).
+"""
+
+packages = """
+	cage
+	dbus-user-session
+	greetd
+	pipewire
+	pipewire-pulse
+	uwsm
+	wireplumber
+	xdg-desktop-portal
+	xdg-desktop-portal-gtk
+	xdg-desktop-portal-wlr
+"""
