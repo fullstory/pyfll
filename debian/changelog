@@ -425,6 +425,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
     step.
   * Failed OSError/FllError on write is no longer masked by a finally-
     block chown on a nonexistent files.
+  * pyfll: quiet the bulk source URI resolution attempt too, so an
+    expected fallback doesn't dump apt's full raw output at CRITICAL
+    level.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

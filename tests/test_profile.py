@@ -189,8 +189,9 @@ def test_resolve_source_uris_falls_back_per_package_and_skips_failures(caplog):
     assert calls[0][0] == [
         "apt-get", "source", "--print-uris", "foo=1.0", "broken=1.0", "bar=2.0",
     ]
-    # per-package retries are quiet (skip+warn is expected, not fatal)
-    assert all(quiet for _, quiet in calls[1:])
+    # bulk and per-package retries are all quiet: a miss here is expected and
+    # handled, not a reason to dump apt's full raw output at CRITICAL level
+    assert all(quiet for _, quiet in calls)
 
     assert "foo=1.0" in output
     assert "bar=2.0" in output

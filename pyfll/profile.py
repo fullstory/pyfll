@@ -512,7 +512,9 @@ class PackageProfileMixin:
         on individual misses instead of aborting manifest generation."""
         try:
             return self.chroot_output(
-                chroot, ["apt-get", "source", "--print-uris"] + srcpkg_specs
+                chroot,
+                ["apt-get", "source", "--print-uris"] + srcpkg_specs,
+                quiet=True,
             )
         except FllError:
             self.log.warning(
