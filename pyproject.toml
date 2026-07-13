@@ -17,9 +17,15 @@ pyfll     = "pyfll.builder:main"
 gpthybrid = "pyfll.gpt:main"
 isodd     = "pyfll.isodd:main"
 
+[project.optional-dependencies]
+test = ["pytest"]
+
 [tool.setuptools]
 script-files = ["fll"]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["pyfll*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

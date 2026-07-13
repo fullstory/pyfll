@@ -16,6 +16,22 @@ from pyfll.util import deduplicate_list, multiline_to_list
 RECOMMENDS_WHITELIST = os.path.join("modules", "recommends")
 
 
+def source_pkg_specs(status: dict, packages: list) -> list:
+    """Build deduplicated apt-get source specs ('<source>=<source_version>')
+    from parsed dpkg status data, skipping cdebootstrap-helper packages."""
+    seen = set()
+    specs = []
+    for pkg in packages:
+        if pkg.startswith("cdebootstrap-helper"):
+            continue
+        srcpkg = status[pkg]["source"]
+        srcver = status[pkg]["source_version"]
+        if (srcpkg, srcver) not in seen:
+            seen.add((srcpkg, srcver))
+            specs.append(f"{srcpkg}={srcver}")
+    return specs
+
+
 def parse_dependency_groups(dep_str: str) -> list:
     """Parse a Depends/Recommends string into a list of OR groups.
     Each group is a list of package names (version constraints stripped)."""
@@ -528,16 +544,7 @@ class PackageProfileMixin:
             return
 
         self.log.info(f"{chroot} - writing source package URIs...")
-        srcpkg_seen = set()
-        srcpkg_specs = []
-        for pkg in packages:
-            if pkg.startswith("cdebootstrap-helper"):
-                continue
-            srcpkg = status[pkg]["source"]
-            srcver = status[pkg]["source_version"]
-            if (srcpkg, srcver) not in srcpkg_seen:
-                srcpkg_seen.add((srcpkg, srcver))
-                srcpkg_specs.append(f"{srcpkg}={srcver}")
+        srcpkg_specs = source_pkg_specs(status, packages)
 
         try:
             output = self.chroot_output(
