@@ -92,16 +92,40 @@ class ChrootExecMixin:
         With *quiet*, a failure is logged at debug level (not CRITICAL) - e.g.
         a caller probing whether an individual package resolves, where a miss
         is expected and handled rather than fatal."""
+        if self._abort.is_set():
+            raise FllError
+
         cmd = self._nspawn_cmd(chroot, args)
         self.log.debug(shlex.join(cmd))
-        result = subprocess.run(cmd, env=self.env, capture_output=True, text=True)
-        if result.returncode != 0:
-            # nspawn can route the child's real error text onto its own
-            # stdout; fall back to it when stderr is empty.
-            message = result.stderr.strip() or result.stdout.strip()
-            if quiet:
-                self.log.debug(f"command failed: {shlex.join(cmd)}\n{message}")
-            else:
-                self.log.critical(message)
+
+        proc = None
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                env=self.env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+            )
+            with self._procs_lock:
+                self._procs.add(proc)
+            # Lost the race with an abort fired between the check and the add.
+            if self._abort.is_set():
+                proc.terminate()
+            stdout, stderr = proc.communicate()
+            if proc.returncode != 0:
+                # nspawn can route the child's real error text onto its own
+                # stdout; fall back to it when stderr is empty.
+                message = stderr.strip() or stdout.strip()
+                if quiet or self._abort.is_set():
+                    self.log.debug(f"command failed: {shlex.join(cmd)}\n{message}")
+                else:
+                    self.log.critical(message)
+                raise FllError
+            return stdout
+        except KeyboardInterrupt:
             raise FllError
-        return result.stdout
+        finally:
+            if proc is not None:
+                with self._procs_lock:
+                    self._procs.discard(proc)
