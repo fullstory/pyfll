@@ -154,9 +154,9 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         profiles = " ".join(self.conf["chroots"][chroot]["packages"]["profile"])
         stamp = self.conf["distro"]["FLL_DISTRO_NAME"]
         if self.conf["distro"].get("FLL_DISTRO_CODENAME"):
-            stamp += f" {self.conf["distro"]['FLL_DISTRO_CODENAME']}"
+            stamp += f' {self.conf["distro"]["FLL_DISTRO_CODENAME"]}'
         if self.conf["distro"].get("FLL_DISTRO_CODENAME_REV"):
-            stamp += f" {self.conf["distro"]['FLL_DISTRO_CODENAME_REV']}"
+            stamp += f' {self.conf["distro"]["FLL_DISTRO_CODENAME_REV"]}'
         stamp += f" - {profiles} - {self.timestamp}"
 
         self.log.debug(f"stamp: {stamp}")
