@@ -528,16 +528,16 @@ class PackageProfileMixin:
             return
 
         self.log.info(f"{chroot} - writing source package URIs...")
-        srcpkg_seen = dict()
+        srcpkg_seen = set()
         srcpkg_specs = []
         for pkg in packages:
             if pkg.startswith("cdebootstrap-helper"):
                 continue
             srcpkg = status[pkg]["source"]
-            pkgver = status[pkg]["version"]
-            if srcpkg not in srcpkg_seen:
-                srcpkg_seen[srcpkg] = True
-                srcpkg_specs.append(f"{pkg}={pkgver}")
+            srcver = status[pkg]["source_version"]
+            if (srcpkg, srcver) not in srcpkg_seen:
+                srcpkg_seen.add((srcpkg, srcver))
+                srcpkg_specs.append(f"{srcpkg}={srcver}")
 
         try:
             output = self.chroot_output(
