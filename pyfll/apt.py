@@ -4,9 +4,20 @@
 import os
 import shutil
 import subprocess
+from urllib.parse import urlsplit
 
 from pyfll.exceptions import FllError
 from pyfll.profile import RECOMMENDS_WHITELIST
+
+
+def proxy_uri(proxy: str, uri: str) -> str:
+    """Rewrite *uri* to go through an apt-cacher-ng-style *proxy* base URL:
+    proxy + '/' + netloc + path. URIs with no netloc (e.g. file:/path) can't
+    be proxied this way, so they're returned unchanged."""
+    parts = urlsplit(uri)
+    if not parts.netloc:
+        return uri
+    return f"{proxy}/{parts.netloc}{parts.path}"
 
 
 class AptMixin:
@@ -122,7 +133,7 @@ class AptMixin:
             mirror = dist_repo["uri"]
             apt_proxy = self._detect_apt_proxy()
             if apt_proxy:
-                mirror = apt_proxy + "/" + mirror.split("//")[1]
+                mirror = proxy_uri(apt_proxy, mirror)
 
         target = os.path.join(self.temp, chroot)
 
@@ -144,7 +155,7 @@ class AptMixin:
             repo_uri = repo.get("uri")
             cached_uri = repo.get("cached")
             if not cached_uri and apt_proxy and repo_uri:
-                cached_uri = apt_proxy + "/" + repo_uri.split("//")[1]
+                cached_uri = proxy_uri(apt_proxy, repo_uri)
             sources_uri = repo.get("sources_uri")
             if sources_uri:
                 cmd = ["wget", "--quiet", sources_uri, "-O"]
@@ -158,15 +169,23 @@ class AptMixin:
                 self.exec_cmd(cmd)
 
                 if cached and cached_uri:
-                    cmd = ["sed", "-i", f"s#^URIs: .*#URIs: {cached_uri}#"]
-                    cmd.append(
-                        os.path.join(
-                            chroot_dir,
-                            "etc/apt/sources.list.d",
-                            os.path.basename(sources_uri),
-                        )
+                    wget_sources_file = os.path.join(
+                        chroot_dir,
+                        "etc/apt/sources.list.d",
+                        os.path.basename(sources_uri),
                     )
-                    self.exec_cmd(cmd)
+                    try:
+                        with open(wget_sources_file) as sources_file_fh:
+                            lines = sources_file_fh.readlines()
+                        with open(wget_sources_file, "w") as sources_file_fh:
+                            for line in lines:
+                                if line.startswith("URIs:"):
+                                    sources_file_fh.write(f"URIs: {cached_uri}\n")
+                                else:
+                                    sources_file_fh.write(line)
+                    except OSError:
+                        self.log.exception(f"failed to rewrite {wget_sources_file}")
+                        raise FllError
                 continue
 
             sources_file = os.path.join(
