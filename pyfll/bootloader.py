@@ -600,6 +600,82 @@ class BootloaderMixin:
             raise FllError
         getattr(self, stage_fn)(chroot)
 
+    def _write_grub_kernels_cfg(self, kcfg, distro, timeout, boot_path) -> None:
+        """Write the kernels.cfg body shared by the BIOS and EFI grub writers:
+        per-chroot, cpuid-gated menuentries (one per desktop, or a bare fallback
+        when a chroot declares none) plus the trailing 'no suitable kernels'
+        entry. boot_path(chroot) returns the (linux, initrd) targets to write
+        into each menuentry."""
+        for chroot in self.chroots:
+            arch = self.conf["chroots"][chroot]["packages"]["arch"]
+            cmdline = self.config_boot_cmdline(distro, chroot)
+            indent = ""
+            desktops = self.ordered_desktops(chroot)
+            linux_target, initrd_target = boot_path(chroot)
+
+            if arch[0:3] == "amd":
+                indent += "  "
+                kcfg.write("if cpuid -l; then\n")
+                kcfg.write(f'{indent}havekernel="Y"\n')
+            else:
+                kcfg.write(f'{indent}havekernel="Y"\n')
+
+            if len(self.chroots) > 1 and len(desktops) > 1:
+                title = f"{distro} [{', '.join(desktops)}]"
+                kcfg.write(
+                    f'{indent}submenu --class={distro}.{arch} "{title}"' + " {\n"
+                )
+                indent += "  "
+
+            for desktop in desktops:
+                title = f"{distro} {desktop}"
+                # arch is passed to the --class option so that a 64bit fred icon
+                # may be displayed next to the menu entry by gfxboot theme
+                kcfg.write(
+                    f'{indent}menuentry --class={distro}.{arch} "{title}"' + " {\n"
+                )
+                kcfg.write(
+                    f"{indent}  linux {linux_target} {cmdline} desktop={desktop} $kopts\n"
+                )
+                kcfg.write(f"{indent}  initrd {initrd_target}\n")
+                kcfg.write(f"{indent}" + "}\n")
+
+            if not desktops:
+                title = f"{distro} {chroot}"
+                kcfg.write(
+                    f'{indent}menuentry --class={distro}.{arch} "{title}"'
+                    + " {\n"
+                )
+                kcfg.write(f"{indent}  linux {linux_target} {cmdline} $kopts\n")
+                kcfg.write(f"{indent}  initrd {initrd_target}\n")
+                kcfg.write(f"{indent}" + "}\n")
+
+            if len(self.chroots) > 1 and len(desktops) > 1:
+                indent = indent[:-2]
+                kcfg.write(f"{indent}" + "}\n")
+
+            if arch[0:3] == "amd":
+                kcfg.write("fi\n")
+
+        kcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
+        kcfg.write(
+            '  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {\n'
+        )
+        kcfg.write("    echo $@\n")
+        kcfg.write(
+            '    echo "There are no kernels suitable for this machine available."\n'
+        )
+        kcfg.write('    echo ""\n')
+        kcfg.write("    if ! cpuid -l; then\n")
+        kcfg.write('      echo "This machine is NOT 64bit capable."\n')
+        kcfg.write("    fi\n")
+        kcfg.write('    echo ""\n')
+        kcfg.write('    echo "Press Escape to halt computer."\n')
+        kcfg.write(f"    sleep --verbose --interruptible {timeout}\n")
+        kcfg.write("    halt\n")
+        kcfg.write("  }\n")
+        kcfg.write("fi\n")
+
     def write_grub_cfg(self) -> None:
         """Write grub.cfg for live media."""
         self.log.info("writing grub.cfg for live media...")
@@ -609,84 +685,19 @@ class BootloaderMixin:
         distro = self.conf["distro"]["FLL_DISTRO_NAME"]
         timeout = self.conf["options"].get("boot_timeout", "-1")
 
+        for chroot in self.chroots:
+            for filename in [f"vmlinuz-{chroot}", f"initrd.img-{chroot}"]:
+                if not os.path.isfile(os.path.join(boot_dir, filename)):
+                    self.log.critical(f"{filename} was not found in {boot_dir}")
+                    raise FllError
+
         with open(os.path.join(grub_dir, "kernels.cfg"), "w") as kcfg:
-            for chroot in self.chroots:
-                vmlinuz = f"vmlinuz-{chroot}"
-                initrd = f"initrd.img-{chroot}"
-                arch = self.conf["chroots"][chroot]["packages"]["arch"]
-                cmdline = self.config_boot_cmdline(distro, chroot)
-                indent = ""
-                desktops = self.ordered_desktops(chroot)
-
-                for filename in [vmlinuz, initrd]:
-                    if not os.path.isfile(os.path.join(boot_dir, filename)):
-                        self.log.critical(f"{filename} was not found in {boot_dir}")
-                        raise FllError
-
-                if arch[0:3] == "amd":
-                    indent += "  "
-                    kcfg.write("if cpuid -l; then\n")
-                    kcfg.write(f'{indent}havekernel="Y"\n')
-                else:
-                    kcfg.write(f'{indent}havekernel="Y"\n')
-
-                if len(self.chroots) > 1 and len(desktops) > 1:
-                    title = f"{distro} [{', '.join(desktops)}]"
-                    kcfg.write(
-                        f'{indent}submenu --class={distro}.{arch} "{title}"' + " {\n"
-                    )
-                    indent += "  "
-
-                for desktop in desktops:
-                    title = f"{distro} {desktop}"
-                    # arch is passed to the --class option so that a 64bit fred icon
-                    # may be displayed next to the menu entry by gfxboot theme
-                    kcfg.write(
-                        f'{indent}menuentry --class={distro}.{arch} "{title}"' + " {\n"
-                    )
-                    kcfg.write(
-                        f"{indent}  linux /boot/{vmlinuz} {cmdline} desktop={desktop} $kopts\n"
-                    )
-                    kcfg.write(f"{indent}  initrd /boot/{initrd}\n")
-                    kcfg.write(f"{indent}" + "}\n")
-
-                if not desktops:
-                    title = f"{distro} {chroot}"
-                    kcfg.write(
-                        f'{indent}menuentry --class={distro}.{arch} "{title}"'
-                        + " {\n"
-                    )
-                    kcfg.write(
-                        f"{indent}  linux /boot/{vmlinuz} {cmdline} $kopts\n"
-                    )
-                    kcfg.write(f"{indent}  initrd /boot/{initrd}\n")
-                    kcfg.write(f"{indent}" + "}\n")
-
-                if len(self.chroots) > 1 and len(desktops) > 1:
-                    indent = indent[:-2]
-                    kcfg.write(f"{indent}" + "}\n")
-
-                if arch[0:3] == "amd":
-                    kcfg.write("fi\n")
-
-            kcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
-            kcfg.write(
-                '  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {\n'
+            self._write_grub_kernels_cfg(
+                kcfg,
+                distro,
+                timeout,
+                lambda c: (f"/boot/vmlinuz-{c}", f"/boot/initrd.img-{c}"),
             )
-            kcfg.write("    echo $@\n")
-            kcfg.write(
-                '    echo "There are no kernels suitable for this machine available."\n'
-            )
-            kcfg.write('    echo ""\n')
-            kcfg.write("    if ! cpuid -l; then\n")
-            kcfg.write('      echo "This machine is NOT 64bit capable."\n')
-            kcfg.write("    fi\n")
-            kcfg.write('    echo ""\n')
-            kcfg.write('    echo "Press Escape to halt computer."\n')
-            kcfg.write(f"    sleep --verbose --interruptible {timeout}\n")
-            kcfg.write("    halt\n")
-            kcfg.write("  }\n")
-            kcfg.write("fi\n")
 
         self.log.debug("writing loopback.cfg for live media")
         with open(os.path.join(grub_dir, "loopback.cfg"), "w") as lcfg:
@@ -720,75 +731,13 @@ class BootloaderMixin:
         timeout = self.conf["options"].get("boot_timeout", "-1")
 
         with open(os.path.join(esp_grub_dir, "kernels.cfg"), "w") as kcfg:
-            for chroot in self.chroots:
-                # Kernel and initramfs live in /{chroot}/ on the FAT volume
-                vmlinuz = f"/{chroot}/vmlinuz"
-                initrd = f"/{chroot}/initrd"
-                arch = self.conf["chroots"][chroot]["packages"]["arch"]
-                cmdline = self.config_boot_cmdline(distro, chroot)
-                indent = ""
-                desktops = self.ordered_desktops(chroot)
-
-                if arch[0:3] == "amd":
-                    indent += "  "
-                    kcfg.write("if cpuid -l; then\n")
-                    kcfg.write(f'{indent}havekernel="Y"\n')
-                else:
-                    kcfg.write(f'{indent}havekernel="Y"\n')
-
-                if len(self.chroots) > 1 and len(desktops) > 1:
-                    title = f"{distro} [{', '.join(desktops)}]"
-                    kcfg.write(
-                        f'{indent}submenu --class={distro}.{arch} "{title}"' + " {\n"
-                    )
-                    indent += "  "
-
-                for desktop in desktops:
-                    title = f"{distro} {desktop}"
-                    kcfg.write(
-                        f'{indent}menuentry --class={distro}.{arch} "{title}"' + " {\n"
-                    )
-                    kcfg.write(
-                        f"{indent}  linux {vmlinuz} {cmdline} desktop={desktop} $kopts\n"
-                    )
-                    kcfg.write(f"{indent}  initrd {initrd}\n")
-                    kcfg.write(f"{indent}" + "}\n")
-
-                if not desktops:
-                    title = f"{distro} {chroot}"
-                    kcfg.write(
-                        f'{indent}menuentry --class={distro}.{arch} "{title}"'
-                        + " {\n"
-                    )
-                    kcfg.write(f"{indent}  linux {vmlinuz} {cmdline} $kopts\n")
-                    kcfg.write(f"{indent}  initrd {initrd}\n")
-                    kcfg.write(f"{indent}" + "}\n")
-
-                if len(self.chroots) > 1 and len(desktops) > 1:
-                    indent = indent[:-2]
-                    kcfg.write(f"{indent}" + "}\n")
-
-                if arch[0:3] == "amd":
-                    kcfg.write("fi\n")
-
-            kcfg.write('if [ "${havekernel}" != "Y" ]; then\n')
-            kcfg.write(
-                '  menuentry --class=find.none "NO SUITABLE KERNELS AVAILABLE" {\n'
+            # Kernel and initramfs live in /{chroot}/ on the FAT volume.
+            self._write_grub_kernels_cfg(
+                kcfg,
+                distro,
+                timeout,
+                lambda c: (f"/{c}/vmlinuz", f"/{c}/initrd"),
             )
-            kcfg.write("    echo $@\n")
-            kcfg.write(
-                '    echo "There are no kernels suitable for this machine available."\n'
-            )
-            kcfg.write('    echo ""\n')
-            kcfg.write("    if ! cpuid -l; then\n")
-            kcfg.write('      echo "This machine is NOT 64bit capable."\n')
-            kcfg.write("    fi\n")
-            kcfg.write('    echo ""\n')
-            kcfg.write('    echo "Press Escape to halt computer."\n')
-            kcfg.write(f"    sleep --verbose --interruptible {timeout}\n")
-            kcfg.write("    halt\n")
-            kcfg.write("  }\n")
-            kcfg.write("fi\n")
 
         self.log.debug("writing variable.cfg for grub-efi")
         with open(os.path.join(esp_grub_dir, "variable.cfg"), "w") as vcfg:
