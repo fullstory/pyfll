@@ -157,7 +157,9 @@ def test_resolve_source_uris_bulk_success(caplog):
     output = profile._resolve_source_uris("chroot", ["foo=1.0", "bar=2.0"])
 
     assert len(calls) == 1
-    assert calls[0] == ["apt-get", "source", "--print-uris", "foo=1.0", "bar=2.0"]
+    assert calls[0] == [
+        "apt-get", "source", "--print-uris", "--only-source", "foo=1.0", "bar=2.0",
+    ]
     assert "foo_1.0.dsc" in output
 
 
@@ -169,8 +171,9 @@ def test_resolve_source_uris_falls_back_per_package_and_skips_failures(caplog):
 
     def fake_chroot_output(chroot, args, quiet=False):
         calls.append((args, quiet))
-        if len(args) > 4:
-            # the bulk attempt: simulate one bad spec poisoning the batch
+        if len(args) > 5:
+            # the bulk attempt (>1 spec after the fixed prefix): simulate one
+            # bad spec poisoning the batch
             raise FllError
         spec = args[-1]
         if spec == "broken=1.0":
@@ -187,7 +190,8 @@ def test_resolve_source_uris_falls_back_per_package_and_skips_failures(caplog):
     # bulk attempt, then one call per spec
     assert len(calls) == 1 + 3
     assert calls[0][0] == [
-        "apt-get", "source", "--print-uris", "foo=1.0", "broken=1.0", "bar=2.0",
+        "apt-get", "source", "--print-uris", "--only-source",
+        "foo=1.0", "broken=1.0", "bar=2.0",
     ]
     # bulk and per-package retries are all quiet: a miss here is expected and
     # handled, not a reason to dump apt's full raw output at CRITICAL level

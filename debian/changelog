@@ -448,6 +448,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * doc/typo sweep: fix Vaules typo, note --debug/--verbose force -j to
     1, tidy locales.py docstring (fix stale map arg name), README note
     on the keyring bootstrap's unauthenticated step
+  * pyfll: pass --only-source to apt-get source, so a source name that
+    is also a transitional binary of another source (e.g. libxml2 vs
+    libxml2.9) resolves to the right source instead of failing manifest
+    generation.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

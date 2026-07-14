@@ -506,6 +506,12 @@ class PackageProfileMixin:
     def _resolve_source_uris(self, chroot: str, srcpkg_specs: list) -> str:
         """Retrieve 'apt-get source --print-uris' output for srcpkg_specs.
 
+        Specs are '<source>=<source_version>'; --only-source forces apt to
+        treat the name as a source package. Without it apt reads the name as a
+        binary first, so a source (e.g. libxml2) whose name is also shipped as
+        a transitional binary of a different source (libxml2.9) mis-resolves
+        and fails.
+
         A single unresolvable spec (a repo with no deb-src, a source renamed
         or superseded in the pool since the chroot was populated, etc.) fails
         the whole batch, so on failure retry package-by-package and skip+warn
@@ -513,7 +519,7 @@ class PackageProfileMixin:
         try:
             return self.chroot_output(
                 chroot,
-                ["apt-get", "source", "--print-uris"] + srcpkg_specs,
+                ["apt-get", "source", "--print-uris", "--only-source"] + srcpkg_specs,
                 quiet=True,
             )
         except FllError:
@@ -526,7 +532,9 @@ class PackageProfileMixin:
         for spec in srcpkg_specs:
             try:
                 output += self.chroot_output(
-                    chroot, ["apt-get", "source", "--print-uris", spec], quiet=True
+                    chroot,
+                    ["apt-get", "source", "--print-uris", "--only-source", spec],
+                    quiet=True,
                 )
             except FllError:
                 self.log.warning(f"{chroot} - could not resolve source package: {spec}")
