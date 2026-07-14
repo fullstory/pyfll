@@ -62,3 +62,23 @@ def test_write_grub_efi_cfg_sets_havekernel_for_non_amd_arch(tmp_path):
     # long-mode check
     assert "if cpuid -l" not in text
     assert "NO SUITABLE KERNELS AVAILABLE" in text
+
+
+def test_write_grub_efi_cfg_per_desktop_entries_and_no_fallback_menuentry(tmp_path):
+    """A chroot with desktops gets one menuentry per desktop and must NOT
+    also get the empty-desktops fallback entry (the two used to be for/else
+    branches of the same for loop; verify both still fire independently)."""
+    bl = _make_arm64_bootloader(tmp_path)
+    bl.chroots = ["amd64chroot"]
+    bl.profiles = {
+        "amd64chroot": types.SimpleNamespace(desktops={"xfce", "sway"})
+    }
+    bl.conf["chroots"] = {"amd64chroot": {"packages": {"arch": "amd64"}}}
+
+    bl.write_grub_efi_cfg()
+
+    kernels_cfg = os.path.join(tmp_path, "staging", "efi/boot/grub", "kernels.cfg")
+    text = open(kernels_cfg).read()
+
+    assert text.count("menuentry --class=aptosid.amd64") == 2
+    assert 'menuentry --class=aptosid.amd64 "aptosid amd64chroot"' not in text

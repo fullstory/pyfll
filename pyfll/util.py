@@ -5,6 +5,8 @@ import shlex
 import subprocess
 import uuid
 
+from pyfll.exceptions import FllError
+
 
 def run_process(
     cmd: list[str], verbose: bool = False, log_fn=print
@@ -47,7 +49,15 @@ def uuidgen() -> str:
 
 def host_timezone() -> str:
     """Return timezone of host system."""
-    tz = subprocess.run(
-        ["timedatectl", "show", "--property=Timezone", "--value"], capture_output=True
-    )
-    return tz.stdout.decode().strip("\n")
+    try:
+        tz = subprocess.run(
+            ["timedatectl", "show", "--property=Timezone", "--value"],
+            capture_output=True,
+            check=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as exc:
+        raise FllError(f"could not determine host timezone via timedatectl: {exc}")
+    timezone = tz.stdout.decode().strip("\n")
+    if not timezone:
+        raise FllError("timedatectl returned an empty timezone")
+    return timezone

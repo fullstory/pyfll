@@ -279,8 +279,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         with open(chroot_filename, "w") as filehandle:
             self.log.debug(f"writing file: {filename}")
             if filename == "/etc/default/distro":
-                distro_defaults = self.conf["distro"].keys()
-                distro_defaults.sort()
+                distro_defaults = sorted(self.conf["distro"].keys())
                 for key in distro_defaults:
                     if key.startswith("FLL_DISTRO_CODENAME"):
                         continue

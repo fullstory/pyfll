@@ -649,18 +649,18 @@ class BootloaderMixin:
                     )
                     kcfg.write(f"{indent}  initrd /boot/{initrd}\n")
                     kcfg.write(f"{indent}" + "}\n")
-                else:
-                    if len(desktops) == 0:
-                        title = f"{distro} {chroot}"
-                        kcfg.write(
-                            f'{indent}menuentry --class={distro}.{arch} "{title}"'
-                            + " {\n"
-                        )
-                        kcfg.write(
-                            f"{indent}  linux /boot/{vmlinuz} {cmdline} $kopts\n"
-                        )
-                        kcfg.write(f"{indent}  initrd /boot/{initrd}\n")
-                        kcfg.write(f"{indent}" + "}\n")
+
+                if not desktops:
+                    title = f"{distro} {chroot}"
+                    kcfg.write(
+                        f'{indent}menuentry --class={distro}.{arch} "{title}"'
+                        + " {\n"
+                    )
+                    kcfg.write(
+                        f"{indent}  linux /boot/{vmlinuz} {cmdline} $kopts\n"
+                    )
+                    kcfg.write(f"{indent}  initrd /boot/{initrd}\n")
+                    kcfg.write(f"{indent}" + "}\n")
 
                 if len(self.chroots) > 1 and len(desktops) > 1:
                     indent = indent[:-2]
@@ -753,16 +753,16 @@ class BootloaderMixin:
                     )
                     kcfg.write(f"{indent}  initrd {initrd}\n")
                     kcfg.write(f"{indent}" + "}\n")
-                else:
-                    if len(desktops) == 0:
-                        title = f"{distro} {chroot}"
-                        kcfg.write(
-                            f'{indent}menuentry --class={distro}.{arch} "{title}"'
-                            + " {\n"
-                        )
-                        kcfg.write(f"{indent}  linux {vmlinuz} {cmdline} $kopts\n")
-                        kcfg.write(f"{indent}  initrd {initrd}\n")
-                        kcfg.write(f"{indent}" + "}\n")
+
+                if not desktops:
+                    title = f"{distro} {chroot}"
+                    kcfg.write(
+                        f'{indent}menuentry --class={distro}.{arch} "{title}"'
+                        + " {\n"
+                    )
+                    kcfg.write(f"{indent}  linux {vmlinuz} {cmdline} $kopts\n")
+                    kcfg.write(f"{indent}  initrd {initrd}\n")
+                    kcfg.write(f"{indent}" + "}\n")
 
                 if len(self.chroots) > 1 and len(desktops) > 1:
                     indent = indent[:-2]
