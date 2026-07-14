@@ -658,7 +658,7 @@ class AptMixin:
         initramfs_comp = self.conf["options"].get("initramfs_comp")
         kvers = self.detect_linux_version(chroot)
         for kernel in kvers:
-            cmd = ""
+            cmd = None
             if initramfs_tool == "initramfs-tools":
                 cmd = ["update-initramfs", "-c", "-k", kernel]
                 if self.opts.verbose or self.opts.debug:
@@ -679,6 +679,9 @@ class AptMixin:
                     cmd.append("--verbose")
                 elif self.opts.quiet:
                     cmd.append("--quiet")
+            if cmd is None:
+                self.log.critical(f"unknown initramfs_tool: {initramfs_tool!r}")
+                raise FllError
             self.chroot_exec(chroot, cmd)
 
     def hold_kernel_packages(self, chroot: str) -> None:
