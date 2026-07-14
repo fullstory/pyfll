@@ -24,7 +24,7 @@ from pyfll.bootloader import BootloaderMixin
 from pyfll.chroot import ChrootExecMixin
 from pyfll.exceptions import FllError
 from pyfll.gpt import run_gpthybrid
-from pyfll.isodd import write_iso
+from pyfll.isodd import upgrade_iso, write_iso
 from pyfll.profile import PackageProfileMixin
 from pyfll.util import uuidgen
 
@@ -603,7 +603,6 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                 raise FllError
 
         if self.opts.upgrade:
-            from pyfll.isodd import upgrade_iso
             try:
                 upgrade_iso(
                     iso_file,
