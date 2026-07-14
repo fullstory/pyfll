@@ -16,13 +16,19 @@ from pyfll.util import deduplicate_list, multiline_to_list
 RECOMMENDS_WHITELIST = os.path.join("modules", "recommends")
 
 
+def is_manifest_package(name: str) -> bool:
+    """Whether a package belongs in the manifest and source list. Excludes
+    cdebootstrap-helper* scaffolding, which is purged from the final image."""
+    return not name.startswith("cdebootstrap-helper")
+
+
 def source_pkg_specs(status: dict, packages: list) -> list:
     """Build deduplicated apt-get source specs ('<source>=<source_version>')
     from parsed dpkg status data, skipping cdebootstrap-helper packages."""
     seen = set()
     specs = []
     for pkg in packages:
-        if pkg.startswith("cdebootstrap-helper"):
+        if not is_manifest_package(pkg):
             continue
         srcpkg = status[pkg]["source"]
         srcver = status[pkg]["source_version"]
@@ -486,7 +492,7 @@ class PackageProfileMixin:
         manifest = {
             name: data["version"]
             for name, data in status.items()
-            if not name.startswith("cdebootstrap-helper")
+            if is_manifest_package(name)
         }
         self.profiles[chroot].manifest = manifest
 
