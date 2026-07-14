@@ -838,7 +838,8 @@ def main() -> None:
         default=None,
         metavar="<N>",
         help="Number of chroots to build in parallel. "
-        + "Default: all chroots concurrently. Use 1 for serial output.",
+        + "Default: all chroots concurrently. Use 1 for serial output. "
+        + "Ignored (forced to 1) by --debug and --verbose.",
     )
     cli.add_argument(
         "-k",
@@ -856,7 +857,7 @@ def main() -> None:
         metavar="<locale>",
         default=[os.environ.get("LANG", "en_US").split(".")[0]],
         help="Fallback locales to use in all chroots. "
-        + "Vaules in config file override. Default: %(default)s",
+        + "Values in config file override. Default: %(default)s",
     )
     cli.add_argument(
         "-o",

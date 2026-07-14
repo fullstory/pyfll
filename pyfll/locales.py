@@ -7,17 +7,17 @@ from pyfll.exceptions import FllLocalesError
 class FllLocales(object):
     """
     A class which provides the ability to determine lists of locale specific
-    Debian packages using it's detect_locale_packages method.
+    Debian packages using its detect_locale_packages method.
 
     Arguments:
-    available - dict of available packages {name: {version, recommends}}
-    packages  - a list or dict of package names which are installed, or are
-                going to be installed. Locale specific packages are selected
-                for packages in this data structure.
-    map       - a dict which maps package names with a list of package prefixes
-                from which the locale string pattern matching can be used
-                to match locale support packages. The prefered input for map is:
-                ConfigObj('data/fll-locales-pkg-map').
+    available   - dict of available packages {name: {version, recommends}}
+    packages    - a list or dict of package names which are installed, or are
+                  going to be installed. Locale specific packages are selected
+                  for packages in this data structure.
+    locale_map  - a dict which maps package names with a list of package
+                  prefixes from which the locale string pattern matching can
+                  be used to match locale support packages. The preferred
+                  input for locale_map is: ConfigObj('data/fll-locales-pkg-map').
     """
 
     def __init__(self, available: dict, packages: list, locale_map: dict) -> None:

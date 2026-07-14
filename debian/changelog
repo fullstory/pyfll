@@ -445,6 +445,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
     AttributeError on a real dict_keys view
   * util: raise FllError on a missing/failing timedatectl or empty
     output, instead of silently reaching the kernel cmdline as tz=
+  * doc/typo sweep: fix Vaules typo, note --debug/--verbose force -j to
+    1, tidy locales.py docstring (fix stale map arg name), README note
+    on the keyring bootstrap's unauthenticated step
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

@@ -110,6 +110,12 @@ components = main fix.main
 keyring    = aptosid-archive-keyring
 ```
 
+Installing a named `keyring` package is the one unauthenticated step in the
+build: apt has no key yet to verify the keyring package itself, so that
+single `apt-get install` runs with `--allow-unauthenticated`. Every other
+package (including the rest of that repository's packages) is installed
+normally, verified against the keyring once it is in place.
+
 ---
 
 ## Persistent storage
