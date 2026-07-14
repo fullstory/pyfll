@@ -452,6 +452,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
     is also a transitional binary of another source (e.g. libxml2 vs
     libxml2.9) resolves to the right source instead of failing manifest
     generation.
+  * profile: factor the duplicated profile/module section parsing into
+    _merge_conf_sections and _register_maint_scripts, removing ~90 lines
+    of copy-paste (the two blocks only differed by origin label and the
+    profile-only modules section).
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

@@ -103,6 +103,47 @@ class FllProfile:
 class PackageProfileMixin:
     """Mixin providing package profile parsing, dependency resolution, and manifest writing."""
 
+    def _merge_conf_sections(self, conf, origin, arch, pkg_profile):
+        """Merge the sections common to a profile and a module ConfigObj into
+        pkg_profile. packages/packages_<arch> route through add_package so the
+        declaring file is recorded as each package's origin; the rest are plain
+        set adds. (A profile also carries `modules`, handled by the caller.)"""
+        if "desc" in conf:
+            for line in multiline_to_list(conf["desc"]):
+                self.log.debug(f"  {line}")
+
+        # (section, target set); target None means route through add_package.
+        sections = [
+            ("debconf", pkg_profile.debconf),
+            ("packages", None),
+            (f"packages_{arch}", None),
+            ("flatpaks", pkg_profile.flatpaks),
+            ("flatpaks_beta", pkg_profile.flatpaks_beta),
+            ("desktops", pkg_profile.desktops),
+            ("groups", pkg_profile.groups),
+        ]
+        for section, target in sections:
+            if section not in conf:
+                continue
+            self.log.debug(f"{section}:")
+            for line in multiline_to_list(conf[section]):
+                if target is None:
+                    pkg_profile.add_package(line, origin)
+                else:
+                    target.add(line)
+                self.log.debug(f"  {line}")
+
+    def _register_maint_scripts(self, base_path, pkg_profile):
+        """Register a profile/module's .preinst/.postinst scripts if present."""
+        for kind, target in (
+            ("preinst", pkg_profile.preinst),
+            ("postinst", pkg_profile.postinst),
+        ):
+            script = f"{base_path}.{kind}"
+            if os.path.isfile(script):
+                self.log.debug(f"registering {kind} script: {script}")
+                target.add(script)
+
     def expand_pkg_profile(
         self, chroot: str, profile: str, modules_dir: str
     ) -> FllProfile:
@@ -161,52 +202,7 @@ class PackageProfileMixin:
         self.validate_configobj(profile_conf)
         profile_origin = os.path.relpath(profile, self.opts.share)
 
-        if "desc" in profile_conf:
-            for line in multiline_to_list(profile_conf["desc"]):
-                self.log.debug(f"  {line}")
-
-        if "debconf" in profile_conf:
-            self.log.debug("debconf:")
-            for line in multiline_to_list(profile_conf["debconf"]):
-                pkg_profile.debconf.add(line)
-                self.log.debug(f"  {line}")
-
-        if "packages" in profile_conf:
-            self.log.debug("packages:")
-            for line in multiline_to_list(profile_conf["packages"]):
-                pkg_profile.add_package(line, profile_origin)
-                self.log.debug(f"  {line}")
-
-        packages_arch = f"packages_{arch}"
-        if packages_arch in profile_conf:
-            self.log.debug(f"packages_{arch}:")
-            for line in multiline_to_list(profile_conf[packages_arch]):
-                pkg_profile.add_package(line, profile_origin)
-                self.log.debug(f"  {line}")
-
-        if "flatpaks" in profile_conf:
-            self.log.debug("flatpaks:")
-            for line in multiline_to_list(profile_conf["flatpaks"]):
-                pkg_profile.flatpaks.add(line)
-                self.log.debug(f"  {line}")
-
-        if "flatpaks_beta" in profile_conf:
-            self.log.debug("flatpaks_beta:")
-            for line in multiline_to_list(profile_conf["flatpaks_beta"]):
-                pkg_profile.flatpaks_beta.add(line)
-                self.log.debug(f"  {line}")
-
-        if "desktops" in profile_conf:
-            self.log.debug("desktops:")
-            for line in multiline_to_list(profile_conf["desktops"]):
-                pkg_profile.desktops.add(line)
-                self.log.debug(f"  {line}")
-
-        if "groups" in profile_conf:
-            self.log.debug("groups:")
-            for line in multiline_to_list(profile_conf["groups"]):
-                pkg_profile.groups.add(line)
-                self.log.debug(f"  {line}")
+        self._merge_conf_sections(profile_conf, profile_origin, arch, pkg_profile)
 
         modules = set()
         if "modules" in profile_conf:
@@ -221,13 +217,7 @@ class PackageProfileMixin:
                 modules.add(module)
                 self.log.debug(f"  {module}")
 
-        if os.path.isfile(profile + ".preinst"):
-            self.log.debug(f"registering preinst script: {profile}.preinst")
-            pkg_profile.preinst.add(profile + ".preinst")
-
-        if os.path.isfile(profile + ".postinst"):
-            self.log.debug(f"registering postinst script: {profile}.postinst")
-            pkg_profile.postinst.add(profile + ".postinst")
+        self._register_maint_scripts(profile, pkg_profile)
 
         self.log.debug("---")
         fll_module_spec = os.path.join(self.opts.share, "fll.module.spec")
@@ -242,60 +232,8 @@ class PackageProfileMixin:
             self.validate_configobj(module_conf)
             module_origin = os.path.relpath(module_file, self.opts.share)
 
-            if "desc" in module_conf:
-                for line in multiline_to_list(module_conf["desc"]):
-                    self.log.debug(f"  {line}")
-
-            if "debconf" in module_conf:
-                self.log.debug("debconf:")
-                for line in multiline_to_list(module_conf["debconf"]):
-                    pkg_profile.debconf.add(line)
-                    self.log.debug(f"  {line}")
-
-            if "packages" in module_conf:
-                self.log.debug("packages:")
-                for line in multiline_to_list(module_conf["packages"]):
-                    pkg_profile.add_package(line, module_origin)
-                    self.log.debug(f"  {line}")
-
-            packages_arch = f"packages_{arch}"
-            if packages_arch in module_conf:
-                self.log.debug(f"packages_{arch}:")
-                for line in multiline_to_list(module_conf[packages_arch]):
-                    pkg_profile.add_package(line, module_origin)
-                    self.log.debug(f"  {line}")
-
-            if "flatpaks" in module_conf:
-                self.log.debug("flatpaks:")
-                for line in multiline_to_list(module_conf["flatpaks"]):
-                    pkg_profile.flatpaks.add(line)
-                    self.log.debug(f"  {line}")
-
-            if "flatpaks_beta" in module_conf:
-                self.log.debug("flatpaks_beta:")
-                for line in multiline_to_list(module_conf["flatpaks_beta"]):
-                    pkg_profile.flatpaks_beta.add(line)
-                    self.log.debug(f"  {line}")
-
-            if "desktops" in module_conf:
-                self.log.debug("desktops:")
-                for line in multiline_to_list(module_conf["desktops"]):
-                    pkg_profile.desktops.add(line)
-                    self.log.debug(f"  {line}")
-
-            if "groups" in module_conf:
-                self.log.debug("groups:")
-                for line in multiline_to_list(module_conf["groups"]):
-                    pkg_profile.groups.add(line)
-                    self.log.debug(f"  {line}")
-
-            if os.path.isfile(module_file + ".preinst"):
-                self.log.debug(f"registering preinst script: {module_file}.preinst")
-                pkg_profile.preinst.add(module_file + ".preinst")
-
-            if os.path.isfile(module_file + ".postinst"):
-                self.log.debug(f"registering postinst script: {module_file}.postinst")
-                pkg_profile.postinst.add(module_file + ".postinst")
+            self._merge_conf_sections(module_conf, module_origin, arch, pkg_profile)
+            self._register_maint_scripts(module_file, pkg_profile)
 
             self.log.debug("---")
 
