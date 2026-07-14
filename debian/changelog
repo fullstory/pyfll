@@ -458,6 +458,12 @@ pyfll (2026.1) UNRELEASED; urgency=low
     profile-only modules section).
   * bootloader: factor the duplicated grub kernels.cfg body shared
     by write_grub_cfg and write_grub_efi_cfg into _write_grub_kernels_cfg.
+  * packaging: setup.py no longer ships share/ bytecode caches
+    (__pycache__ and *.pyc) or *.local dev artifacts.
+  * packaging: align pyproject version to 2026.1, matching
+    debian/changelog.
+  * drop the dead erofs_uuid config knob - nothing read
+    options.erofs_uuid (mkfs.erofs uses the per-chroot uuid).
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

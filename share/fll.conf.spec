@@ -61,7 +61,6 @@ squashfs_processors  = integer(min=1, default=None)
 squashfs_throttle    = integer(1, 99, default=None)
 erofs_compression    = option('lz4', 'lz4hc', 'lzma', 'deflate', 'libdeflate', 'zstd', 'none', default='lzma')
 erofs_comp_level     = integer(min=1, default=None)
-erofs_uuid           = string(default='00000000-0000-0000-0000-000000000000')
 erofs_options        = string(default=None)
 
 [distro]
