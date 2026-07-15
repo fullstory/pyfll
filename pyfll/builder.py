@@ -988,9 +988,6 @@ def main() -> None:
     cli.add_argument(
         "--uid", action="store", type=int, help=argparse.SUPPRESS, default=os.getuid()
     )
-    cli.add_argument(
-        "--non-root", action="store_true", help=argparse.SUPPRESS, default=False
-    )
     arguments = cli.parse_args()
 
     try:

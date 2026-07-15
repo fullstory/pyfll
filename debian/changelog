@@ -495,6 +495,17 @@ pyfll (2026.1) UNRELEASED; urgency=low
     leading words (not characters) shared between consecutive chroots.
     e.g. cinnamon+labwc+lxqt no longer loses lxqt's leading 'l' (shared
     with labwc) to become '+xqt'.
+  * fll: rewrite the launcher robustly. Compute the caller's uid/gid
+    with id(1) (not getent $USER, which dumped the whole passwd db when
+    USER was unset), quote "$@" throughout, and match -h/--help exactly
+    instead of -h*/-n* globs. The su path now hands argv to a small
+    'exec "$@"' shell as positional parameters behind a leading '--', so
+    arguments (incl. --uid/--gid) survive intact - util-linux su
+    otherwise parses them as its own options and aborts. sudo path
+    preserved for sudo users; su retained for those without.
+  * builder: drop the vestigial --non-root CLI flag. It was parsed but
+    never acted on - the builder has no unprivileged mode (only isodd
+    requires root), so the flag promised something it never delivered.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

@@ -1,44 +1,46 @@
 #!/bin/sh -e
 
-# Copyright: (C) 2008-2024 Kel Modderman <kelvmod@gmail.com>
+# Copyright: (C) 2008-2026 Kel Modderman <kelvmod@gmail.com>
 # License:   GPLv2 or any later version
 
-# By default we execute this as root user
-ROOTEXEC=yes
+# fll - run pyfll as root while preserving the invoking user's uid/gid, so the
+# build output (ISO, logs, work dir) is owned by them rather than root.
 
-# Locate directory we are called from
-THIS_DIR=$(dirname $(readlink -f ${0}))
-
-# Locate pyfll: prefer source tree layout, fall back to installed PATH
-if [ -f "${THIS_DIR}/bin/pyfll" ]; then
+# Locate pyfll: prefer the source-tree layout, else fall back to PATH.
+THIS_DIR=$(dirname "$(readlink -f "$0")")
+if [ -x "${THIS_DIR}/bin/pyfll" ]; then
 	FLL="${THIS_DIR}/bin/pyfll"
 elif command -v pyfll >/dev/null 2>&1; then
-	FLL="$(command -v pyfll)"
+	FLL=$(command -v pyfll)
 else
-	echo "Error locating pyfll, aborting." >&2
+	echo "${0##*/}: cannot locate pyfll, aborting." >&2
 	exit 1
 fi
 
-# Get callers uid and gid for permission adjustment
-USER_UID=$(getent passwd ${USER} | cut -d\: -f3)
-USER_GID=$(getent passwd ${USER} | cut -d\: -f4)
-
-for arg in ${@}; do
+# --help just prints usage and exits; no privilege needed.
+for arg in "$@"; do
 	case "${arg}" in
-		-h*|--help|-n*|--non-root)
-			ROOTEXEC=no
-			break
+		-h|--help)
+			exec "${FLL}" "$@"
 			;;
 	esac
 done
 
-if [ "${ROOTEXEC}" = yes ]; then
-	if groups | grep -wq sudo; then
-		exec sudo "${FLL}" --uid ${USER_UID} --gid ${USER_GID} ${@}
-	else
-		ROOT_CMD="${FLL} --uid ${USER_UID} --gid ${USER_GID} ${@}"
-		exec su --command "${ROOT_CMD}" root
-	fi
+# Already root: run directly.
+if [ "$(id -u)" -eq 0 ]; then
+	exec "${FLL}" "$@"
+fi
+
+# Non-root: capture the caller's ids for pyfll to chown build output back to,
+# then elevate. Prefer sudo (passes argv directly); otherwise su, handing argv
+# to a tiny 'exec "$@"' shell as positional parameters so arguments survive
+# intact. The leading '--' stops su parsing our --uid/--gid/... as its own
+# options (which is what broke with util-linux su); the 'fll' token becomes $0.
+uid=$(id -u)
+gid=$(id -g)
+
+if command -v sudo >/dev/null 2>&1 && id -nG | grep -qw sudo; then
+	exec sudo -- "${FLL}" --uid "${uid}" --gid "${gid}" "$@"
 else
-	exec "${FLL}" ${@}
+	exec su --command 'exec "$@"' -- root fll "${FLL}" --uid "${uid}" --gid "${gid}" "$@"
 fi
