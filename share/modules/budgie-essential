@@ -1,0 +1,67 @@
+desc = """
+	Minimal Budgie desktop: compositor, session, panel applets and the
+	plumbing needed to operate with a proper look and feel.
+"""
+
+packages = """
+	bibata-cursor-theme
+	budgie-app-launcher-applet
+	budgie-applications-menu-applet
+	budgie-backgrounds
+	budgie-brightness-controller-applet
+	budgie-clockworks-applet
+	budgie-control-center
+	budgie-control-center-data
+	budgie-core
+	budgie-countdown-applet
+	budgie-desktop
+	budgie-desktop-environment
+	budgie-desktop-services
+	budgie-desktop-view
+	budgie-dropby-applet
+	budgie-extras-common
+	budgie-extras-daemon
+	budgie-fuzzyclock-applet
+	budgie-hotcorners-applet
+	budgie-indicator-applet
+	budgie-kangaroo-applet
+	budgie-keyboard-autoswitch-applet
+	budgie-network-manager-applet
+	budgie-previews
+	budgie-quickchar
+	budgie-quicknote-applet
+	budgie-recentlyused-applet
+	budgie-rotation-lock-applet
+	budgie-session
+	budgie-showtime-applet
+	budgie-takeabreak-applet
+	budgie-trash-applet
+	budgie-visualspace-applet
+	budgie-wallstreet
+	budgie-weathershow-applet
+	budgie-window-shuffler
+	budgie-workspace-stopwatch-applet
+	budgie-workspace-wallpaper-applet
+	celluloid
+	eom
+	evince
+	gedit
+	gir1.2-budgie-3.0
+	gir1.2-budgieraven-3.0
+	gnome-themes-extra
+	gstreamer1.0-gtk3
+	labwc
+	libbudgie-appindexer0
+	libbudgie-plugin0
+	libbudgie-private0
+	libbudgie-windowing0
+	libbudgietheme0
+	librsvg2-common
+	lightdm
+	lightdm-settings
+	mint-y-icons
+	nemo
+	slick-greeter
+	swaylock
+	zenity
+"""

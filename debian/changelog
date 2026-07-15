@@ -506,6 +506,14 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * builder: drop the vestigial --non-root CLI flag. It was parsed but
     never acted on - the builder has no unprivileged mode (only isodd
     requires root), so the flag promised something it never delivered.
+  * budgie: split the monolithic profile into budgie-essential and
+    budgie-extra modules and add a budgie-lite profile (essentials plus
+    general utils, no full-fat apps). budgie-core is added to the
+    recommends whitelist and labwc and swaylock are listed explicitly:
+    budgie-core only Recommends its compositor and locker, which live
+    builds strip, leaving the Wayland session with no compositor and
+    dropping it to the greeter with exit 127. The example fll.conf now
+    builds budgie-lite.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

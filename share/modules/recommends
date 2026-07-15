@@ -5,6 +5,7 @@ desc = """
 
 packages = """
 	bash
+	budgie-core
 	calamares
 	calamares-settings-aptosid
 	cups-browsed

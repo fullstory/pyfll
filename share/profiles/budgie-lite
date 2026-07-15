@@ -1,10 +1,10 @@
 desc = """
-	Budgie desktop environment.
+	Budgie desktop environment (lite): essentials plus general utilities,
+	without the full-fat applications.
 """
 
 modules = """
 	budgie-essential
-	budgie-extra
 	cli
 	distro
 	distro-budgie
@@ -13,7 +13,6 @@ modules = """
 	essential
 	hwsupport-essential
 	hwsupport-extra
-	libreoffice-suite
 	utils-essential
 	utils-extra
 	utils-x
