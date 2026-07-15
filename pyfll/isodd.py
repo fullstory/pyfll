@@ -579,6 +579,34 @@ def reset_system_subvol(
             run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
 
 
+def assert_device_unmounted(device: str) -> None:
+    """Refuse to write if *device*, or any partition/holder on it, is mounted.
+
+    Guards the one genuinely-catastrophic mistake -- a mistyped device name
+    pointing at an in-use disk (worst case the running system disk) -- by
+    erroring out so the admin can sort out their own mounts and retry. lsblk
+    reports the whole device tree, so a mounted partition (e.g. /dev/sdaN at /)
+    is caught even when the bare device is named. Also errors if *device*
+    cannot be inspected as a block device."""
+    result = subprocess.run(
+        ["lsblk", "--noheadings", "--raw", "--output", "MOUNTPOINT", device],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise FllError(
+            f"error: cannot inspect {device} as a block device: "
+            f"{result.stderr.strip() or 'lsblk failed'}"
+        )
+    mounts = [line for line in result.stdout.splitlines() if line.strip()]
+    if mounts:
+        raise FllError(
+            f"error: {device} or a partition on it is mounted at: "
+            f"{', '.join(mounts)}\n"
+            "       unmount it and retry -- isodd will not write to a mounted device."
+        )
+
+
 def write_iso(
     iso: str,
     device: str,
@@ -591,6 +619,7 @@ def write_iso(
 ) -> None:
     """Write *iso* to *device* with dd and optionally create a persistent
     btrfs storage partition."""
+    assert_device_unmounted(device)
     bootloader = None
 
     if persist:
@@ -752,6 +781,7 @@ def upgrade_iso(
     ``btrfstune -M`` and, when encrypted, the LUKS header UUID via
     ``cryptsetup luksUUID``. @home is preserved; @root is reset.
     """
+    assert_device_unmounted(device)
     # The UUIDs the freshly written boot config will look for at boot time.
     iso_persist_uuid, iso_persist_luks_uuid = read_iso_persist_uuids(
         iso, verbose=verbose, log_fn=log_fn
