@@ -48,6 +48,7 @@ packages = """
 	gedit
 	gir1.2-budgie-3.0
 	gir1.2-budgieraven-3.0
+	gnome-disk-utility
 	gnome-themes-extra
 	gstreamer1.0-gtk3
 	labwc
@@ -61,7 +62,9 @@ packages = """
 	lightdm-settings
 	mint-y-icons
 	nemo
+	nemo-fileroller
 	slick-greeter
 	swaylock
 	zenity
+	zoitechat
 """

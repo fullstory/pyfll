@@ -5,11 +5,8 @@ desc = """
 packages = """
 	brasero
 	gimp
-	gnome-disk-utility
 	gnome-font-viewer
 	libreoffice-gtk3
-	nemo-fileroller
 	rhythmbox
 	seahorse
-	zoitechat
 """
