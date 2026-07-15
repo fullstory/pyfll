@@ -994,7 +994,6 @@ def main() -> None:
         fll = FLLBuilder(arguments)
         fll.main()
     except KeyboardInterrupt:
-        print("Interrupted.", file=sys.stderr)
         sys.exit(130)
     except FllError:
         sys.exit(1)
