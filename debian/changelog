@@ -491,6 +491,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
     and the X11 cinnamon-settings-daemon plugins open a display -
     without it only the panel rendered; ibus provides the input-method
     daemon; xapp-sn-watcher the StatusNotifier tray watcher.
+  * builder: derive multichroot ISO names by stripping the common
+    leading words (not characters) shared between consecutive chroots.
+    e.g. cinnamon+labwc+lxqt no longer loses lxqt's leading 'l' (shared
+    with labwc) to become '+xqt'.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

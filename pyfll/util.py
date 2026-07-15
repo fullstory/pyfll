@@ -42,6 +42,23 @@ def multiline_to_list(lines: str) -> list:
     ]
 
 
+def strip_common_words(previous: str, current: str, sep: str = "-") -> str:
+    """Return *current* with its leading *sep*-delimited words that it shares
+    with *previous* removed. Word-based, not character-based: e.g. with
+    previous='debian-sid-amd64-labwc', current='debian-sid-amd64-lxqt' this
+    yields 'lxqt' (the shared 'debian','sid','amd64' words drop) -- not 'xqt',
+    which a character-level common-prefix would wrongly produce from the shared
+    leading 'l'."""
+    prev_words = previous.split(sep)
+    cur_words = current.split(sep)
+    common = 0
+    for p, c in zip(prev_words, cur_words):
+        if p != c:
+            break
+        common += 1
+    return sep.join(cur_words[common:])
+
+
 def uuidgen() -> str:
     """Return a random UUID string."""
     return str(uuid.uuid4())

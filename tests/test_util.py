@@ -7,11 +7,38 @@ import pytest
 
 import pyfll.util as util
 from pyfll.exceptions import FllError
-from pyfll.util import deduplicate_list, host_timezone, multiline_to_list
+from pyfll.util import (
+    deduplicate_list,
+    host_timezone,
+    multiline_to_list,
+    strip_common_words,
+)
 
 
 def test_deduplicate_list():
     assert deduplicate_list(["b", "a", "b", "c"]) == ["a", "b", "c"]
+
+
+def test_strip_common_words_word_boundary():
+    # the motivating bug: 'labwc' then 'lxqt' share a leading 'l' character but
+    # no leading word, so 'lxqt' must survive intact (not become 'xqt').
+    assert (
+        strip_common_words("debian-sid-amd64-labwc", "debian-sid-amd64-lxqt")
+        == "lxqt"
+    )
+    assert (
+        strip_common_words("debian-sid-amd64-cinnamon", "debian-sid-amd64-labwc")
+        == "labwc"
+    )
+
+
+def test_strip_common_words_no_common():
+    assert strip_common_words("foo-bar", "baz-qux") == "baz-qux"
+
+
+def test_strip_common_words_multiword_suffix():
+    # only whole shared leading words drop; the remainder rejoins with the sep
+    assert strip_common_words("debian-sid-amd64-x", "debian-sid-arm64-y") == "arm64-y"
 
 
 def test_multiline_to_list_skips_blank_and_comment_lines():

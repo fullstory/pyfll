@@ -26,7 +26,7 @@ from pyfll.exceptions import FllError
 from pyfll.gpt import run_gpthybrid
 from pyfll.isodd import upgrade_iso, write_iso
 from pyfll.profile import PackageProfileMixin
-from pyfll.util import uuidgen
+from pyfll.util import strip_common_words, uuidgen
 
 
 class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin):
@@ -502,8 +502,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
 
         iso_name = f"{distro_name}-{self.timestamp}.{self.run_id}.{self.chroots[0]}"
         for index, chroot in enumerate(self.chroots[1:]):
-            common_prefix = os.path.commonprefix([self.chroots[index], chroot])
-            iso_name += f"+{chroot.replace(common_prefix, '')}"
+            iso_name += f"+{strip_common_words(self.chroots[index], chroot)}"
         iso_name += ".iso"
         iso_file = os.path.join(self.opts.output_dir, iso_name)
 
