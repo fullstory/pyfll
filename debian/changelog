@@ -485,6 +485,12 @@ pyfll (2026.1) UNRELEASED; urgency=low
     public key into the image at /var/lib/fll/ssh_authorized_keys for
     non-root live-media access (off unless set). fll-live-boot's
     fll_sshd installs it and starts sshd at boot.
+  * modules: add xwayland, ibus and xapp-sn-watcher to cinnamon-
+    essential so the experimental Cinnamon-on-Wayland session
+    initialises. xwayland lets nemo-desktop (wallpaper + desktop icons)
+    and the X11 cinnamon-settings-daemon plugins open a display -
+    without it only the panel rendered; ibus provides the input-method
+    daemon; xapp-sn-watcher the StatusNotifier tray watcher.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

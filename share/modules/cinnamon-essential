@@ -10,13 +10,16 @@ packages = """
 	gnome-disk-utility
 	gnome-logs
 	gnome-system-monitor
-	srain
+	ibus
+	mint-y-icons
 	nemo
 	nemo-fileroller
-	mint-y-icons
 	slick-greeter
+	srain
 	system-config-printer
+	xapp-sn-watcher
 	xdg-desktop-portal-gtk
+	xwayland
 	zenity
 """
 
