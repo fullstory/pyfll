@@ -54,6 +54,7 @@ initramfs_tool  = option('dracut', 'initramfs-tools', default='dracut')
 initramfs_comp  = option('gzip', 'bzip2', 'lzma', 'xz', 'lzo', 'lz4', 'zstd', default=None)
 bootloader      = option('grub', 'grub-efi', 'systemd-boot', 'refind', default='grub')
 media_include   = string(default=None)
+ssh_authorized_keys = string(default=None)
 
 readonly_filesystem  = option('squashfs', 'erofs', default='squashfs')
 squashfs_comp        = option('gzip', 'lz4', 'lzo', 'xz', 'zstd', default='zstd')

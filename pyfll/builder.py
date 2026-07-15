@@ -347,6 +347,8 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         self.write_file(chroot, "/etc/motd.tail")
         self.write_file(chroot, "/etc/plymouth/plymouthd.conf")
 
+        self.write_ssh_authorized_keys(chroot)
+
         self.log.debug("writing final apt sources.list(s)")
         self.write_apt_lists(chroot, cached=self.opts.apt_cache)
 
@@ -368,6 +370,25 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             except OSError:
                 self.log.exception("failed to setup resolv.conf and resolved.conf")
                 raise FllError
+
+    def write_ssh_authorized_keys(self, chroot: str) -> None:
+        """Bake the configured SSH public key into the chroot at
+        /var/lib/fll/ssh_authorized_keys, for non-root live-media access. Off
+        unless ssh_authorized_keys is set; fll-live-boot's fll_sshd (gated on
+        this file's presence) installs it for the live user and starts sshd at
+        boot."""
+        keyfile = self.conf["options"].get("ssh_authorized_keys")
+        if not keyfile:
+            return
+        if not os.path.isfile(keyfile):
+            self.log.critical(f"ssh_authorized_keys file not found: {keyfile}")
+            raise FllError
+        dest_dir = os.path.join(self.temp, chroot, "var/lib/fll")
+        dest = os.path.join(dest_dir, "ssh_authorized_keys")
+        self.log.debug(f"baking {keyfile} -> /var/lib/fll/ssh_authorized_keys")
+        os.makedirs(dest_dir, exist_ok=True)
+        shutil.copy(keyfile, dest)
+        os.chmod(dest, 0o644)
 
     def hashsum(self, filename: str) -> str:
         """Return SHA-256 hex digest of a file."""
