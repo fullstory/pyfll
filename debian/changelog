@@ -467,6 +467,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * profile: dedupe the cdebootstrap-helper exclusion into a single
     is_manifest_package predicate, used by both source_pkg_specs and
     write_manifest, so the excluded-prefix lives in one place.
+  * profiles: add bibata-cursor-theme to the mate and mate-stripped
+    profiles; every other DE profile pulls it, but MATE omitted it, so
+    the Bibata-Modern-Ice cursor set by aptosid-settings-mate fell back
+    to the default.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

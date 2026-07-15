@@ -20,73 +20,74 @@ modules = """
 
 packages = """
 	atril
+	bibata-cursor-theme
 	blueman
 	celluloid
 	eom
 	gimp
 	gnome-disk-utility
 	gnome-themes-extra
-	zoitechat
+	gstreamer1.0-gtk3
+	libcanberra-gtk3-module
 	libreoffice-gtk3
-		gstreamer1.0-gtk3
 	librsvg2-common
 	lightdm
 	lightdm-settings
-	mate-desktop-environment
-	mate-desktop-environment-extras
 	mate-applet-appmenu
-	mate-hud
-	mate-power-manager-common
-	mate-user-admin
 	mate-applet-brisk-menu
-	mate-indicator-applet
-	mate-screensaver
-	mate-user-guide
 	mate-applets
-	mate-indicator-applet-common
-	mate-screensaver-common
-	mate-user-share
 	mate-applets-common
-	mate-media
-	mate-sensors-applet
-	mate-user-share-common
 	mate-backgrounds
-	mate-media-common
-	mate-sensors-applet-common
-	mate-utils
 	mate-calc
-	mate-menu
-	mate-sensors-applet-nvidia
-	mate-utils-common
 	mate-calc-common
-	mate-window-applets-common
 	mate-common
-	mate-window-buttons-applet
 	mate-core
-	mate-notification-daemon
-	mate-submodules-source
-	mate-window-menu-applet
+	mate-desktop-environment
 	mate-desktop-environment-extra
-	mate-notification-daemon-common
-	mate-system-monitor
-	mate-window-title-applet
+	mate-desktop-environment-extras
 	mate-dock-applet
-	mate-polkit-bin
-		libcanberra-gtk3-module
-	mate-system-monitor-common
-	mate-xapp-status-applet
 	mate-equake-applet
+	mate-hud
+	mate-indicator-applet
+	mate-indicator-applet-common
+	mate-media
+	mate-media-common
+	mate-menu
+	mate-notification-daemon
+	mate-notification-daemon-common
+	mate-polkit-bin
 	mate-power-manager
+	mate-power-manager-common
+	mate-screensaver
+	mate-screensaver-common
+	mate-sensors-applet
+	mate-sensors-applet-common
+	mate-sensors-applet-nvidia
+	mate-submodules-source
+	mate-system-monitor
+	mate-system-monitor-common
 	mate-tweak
-	parole
-	pavucontrol
-		pipewire-pulse
-	pluma
-	qalculate-gtk
+	mate-user-admin
+	mate-user-guide
+	mate-user-share
+	mate-user-share-common
+	mate-utils
+	mate-utils-common
+	mate-window-applets-common
+	mate-window-buttons-applet
+	mate-window-menu-applet
+	mate-window-title-applet
+	mate-xapp-status-applet
 	mint-y-icons
 	network-manager-applet
+	parole
+	pavucontrol
+	pipewire-pulse
+	pluma
+	qalculate-gtk
 	seahorse
 	slick-greeter
+	zoitechat
 """
 
 desktops = """

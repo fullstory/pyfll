@@ -17,12 +17,12 @@ modules = """
 """
 
 packages = """
+	bibata-cursor-theme
 	gedit
 	gnome-disk-utility
 	gnome-themes-extra
-	zoitechat
+	gstreamer1.0-gtk3
 	libreoffice-gtk3
-		gstreamer1.0-gtk3
 	librsvg2-common
 	lightdm
 	lightdm-settings
@@ -31,6 +31,7 @@ packages = """
 	mint-y-icons
 	network-manager-applet
 	slick-greeter
+	zoitechat
 """
 desktops = """
 	mate
