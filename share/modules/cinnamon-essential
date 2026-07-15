@@ -3,7 +3,6 @@ desc = """
 """
 
 packages = """
-	arc-theme
 	bibata-cursor-theme
 	cinnamon-desktop-environment
 	gdebi
@@ -11,11 +10,11 @@ packages = """
 	gnome-disk-utility
 	gnome-logs
 	gnome-system-monitor
-	mint-y-icons
+	srain
 	nemo
 	nemo-fileroller
+	mint-y-icons
 	slick-greeter
-	srain
 	system-config-printer
 	xdg-desktop-portal-gtk
 	zenity

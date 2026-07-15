@@ -4,8 +4,8 @@ desc = """
 
 packages = """
 	aptosid-art-wallpaper
-	aptosid-settings-gtk-theme
 	aptosid-settings-labwc
+	aptosid-settings-gtk-theme
 	aptosid-settings-qt-style
-	arc-theme
+	aptosid-openbox-theme-kaunas
 """
