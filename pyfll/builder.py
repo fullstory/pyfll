@@ -754,13 +754,10 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
             except OSError:
                 pass
 
-    def main(self) -> None:
-        """Main loop."""
-        self.init_cli_options()
-        self.init_configuration()
-        self.init_logfile()
-        self.init_build_directory()
-        self.init_chroots()
+    def build_chroots(self) -> None:
+        """Build all chroots in parallel. Scope the main logfile to this
+        thread's records while workers log to their own per-chroot files, and
+        abort the remaining builds if any one fails or is interrupted."""
         main_thread_id = threading.current_thread().ident
 
         def logfile_filter(r):
@@ -780,6 +777,15 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
                     raise
         finally:
             self._logfile_handler.removeFilter(logfile_filter)
+
+    def main(self) -> None:
+        """Main loop."""
+        self.init_cli_options()
+        self.init_configuration()
+        self.init_logfile()
+        self.init_build_directory()
+        self.init_chroots()
+        self.build_chroots()
         self.write_bootloader_config()
         self.gen_live_media()
         self.log_build_stats()
