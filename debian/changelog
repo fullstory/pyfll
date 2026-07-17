@@ -514,6 +514,11 @@ pyfll (2026.1) UNRELEASED; urgency=low
     builds strip, leaving the Wayland session with no compositor and
     dropping it to the greeter with exit 127. The example fll.conf now
     builds budgie-lite.
+  * cage-kiosk-essential: add the live user to the input group, so the
+    cage-kiosk-hotkeys handler (from cage-kiosk-aptosid) can read the
+    media keys from evdev in the browser and waydroid kiosk sessions.
+  * cage-kiosk-essential: install grim, a Wayland screenshot tool, to
+    make debugging cage kiosk sessions easier.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

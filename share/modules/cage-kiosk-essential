@@ -9,6 +9,7 @@ packages = """
 	cage
 	dbus-user-session
 	greetd
+	grim
 	network-manager
 	pipewire
 	pipewire-pulse
@@ -18,3 +19,8 @@ packages = """
 	xdg-desktop-portal-gtk
 	xdg-desktop-portal-wlr
 """
+
+groups = """
+	input
+"""
+
