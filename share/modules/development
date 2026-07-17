@@ -9,15 +9,19 @@ packages = """
 	debootstrap
 	devscripts
 	fakeroot
+	gh
 	git-buildpackage
 	git
 	lintian
 	mtools
 	pbuilder
+	pipx
 	python3-apt
 	python3-configobj
 	python3-pylsp
 	python3-requests
 	reprepro
+	shellcheck
+	shfmt
 	systemd-container
 """
