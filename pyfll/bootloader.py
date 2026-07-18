@@ -608,7 +608,7 @@ class BootloaderMixin:
         into each menuentry."""
         for chroot in self.chroots:
             arch = self.conf["chroots"][chroot]["packages"]["arch"]
-            cmdline = self.config_boot_cmdline(distro, chroot)
+            cmdline = self.config_boot_cmdline(distro, chroot, include_locale=False)
             indent = ""
             desktops = self.ordered_desktops(chroot)
             linux_target, initrd_target = boot_path(chroot)
@@ -711,6 +711,8 @@ class BootloaderMixin:
             if os.path.isfile(os.path.join(boot_dir, grub_theme)):
                 vcfg.write(f"grub_theme=/boot/{grub_theme}\n")
             vcfg.write(f"timeout={timeout}\n")
+            for line in self._grub_locale_vars():
+                vcfg.write(f"{line}\n")
 
         # Build the FAT EFI system partition image now that all chroots have
         # staged their arch-specific EFI content under staging/efi/
@@ -750,6 +752,8 @@ class BootloaderMixin:
             if os.path.isfile(os.path.join(esp_grub_dir, grub_theme_rel)):
                 vcfg.write(f"grub_theme=/boot/grub/{grub_theme_rel}\n")
             vcfg.write(f"timeout={timeout}\n")
+            for line in self._grub_locale_vars():
+                vcfg.write(f"{line}\n")
 
         # All ESP content is staged under staging/efi/; build efi.img now.
         self._build_efi_fat_img(stage_dir)
@@ -894,14 +898,40 @@ class BootloaderMixin:
             desktops.insert(0, default)
         return desktops
 
-    def config_boot_cmdline(self, distro: str, chroot: str) -> str:
+    def _grub_locale_vars(self) -> list:
+        """variable.cfg lines that preseed the grub locale menu with the
+        lang/tz, so the menu reflects them and $kopts carries them to the kernel.
+        tz is set before the locale file is sourced so the file's def_timezone
+        guard leaves it be."""
+        lines = []
+        if self.opts.timezone:
+            tz = host_timezone()
+            lines.append(f'timezone="tz={tz}"')
+            lines.append(f'def_timezone="{tz}"')
+        if len(self.opts.locales) == 1:
+            lang = self.opts.locales[0]
+            # Reuse the locale file (bootlang/def_bootlang/def_keyboard, as the
+            # menu's lang_setup does) when shipped; otherwise set lang directly.
+            lines.append(f"if [ -f /boot/grub/locales/{lang} ]; then")
+            lines.append(f"  source /boot/grub/locales/{lang}")
+            lines.append("else")
+            lines.append(f'  bootlang="lang={lang}"')
+            lines.append(f'  def_bootlang="{lang}"')
+            lines.append("fi")
+        return lines
+
+    def config_boot_cmdline(self, distro: str, chroot: str, include_locale: bool = True) -> str:
         image_dir = self.conf["distro"]["FLL_IMAGE_DIR"]
         cmdline = self.conf["options"].get("boot_cmdline")
         rootfs_uuid = self.conf["chroots"][chroot].get("uuid")
-        if self.opts.timezone:
-            cmdline += f" tz={host_timezone()}"
-        if len(self.opts.locales) == 1:
-            cmdline += f" lang={self.opts.locales[0]}"
+        # grub preseeds lang/tz via the locale menu (variable.cfg + $kopts), so
+        # its writers pass include_locale=False to avoid baking them twice.
+        # Bootloaders without that machinery (systemd-boot, refind) bake them in.
+        if include_locale:
+            if self.opts.timezone:
+                cmdline += f" tz={host_timezone()}"
+            if len(self.opts.locales) == 1:
+                cmdline += f" lang={self.opts.locales[0]}"
         cmdline = (
             f"iso_uuid={self.xorriso_uuid} "
             + f"image_dir={image_dir} image_file={distro}.{chroot} "

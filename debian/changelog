@@ -529,6 +529,8 @@ pyfll (2026.1) UNRELEASED; urgency=low
     /etc/bash.bashrc and create /root/.hushlogin at build, so root gets
     completion without per-user dotfiles (fll-live-boot no longer seeds
     root's dotfiles at boot).
+  * grub: show preseeded lang/tz on the boot menu instead of the
+    en_US/UTC defaults and a misleading 'nothing set' warning.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
