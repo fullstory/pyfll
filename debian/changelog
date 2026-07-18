@@ -522,6 +522,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * isodd --upgrade: carry each flavour's /etc forward instead of
     resetting the whole persist COW layer (ostree-style file-granularity
     /etc merge), so live-system config edits survive an upgrade.
+  * builder: bake calamares config (readonly_fstype, initramfs_tool,
+    bootloader) to match the rootfs at build time, so fll.initramfs no
+    longer edits it at boot.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

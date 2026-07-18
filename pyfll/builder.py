@@ -9,6 +9,7 @@ import glob
 import hashlib
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -348,6 +349,7 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         self.write_file(chroot, "/etc/plymouth/plymouthd.conf")
 
         self.write_ssh_authorized_keys(chroot)
+        self.configure_calamares(chroot)
 
         self.log.debug("writing final apt sources.list(s)")
         self.write_apt_lists(chroot, cached=self.opts.apt_cache)
@@ -389,6 +391,81 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         os.makedirs(dest_dir, exist_ok=True)
         shutil.copy(keyfile, dest)
         os.chmod(dest, 0o644)
+
+    def configure_calamares(self, chroot: str) -> None:
+        """Bake the live-media-derived Calamares settings into the chroot so
+        /etc/calamares matches this rootfs's readonly filesystem, initramfs
+        tool, and bootloader.
+
+        Done here rather than in fll.initramfs at boot: these are properties of
+        the rootfs, known at build time, and editing the config at boot copies
+        it up into the persist overlay's upper dir, where a stale copy then
+        shadows an upgraded ISO's fresh config. Baking keeps /etc/calamares
+        untouched at runtime, so it always reflects the booted rootfs.
+
+        No-op when the installer's config is absent (non-installable media)."""
+        cala = os.path.join(self.temp, chroot, "etc/calamares")
+        if not os.path.isdir(cala):
+            return
+
+        fstype = self.conf["options"]["readonly_filesystem"]
+        initramfs_tool = self.conf["options"]["initramfs_tool"]
+        bootloader = self.conf["options"]["bootloader"]
+
+        def edit(relpath: str, subs: list) -> None:
+            path = os.path.join(cala, relpath)
+            if not os.path.isfile(path):
+                return
+            with open(path) as fh:
+                text = fh.read()
+            new = text
+            for pat, repl in subs:
+                new = re.sub(pat, repl, new, flags=re.MULTILINE)
+            if new != text:
+                with open(path, "w") as fh:
+                    fh.write(new)
+
+        # readonly_fstype: unpackfsc source/sourcefs placeholder
+        edit("modules/unpackfsc.conf", [(r"FLL_READONLY_FSTYPE", fstype)])
+
+        # initramfs tool: config targets dracut by default; retarget for
+        # initramfs-tools (dracutlukscfg first, so the bare 'dracut' swap that
+        # follows does not corrupt it)
+        if initramfs_tool == "initramfs-tools":
+            edit("settings.conf", [
+                (r"dracutlukscfg", "initramfscfg"),
+                (r"dracut", "initramfs"),
+            ])
+            # initramfs-tools ignores the crypttab keyfile without this option
+            # (dracut reads it natively and needs no option)
+            edit("modules/fstab.conf", [
+                (r"^crypttabOptions:.*", "crypttabOptions: luks,keyscript=/bin/cat"),
+            ])
+
+        # bootloader: config defaults to grub (covers grub and grub-efi)
+        if bootloader == "systemd-boot":
+            edit("modules/bootloader.conf", [
+                (r'^efiBootLoader: "grub"', 'efiBootLoader: "systemd-boot"'),
+            ])
+            # systemd-boot stores kernels and initrds on the ESP (BLS), so it
+            # needs a far larger EFI System Partition than grub or refind
+            edit("modules/partition.conf", [
+                (r"^([ \t]*recommendedSize:).*", r"\1    1GiB"),
+            ])
+        elif bootloader == "refind":
+            edit("modules/bootloader.conf", [
+                (r'^efiBootLoader: "grub"', 'efiBootLoader: "refind"'),
+            ])
+            # refind can't unlock an encrypted /boot, so hide calamares encryption
+            edit("modules/partition.conf", [
+                (r"^enableLuksAutomatedPartitioning:.*",
+                 "enableLuksAutomatedPartitioning: false"),
+            ])
+
+        self.log.debug(
+            f"configured calamares: fstype={fstype} "
+            f"initramfs_tool={initramfs_tool} bootloader={bootloader}"
+        )
 
     def hashsum(self, filename: str) -> str:
         """Return SHA-256 hex digest of a file."""
