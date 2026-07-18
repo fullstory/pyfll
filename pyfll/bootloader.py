@@ -8,6 +8,7 @@ import tarfile
 import tempfile
 
 from pyfll.exceptions import FllError
+from pyfll.grublocale import write_grub_locale_data
 from pyfll.util import host_timezone
 
 
@@ -98,10 +99,7 @@ class BootloaderMixin:
             shutil.copy(
                 os.path.join(chroot_dir, "usr/share/grub/unicode.pf2"), grub_dir
             )
-            shutil.copytree(
-                os.path.join(self.opts.share, "data/locales"),
-                os.path.join(grub_dir, "locales"),
-            )
+            write_grub_locale_data(chroot_dir, grub_dir, self.log)
             shutil.copytree(
                 os.path.join(self.opts.share, "data/tz"),
                 os.path.join(grub_dir, "tz"),
@@ -362,11 +360,7 @@ class BootloaderMixin:
             unicode_pf2 = os.path.join(chroot_dir, "usr/share/grub/unicode.pf2")
             if os.path.isfile(unicode_pf2):
                 shutil.copy(unicode_pf2, esp_grub_base)
-            shutil.copytree(
-                os.path.join(self.opts.share, "data/locales"),
-                os.path.join(esp_grub_base, "locales"),
-                dirs_exist_ok=True,
-            )
+            write_grub_locale_data(chroot_dir, esp_grub_base, self.log)
             shutil.copytree(
                 os.path.join(self.opts.share, "data/tz"),
                 os.path.join(esp_grub_base, "tz"),
