@@ -126,7 +126,8 @@ This partition survives upgrades and provides two features:
 
 - **Persistent system state** — changes made to the live system (packages
   installed, configuration edits) are written to an overlay COW layer and
-  survive reboots.
+  survive reboots. Across an `--upgrade`, `/etc` edits are carried forward
+  (ostree-style) while the rest of the COW layer is reset.
 - **Persistent home directory** — `/home` is stored on a dedicated btrfs
   subvolume and is never affected by upgrades or system resets.
 
@@ -145,9 +146,9 @@ overwriting the persist partition.
 ### btrfs subvolume layout
 
 ```
-@root                   COW overlay layer (reset on upgrade)
-  <rootfs_uuid>/          one directory per read-only chroot on the ISO
-    upper/                overlay upperdir
+@root                   COW overlay layer (reset on upgrade, /etc preserved)
+  <image_file>/           one directory per read-only chroot on the ISO
+    upper/                overlay upperdir (etc/ carried across upgrades)
     work/                 overlay workdir
 @home                   persistent /home (never reset)
 ```
@@ -165,9 +166,10 @@ sudo ./fll -c fll.local.conf -b /tmp/fll/ --persist --upgrade /dev/sdX
 ```
 
 `--upgrade` writes the new ISO with `dd conv=notrunc` so the persist
-partition is untouched, then resets `@root` so the next boot starts with a
-clean COW layer. `@home` is never touched. `--write-iso` and `--upgrade` are
-independent and may be combined or used separately.
+partition is untouched, then resets the COW layer — keeping each flavour's
+`/etc` and discarding the rest — so the next boot starts clean apart from the
+carried-forward `/etc`. `@home` is never touched. `--write-iso` and `--upgrade`
+are independent and may be combined or used separately.
 
 ### Encrypted persist partition
 

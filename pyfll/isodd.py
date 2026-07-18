@@ -547,9 +547,21 @@ def btrfs_check(btrfs_dev: str, verbose: bool = False, log_fn=print) -> None:
     )
 
 
-def reset_system_subvol(
+def reset_cow_preserve_etc(
     btrfs_dev: str, verbose: bool = False, log_fn=print
 ) -> None:
+    """Reset the persist COW layer while carrying each flavour's /etc forward.
+
+    ostree-style file-granularity /etc merge: the overlay upperdir already holds
+    exactly the user's changes relative to the shipped defaults, so for every
+    per-flavour COW dir under @root the ``etc/`` upper subtree is kept and
+    everything else (the /usr, /var, ... left by live-session package installs)
+    is discarded. The next boot overlays the preserved /etc on the new image's
+    read-only /etc. @home lives on its own subvolume and is never touched here.
+
+    The per-flavour COW dir is keyed by a stable identity (fll.initramfs keys it
+    by image_file), so the preserved etc/ is picked up again after the upgrade.
+    """
     try:
         run_process(
             ["udevadm", "settle", "--timeout=10"],
@@ -565,16 +577,26 @@ def reset_system_subvol(
             log_fn=log_fn,
         )
         try:
-            run_process(
-                ["btrfs", "subvolume", "delete", os.path.join(mnt, "@root")],
-                verbose=verbose,
-                log_fn=log_fn,
-            )
-            run_process(
-                ["btrfs", "subvolume", "create", os.path.join(mnt, "@root")],
-                verbose=verbose,
-                log_fn=log_fn,
-            )
+            root = os.path.join(mnt, "@root")
+            if not os.path.isdir(root):
+                return
+            for flavour in sorted(os.listdir(root)):
+                upper = os.path.join(root, flavour, "upper")
+                work = os.path.join(root, flavour, "work")
+                # Stale overlay workdir -- the initramfs recreates it at boot.
+                if os.path.isdir(work):
+                    run_process(["rm", "-rf", work], verbose=verbose, log_fn=log_fn)
+                if not os.path.isdir(upper):
+                    continue
+                for entry in sorted(os.listdir(upper)):
+                    if entry == "etc":
+                        continue
+                    run_process(
+                        ["rm", "-rf", os.path.join(upper, entry)],
+                        verbose=verbose,
+                        log_fn=log_fn,
+                    )
+                log_fn(f"Reset COW for {flavour} (kept /etc)")
         finally:
             run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
 
@@ -779,7 +801,8 @@ def upgrade_iso(
     read-only ISO9660 layer), this re-stamps the on-disk persist partition's
     UUIDs to match what the new ISO bakes in: the btrfs fsid via
     ``btrfstune -M`` and, when encrypted, the LUKS header UUID via
-    ``cryptsetup luksUUID``. @home is preserved; @root is reset.
+    ``cryptsetup luksUUID``. @home is preserved; the COW layer is reset except
+    each flavour's /etc, which is carried forward onto the new image.
     """
     assert_device_unmounted(device)
     # The UUIDs the freshly written boot config will look for at boot time.
@@ -943,7 +966,7 @@ def upgrade_iso(
         btrfs_set_uuid(btrfs_dev, persist_uuid, verbose=verbose, log_fn=log_fn)
         run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
-        reset_system_subvol(btrfs_dev, verbose=verbose, log_fn=log_fn)
+        reset_cow_preserve_etc(btrfs_dev, verbose=verbose, log_fn=log_fn)
 
         if encrypt:
             luks_close("fll-persist-upgrade", verbose=verbose, log_fn=log_fn)
@@ -984,8 +1007,9 @@ def main() -> None:
         "--persist",
         action="store_true",
         default=False,
-        help="Create a persistent btrfs storage partition (@root is reset on "
-        "upgrade, @home is preserved). Implied by --encrypt. Ignored with "
+        help="Create a persistent btrfs storage partition (the COW layer is "
+        "reset on upgrade, keeping /etc; @home is preserved). Implied by "
+        "--encrypt. Ignored with "
         "--upgrade, which always conforms an existing persist partition.",
     )
     cli.add_argument(
@@ -1003,9 +1027,10 @@ def main() -> None:
         action="store_true",
         default=False,
         help="Upgrade the ISO in place with dd conv=notrunc: @home and the "
-        "persist partition are preserved, @root is reset, and the persist "
-        "UUIDs are re-stamped to match the new ISO. Mutually exclusive with a "
-        "fresh write.",
+        "persist partition are preserved, the COW layer is reset (each "
+        "flavour's /etc is carried forward), and the persist UUIDs are "
+        "re-stamped to match the new ISO. Mutually exclusive with a fresh "
+        "write.",
     )
     cli.add_argument(
         "-v",

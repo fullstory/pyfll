@@ -519,6 +519,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
     media keys from evdev in the browser and waydroid kiosk sessions.
   * cage-kiosk-essential: install grim, a Wayland screenshot tool, to
     make debugging cage kiosk sessions easier.
+  * isodd --upgrade: carry each flavour's /etc forward instead of
+    resetting the whole persist COW layer (ostree-style file-granularity
+    /etc merge), so live-system config edits survive an upgrade.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
