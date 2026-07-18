@@ -596,7 +596,7 @@ def reset_cow_preserve_etc(
                         verbose=verbose,
                         log_fn=log_fn,
                     )
-                log_fn(f"Reset COW for {flavour} (kept /etc)")
+                log_fn(f"reset COW for {flavour} (kept /etc)")
         finally:
             run_process(["umount", mnt], verbose=verbose, log_fn=log_fn)
 
@@ -645,47 +645,47 @@ def write_iso(
     bootloader = None
 
     if persist:
-        log_fn(f"Detecting bootloader in {iso}...")
+        log_fn(f"detecting bootloader in {iso}...")
         bootloader = detect_bootloader(iso, verbose=verbose, log_fn=log_fn)
         if bootloader is None:
             raise FllError("error: could not detect bootloader in ISO")
-        log_fn(f"Detected bootloader: {bootloader}")
+        log_fn(f"detected bootloader: {bootloader}")
 
         if bootloader == "grub":
             if not persist_uuid:
-                log_fn(f"Extracting persist_uuid from {iso} (grub)...")
+                log_fn(f"extracting persist_uuid from {iso} (grub)...")
                 persist_uuid = extract_grub_persist_uuid(
                     iso, verbose=verbose, log_fn=log_fn
                 )
                 if persist_uuid is None:
                     raise FllError(
                         "error: persist_uuid not found in boot/grub/kernels.cfg\n"
-                        "       Was the ISO built with pyfll --persist?"
+                        "       was the ISO built with pyfll --persist?"
                     )
             log_fn(f"persist_uuid: {persist_uuid}")
 
-    log_fn(f"Wiping {device}...")
+    log_fn(f"wiping {device}...")
     run_process(
         ["wipefs", "--all", "--force", device], verbose=verbose, log_fn=log_fn
     )
 
-    log_fn(f"Writing {iso} to {device}...")
+    log_fn(f"writing {iso} to {device}...")
     run_process(
         ["dd", f"if={iso}", f"of={device}", "bs=1M", "status=progress"],
         verbose=verbose,
         log_fn=log_fn,
     )
 
-    log_fn("Relocating GPT alt header...")
+    log_fn("relocating GPT alt header...")
     run_process(
         [SGDISK, "--move-second-header", device], verbose=verbose, log_fn=log_fn
     )
 
-    log_fn("Settling partition table...")
+    log_fn("settling partition table...")
     run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
     if persist:
-        log_fn(f"Creating gap and persist partitions on {device}...")
+        log_fn(f"creating gap and persist partitions on {device}...")
         gap_mib = max(1024, (iso_size_mib(iso) + 1) // 2)
         gap_start_sector = (iso_size_mib(iso) + 1) * MIB_SECTORS
         gap_end_sector = gap_start_sector + (gap_mib * MIB_SECTORS) - 1
@@ -773,7 +773,7 @@ def write_iso(
     )
 
     if persist:
-        log_fn("Persist partition ready:")
+        log_fn("persist partition ready:")
         log_fn(f"  device:            {part_dev}")
         log_fn("  label:             fll-persist")
         log_fn("  filesystem:        btrfs (subvolumes @root, @home)")
@@ -781,7 +781,7 @@ def write_iso(
         if encrypt:
             log_fn("  encryption:        LUKS2")
             log_fn(f"  persist_luks_uuid: {persist_luks_uuid}")
-    log_fn(f"Live media written to {device}. Done.")
+    log_fn(f"live media written to {device}, done.")
 
 
 def upgrade_iso(
@@ -819,9 +819,9 @@ def upgrade_iso(
         raise FllError(
             "error: could not determine target persist_luks_uuid from ISO boot config"
         )
-    log_fn(f"Target persist_uuid: {persist_uuid}")
+    log_fn(f"target persist_uuid: {persist_uuid}")
     if encrypt:
-        log_fn(f"Target persist_luks_uuid: {persist_luks_uuid}")
+        log_fn(f"target persist_luks_uuid: {persist_luks_uuid}")
 
     # Save persist partition sectors before dd overwrites the partition table.
     persist_part_sectors = read_last_partition_sectors(
@@ -867,13 +867,13 @@ def upgrade_iso(
             )
             if result.returncode != 0:
                 raise FllError(f"error: {part_dev_pre} is not a LUKS container")
-            log_fn("Unlocking persist partition to verify it (you will be "
+            log_fn("unlocking persist partition to verify it (you will be "
                    "prompted again to apply the upgrade)...")
             luks_open_interactive(
                 part_dev_pre, "fll-persist-check", verbose=verbose, log_fn=log_fn
             )
             try:
-                log_fn("Checking persist filesystem before upgrade...")
+                log_fn("checking persist filesystem before upgrade...")
                 btrfs_check(
                     "/dev/mapper/fll-persist-check", verbose=verbose, log_fn=log_fn
                 )
@@ -883,18 +883,18 @@ def upgrade_iso(
             luks_close("fll-persist-check", verbose=verbose, log_fn=log_fn)
         else:
             try:
-                log_fn("Checking persist filesystem before upgrade...")
+                log_fn("checking persist filesystem before upgrade...")
                 btrfs_check(part_dev_pre, verbose=verbose, log_fn=log_fn)
             except subprocess.CalledProcessError:
                 raise FllError(check_abort)
 
-    log_fn(f"Upgrading ISO on {device} (dd conv=notrunc)...")
+    log_fn(f"upgrading ISO on {device} (dd conv=notrunc)...")
     subprocess.run(
         ["dd", f"if={iso}", f"of={device}", "bs=1M", "conv=notrunc", "status=progress"],
         check=True,
     )
 
-    log_fn("Relocating GPT alt header...")
+    log_fn("relocating GPT alt header...")
     run_process([SGDISK, "--move-second-header", device], verbose=verbose, log_fn=log_fn)
     run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
@@ -906,7 +906,7 @@ def upgrade_iso(
         )
         gap_start_sector = int(gap_start_lines[0].strip())
         gap_end_sector = persist_part_sectors[0] - 1
-        log_fn(f"Recreating fll-gap partition ({gap_start_sector}:{gap_end_sector})...")
+        log_fn(f"recreating fll-gap partition ({gap_start_sector}:{gap_end_sector})...")
         run_process(
             [
                 SGDISK,
@@ -934,7 +934,7 @@ def upgrade_iso(
         if name:
             sgdisk_cmd.append(f"--change-name=0:{name}")
         sgdisk_cmd.append(device)
-        log_fn("Restoring persist partition entry...")
+        log_fn("restoring persist partition entry...")
         run_process(sgdisk_cmd, verbose=verbose, log_fn=log_fn)
         run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
@@ -948,7 +948,7 @@ def upgrade_iso(
             if result.returncode != 0:
                 raise FllError(f"error: {part_dev} is not a LUKS container after restore")
             # Conform the LUKS header UUID to the new boot config, then unlock.
-            log_fn(f"Re-stamping LUKS header UUID -> {persist_luks_uuid}...")
+            log_fn(f"re-stamping LUKS header UUID -> {persist_luks_uuid}...")
             luks_set_uuid(part_dev, persist_luks_uuid, verbose=verbose, log_fn=log_fn)
             run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
             luks_open_interactive(
@@ -962,7 +962,7 @@ def upgrade_iso(
         # booted system finds the persist filesystem regardless of bootloader.
         # This is what makes pure grub upgrades work: its persist_uuid lives in
         # the read-only ISO9660 layer and cannot be patched after dd.
-        log_fn(f"Re-stamping persist btrfs UUID -> {persist_uuid}...")
+        log_fn(f"re-stamping persist btrfs UUID -> {persist_uuid}...")
         btrfs_set_uuid(btrfs_dev, persist_uuid, verbose=verbose, log_fn=log_fn)
         run_process(["udevadm", "settle"], verbose=verbose, log_fn=log_fn)
 
@@ -976,7 +976,7 @@ def upgrade_iso(
         verbose=verbose,
         log_fn=log_fn,
     )
-    log_fn("Upgrade complete.")
+    log_fn("upgrade complete.")
 
 
 def main() -> None:
