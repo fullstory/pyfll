@@ -19,6 +19,7 @@ packages = """
 	python3-apt
 	python3-configobj
 	python3-pylsp
+	python3-pytest
 	python3-requests
 	reprepro
 	shellcheck
