@@ -525,6 +525,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * builder: bake calamares config (readonly_fstype, initramfs_tool,
     bootloader) to match the rootfs at build time, so fll.initramfs no
     longer edits it at boot.
+  * cli/essential postinst: enable bash completion system-wide in
+    /etc/bash.bashrc and create /root/.hushlogin at build, so root gets
+    completion without per-user dotfiles (fll-live-boot no longer seeds
+    root's dotfiles at boot).
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

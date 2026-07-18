@@ -27,6 +27,12 @@ alias grep="grep --color=auto"
 alias diff="diff --color=auto"
 alias ip="ip -color=auto"
 EOF
+
+	# enable completion system-wide (incl. root) rather than per-user skel
+	if [ -f /usr/share/bash-completion/bash_completion ]; then
+		say "Enabling system-wide bash completion"
+		sed -i '/^#if ! shopt -oq posix; then$/,/^#fi$/ s/^#//' /etc/bash.bashrc
+	fi
 }
 
 case "${1}" in

@@ -145,6 +145,9 @@ EOF
 		rm -f /etc/mtab
 		ln -sf ../proc/self/mounts /etc/mtab
 	fi
+
+	# quiet root's login banner (was previously seeded per-boot by fll_home)
+	: > /root/.hushlogin
 }
 
 case "${1}" in
