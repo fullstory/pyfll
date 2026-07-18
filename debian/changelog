@@ -531,6 +531,8 @@ pyfll (2026.1) UNRELEASED; urgency=low
     root's dotfiles at boot).
   * grub: show preseeded lang/tz on the boot menu instead of the
     en_US/UTC defaults and a misleading 'nothing set' warning.
+  * drop stale PowerPC/Mac boot artifacts (ofboot.b, hfs.map): unused
+    since the ISO build is x86-only grub El Torito + UEFI.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
