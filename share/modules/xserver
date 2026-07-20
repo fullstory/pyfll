@@ -9,17 +9,13 @@ packages = """
 	fonts-dejavu-extra
 	fonts-liberation
 	fonts-noto
+	fonts-noto-color-emoji
 	intel-media-va-driver
 	libgl1-mesa-dri
 	mesa-utils
 	mesa-vulkan-drivers
 	vainfo
 	xauth
-	xfonts-base
-	xfonts-75dpi
-	xfonts-75dpi-transcoded
-	xfonts-100dpi
-	xfonts-100dpi-transcoded
 	xserver-xorg
 	xserver-xorg-input-all
 	xserver-xorg-video-all
