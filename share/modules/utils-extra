@@ -21,7 +21,7 @@ packages = """
 	memtest86+
 	module-assistant
 	mtools
-	ntfs-3g
+	ntfsprogs-plus
 	nmap
 	openssh-client
 	plocate

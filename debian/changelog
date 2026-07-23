@@ -306,6 +306,8 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * fll.conf: add lxqt-stripped flavours.
   * fll.conf: add kde-full flavours.
   * fix su call, target user needs to come last, behind the command options.
+  * s/ntfs-3g/ntfsprogs-plus/, we now (kernel v7.1+) have native ntfs support,
+    ship the corresponding userspace tools.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.
