@@ -15,7 +15,6 @@ packages = """
 	initramfs-tools
 	iputils-ping
 	k3b
-	#kodi
 	kontact
 	network-manager-applet
 	nm-tray
@@ -27,7 +26,6 @@ packages = """
 	qemu-system-x86
 	qpdfview
 	seahorse
-	udisks2
 	upower
 	virt-manager
 	xfce4-session
