@@ -15,5 +15,5 @@ jobs:
           apt-get update
           apt-get install -y --no-install-recommends \
             ca-certificates git python3 python3-configobj python3-debian python3-pytest
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: python3 -m pytest -q
