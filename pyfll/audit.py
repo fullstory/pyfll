@@ -10,7 +10,7 @@ from configobj import ConfigObj
 
 from pyfll.apt import apt_spec_name
 from pyfll.exceptions import FllError
-from pyfll.profile import RECOMMENDS_WHITELIST
+from pyfll.profile import RECOMMENDS_WHITELIST, FllProfile
 from pyfll.util import multiline_to_list
 
 # Entries in share/{profiles,modules} that are maintainer scripts, not lists.
@@ -37,6 +37,11 @@ class AuditTarget:
     base: str
     profile: object
     locales: list
+
+    @property
+    def slug(self) -> str:
+        """Filesystem-safe form of the name, for the overlay mountpoint."""
+        return self.name.replace(":", "-").replace("/", "-")
 
 
 @dataclass
@@ -131,7 +136,7 @@ class AuditMixin:
 
         self.log.info(
             f"auditing profiles against the '{base}' chroot definition "
-            f"(its distro, codename, arch, repos, modules and browser)"
+            f"(its distro, codename, arch, repos and modules)"
         )
 
         locales = self._chroot_locales(base)
@@ -145,10 +150,40 @@ class AuditMixin:
                 AuditTarget(
                     name,
                     base,
-                    self.expand_pkg_profile(base, path, modules_dir),
+                    self.expand_pkg_profile(base, path, modules_dir, browser=False),
                     locales,
                 )
             )
+        return targets + self._browser_targets(base, locales)
+
+    def _browser_targets(self, base: str, locales: list) -> list:
+        """Audit each browser the config names as a target of its own.
+
+        A browser is orthogonal to a profile - any profile can be built with
+        any of them - so auditing the cross product would be waste, and bolting
+        one browser onto every profile would report its breakage once per
+        profile while never testing the others at all. Resolving each browser
+        once against the bare bootstrapped chroot catches what actually goes
+        wrong: a browser's dependencies breaking in sid.
+
+        The browsers come from every chroot the config defines, so a browser
+        named only in a commented-out chroot is invisible here."""
+        browsers = set()
+        for chroot in self.conf["chroots"]:
+            browsers.update(self.conf["chroots"][chroot]["packages"]["browser"])
+
+        if not browsers:
+            self.log.warning("no browser is configured by any chroot; none audited")
+            return []
+
+        self.log.info(f"auditing browser(s): {' '.join(sorted(browsers))}")
+
+        origin = f"{os.path.basename(self.opts.config)} browser="
+        targets = []
+        for browser in sorted(browsers):
+            profile = FllProfile()
+            profile.add_package(browser, origin)
+            targets.append(AuditTarget(f"browser:{browser}", base, profile, locales))
         return targets
 
     def _audit_group_key(self, chroot: str) -> tuple:
@@ -219,7 +254,7 @@ class AuditMixin:
     def _audit_one(self, target: AuditTarget, base: str) -> AuditResult:
         """Audit one target in a fresh overlay over *base*."""
         self.log.info(f"{target.name} - auditing package selection...")
-        with self._audit_overlay(base, f"{target.name}.audit") as state:
+        with self._audit_overlay(base, f"{target.slug}.audit") as state:
             # pre_installation and diagnose_install_failure read the profile
             # out of self.profiles, keyed by chroot name; the overlay is named
             # after the target so both see this target's own lists.

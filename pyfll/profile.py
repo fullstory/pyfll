@@ -151,17 +151,22 @@ class PackageProfileMixin:
                 target.add(script)
 
     def expand_pkg_profile(
-        self, chroot: str, profile: str, modules_dir: str
+        self, chroot: str, profile: str, modules_dir: str, browser: bool = True
     ) -> FllProfile:
-        """Return a FllProfile for a given chroot and profile."""
+        """Return a FllProfile for a given chroot and profile.
+
+        With *browser* false the chroot's configured browser is left out. A
+        browser is orthogonal to a profile - any profile can be built with any
+        of them - so the audit resolves each browser as a target of its own
+        rather than bolting one onto every profile it audits."""
         pkg_profile = FllProfile()
         for package in self.conf["chroots"][chroot]["packages"].get("packages"):
             pkg_profile.packages.add(package)
         arch = self.conf["chroots"][chroot]["packages"]["arch"]
         linux = self.conf["chroots"][chroot]["packages"]["linux"]
-        browsers = self.conf["chroots"][chroot]["packages"]["browser"]
-        for browser in browsers:
-            pkg_profile.packages.add(browser)
+        if browser:
+            for browser_pkg in self.conf["chroots"][chroot]["packages"]["browser"]:
+                pkg_profile.packages.add(browser_pkg)
 
         ro_fs = self.conf["options"]["readonly_filesystem"]
         if ro_fs == "squashfs":

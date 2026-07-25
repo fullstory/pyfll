@@ -555,6 +555,11 @@ pyfll (2026.1) UNRELEASED; urgency=low
     apt's "do not install" marker (e.g. plasma-welcome-) rather than a
     missing package, and keep it in the dependency check. Names that
     really end in '+' (memtest86+) are used as-is.
+  * --audit: check each configured browser as a target of its own
+    instead of adding one to every profile. Browsers are
+    interchangeable, so all of them (e.g. firefox and chromium) now get
+    checked once each, rather than one of them being checked over and
+    over.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

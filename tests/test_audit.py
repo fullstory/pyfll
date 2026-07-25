@@ -35,13 +35,13 @@ class FakeAudit(AuditMixin, AptMixin):
         self.chroots = chroots or []
         self.profiles = profiles or {}
         self.opts = opts or types.SimpleNamespace(
-            profiles=None, share="/share", locales=["en_US"]
+            profiles=None, share="/share", locales=["en_US"], config="fll.conf"
         )
         self.log = logging.getLogger("test")
         self.expanded = []
 
-    def expand_pkg_profile(self, chroot, profile, modules_dir):
-        self.expanded.append((chroot, profile, modules_dir))
+    def expand_pkg_profile(self, chroot, profile, modules_dir, browser=True):
+        self.expanded.append((chroot, profile, modules_dir, browser))
         return FllProfile()
 
 
@@ -52,6 +52,7 @@ def chroot_conf(**overrides):
         "arch": "amd64",
         "linux": "aptosid-amd64",
         "locales": [],
+        "browser": [],
     }
     packages.update(overrides.pop("packages", {}))
     repos = overrides.pop(
@@ -151,7 +152,8 @@ def test_targets_profiles_mode_expands_each_against_base_chroot(tmp_path):
 
     conf = {"chroots": {"kde": chroot_conf()}}
     opts = types.SimpleNamespace(
-        profiles=["kde-lite", "xfce"], share=str(tmp_path), locales=["en_US"]
+        profiles=["kde-lite", "xfce"], share=str(tmp_path),
+        locales=["en_US"], config="fll.conf"
     )
     audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
 
@@ -160,7 +162,9 @@ def test_targets_profiles_mode_expands_each_against_base_chroot(tmp_path):
     assert [t.name for t in targets] == ["kde-lite", "xfce"]
     # Every profile resolves against the one base chroot definition.
     assert {t.base for t in targets} == {"kde"}
-    assert [c for c, _, _ in audit.expanded] == ["kde", "kde"]
+    assert [c for c, _, _, _ in audit.expanded] == ["kde", "kde"]
+    # The chroot's browser is deliberately left out of a profile audit.
+    assert [b for _, _, _, b in audit.expanded] == [False, False]
 
 
 def test_targets_profiles_mode_all_skips_maint_scripts(tmp_path):
@@ -171,7 +175,8 @@ def test_targets_profiles_mode_all_skips_maint_scripts(tmp_path):
 
     conf = {"chroots": {"kde": chroot_conf()}}
     opts = types.SimpleNamespace(
-        profiles=["all"], share=str(tmp_path), locales=["en_US"]
+        profiles=["all"], share=str(tmp_path), locales=["en_US"],
+        config="fll.conf"
     )
     audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
 
@@ -182,12 +187,87 @@ def test_targets_profiles_mode_unknown_profile_is_fatal(tmp_path):
     (tmp_path / "profiles").mkdir()
     conf = {"chroots": {"kde": chroot_conf()}}
     opts = types.SimpleNamespace(
-        profiles=["nosuch"], share=str(tmp_path), locales=["en_US"]
+        profiles=["nosuch"], share=str(tmp_path), locales=["en_US"],
+        config="fll.conf"
     )
     audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
 
     with pytest.raises(FllError):
         audit._audit_targets()
+
+
+def test_browser_targets_one_per_distinct_browser():
+    """Browsers are audited as their own dimension, deduplicated across
+    chroots: N profiles + M browsers, not N*M."""
+    conf = {
+        "chroots": {
+            "kde": chroot_conf(packages={"browser": ["chromium"]}),
+            "xfce": chroot_conf(packages={"browser": ["firefox", "chromium"]}),
+        }
+    }
+    audit = FakeAudit(conf, ["kde"])
+
+    targets = audit._browser_targets("kde", ["en_US"])
+
+    assert [t.name for t in targets] == ["browser:chromium", "browser:firefox"]
+    assert {t.base for t in targets} == {"kde"}
+    assert [sorted(t.profile.packages) for t in targets] == [["chromium"], ["firefox"]]
+
+
+def test_browser_targets_record_config_as_origin():
+    """So a browser failure traces back to where it was asked for, the way a
+    profile failure names its module file."""
+    conf = {"chroots": {"kde": chroot_conf(packages={"browser": ["firefox"]})}}
+    audit = FakeAudit(conf, ["kde"])
+
+    target = audit._browser_targets("kde", ["en_US"])[0]
+
+    assert target.profile.sources["firefox"] == {"fll.conf browser="}
+
+
+def test_browser_targets_none_configured(caplog):
+    conf = {"chroots": {"kde": chroot_conf()}}
+    audit = FakeAudit(conf, ["kde"])
+
+    with caplog.at_level(logging.WARNING):
+        assert audit._browser_targets("kde", ["en_US"]) == []
+
+    assert "no browser is configured" in caplog.text
+
+
+def test_browser_targets_included_in_profiles_mode(tmp_path):
+    (tmp_path / "profiles").mkdir()
+    (tmp_path / "profiles" / "minimal").write_text("packages = foo\n")
+
+    conf = {"chroots": {"kde": chroot_conf(packages={"browser": ["firefox"]})}}
+    opts = types.SimpleNamespace(
+        profiles=["minimal"], share=str(tmp_path), locales=["en_US"],
+        config="fll.conf",
+    )
+    audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
+
+    assert [t.name for t in audit._audit_targets()] == ["minimal", "browser:firefox"]
+
+
+def test_browser_targets_absent_in_config_mode():
+    """A configured chroot already carries its own browser in its selection, so
+    a separate browser target there would be redundant."""
+    conf = {"chroots": {"kde": chroot_conf(packages={"browser": ["firefox"]})}}
+    audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()})
+
+    assert [t.name for t in audit._audit_targets()] == ["kde"]
+
+
+def test_target_slug_is_filesystem_safe():
+    """The overlay mountpoint is named after the target, so a ':' in the label
+    must not reach the path."""
+    target = AuditTarget("browser:firefox", "kde", FllProfile(), ["en_US"])
+
+    assert target.slug == "browser-firefox"
+
+
+def test_target_slug_unchanged_for_plain_names():
+    assert AuditTarget("kde-lite", "kde", FllProfile(), []).slug == "kde-lite"
 
 
 def test_targets_carry_chroot_locales():

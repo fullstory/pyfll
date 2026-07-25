@@ -3,6 +3,7 @@
 
 import logging
 import os
+import types
 
 from pyfll.exceptions import FllError
 from pyfll.profile import (
@@ -204,3 +205,69 @@ def test_resolve_source_uris_falls_back_per_package_and_skips_failures(caplog):
     warnings = [r.message for r in caplog.records]
     assert any("bulk source URI resolution failed" in w for w in warnings)
     assert any("could not resolve source package: broken=1.0" in w for w in warnings)
+
+
+SHARE_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "share")
+
+
+def _make_profile_expander(browser):
+    """A PackageProfileMixin wired up just enough for expand_pkg_profile, with
+    the real fll.profile.spec so the profile file parses as it would in a build.
+    """
+    profile = PackageProfileMixin.__new__(PackageProfileMixin)
+    profile.log = logging.getLogger("test_expand_pkg_profile")
+    profile.opts = types.SimpleNamespace(share=SHARE_DIR)
+    profile.validate_configobj = lambda obj: None
+    profile.conf = {
+        "chroots": {
+            "kde": {
+                "packages": {
+                    "packages": [],
+                    "arch": "amd64",
+                    "linux": "aptosid-amd64",
+                    "browser": browser,
+                },
+                "flatpak": {
+                    "flathub": {"flatpaks": []},
+                    "flathub-beta": {"flatpaks": []},
+                },
+            }
+        },
+        "options": {
+            "readonly_filesystem": "squashfs",
+            "initramfs_tool": "dracut",
+            "bootloader": "grub-efi",
+        },
+    }
+    return profile
+
+
+def test_expand_pkg_profile_includes_browser_by_default(tmp_path):
+    """The build path must keep getting the chroot's browser; the audit's
+    browser=False is opt-in only."""
+    profile_file = tmp_path / "kde-lite"
+    profile_file.write_text("packages = yakuake\n")
+
+    pkg_profile = _make_profile_expander(["chromium"]).expand_pkg_profile(
+        "kde", str(profile_file), str(tmp_path)
+    )
+
+    assert "chromium" in pkg_profile.packages
+    assert "yakuake" in pkg_profile.packages
+
+
+def test_expand_pkg_profile_browser_false_omits_browser(tmp_path):
+    """A browser is orthogonal to a profile, so the audit resolves it as its
+    own target instead of bolting it onto every profile."""
+    profile_file = tmp_path / "kde-lite"
+    profile_file.write_text("packages = yakuake\n")
+
+    pkg_profile = _make_profile_expander(["chromium"]).expand_pkg_profile(
+        "kde", str(profile_file), str(tmp_path), browser=False
+    )
+
+    assert "chromium" not in pkg_profile.packages
+    # Everything else the chroot contributes is untouched.
+    assert "yakuake" in pkg_profile.packages
+    assert "squashfs-tools" in pkg_profile.packages
+    assert "linux-image-aptosid-amd64" in pkg_profile.packages
