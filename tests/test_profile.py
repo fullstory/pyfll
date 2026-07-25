@@ -3,6 +3,9 @@
 
 import logging
 import os
+import types
+
+import pytest
 
 from pyfll.exceptions import FllError
 from pyfll.profile import (
@@ -204,3 +207,134 @@ def test_resolve_source_uris_falls_back_per_package_and_skips_failures(caplog):
     warnings = [r.message for r in caplog.records]
     assert any("bulk source URI resolution failed" in w for w in warnings)
     assert any("could not resolve source package: broken=1.0" in w for w in warnings)
+
+
+SHARE_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "share")
+
+
+def _make_profile_expander(browser):
+    """A PackageProfileMixin wired up just enough for expand_pkg_profile, with
+    the real fll.profile.spec so the profile file parses as it would in a build.
+    """
+    profile = PackageProfileMixin.__new__(PackageProfileMixin)
+    profile.log = logging.getLogger("test_expand_pkg_profile")
+    profile.opts = types.SimpleNamespace(share=SHARE_DIR)
+    profile.validate_configobj = lambda obj: None
+    profile.conf = {
+        "chroots": {
+            "kde": {
+                "packages": {
+                    "packages": [],
+                    "arch": "amd64",
+                    "linux": "aptosid-amd64",
+                    "browser": browser,
+                },
+                "flatpak": {
+                    "flathub": {"flatpaks": []},
+                    "flathub-beta": {"flatpaks": []},
+                },
+            }
+        },
+        "options": {
+            "readonly_filesystem": "squashfs",
+            "initramfs_tool": "dracut",
+            "bootloader": "grub-efi",
+        },
+    }
+    return profile
+
+
+def test_expand_pkg_profile_includes_browser_by_default(tmp_path):
+    """The build path must keep getting the chroot's browser; the audit's
+    browser=False is opt-in only."""
+    profile_file = tmp_path / "kde-lite"
+    profile_file.write_text("packages = yakuake\n")
+
+    pkg_profile = _make_profile_expander(["chromium"]).expand_pkg_profile(
+        "kde", str(profile_file), str(tmp_path)
+    )
+
+    assert "chromium" in pkg_profile.packages
+    assert "yakuake" in pkg_profile.packages
+
+
+def test_expand_pkg_profile_browser_false_omits_browser(tmp_path):
+    """A browser is orthogonal to a profile, so the audit resolves it as its
+    own target instead of bolting it onto every profile."""
+    profile_file = tmp_path / "kde-lite"
+    profile_file.write_text("packages = yakuake\n")
+
+    pkg_profile = _make_profile_expander(["chromium"]).expand_pkg_profile(
+        "kde", str(profile_file), str(tmp_path), browser=False
+    )
+
+    assert "chromium" not in pkg_profile.packages
+    # Everything else the chroot contributes is untouched.
+    assert "yakuake" in pkg_profile.packages
+    assert "squashfs-tools" in pkg_profile.packages
+    assert "linux-image-aptosid-amd64" in pkg_profile.packages
+
+
+def _make_configobj_reader():
+    profile = PackageProfileMixin.__new__(PackageProfileMixin)
+    profile.log = logging.getLogger("test_read_configobj")
+    return profile
+
+
+def test_read_configobj_malformed_raises_fllerror(caplog, tmp_path):
+    """A stray triple-quote orphans every line after it. share/modules/
+    virt-manager shipped like this and surfaced as a raw ConfigObjError
+    traceback rather than a message naming the file."""
+    broken = tmp_path / "virt-manager"
+    broken.write_text('packages = """\n\n"""\n\tlibvirt-clients\n\tvirt-manager\n"""\n')
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            _make_configobj_reader()._read_configobj(str(broken))
+
+    assert f"failed to parse {broken}" in caplog.text
+    assert "line 4: libvirt-clients" in caplog.text
+
+
+def test_read_configobj_truncates_error_cascade(caplog, tmp_path):
+    """One bad quote invalidates every following line, so only the first few
+    are worth printing."""
+    lines = "".join(f"\tpkg{n}\n" for n in range(10))
+    broken = tmp_path / "mod"
+    broken.write_text(f'packages = """\n"""\n{lines}"""\n')
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            _make_configobj_reader()._read_configobj(str(broken))
+
+    # Three lines shown, the rest summarised.
+    assert "pkg0" in caplog.text
+    assert "pkg3" not in caplog.text
+    assert "pkg9" not in caplog.text
+    assert "more line(s)" in caplog.text
+
+
+def test_read_configobj_valid_file_without_configspec(tmp_path):
+    good = tmp_path / "mod"
+    good.write_text('packages = """\n\tbat\n"""\n')
+
+    conf = _make_configobj_reader()._read_configobj(str(good))
+
+    assert [line.strip() for line in conf["packages"].splitlines() if line.strip()] == [
+        "bat"
+    ]
+
+
+def test_read_configobj_validates_when_configspec_given(tmp_path):
+    """With a configspec the file is validated too; without one it is not."""
+    spec = tmp_path / "spec"
+    spec.write_text("packages = string()\nwanted = string()\n")
+    incomplete = tmp_path / "mod"
+    incomplete.write_text('packages = """\n\tbat\n"""\n')
+    reader = _make_configobj_reader()
+    reader.validate_configobj = lambda obj: (_ for _ in ()).throw(FllError)
+
+    reader._read_configobj(str(incomplete))
+
+    with pytest.raises(FllError):
+        reader._read_configobj(str(incomplete), configspec=str(spec))

@@ -21,6 +21,7 @@ from configobj import ConfigObj, flatten_errors
 from validate import Validator
 
 from pyfll.apt import AptMixin
+from pyfll.audit import AuditMixin
 from pyfll.bootloader import BootloaderMixin
 from pyfll.chroot import ChrootExecMixin
 from pyfll.exceptions import FllError
@@ -30,7 +31,9 @@ from pyfll.profile import PackageProfileMixin
 from pyfll.util import strip_common_words, uuidgen
 
 
-class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin):
+class FLLBuilder(
+    BootloaderMixin, AptMixin, AuditMixin, PackageProfileMixin, ChrootExecMixin
+):
     env = {
         "LANGUAGE": "C",
         "LC_ALL": "C",
@@ -145,6 +148,16 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         else:
             self.init_logger("INFO")
 
+        for modifier in ("profiles", "complete"):
+            if getattr(self.opts, modifier) and not self.opts.audit:
+                self.log.critical(f"--{modifier} is only meaningful with --audit")
+                raise FllError
+
+        if self.opts.audit:
+            # An audit never resolves source package URIs, so don't pay for
+            # fetching deb-src indexes.
+            self.opts.binary = True
+
     def get_distro_imagefile(self, chroot: str) -> str:
         """Return image file that compressed chroot will be archived to."""
         image_file = self.conf["distro"]["FLL_IMAGE_FILE"]
@@ -207,6 +220,11 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         os.chown(self.temp, self.opts.uid, self.opts.gid)
 
         atexit.register(self.cleanup)
+
+        # An audit produces no live media; skip the staging area entirely rather
+        # than copying media_include into it for nothing.
+        if self.opts.audit:
+            return
 
         stage = os.path.join(self.temp, "staging")
         os.makedirs(
@@ -861,6 +879,17 @@ class FLLBuilder(BootloaderMixin, AptMixin, PackageProfileMixin, ChrootExecMixin
         self.init_configuration()
         self.init_logfile()
         self.init_build_directory()
+        if self.opts.audit:
+            if self.opts.profiles:
+                # Only one chroot definition is needed to supply the distro,
+                # arch and repos each profile is resolved against; its own
+                # profile list is irrelevant here.
+                self.opts.chroots = [
+                    (self.opts.chroots or list(self.conf["chroots"]))[0]
+                ]
+            self.init_chroots()
+            self.audit()
+            return
         self.init_chroots()
         self.build_chroots()
         self.write_bootloader_config()
@@ -891,6 +920,15 @@ def main() -> None:
         default=False,
         help="Keep cached apt URIs. Must be defined in config "
         + "file. Default: %(default)s",
+    )
+    cli.add_argument(
+        "--audit",
+        action="store_true",
+        default=False,
+        help="Audit package lists for apt resolvability against real "
+        + "indexes, then exit without building. One bootstrapped chroot "
+        + "serves every profile sharing its distro, arch and repos. "
+        + "Default: %(default)s",
     )
     cli.add_argument(
         "-b",
@@ -924,6 +962,14 @@ def main() -> None:
         nargs="+",
         metavar="<chroot>",
         help="Name of chroot(s) to build. Default: all",
+    )
+    cli.add_argument(
+        "--complete",
+        action="store_true",
+        default=False,
+        help="With --audit, also report how completely the config exercises "
+        + "share/profiles and share/modules: profiles no chroot builds, and "
+        + "modules no build reaches. Default: %(default)s",
     )
     cli.add_argument(
         "-d",
@@ -994,6 +1040,16 @@ def main() -> None:
         action="store_true",
         default=False,
         help="Write a configuration file for quickemu.",
+    )
+    cli.add_argument(
+        "--profiles",
+        nargs="+",
+        metavar="<profile>",
+        default=None,
+        help="With --audit, audit these profiles from share/profiles "
+        + "individually (or 'all' for every one) instead of the configured "
+        + "chroots. The chroot definition they are resolved against is the "
+        + "first of --chroots, else the first in the config file.",
     )
     cli.add_argument(
         "-q",

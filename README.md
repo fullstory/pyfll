@@ -269,6 +269,106 @@ The special module `share/modules/recommends` lists packages whose apt Recommend
 
 ---
 
+## Auditing and maintenance
+
+Building an image takes a long time. `--audit` answers a narrower question much faster: **would apt still install everything the package lists ask for?** It bootstraps a chroot, then checks each package list against the real apt indexes without installing anything.
+
+```bash
+./fll --audit -c fll.conf -b /tmp/fll/
+```
+
+Like a build, this needs root (the `fll` wrapper handles that) and network access. It exits non-zero if any check fails, so it can be used as a gate. Progress is printed as it goes, and the full detail is written to a log file in the output directory, the same as for a build.
+
+By default it checks every chroot in the config (or just those named with `--chroots`), exactly as each would be built. To check the profiles in `share/profiles/` one at a time instead:
+
+```bash
+./fll --audit --profiles kde-lite minimal -c fll.conf -b /tmp/fll/
+./fll --audit --profiles all -c fll.conf -b /tmp/fll/
+```
+
+This casts a wider net, because a config usually builds only some of the profiles that exist. The chroot definition supplying the distro, architecture and repositories is the first one in the config, or the first given to `--chroots`.
+
+### Why it is quick
+
+One bootstrapped chroot is shared by every target that agrees on distro, codename, architecture and repositories. Checking twenty profiles therefore costs little more than checking one: the bootstrap is paid once, and each profile after it takes a few seconds.
+
+Each target is checked in a throwaway overlay on top of that shared chroot. Nothing a check does can affect the next one, which is what allows a profile's `preinst` script to run for real.
+
+Browsers are checked as targets of their own, one per browser named anywhere in the config. A browser is not tied to a profile — any profile can be built with any of them — so adding one browser to every profile would test the same browser repeatedly and never test the others.
+
+### Reading the report
+
+```
+audit summary - 3/3 clean:
+  ok   kde-lite: 1553 package(s) to install (260 selected), 1 duplicate declaration(s)
+  ok   browser:chromium: 174 package(s) to install (3 selected)
+  ok   browser:firefox: 113 package(s) to install (3 selected)
+```
+
+- the first number is how many packages apt would really install, dependencies included
+- **selected** is how many package names the lists actually asked for
+- **duplicate declaration(s)** means a package is named in more than one file. It still installs, so this is only a tidiness note.
+
+A failing target reports what went wrong and, where it can, which profile or module file asked for the offending package.
+
+### What it finds
+
+- packages removed or renamed in the archive
+- typos in a package list
+- dependencies apt cannot satisfy, and conflicts between packages
+- whitelisted recommends that pull in something uninstallable
+- entries in `share/modules/recommends` that no longer exist in any repository
+- malformed `debconf` preseed lines
+- a chroot or profile naming a profile or module file that does not exist
+- a `preinst` or `postinst` script that does not parse
+
+The last two are checked before anything is bootstrapped, so a broken tree is reported in seconds. Scripts are parsed with the interpreter named in their shebang, so a Python `postinst` is not judged by shell rules. A script whose interpreter we cannot check is reported as a warning rather than passed silently.
+
+### What it cannot find
+
+Anything that only shows up once packages are really unpacked and configured:
+
+- two packages shipping the same file
+- maintainer script or `debconf` failures at configure time
+- `postinst` scripts, which run against a fully installed chroot
+- initramfs generation, image creation and bootloader staging
+
+It is a resolvability check, not a build. A clean audit does not promise a clean build.
+
+### Checking a config for completeness
+
+`fll.conf` is meant to showcase every build we are capable of. `--complete` reports how much of `share/profiles/` and `share/modules/` a config actually reaches:
+
+```bash
+./fll --audit --complete -c fll.conf -b /tmp/fll/
+```
+
+Reachability is walked outwards from the chroots a config defines. A chroot names profiles and modules, and a profile names modules — two steps, because a module cannot name another module. So a module counts as reached only if a chroot names it directly, or a profile that some chroot **actually builds** names it. A module named only by a profile that nothing builds is no more exercised than one named nowhere at all.
+
+Three things are reported, each pointing at a different fix:
+
+| Report | Meaning | What to do about it |
+|---|---|---|
+| `N profile(s) no chroot in <config> builds` | the profile file exists, but no chroot uses it | add a chroot that builds it, or accept it as unused |
+| `N module(s) reachable only through a profile no chroot builds` | the gap is in the config, not the module | add a chroot building that profile, and the module comes along |
+| `N module(s) no chroot or profile references at all` | nothing anywhere names it | showcase it, or delete it — a module not worth showcasing is probably not worth maintaining |
+
+Each line names the files involved, so the output reads as a to-do list. For example:
+
+```
+2 profile(s) no chroot in fll.conf builds: cinnamon lxde
+1 module(s) reachable only through a profile no chroot builds:
+    gnome-desktop (via gnome)
+```
+
+A config that reaches everything prints nothing at all.
+
+These are warnings, never failures, and they are off by default. A personal config that builds a single chroot leaves nearly every profile unbuilt, which is true but not worth reporting on every run — it is the shipped example config whose numbers should be trending to zero.
+
+A reference to a profile or module file that does **not exist** is a different matter: that is always checked, always fatal, and does not need this option.
+
+---
+
 ## Utilities
 
 ### `bin/gpthybrid`
@@ -294,6 +394,7 @@ pyfll/
 │   ├── builder.py      # FLLBuilder orchestration
 │   ├── bootloader.py   # Bootloader staging (BootloaderMixin)
 │   ├── apt.py          # Package installation (AptMixin)
+│   ├── audit.py        # Package list resolvability audit (AuditMixin)
 │   ├── chroot.py       # Subprocess/nspawn execution (ChrootExecMixin)
 │   ├── profile.py      # Profile data model and parsing (PackageProfileMixin)
 │   ├── locales.py      # Locale package detection

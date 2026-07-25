@@ -7,7 +7,7 @@ import types
 
 import pytest
 
-from pyfll.apt import AptMixin, proxy_uri
+from pyfll.apt import AptMixin, apt_spec_name, count_apt_actions, proxy_uri
 from pyfll.exceptions import FllError
 
 # _parse_apt_problems/_conflict_subjects don't touch self; call unbound.
@@ -32,6 +32,66 @@ def test_proxy_uri_no_netloc_returned_unchanged():
     """A file: URI with no // has no netloc and can't be proxied; the old
     `uri.split("//")[1]` raised IndexError on this."""
     assert proxy_uri("http://localhost:3142", "file:/srv/mirror") == "file:/srv/mirror"
+
+
+def test_apt_spec_name_plain():
+    assert apt_spec_name("yakuake", {"yakuake"}) == "yakuake"
+
+
+def test_apt_spec_name_unknown():
+    assert apt_spec_name("nosuchpkg", {"yakuake"}) is None
+
+
+def test_apt_spec_name_deselection():
+    """A trailing '-' deselects a package (modules/distro-kde carries
+    plasma-welcome-); it is not a missing package."""
+    assert apt_spec_name("plasma-welcome-", {"plasma-welcome"}) == "plasma-welcome"
+
+
+def test_apt_spec_name_literal_wins_over_modifier():
+    """memtest86+ is a real package name ending in '+', not a modified
+    'memtest86'. Stripping modifiers unconditionally would mis-resolve it."""
+    assert apt_spec_name("memtest86+", {"memtest86+", "memtest86"}) == "memtest86+"
+
+
+def test_apt_spec_name_stale_deselection_is_unknown():
+    """apt errors on 'foo-' when foo does not exist, so a deselection of a
+    package that has left the archive is a real build failure."""
+    assert apt_spec_name("plasma-welcome-", {"yakuake"}) is None
+
+
+APT_SIMULATE_PLAN = """\
+NOTE: This is only a simulation!
+      apt-get needs root privileges for real execution.
+Reading package lists...
+Building dependency tree...
+The following additional packages will be installed:
+  libbar1 libbaz2
+0 upgraded, 3 newly installed, 1 to remove and 0 not upgraded.
+Remv plasma-welcome [6.5.0-1]
+Inst libbar1 (1.2-1 Debian:unstable [amd64])
+Inst libbaz2 (2.0-1 Debian:unstable [amd64])
+Inst foo (2.0-1 Debian:unstable [amd64])
+Conf libbar1 (1.2-1 Debian:unstable [amd64])
+Conf libbaz2 (2.0-1 Debian:unstable [amd64])
+Conf foo (2.0-1 Debian:unstable [amd64])
+"""
+
+
+def test_count_apt_actions_counts_inst_and_remv():
+    """Conf lines mirror Inst lines and must not be double counted."""
+    assert count_apt_actions(APT_SIMULATE_PLAN) == (3, 1)
+
+
+def test_count_apt_actions_empty_output():
+    assert count_apt_actions("") == (0, 0)
+
+
+def test_count_apt_actions_ignores_prose_mentioning_inst():
+    """Only the action lines count, not apt's surrounding narration."""
+    prose = "The following NEW packages will be installed:\n  inst\n"
+
+    assert count_apt_actions(prose) == (0, 0)
 
 
 APT_SIMULATE_OUTPUT = """\
@@ -186,3 +246,89 @@ def test_create_initramfs_dracut_still_works():
 
     assert len(calls) == 1
     assert calls[0][0] == "dracut"
+
+
+def make_lists(tmp_path, indexes):
+    """indexes maps an apt list filename -> its Packages content."""
+    lists_dir = tmp_path / "chroot" / "var" / "lib" / "apt" / "lists"
+    lists_dir.mkdir(parents=True)
+    for name, body in indexes.items():
+        (lists_dir / name).write_text(body)
+    apt = AptMixin()
+    apt.temp = str(tmp_path)
+    return apt
+
+
+AMD64_INDEX = "Package: libegl1\nVersion: 1.7-1\nProvides: libegl-vendor\n\n"
+I386_INDEX = "Package: libegl1\nVersion: 1.7-1\n\n"
+
+
+def test_available_names_registers_arch_qualified(tmp_path):
+    """modules/steam names its runtime libraries as '<pkg>:i386'. Registering
+    only bare names reported all of them as missing from every repository."""
+    apt = make_lists(
+        tmp_path,
+        {
+            "deb.debian.org_dists_sid_main_binary-amd64_Packages": AMD64_INDEX,
+            "deb.debian.org_dists_sid_main_binary-i386_Packages": I386_INDEX,
+        },
+    )
+
+    names = apt._available_package_names("chroot")
+
+    assert "libegl1" in names
+    assert "libegl1:amd64" in names
+    assert "libegl1:i386" in names
+
+
+def test_available_names_qualifies_provides(tmp_path):
+    apt = make_lists(
+        tmp_path,
+        {"deb.debian.org_dists_sid_main_binary-amd64_Packages": AMD64_INDEX},
+    )
+
+    names = apt._available_package_names("chroot")
+
+    assert "libegl-vendor" in names
+    assert "libegl-vendor:amd64" in names
+
+
+def test_available_names_does_not_invent_missing_arch(tmp_path):
+    """With no i386 index, ':i386' must stay unavailable - otherwise the check
+    would wave through a package that genuinely has no i386 build."""
+    apt = make_lists(
+        tmp_path,
+        {"deb.debian.org_dists_sid_main_binary-amd64_Packages": AMD64_INDEX},
+    )
+
+    names = apt._available_package_names("chroot")
+
+    assert "libegl1:amd64" in names
+    assert "libegl1:i386" not in names
+
+
+def test_available_names_unrecognised_filename_still_yields_bare_names(tmp_path):
+    """An index whose name carries no binary-<arch> part still contributes."""
+    apt = make_lists(tmp_path, {"example_Packages": AMD64_INDEX})
+
+    names = apt._available_package_names("chroot")
+
+    assert "libegl1" in names
+    assert not any(":" in name for name in names)
+
+
+def test_apt_spec_name_arch_qualified():
+    available = {"libegl1", "libegl1:amd64", "libegl1:i386"}
+
+    assert apt_spec_name("libegl1:i386", available) == "libegl1:i386"
+
+
+def test_apt_spec_name_arch_qualified_missing():
+    assert apt_spec_name("libegl1:i386", {"libegl1", "libegl1:amd64"}) is None
+
+
+def test_apt_spec_name_arch_qualified_deselection():
+    """':i386' and a trailing '-' have to compose."""
+    available = {"libegl1", "libegl1:i386"}
+
+    assert apt_spec_name("libegl1:i386-", available) == "libegl1:i386"

@@ -2,12 +2,49 @@
 # Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
 
 import os
+import re
 import shutil
 import subprocess
 from urllib.parse import urlsplit
 
 from pyfll.exceptions import FllError
 from pyfll.profile import RECOMMENDS_WHITELIST
+from pyfll.util import deduplicate_list
+
+
+def apt_spec_name(spec: str, available: set) -> str | None:
+    """Resolve an apt-get install argument to the package name it refers to,
+    or None if no such package exists.
+
+    A package list entry may carry apt's action modifiers: a trailing '-'
+    deselects a package (e.g. plasma-welcome- in modules/distro-kde), '+'
+    forces one in. The literal name wins whenever it exists - memtest86+ is a
+    real package, not a modified 'memtest86' - so only fall back to stripping a
+    modifier when the literal is unknown, which is how apt itself reads these.
+    """
+    if spec in available:
+        return spec
+    if spec[-1:] in ("+", "-") and spec[:-1] in available:
+        return spec[:-1]
+    return None
+
+
+def count_apt_actions(output: str) -> tuple:
+    """Count the install and remove actions in 'apt-get --simulate' output,
+    returning (install, remove).
+
+    apt prints one 'Inst <pkg> ...' or 'Remv <pkg> ...' line per action, which
+    is the number of packages a build would actually act on - unlike the size of
+    the requested selection, which excludes everything apt pulls in as a
+    dependency. 'Inst' covers a new install and an upgrade alike; right after
+    prime_apt's dist-upgrade there is little left to upgrade."""
+    install = remove = 0
+    for line in output.splitlines():
+        if line.startswith("Inst "):
+            install += 1
+        elif line.startswith("Remv "):
+            remove += 1
+    return install, remove
 
 
 def proxy_uri(proxy: str, uri: str) -> str:
@@ -299,29 +336,47 @@ class AptMixin:
         cmd.append("/fll/fll_debconf_selections")
         self.chroot_exec(chroot, cmd)
 
-    def install_packages(self, chroot: str) -> None:
-        """Install packages."""
-        from pyfll.util import deduplicate_list
-
-        available = self._read_apt_packages(chroot)
-        installed = set(self._read_dpkg_status(chroot).keys())
-
-        pkgs_base = list(installed)
-        pkgs_want = deduplicate_list(pkgs_base + list(self.profiles[chroot].packages))
-        pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
-        rec_pkgs = self.detect_recommended_packages(
-            pkgs_dict, available, installed,
-            recommended_by=self.profiles[chroot].recommended_by,
-        )
-        pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + rec_pkgs)
-        pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
-        loc_list = (
+    def _chroot_locales(self, chroot: str) -> list:
+        """Return a chroot's configured locales, falling back to --locales."""
+        return (
             [loc for loc in self.conf["chroots"][chroot]["packages"]["locales"]]
             if self.conf["chroots"][chroot]["packages"].get("locales")
             else self.opts.locales
         )
-        loc_pkgs = self.detect_locale_packages(loc_list, pkgs_dict, available)
-        pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + loc_pkgs)
+
+    def resolve_wanted_packages(
+        self, chroot: str, profile, locales: list | None = None
+    ) -> tuple:
+        """Compute the full package selection for *profile* against *chroot*'s
+        apt state: everything already installed, plus the profile's packages,
+        plus whitelisted recommends and detected locale packages. Returns
+        (wanted, installed).
+
+        *locales* overrides the chroot's configured locales. The audit resolves
+        sibling chroots against one bootstrapped chroot's apt state, so it must
+        supply each target's own locales rather than the host chroot's."""
+        available = self._read_apt_packages(chroot)
+        installed = set(self._read_dpkg_status(chroot).keys())
+
+        pkgs_base = list(installed)
+        pkgs_want = deduplicate_list(pkgs_base + list(profile.packages))
+        pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
+        rec_pkgs = self.detect_recommended_packages(
+            pkgs_dict, available, installed,
+            recommended_by=profile.recommended_by,
+        )
+        pkgs_want = deduplicate_list(list(pkgs_dict.keys()) + rec_pkgs)
+        pkgs_dict = dict([(pkg, True) for pkg in pkgs_want])
+        if locales is None:
+            locales = self._chroot_locales(chroot)
+        loc_pkgs = self.detect_locale_packages(locales, pkgs_dict, available)
+        return deduplicate_list(list(pkgs_dict.keys()) + loc_pkgs), installed
+
+    def install_packages(self, chroot: str) -> None:
+        """Install packages."""
+        pkgs_want, installed = self.resolve_wanted_packages(
+            chroot, self.profiles[chroot]
+        )
 
         self.log.info(f"{chroot} - installing packages...")
         try:
@@ -354,7 +409,7 @@ class AptMixin:
             additions = sorted(set(wanted) - installed)
             available = self._available_package_names(chroot)
 
-            unknown = [p for p in additions if p not in available]
+            unknown = [p for p in additions if apt_spec_name(p, available) is None]
             if unknown:
                 self.log.error(
                     f"{chroot} - {len(unknown)} requested package(s) not found in "
@@ -365,8 +420,10 @@ class AptMixin:
                     self.log.error(f"{chroot} -     {pkg}")
 
             # Drop the unknown names so apt gets past "unable to locate" and can
-            # report deeper conflicts among packages that do exist.
-            solvable = [p for p in wanted if p in available]
+            # report deeper conflicts among packages that do exist. Keep each
+            # entry as written: dropping a '<pkg>-' deselection would let the
+            # simulate resolve a selection the real install cannot.
+            solvable = [p for p in wanted if apt_spec_name(p, available) is not None]
             rc, output = self._apt_simulate(chroot, solvable)
             if rc == 0:
                 if not unknown:
@@ -451,7 +508,14 @@ class AptMixin:
 
     def _available_package_names(self, chroot: str) -> set:
         """Return every installable name (real packages plus Provides) from the
-        apt indexes, for spotting requested names that exist nowhere."""
+        apt indexes, for spotting requested names that exist nowhere.
+
+        A package list may qualify a name with an architecture, as
+        modules/steam does for its i386 runtime libraries, so each name is
+        registered both bare and as '<name>:<arch>'. The architecture comes from
+        the index filename, which apt writes as '..._binary-<arch>_Packages' -
+        enough to keep this a single fast line scan rather than a stanza parse.
+        """
         names = set()
         lists_dir = os.path.join(self.temp, chroot, "var/lib/apt/lists")
         if not os.path.isdir(lists_dir):
@@ -459,15 +523,25 @@ class AptMixin:
         for fname in os.listdir(lists_dir):
             if not fname.endswith("_Packages"):
                 continue
+            match = re.search(r"_binary-([^_]+)_Packages$", fname)
+            arch = match.group(1) if match else None
             with open(os.path.join(lists_dir, fname)) as f:
                 for line in f:
                     if line.startswith("Package: "):
-                        names.add(line[9:].strip())
+                        found = [line[9:].strip()]
                     elif line.startswith("Provides: "):
-                        for prov in line[10:].split(","):
-                            prov = prov.strip().split(" ")[0]
-                            if prov:
-                                names.add(prov)
+                        found = [
+                            prov.strip().split(" ")[0]
+                            for prov in line[10:].split(",")
+                        ]
+                    else:
+                        continue
+                    for name in found:
+                        if not name:
+                            continue
+                        names.add(name)
+                        if arch:
+                            names.add(f"{name}:{arch}")
         return names
 
     def _apt_simulate(self, chroot: str, packages: list) -> tuple:
@@ -748,11 +822,7 @@ class AptMixin:
     def configure_locales(self, chroot: str) -> None:
         """Generate locales."""
         chroot_dir = os.path.join(self.temp, chroot)
-        locales_list = (
-            [loc for loc in self.conf["chroots"][chroot]["packages"]["locales"]]
-            if self.conf["chroots"][chroot]["packages"].get("locales")
-            else self.opts.locales
-        )
+        locales_list = self._chroot_locales(chroot)
         default_locale = f"{locales_list[0]}.UTF-8"
         with open(os.path.join(chroot_dir, "etc", "locale.gen"), "a") as locale_gen:
             locale_gen.write("\n# Locales enabled by fll\n")

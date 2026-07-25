@@ -3,8 +3,6 @@ desc = """
 """
 
 packages = """
-
-"""
 	libvirt-clients
 	libvirt-common
 	libvirt-daemon

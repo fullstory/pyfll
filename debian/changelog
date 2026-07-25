@@ -545,6 +545,106 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * CI: install ca-certificates so the git checkout can verify HTTPS.
   * CI: bump actions/checkout to v5 (drops the Node.js 20 deprecation
     warning).
+  * New --audit mode: check that profile package lists still resolve
+    with apt, without building an image. One bootstrapped chroot serves
+    every profile that shares a distro, architecture and repositories,
+    so removed or renamed packages, typos and unmet dependencies show up
+    in about a minute instead of after a full build. --profiles audits
+    share/profiles entries one at a time.
+  * Package failure analysis: treat a trailing '-' in a package list as
+    apt's "do not install" marker (e.g. plasma-welcome-) rather than a
+    missing package, and keep it in the dependency check. Names that
+    really end in '+' (memtest86+) are used as-is.
+  * --audit: check each configured browser as a target of its own
+    instead of adding one to every profile. Browsers are
+    interchangeable, so all of them (e.g. firefox and chromium) now get
+    checked once each, rather than one of them being checked over and
+    over.
+  * --audit: report the number of packages apt would really install,
+    counted from its own plan, instead of the size of the requested
+    package list. The list size is kept in brackets as context: one
+    desktop profile selects 260 names but installs 1553 packages once
+    dependencies are pulled in.
+  * --audit: stop with an error when a chroot or profile names a profile
+    or module file that does not exist, before any chroot is
+    bootstrapped. This covers every profile in share/profiles, not only
+    the ones being audited.
+  * --audit --complete: report how completely a config exercises
+    share/profiles and share/modules. Lists profiles that no chroot
+    builds, and modules that no build reaches, either because only an
+    unbuilt profile names them or because nothing names them at all.
+    Handy for keeping fll.conf a showcase of every build we can make.
+    Off by default: a personal config that builds a single chroot leaves
+    most profiles unbuilt, which is true but not worth reporting.
+  * README: add an Auditing and maintenance section. It covers how to
+    run the audit over configured chroots or individual profiles, how to
+    read its report, what it can and cannot catch, and how to check a
+    config for completeness.
+  * audit: syntax-check every preinst and postinst script in
+    share/profiles and share/modules before bootstrapping anything, and
+    report all static problems in one pass rather than one per run. Each
+    script is parsed with the interpreter from its shebang, so the
+    Python postinst is not judged by shell rules; a script we cannot
+    check is a warning, not a pass.
+  * README: note the maintainer script syntax check in the auditing
+    section.
+  * Fix the packages list in the virt-manager module: an extra quote
+    marker closed the list right after it opened, so the file could not
+    be parsed at all. Nothing referenced the module, so this went
+    unnoticed ever since it was added.
+  * Report a clear error naming the file and the offending lines when a
+    profile or module file cannot be parsed, instead of letting a raw
+    traceback escape.
+  * audit: recognise package names that carry an architecture, such as
+    the i386 runtime libraries in the steam module. These were all
+    reported as missing from every repository, and were also dropped
+    from the dependency check, so they were never really tested. The
+    architecture now comes from the apt index filename, and a name is
+    only accepted for an architecture that actually has a build.
+  * Remove the wine module. Every package it listed, apart from wine
+    itself, was dropped from Debian more than ten years ago, so the
+    module could never have installed. Nothing referenced it.
+  * Drop the stale python-dbus entry from the recommends whitelist. That
+    package went away with Python 2, so the entry matched nothing.
+  * Name network-manager-applet in the gnome module. Debian renamed that
+    binary, and the old package left in the archive needs a version of
+    the applet that no longer exists, so gnome would not install. Every
+    other desktop module already names the applet.
+  * Drop gimp-plugin-registry from the gimp module. It still needs a
+    GIMP 2 library that has left the archive, so it cannot be installed
+    beside GIMP 3. The other packages in the module are already ported.
+  * Add a test that the static checks run before any chroot is
+    bootstrapped. The checks themselves were already tested against
+    trees with deliberate errors, but nothing held the ordering, so
+    reordering the audit could have quietly made a broken tree cost a
+    full bootstrap to discover.
+  * fll.conf: add a kiosks chroot that builds both kiosk profiles, and
+    show the steam module in the kodi-plasma chroot with contrib
+    enabled. No example built either kiosk profile before, and the steam
+    module needs contrib, which was left to the reader to work out.
+  * fll.conf: add full budgie, gnome, lxqt and xfce chroots, alongside
+    the lite variants already there. Every profile these pull in is now
+    built by an example, so no module is left reachable only through a
+    profile nothing builds.
+  * fll.conf: fix the i386 minimal-x chroot, which named no profile and
+    so silently built a KDE image from the spec default. Give both
+    minimal-x chroots a browser, which only the i386 one had.
+  * fll.conf: spread the remaining unused modules across the example
+    chroots, pairing each with something it suits, and show the packages
+    option in use on the kodi-plasma chroot. Every module in
+    share/modules is now built by at least one example.
+  * fll.conf: add chroots for the last six profiles that no example
+    built: full cinnamon and lxde, stripped gnome and mate, lite labwc,
+    and the lxqt compositors variant. Every profile and every module in
+    share is now built by at least one example.
+  * Remove the labwc-lite profile and the chroot that built it. It named
+    exactly the same modules and packages as labwc, so it produced an
+    identical image, but declared no desktop session at all. Keep labwc,
+    which does.
+  * fll.conf: sort the chroot definitions by name, keeping the lxkde
+    example at the top. Each flavour keeps its amd64 and i386
+    definitions together. Two section headers that were missing their
+    inner spaces are now written like all the others.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
