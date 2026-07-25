@@ -595,6 +595,12 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Report a clear error naming the file and the offending lines when a
     profile or module file cannot be parsed, instead of letting a raw
     traceback escape.
+  * audit: recognise package names that carry an architecture, such as
+    the i386 runtime libraries in the steam module. These were all
+    reported as missing from every repository, and were also dropped
+    from the dependency check, so they were never really tested. The
+    architecture now comes from the apt index filename, and a name is
+    only accepted for an architecture that actually has a build.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

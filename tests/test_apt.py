@@ -246,3 +246,89 @@ def test_create_initramfs_dracut_still_works():
 
     assert len(calls) == 1
     assert calls[0][0] == "dracut"
+
+
+def make_lists(tmp_path, indexes):
+    """indexes maps an apt list filename -> its Packages content."""
+    lists_dir = tmp_path / "chroot" / "var" / "lib" / "apt" / "lists"
+    lists_dir.mkdir(parents=True)
+    for name, body in indexes.items():
+        (lists_dir / name).write_text(body)
+    apt = AptMixin()
+    apt.temp = str(tmp_path)
+    return apt
+
+
+AMD64_INDEX = "Package: libegl1\nVersion: 1.7-1\nProvides: libegl-vendor\n\n"
+I386_INDEX = "Package: libegl1\nVersion: 1.7-1\n\n"
+
+
+def test_available_names_registers_arch_qualified(tmp_path):
+    """modules/steam names its runtime libraries as '<pkg>:i386'. Registering
+    only bare names reported all of them as missing from every repository."""
+    apt = make_lists(
+        tmp_path,
+        {
+            "deb.debian.org_dists_sid_main_binary-amd64_Packages": AMD64_INDEX,
+            "deb.debian.org_dists_sid_main_binary-i386_Packages": I386_INDEX,
+        },
+    )
+
+    names = apt._available_package_names("chroot")
+
+    assert "libegl1" in names
+    assert "libegl1:amd64" in names
+    assert "libegl1:i386" in names
+
+
+def test_available_names_qualifies_provides(tmp_path):
+    apt = make_lists(
+        tmp_path,
+        {"deb.debian.org_dists_sid_main_binary-amd64_Packages": AMD64_INDEX},
+    )
+
+    names = apt._available_package_names("chroot")
+
+    assert "libegl-vendor" in names
+    assert "libegl-vendor:amd64" in names
+
+
+def test_available_names_does_not_invent_missing_arch(tmp_path):
+    """With no i386 index, ':i386' must stay unavailable - otherwise the check
+    would wave through a package that genuinely has no i386 build."""
+    apt = make_lists(
+        tmp_path,
+        {"deb.debian.org_dists_sid_main_binary-amd64_Packages": AMD64_INDEX},
+    )
+
+    names = apt._available_package_names("chroot")
+
+    assert "libegl1:amd64" in names
+    assert "libegl1:i386" not in names
+
+
+def test_available_names_unrecognised_filename_still_yields_bare_names(tmp_path):
+    """An index whose name carries no binary-<arch> part still contributes."""
+    apt = make_lists(tmp_path, {"example_Packages": AMD64_INDEX})
+
+    names = apt._available_package_names("chroot")
+
+    assert "libegl1" in names
+    assert not any(":" in name for name in names)
+
+
+def test_apt_spec_name_arch_qualified():
+    available = {"libegl1", "libegl1:amd64", "libegl1:i386"}
+
+    assert apt_spec_name("libegl1:i386", available) == "libegl1:i386"
+
+
+def test_apt_spec_name_arch_qualified_missing():
+    assert apt_spec_name("libegl1:i386", {"libegl1", "libegl1:amd64"}) is None
+
+
+def test_apt_spec_name_arch_qualified_deselection():
+    """':i386' and a trailing '-' have to compose."""
+    available = {"libegl1", "libegl1:i386"}
+
+    assert apt_spec_name("libegl1:i386-", available) == "libegl1:i386"

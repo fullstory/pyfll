@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
 
 import os
+import re
 import shutil
 import subprocess
 from urllib.parse import urlsplit
@@ -507,7 +508,14 @@ class AptMixin:
 
     def _available_package_names(self, chroot: str) -> set:
         """Return every installable name (real packages plus Provides) from the
-        apt indexes, for spotting requested names that exist nowhere."""
+        apt indexes, for spotting requested names that exist nowhere.
+
+        A package list may qualify a name with an architecture, as
+        modules/steam does for its i386 runtime libraries, so each name is
+        registered both bare and as '<name>:<arch>'. The architecture comes from
+        the index filename, which apt writes as '..._binary-<arch>_Packages' -
+        enough to keep this a single fast line scan rather than a stanza parse.
+        """
         names = set()
         lists_dir = os.path.join(self.temp, chroot, "var/lib/apt/lists")
         if not os.path.isdir(lists_dir):
@@ -515,15 +523,25 @@ class AptMixin:
         for fname in os.listdir(lists_dir):
             if not fname.endswith("_Packages"):
                 continue
+            match = re.search(r"_binary-([^_]+)_Packages$", fname)
+            arch = match.group(1) if match else None
             with open(os.path.join(lists_dir, fname)) as f:
                 for line in f:
                     if line.startswith("Package: "):
-                        names.add(line[9:].strip())
+                        found = [line[9:].strip()]
                     elif line.startswith("Provides: "):
-                        for prov in line[10:].split(","):
-                            prov = prov.strip().split(" ")[0]
-                            if prov:
-                                names.add(prov)
+                        found = [
+                            prov.strip().split(" ")[0]
+                            for prov in line[10:].split(",")
+                        ]
+                    else:
+                        continue
+                    for name in found:
+                        if not name:
+                            continue
+                        names.add(name)
+                        if arch:
+                            names.add(f"{name}:{arch}")
         return names
 
     def _apt_simulate(self, chroot: str, packages: list) -> tuple:
