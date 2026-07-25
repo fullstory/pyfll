@@ -641,6 +641,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
     exactly the same modules and packages as labwc, so it produced an
     identical image, but declared no desktop session at all. Keep labwc,
     which does.
+  * fll.conf: sort the chroot definitions by name, keeping the lxkde
+    example at the top. Each flavour keeps its amd64 and i386
+    definitions together. Two section headers that were missing their
+    inner spaces are now written like all the others.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
