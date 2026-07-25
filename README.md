@@ -269,6 +269,94 @@ The special module `share/modules/recommends` lists packages whose apt Recommend
 
 ---
 
+## Auditing and maintenance
+
+Building an image takes a long time. `--audit` answers a narrower question much faster: **would apt still install everything the package lists ask for?** It bootstraps a chroot, then checks each package list against the real apt indexes without installing anything.
+
+```bash
+./fll --audit -c fll.conf -b /tmp/fll/
+```
+
+Like a build, this needs root (the `fll` wrapper handles that) and network access. It exits non-zero if any check fails, so it can be used as a gate. Progress is printed as it goes, and the full detail is written to a log file in the output directory, the same as for a build.
+
+By default it checks every chroot in the config (or just those named with `--chroots`), exactly as each would be built. To check the profiles in `share/profiles/` one at a time instead:
+
+```bash
+./fll --audit --profiles kde-lite minimal -c fll.conf -b /tmp/fll/
+./fll --audit --profiles all -c fll.conf -b /tmp/fll/
+```
+
+This casts a wider net, because a config usually builds only some of the profiles that exist. The chroot definition supplying the distro, architecture and repositories is the first one in the config, or the first given to `--chroots`.
+
+### Why it is quick
+
+One bootstrapped chroot is shared by every target that agrees on distro, codename, architecture and repositories. Checking twenty profiles therefore costs little more than checking one: the bootstrap is paid once, and each profile after it takes a few seconds.
+
+Each target is checked in a throwaway overlay on top of that shared chroot. Nothing a check does can affect the next one, which is what allows a profile's `preinst` script to run for real.
+
+Browsers are checked as targets of their own, one per browser named anywhere in the config. A browser is not tied to a profile — any profile can be built with any of them — so adding one browser to every profile would test the same browser repeatedly and never test the others.
+
+### Reading the report
+
+```
+audit summary - 3/3 clean:
+  ok   kde-lite: 1553 package(s) to install (260 selected), 1 duplicate declaration(s)
+  ok   browser:chromium: 174 package(s) to install (3 selected)
+  ok   browser:firefox: 113 package(s) to install (3 selected)
+```
+
+- the first number is how many packages apt would really install, dependencies included
+- **selected** is how many package names the lists actually asked for
+- **duplicate declaration(s)** means a package is named in more than one file. It still installs, so this is only a tidiness note.
+
+A failing target reports what went wrong and, where it can, which profile or module file asked for the offending package.
+
+### What it finds
+
+- packages removed or renamed in the archive
+- typos in a package list
+- dependencies apt cannot satisfy, and conflicts between packages
+- whitelisted recommends that pull in something uninstallable
+- entries in `share/modules/recommends` that no longer exist in any repository
+- malformed `debconf` preseed lines
+- a chroot or profile naming a profile or module file that does not exist
+
+### What it cannot find
+
+Anything that only shows up once packages are really unpacked and configured:
+
+- two packages shipping the same file
+- maintainer script or `debconf` failures at configure time
+- `postinst` scripts, which run against a fully installed chroot
+- initramfs generation, image creation and bootloader staging
+
+It is a resolvability check, not a build. A clean audit does not promise a clean build.
+
+### Checking a config for completeness
+
+`fll.conf` is meant to showcase every build we are capable of. `--completeness` reports how much of `share/profiles/` and `share/modules/` a config actually reaches:
+
+```bash
+./fll --audit --completeness -c fll.conf -b /tmp/fll/
+```
+
+```
+12 profile(s) no chroot in fll.conf builds: browser-kiosk budgie cinnamon ...
+5 module(s) reachable only through a profile no chroot builds:
+    gnome-desktop (via gnome)
+    ...
+9 module(s) no chroot or profile references at all: apparmor development gimp ...
+```
+
+A module counts as reached only if a chroot names it, or a profile that a chroot actually builds names it. The two lists suggest different fixes:
+
+- **reachable only through a profile no chroot builds** — the config has a gap. Add a chroot that builds that profile and the module is covered.
+- **referenced nowhere at all** — either add a chroot showing it off, or delete the module. A module not worth showcasing is probably not worth maintaining.
+
+These are warnings, never failures, and they are off by default: a personal config that builds a single chroot leaves most profiles unbuilt, which is true but not worth reporting every run.
+
+---
+
 ## Utilities
 
 ### `bin/gpthybrid`
@@ -294,6 +382,7 @@ pyfll/
 │   ├── builder.py      # FLLBuilder orchestration
 │   ├── bootloader.py   # Bootloader staging (BootloaderMixin)
 │   ├── apt.py          # Package installation (AptMixin)
+│   ├── audit.py        # Package list resolvability audit (AuditMixin)
 │   ├── chroot.py       # Subprocess/nspawn execution (ChrootExecMixin)
 │   ├── profile.py      # Profile data model and parsing (PackageProfileMixin)
 │   ├── locales.py      # Locale package detection

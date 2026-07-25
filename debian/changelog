@@ -576,6 +576,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
     Handy for keeping fll.conf a showcase of every build we can make.
     Off by default: a personal config that builds a single chroot leaves
     most profiles unbuilt, which is true but not worth reporting.
+  * README: add an Auditing and maintenance section. It covers how to
+    run the audit over configured chroots or individual profiles, how to
+    read its report, what it can and cannot catch, and how to check a
+    config for completeness.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
