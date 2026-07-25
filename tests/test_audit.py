@@ -17,7 +17,7 @@ from pyfll.audit import (
     syntax_check_cmd,
 )
 from pyfll.exceptions import FllError
-from pyfll.profile import FllProfile
+from pyfll.profile import FllProfile, PackageProfileMixin
 
 
 def test_is_list_file_accepts_package_lists():
@@ -33,10 +33,10 @@ def test_is_list_file_rejects_maint_scripts_and_dotfiles():
     assert not is_list_file(".gitignore")
 
 
-class FakeAudit(AuditMixin, AptMixin):
+class FakeAudit(AuditMixin, AptMixin, PackageProfileMixin):
     """AuditMixin with just enough of FLLBuilder to exercise target selection,
-    grouping and reporting without a chroot. AptMixin comes along for the real
-    _chroot_locales()."""
+    grouping and reporting without a chroot. The sibling mixins come along for
+    the real _chroot_locales() and _read_configobj(), as in FLLBuilder."""
 
     def __init__(self, conf=None, chroots=None, profiles=None, opts=None):
         self.conf = conf or {"chroots": {}}

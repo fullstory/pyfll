@@ -5,6 +5,8 @@ import logging
 import os
 import types
 
+import pytest
+
 from pyfll.exceptions import FllError
 from pyfll.profile import (
     PackageProfileMixin,
@@ -271,3 +273,68 @@ def test_expand_pkg_profile_browser_false_omits_browser(tmp_path):
     assert "yakuake" in pkg_profile.packages
     assert "squashfs-tools" in pkg_profile.packages
     assert "linux-image-aptosid-amd64" in pkg_profile.packages
+
+
+def _make_configobj_reader():
+    profile = PackageProfileMixin.__new__(PackageProfileMixin)
+    profile.log = logging.getLogger("test_read_configobj")
+    return profile
+
+
+def test_read_configobj_malformed_raises_fllerror(caplog, tmp_path):
+    """A stray triple-quote orphans every line after it. share/modules/
+    virt-manager shipped like this and surfaced as a raw ConfigObjError
+    traceback rather than a message naming the file."""
+    broken = tmp_path / "virt-manager"
+    broken.write_text('packages = """\n\n"""\n\tlibvirt-clients\n\tvirt-manager\n"""\n')
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            _make_configobj_reader()._read_configobj(str(broken))
+
+    assert f"failed to parse {broken}" in caplog.text
+    assert "line 4: libvirt-clients" in caplog.text
+
+
+def test_read_configobj_truncates_error_cascade(caplog, tmp_path):
+    """One bad quote invalidates every following line, so only the first few
+    are worth printing."""
+    lines = "".join(f"\tpkg{n}\n" for n in range(10))
+    broken = tmp_path / "mod"
+    broken.write_text(f'packages = """\n"""\n{lines}"""\n')
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            _make_configobj_reader()._read_configobj(str(broken))
+
+    # Three lines shown, the rest summarised.
+    assert "pkg0" in caplog.text
+    assert "pkg3" not in caplog.text
+    assert "pkg9" not in caplog.text
+    assert "more line(s)" in caplog.text
+
+
+def test_read_configobj_valid_file_without_configspec(tmp_path):
+    good = tmp_path / "mod"
+    good.write_text('packages = """\n\tbat\n"""\n')
+
+    conf = _make_configobj_reader()._read_configobj(str(good))
+
+    assert [line.strip() for line in conf["packages"].splitlines() if line.strip()] == [
+        "bat"
+    ]
+
+
+def test_read_configobj_validates_when_configspec_given(tmp_path):
+    """With a configspec the file is validated too; without one it is not."""
+    spec = tmp_path / "spec"
+    spec.write_text("packages = string()\nwanted = string()\n")
+    incomplete = tmp_path / "mod"
+    incomplete.write_text('packages = """\n\tbat\n"""\n')
+    reader = _make_configobj_reader()
+    reader.validate_configobj = lambda obj: (_ for _ in ()).throw(FllError)
+
+    reader._read_configobj(str(incomplete))
+
+    with pytest.raises(FllError):
+        reader._read_configobj(str(incomplete), configspec=str(spec))

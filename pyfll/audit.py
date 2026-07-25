@@ -7,8 +7,6 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 
-from configobj import ConfigObj
-
 from pyfll.apt import apt_spec_name, count_apt_actions
 from pyfll.exceptions import FllError
 from pyfll.profile import RECOMMENDS_WHITELIST, FllProfile
@@ -183,7 +181,7 @@ class AuditMixin:
         profile_dir = os.path.join(self.opts.share, "profiles")
         by_profile = {}
         for name in sorted(p for p in os.listdir(profile_dir) if is_list_file(p)):
-            conf = ConfigObj(os.path.join(profile_dir, name))
+            conf = self._read_configobj(os.path.join(profile_dir, name))
             for module in multiline_to_list(conf.get("modules", "")):
                 by_profile.setdefault(module, set()).add(name)
 
@@ -583,7 +581,9 @@ class AuditMixin:
         """Report recommends whitelist entries that exist in no configured
         repository. The whitelist ages exactly as a package list does, but a
         stale entry there is silent: it simply stops matching anything."""
-        whitelist = ConfigObj(os.path.join(self.opts.share, RECOMMENDS_WHITELIST))
+        whitelist = self._read_configobj(
+            os.path.join(self.opts.share, RECOMMENDS_WHITELIST)
+        )
         entries = multiline_to_list(whitelist.get("packages", ""))
         available = self._available_package_names(chroot)
         stale = sorted(pkg for pkg in entries if pkg not in available)

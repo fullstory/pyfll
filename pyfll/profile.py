@@ -4,7 +4,7 @@
 import os
 from dataclasses import dataclass, field
 
-from configobj import ConfigObj
+from configobj import ConfigObj, ConfigObjError
 from debian.debian_support import Version
 
 from pyfll.exceptions import FllError, FllLocalesError
@@ -139,6 +139,29 @@ class PackageProfileMixin:
                     target.add(line)
                 self.log.debug(f"  {line}")
 
+    def _read_configobj(self, path: str, configspec: str = None) -> ConfigObj:
+        """Parse a profile or module file, and validate it if a configspec is
+        given.
+
+        ConfigObj raises ConfigObjError on a malformed file - a stray or
+        unterminated triple-quote, say - which would otherwise reach the user as
+        a raw traceback instead of a message naming the file and the lines at
+        fault. Report the first few offending lines: one bad quote invalidates
+        every line after it, so the whole list is noise."""
+        try:
+            conf = ConfigObj(path, configspec=configspec)
+        except ConfigObjError as exc:
+            self.log.critical(f"failed to parse {path}: {exc}")
+            errors = getattr(exc, "errors", [])
+            for error in errors[:3]:
+                self.log.critical(f"    line {error.line_number}: {error.line.strip()}")
+            if len(errors) > 3:
+                self.log.critical(f"    ... and {len(errors) - 3} more line(s)")
+            raise FllError
+        if configspec:
+            self.validate_configobj(conf)
+        return conf
+
     def _register_maint_scripts(self, base_path, pkg_profile):
         """Register a profile/module's .preinst/.postinst scripts if present."""
         for kind, target in (
@@ -209,8 +232,7 @@ class PackageProfileMixin:
         )
 
         fll_profile_spec = os.path.join(self.opts.share, "fll.profile.spec")
-        profile_conf = ConfigObj(profile, configspec=fll_profile_spec)
-        self.validate_configobj(profile_conf)
+        profile_conf = self._read_configobj(profile, configspec=fll_profile_spec)
         profile_origin = os.path.relpath(profile, self.opts.share)
 
         self._merge_conf_sections(profile_conf, profile_origin, arch, pkg_profile)
@@ -239,8 +261,7 @@ class PackageProfileMixin:
                 self.log.critical(f"no such module file: {module_file}")
                 raise FllError
 
-            module_conf = ConfigObj(module_file, configspec=fll_module_spec)
-            self.validate_configobj(module_conf)
+            module_conf = self._read_configobj(module_file, configspec=fll_module_spec)
             module_origin = os.path.relpath(module_file, self.opts.share)
 
             self._merge_conf_sections(module_conf, module_origin, arch, pkg_profile)

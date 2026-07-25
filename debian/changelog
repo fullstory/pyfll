@@ -588,6 +588,13 @@ pyfll (2026.1) UNRELEASED; urgency=low
     check is a warning, not a pass.
   * README: note the maintainer script syntax check in the auditing
     section.
+  * Fix the packages list in the virt-manager module: an extra quote
+    marker closed the list right after it opened, so the file could not
+    be parsed at all. Nothing referenced the module, so this went
+    unnoticed ever since it was added.
+  * Report a clear error naming the file and the offending lines when a
+    profile or module file cannot be parsed, instead of letting a raw
+    traceback escape.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
