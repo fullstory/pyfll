@@ -7,7 +7,7 @@ import types
 
 import pytest
 
-from pyfll.apt import AptMixin, proxy_uri
+from pyfll.apt import AptMixin, apt_spec_name, proxy_uri
 from pyfll.exceptions import FllError
 
 # _parse_apt_problems/_conflict_subjects don't touch self; call unbound.
@@ -32,6 +32,32 @@ def test_proxy_uri_no_netloc_returned_unchanged():
     """A file: URI with no // has no netloc and can't be proxied; the old
     `uri.split("//")[1]` raised IndexError on this."""
     assert proxy_uri("http://localhost:3142", "file:/srv/mirror") == "file:/srv/mirror"
+
+
+def test_apt_spec_name_plain():
+    assert apt_spec_name("yakuake", {"yakuake"}) == "yakuake"
+
+
+def test_apt_spec_name_unknown():
+    assert apt_spec_name("nosuchpkg", {"yakuake"}) is None
+
+
+def test_apt_spec_name_deselection():
+    """A trailing '-' deselects a package (modules/distro-kde carries
+    plasma-welcome-); it is not a missing package."""
+    assert apt_spec_name("plasma-welcome-", {"plasma-welcome"}) == "plasma-welcome"
+
+
+def test_apt_spec_name_literal_wins_over_modifier():
+    """memtest86+ is a real package name ending in '+', not a modified
+    'memtest86'. Stripping modifiers unconditionally would mis-resolve it."""
+    assert apt_spec_name("memtest86+", {"memtest86+", "memtest86"}) == "memtest86+"
+
+
+def test_apt_spec_name_stale_deselection_is_unknown():
+    """apt errors on 'foo-' when foo does not exist, so a deselection of a
+    package that has left the archive is a real build failure."""
+    assert apt_spec_name("plasma-welcome-", {"yakuake"}) is None
 
 
 APT_SIMULATE_OUTPUT = """\

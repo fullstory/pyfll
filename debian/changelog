@@ -545,6 +545,16 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * CI: install ca-certificates so the git checkout can verify HTTPS.
   * CI: bump actions/checkout to v5 (drops the Node.js 20 deprecation
     warning).
+  * New --audit mode: check that profile package lists still resolve
+    with apt, without building an image. One bootstrapped chroot serves
+    every profile that shares a distro, architecture and repositories,
+    so removed or renamed packages, typos and unmet dependencies show up
+    in about a minute instead of after a full build. --profiles audits
+    share/profiles entries one at a time.
+  * Package failure analysis: treat a trailing '-' in a package list as
+    apt's "do not install" marker (e.g. plasma-welcome-) rather than a
+    missing package, and keep it in the dependency check. Names that
+    really end in '+' (memtest86+) are used as-is.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
