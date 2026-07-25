@@ -610,6 +610,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
     binary, and the old package left in the archive needs a version of
     the applet that no longer exists, so gnome would not install. Every
     other desktop module already names the applet.
+  * Drop gimp-plugin-registry from the gimp module. It still needs a
+    GIMP 2 library that has left the archive, so it cannot be installed
+    beside GIMP 3. The other packages in the module are already ported.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
