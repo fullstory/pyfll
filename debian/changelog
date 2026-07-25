@@ -622,6 +622,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
     show the steam module in the kodi-plasma chroot with contrib
     enabled. No example built either kiosk profile before, and the steam
     module needs contrib, which was left to the reader to work out.
+  * fll.conf: add full budgie, gnome, lxqt and xfce chroots, alongside
+    the lite variants already there. Every profile these pull in is now
+    built by an example, so no module is left reachable only through a
+    profile nothing builds.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
