@@ -618,6 +618,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
     trees with deliberate errors, but nothing held the ordering, so
     reordering the audit could have quietly made a broken tree cost a
     full bootstrap to discover.
+  * fll.conf: add a kiosks chroot that builds both kiosk profiles, and
+    show the steam module in the kodi-plasma chroot with contrib
+    enabled. No example built either kiosk profile before, and the steam
+    module needs contrib, which was left to the reader to work out.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
