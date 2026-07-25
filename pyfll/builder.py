@@ -148,7 +148,7 @@ class FLLBuilder(
         else:
             self.init_logger("INFO")
 
-        for modifier in ("profiles", "completeness"):
+        for modifier in ("profiles", "complete"):
             if getattr(self.opts, modifier) and not self.opts.audit:
                 self.log.critical(f"--{modifier} is only meaningful with --audit")
                 raise FllError
@@ -964,7 +964,7 @@ def main() -> None:
         help="Name of chroot(s) to build. Default: all",
     )
     cli.add_argument(
-        "--completeness",
+        "--complete",
         action="store_true",
         default=False,
         help="With --audit, also report how completely the config exercises "

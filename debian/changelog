@@ -569,7 +569,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
     or module file that does not exist, before any chroot is
     bootstrapped. This covers every profile in share/profiles, not only
     the ones being audited.
-  * --audit --completeness: report how completely a config exercises
+  * --audit --complete: report how completely a config exercises
     share/profiles and share/modules. Lists profiles that no chroot
     builds, and modules that no build reaches, either because only an
     unbuilt profile names them or because nothing names them at all.

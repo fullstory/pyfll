@@ -134,7 +134,7 @@ class AuditMixin:
         initramfs generation or image assembly.
         """
         self._audit_preflight()
-        if self.opts.completeness:
+        if self.opts.complete:
             self._audit_completeness()
 
         targets = self._audit_targets()
@@ -281,7 +281,7 @@ class AuditMixin:
         this name": a module reached only through a profile that no chroot
         builds is not exercised by any build either, so the graph is walked.
 
-        Warnings only, and opt-in via --completeness. A personal config that
+        Warnings only, and opt-in via --complete. A personal config that
         builds one chroot leaves almost every profile unbuilt, which is true but
         useless to report; it is the shipped example config, meant to showcase
         every build we are capable of, whose numbers should trend to zero."""

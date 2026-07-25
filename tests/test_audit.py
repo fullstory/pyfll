@@ -692,7 +692,7 @@ def test_audit_preflight_runs_before_any_bootstrap(caplog, tmp_path, kind):
         (tmp_path / relpath).write_text(body)
     opts = types.SimpleNamespace(
         profiles=None, share=str(tmp_path), locales=["en_US"],
-        config="fll.conf", completeness=False,
+        config="fll.conf", complete=False,
     )
     conf = {"chroots": {"kde": chroot_conf(packages={"profile": ["kde-lite"]})}}
     audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)

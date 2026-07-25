@@ -337,26 +337,35 @@ It is a resolvability check, not a build. A clean audit does not promise a clean
 
 ### Checking a config for completeness
 
-`fll.conf` is meant to showcase every build we are capable of. `--completeness` reports how much of `share/profiles/` and `share/modules/` a config actually reaches:
+`fll.conf` is meant to showcase every build we are capable of. `--complete` reports how much of `share/profiles/` and `share/modules/` a config actually reaches:
 
 ```bash
-./fll --audit --completeness -c fll.conf -b /tmp/fll/
+./fll --audit --complete -c fll.conf -b /tmp/fll/
 ```
 
+Reachability is walked outwards from the chroots a config defines. A chroot names profiles and modules, and a profile names modules — two steps, because a module cannot name another module. So a module counts as reached only if a chroot names it directly, or a profile that some chroot **actually builds** names it. A module named only by a profile that nothing builds is no more exercised than one named nowhere at all.
+
+Three things are reported, each pointing at a different fix:
+
+| Report | Meaning | What to do about it |
+|---|---|---|
+| `N profile(s) no chroot in <config> builds` | the profile file exists, but no chroot uses it | add a chroot that builds it, or accept it as unused |
+| `N module(s) reachable only through a profile no chroot builds` | the gap is in the config, not the module | add a chroot building that profile, and the module comes along |
+| `N module(s) no chroot or profile references at all` | nothing anywhere names it | showcase it, or delete it — a module not worth showcasing is probably not worth maintaining |
+
+Each line names the files involved, so the output reads as a to-do list. For example:
+
 ```
-12 profile(s) no chroot in fll.conf builds: browser-kiosk budgie cinnamon ...
-5 module(s) reachable only through a profile no chroot builds:
+2 profile(s) no chroot in fll.conf builds: cinnamon lxde
+1 module(s) reachable only through a profile no chroot builds:
     gnome-desktop (via gnome)
-    ...
-9 module(s) no chroot or profile references at all: apparmor development gimp ...
 ```
 
-A module counts as reached only if a chroot names it, or a profile that a chroot actually builds names it. The two lists suggest different fixes:
+A config that reaches everything prints nothing at all.
 
-- **reachable only through a profile no chroot builds** — the config has a gap. Add a chroot that builds that profile and the module is covered.
-- **referenced nowhere at all** — either add a chroot showing it off, or delete the module. A module not worth showcasing is probably not worth maintaining.
+These are warnings, never failures, and they are off by default. A personal config that builds a single chroot leaves nearly every profile unbuilt, which is true but not worth reporting on every run — it is the shipped example config whose numbers should be trending to zero.
 
-These are warnings, never failures, and they are off by default: a personal config that builds a single chroot leaves most profiles unbuilt, which is true but not worth reporting every run.
+A reference to a profile or module file that does **not exist** is a different matter: that is always checked, always fatal, and does not need this option.
 
 ---
 
