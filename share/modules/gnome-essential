@@ -14,7 +14,7 @@ packages = """
 	metacity
 	mint-y-icons
 	nautilus
-	network-manager-gnome
+	network-manager-applet
 	yaru-theme-gnome-shell
 	yaru-theme-gtk
 	zenity
