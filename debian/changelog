@@ -633,6 +633,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
     chroots, pairing each with something it suits, and show the packages
     option in use on the kodi-plasma chroot. Every module in
     share/modules is now built by at least one example.
+  * fll.conf: add chroots for the last six profiles that no example
+    built: full cinnamon and lxde, stripped gnome and mate, lite labwc,
+    and the lxqt compositors variant. Every profile and every module in
+    share is now built by at least one example.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
