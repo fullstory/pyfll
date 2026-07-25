@@ -288,7 +288,7 @@ def test_targets_carry_chroot_locales():
 
 
 def test_result_ok_when_nothing_found():
-    assert AuditResult("kde", packages=1200).ok
+    assert AuditResult("kde", install=1230, selected=146).ok
 
 
 @pytest.mark.parametrize(
@@ -326,9 +326,36 @@ def test_report_raises_on_failure(caplog):
 
 def test_report_clean_does_not_raise(caplog):
     with caplog.at_level(logging.INFO):
-        FakeAudit()._audit_report([AuditResult("kde", packages=1200)])
+        FakeAudit()._audit_report([AuditResult("kde", install=1230, selected=146)])
 
     assert "1/1 clean" in caplog.text
+
+
+def test_report_leads_with_real_install_count(caplog):
+    """The selection size excludes everything apt pulls in as a dependency, so
+    the headline number must be apt's own count, not len(selection)."""
+    with caplog.at_level(logging.INFO):
+        FakeAudit()._audit_report([AuditResult("kde", install=1230, selected=146)])
+
+    assert "1230 package(s) to install (146 selected)" in caplog.text
+
+
+def test_report_shows_removals(caplog):
+    """A '<pkg>-' entry taking effect shows up here, which is how you confirm a
+    deselection is doing something."""
+    with caplog.at_level(logging.INFO):
+        FakeAudit()._audit_report(
+            [AuditResult("kde", install=1230, selected=146, remove=1)]
+        )
+
+    assert "1 to remove" in caplog.text
+
+
+def test_report_omits_removals_when_none(caplog):
+    with caplog.at_level(logging.INFO):
+        FakeAudit()._audit_report([AuditResult("kde", install=12, selected=3)])
+
+    assert "to remove" not in caplog.text
 
 
 def test_audit_target_dataclass_fields():

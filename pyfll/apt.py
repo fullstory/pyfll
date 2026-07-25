@@ -28,6 +28,24 @@ def apt_spec_name(spec: str, available: set) -> str | None:
     return None
 
 
+def count_apt_actions(output: str) -> tuple:
+    """Count the install and remove actions in 'apt-get --simulate' output,
+    returning (install, remove).
+
+    apt prints one 'Inst <pkg> ...' or 'Remv <pkg> ...' line per action, which
+    is the number of packages a build would actually act on - unlike the size of
+    the requested selection, which excludes everything apt pulls in as a
+    dependency. 'Inst' covers a new install and an upgrade alike; right after
+    prime_apt's dist-upgrade there is little left to upgrade."""
+    install = remove = 0
+    for line in output.splitlines():
+        if line.startswith("Inst "):
+            install += 1
+        elif line.startswith("Remv "):
+            remove += 1
+    return install, remove
+
+
 def proxy_uri(proxy: str, uri: str) -> str:
     """Rewrite *uri* to go through an apt-cacher-ng-style *proxy* base URL:
     proxy + '/' + netloc + path. URIs with no netloc (e.g. file:/path) can't

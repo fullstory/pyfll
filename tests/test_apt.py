@@ -7,7 +7,7 @@ import types
 
 import pytest
 
-from pyfll.apt import AptMixin, apt_spec_name, proxy_uri
+from pyfll.apt import AptMixin, apt_spec_name, count_apt_actions, proxy_uri
 from pyfll.exceptions import FllError
 
 # _parse_apt_problems/_conflict_subjects don't touch self; call unbound.
@@ -58,6 +58,40 @@ def test_apt_spec_name_stale_deselection_is_unknown():
     """apt errors on 'foo-' when foo does not exist, so a deselection of a
     package that has left the archive is a real build failure."""
     assert apt_spec_name("plasma-welcome-", {"yakuake"}) is None
+
+
+APT_SIMULATE_PLAN = """\
+NOTE: This is only a simulation!
+      apt-get needs root privileges for real execution.
+Reading package lists...
+Building dependency tree...
+The following additional packages will be installed:
+  libbar1 libbaz2
+0 upgraded, 3 newly installed, 1 to remove and 0 not upgraded.
+Remv plasma-welcome [6.5.0-1]
+Inst libbar1 (1.2-1 Debian:unstable [amd64])
+Inst libbaz2 (2.0-1 Debian:unstable [amd64])
+Inst foo (2.0-1 Debian:unstable [amd64])
+Conf libbar1 (1.2-1 Debian:unstable [amd64])
+Conf libbaz2 (2.0-1 Debian:unstable [amd64])
+Conf foo (2.0-1 Debian:unstable [amd64])
+"""
+
+
+def test_count_apt_actions_counts_inst_and_remv():
+    """Conf lines mirror Inst lines and must not be double counted."""
+    assert count_apt_actions(APT_SIMULATE_PLAN) == (3, 1)
+
+
+def test_count_apt_actions_empty_output():
+    assert count_apt_actions("") == (0, 0)
+
+
+def test_count_apt_actions_ignores_prose_mentioning_inst():
+    """Only the action lines count, not apt's surrounding narration."""
+    prose = "The following NEW packages will be installed:\n  inst\n"
+
+    assert count_apt_actions(prose) == (0, 0)
 
 
 APT_SIMULATE_OUTPUT = """\

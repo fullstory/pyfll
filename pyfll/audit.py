@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 
 from configobj import ConfigObj
 
-from pyfll.apt import apt_spec_name
+from pyfll.apt import apt_spec_name, count_apt_actions
 from pyfll.exceptions import FllError
 from pyfll.profile import RECOMMENDS_WHITELIST, FllProfile
 from pyfll.util import multiline_to_list
@@ -46,10 +46,17 @@ class AuditTarget:
 
 @dataclass
 class AuditResult:
-    """One target's verdict."""
+    """One target's verdict.
+
+    selected - names the audit asked apt for that were not already installed
+    install  - packages apt would install, dependencies included
+    remove   - packages apt would remove (a '<pkg>-' entry taking effect)
+    """
 
     name: str
-    packages: int = 0
+    selected: int = 0
+    install: int = 0
+    remove: int = 0
     unknown: list = field(default_factory=list)
     diagnosis: list = field(default_factory=list)
     cascade: list = field(default_factory=list)
@@ -302,9 +309,9 @@ class AuditMixin:
         result.unknown = [
             pkg for pkg in additions if apt_spec_name(pkg, available) is None
         ]
-        # Only entries naming a package that exists as written are installs; a
-        # '<pkg>-' deselection resolves to the stripped name and removes.
-        result.packages = sum(
+        # Only entries naming a package that exists as written are selections;
+        # a '<pkg>-' deselection resolves to the stripped name and removes.
+        result.selected = sum(
             1 for pkg in additions if apt_spec_name(pkg, available) == pkg
         )
 
@@ -314,6 +321,10 @@ class AuditMixin:
         returncode, output = self._apt_simulate(state, solvable)
         if returncode:
             result.diagnosis, result.cascade = self._parse_apt_problems(output)
+        else:
+            # Only meaningful once apt has produced a plan; a failed solve
+            # leaves these at zero.
+            result.install, result.remove = count_apt_actions(output)
 
         # Hand the package findings to the build's own analysis, which names the
         # unknown packages and traces each conflict back to the profile or
@@ -376,9 +387,12 @@ class AuditMixin:
                 else ""
             )
             if result.ok:
+                # Lead with what apt would really do; the selection size is
+                # context, not the package count.
+                removals = f", {result.remove} to remove" if result.remove else ""
                 self.log.info(
-                    f"  ok   {result.name}: {result.packages} package(s) to "
-                    f"install{duplicates}"
+                    f"  ok   {result.name}: {result.install} package(s) to "
+                    f"install ({result.selected} selected){removals}{duplicates}"
                 )
                 continue
             problems = []
