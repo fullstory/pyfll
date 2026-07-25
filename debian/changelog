@@ -613,6 +613,11 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Drop gimp-plugin-registry from the gimp module. It still needs a
     GIMP 2 library that has left the archive, so it cannot be installed
     beside GIMP 3. The other packages in the module are already ported.
+  * Add a test that the static checks run before any chroot is
+    bootstrapped. The checks themselves were already tested against
+    trees with deliberate errors, but nothing held the ordering, so
+    reordering the audit could have quietly made a broken tree cost a
+    full bootstrap to discover.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

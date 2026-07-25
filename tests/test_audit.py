@@ -670,3 +670,37 @@ def test_preflight_clean_tree_does_not_raise(tmp_path):
     audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
 
     audit._audit_preflight()
+
+
+BROKEN_TREES = {
+    "missing module": {"profiles/kde-lite": 'modules = """\n\tnosuch\n"""\n'},
+    "broken script": {
+        "profiles/kde-lite": "packages = foo\n",
+        "modules/cli.postinst": "#!/bin/sh -e\nif true; then\n",
+    },
+}
+
+
+@pytest.mark.parametrize("kind", sorted(BROKEN_TREES))
+def test_audit_preflight_runs_before_any_bootstrap(caplog, tmp_path, kind):
+    """audit() promises a broken tree costs nothing to discover. Only this pins
+    the ordering: reshuffling audit() would otherwise leave every other test
+    green while the guarantee quietly went away."""
+    (tmp_path / "profiles").mkdir()
+    (tmp_path / "modules").mkdir()
+    for relpath, body in BROKEN_TREES[kind].items():
+        (tmp_path / relpath).write_text(body)
+    opts = types.SimpleNamespace(
+        profiles=None, share=str(tmp_path), locales=["en_US"],
+        config="fll.conf", completeness=False,
+    )
+    conf = {"chroots": {"kde": chroot_conf(packages={"profile": ["kde-lite"]})}}
+    audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
+    bootstrapped = []
+    audit._audit_bootstrap = bootstrapped.append
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            audit.audit()
+
+    assert bootstrapped == []
