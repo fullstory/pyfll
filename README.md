@@ -320,6 +320,9 @@ A failing target reports what went wrong and, where it can, which profile or mod
 - entries in `share/modules/recommends` that no longer exist in any repository
 - malformed `debconf` preseed lines
 - a chroot or profile naming a profile or module file that does not exist
+- a `preinst` or `postinst` script that does not parse
+
+The last two are checked before anything is bootstrapped, so a broken tree is reported in seconds. Scripts are parsed with the interpreter named in their shebang, so a Python `postinst` is not judged by shell rules. A script whose interpreter we cannot check is reported as a warning rather than passed silently.
 
 ### What it cannot find
 

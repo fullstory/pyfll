@@ -4,6 +4,7 @@
 import contextlib
 import os
 import subprocess
+import sys
 from dataclasses import dataclass, field
 
 from configobj import ConfigObj
@@ -15,6 +16,42 @@ from pyfll.util import multiline_to_list
 
 # Entries in share/{profiles,modules} that are maintainer scripts, not lists.
 MAINT_SUFFIXES = (".preinst", ".postinst")
+
+# Shells whose -n flag parses a script without running it.
+SHELLS = ("sh", "bash", "dash", "ksh", "mksh", "zsh")
+
+# Python has no -n; compile the source instead. Deliberately not py_compile,
+# which would drop a __pycache__ into share/profiles.
+PY_COMPILE = "import sys; compile(open(sys.argv[1]).read(), sys.argv[1], 'exec')"
+
+
+def shebang_interpreter(first_line: str) -> str:
+    """Return the interpreter basename from a shebang line, or '' if there is
+    none. '#!/usr/bin/env python3' resolves to python3 rather than env."""
+    if not first_line.startswith("#!"):
+        return ""
+    argv = first_line[2:].split()
+    if not argv:
+        return ""
+    interpreter = os.path.basename(argv[0])
+    if interpreter != "env":
+        return interpreter
+    # Skip env's own options, e.g. '#!/usr/bin/env -S python3 -u'.
+    for arg in argv[1:]:
+        if not arg.startswith("-"):
+            return os.path.basename(arg)
+    return ""
+
+
+def syntax_check_cmd(interpreter: str, path: str) -> list | None:
+    """The argv that syntax-checks *path*, or None if we cannot check this
+    interpreter - in which case the caller warns rather than claiming the
+    script is fine."""
+    if interpreter in SHELLS:
+        return [interpreter, "-n", path]
+    if interpreter.startswith("python"):
+        return [sys.executable, "-c", PY_COMPILE, path]
+    return None
 
 
 def is_list_file(name: str) -> bool:
@@ -98,7 +135,7 @@ class AuditMixin:
         script or debconf failures at configure time, postinst scripts,
         initramfs generation or image assembly.
         """
-        self._audit_references()
+        self._audit_preflight()
         if self.opts.completeness:
             self._audit_completeness()
 
@@ -152,13 +189,26 @@ class AuditMixin:
 
         return built, named_by, by_profile
 
-    def _audit_references(self) -> None:
-        """Fail on any reference to a profile or module file that does not exist.
+    def _audit_preflight(self) -> None:
+        """Run the static checks that need no chroot, and abort if any failed.
 
-        Runs before a chroot is bootstrapped, so a broken tree costs nothing to
-        discover, and covers every profile on disk rather than only the ones
-        being audited - more than expand_pkg_profile's per-profile check
-        reaches."""
+        Both checks run before anything is reported so a single pass surfaces
+        every static problem: fixing a broken reference should not then reveal a
+        broken script on the next run."""
+        problems = self._audit_references() + self._audit_maint_scripts()
+        if problems:
+            self.log.critical(
+                f"{len(problems)} problem(s) to fix before the package lists "
+                f"can be audited"
+            )
+            raise FllError
+
+    def _audit_references(self) -> list:
+        """Report, and return, every reference to a profile or module file that
+        does not exist.
+
+        Covers every profile on disk rather than only the ones being audited -
+        more than expand_pkg_profile's per-profile check reaches."""
         profile_dir = os.path.join(self.opts.share, "profiles")
         modules_dir = os.path.join(self.opts.share, "modules")
         built, named_by, by_profile = self._reference_graph()
@@ -181,7 +231,50 @@ class AuditMixin:
             )
             for item in missing:
                 self.log.critical(f"    {item}")
-            raise FllError
+        return missing
+
+    def _audit_maint_scripts(self) -> list:
+        """Syntax-check every preinst/postinst script, reporting and returning
+        the ones that do not parse.
+
+        Checks every script on disk, not just those a target registers: a syntax
+        error in an unbuilt profile's script is a build waiting to fail, and
+        parsing is free. The interpreter comes from each script's shebang -
+        share/profiles/waydroid-kiosk.postinst is Python, so judging everything
+        by dash's grammar would invent errors that are not there."""
+        problems = []
+        for dirname in ("profiles", "modules"):
+            directory = os.path.join(self.opts.share, dirname)
+            for name in sorted(os.listdir(directory)):
+                if not name.endswith(MAINT_SUFFIXES):
+                    continue
+                relpath = os.path.join(dirname, name)
+                path = os.path.join(directory, name)
+
+                with open(path) as fh:
+                    interpreter = shebang_interpreter(fh.readline())
+                cmd = syntax_check_cmd(interpreter, path)
+                if cmd is None:
+                    self.log.warning(
+                        f"cannot syntax-check {relpath}: unknown interpreter "
+                        f"{interpreter or '(no shebang)'!r}"
+                    )
+                    continue
+
+                result = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                )
+                if result.returncode == 0:
+                    continue
+                self.log.critical(f"{interpreter} syntax error in {relpath}:")
+                for line in result.stdout.splitlines():
+                    if line.strip():
+                        self.log.critical(f"    {line.strip()}")
+                problems.append(relpath)
+        return problems
 
     def _audit_completeness(self) -> None:
         """Report how completely the config exercises share/{profiles,modules}.

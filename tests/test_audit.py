@@ -2,12 +2,20 @@
 # Copyright (C) 2026 Kel Modderman <kelvmod@gmail.com>
 
 import logging
+import sys
 import types
 
 import pytest
 
 from pyfll.apt import AptMixin
-from pyfll.audit import AuditMixin, AuditResult, AuditTarget, is_list_file
+from pyfll.audit import (
+    AuditMixin,
+    AuditResult,
+    AuditTarget,
+    is_list_file,
+    shebang_interpreter,
+    syntax_check_cmd,
+)
 from pyfll.exceptions import FllError
 from pyfll.profile import FllProfile
 
@@ -408,7 +416,9 @@ def test_completeness_clean_tree_is_quiet(caplog, tmp_path):
 def test_references_clean_tree_does_not_raise(tmp_path):
     share = make_share(tmp_path, {"kde-lite": ["kde-essential"]}, ["kde-essential"])
 
-    completeness_audit(tmp_path, share, profile=["kde-lite"])._audit_references()
+    audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
+
+    assert audit._audit_references() == []
 
 
 def test_completeness_warns_unbuilt_profiles(caplog, tmp_path):
@@ -486,8 +496,7 @@ def test_references_missing_module_is_fatal(caplog, tmp_path):
     audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
 
     with caplog.at_level(logging.CRITICAL):
-        with pytest.raises(FllError):
-            audit._audit_references()
+        assert audit._audit_references() == ["module nosuch (from profiles/kde-lite)"]
 
     assert "module nosuch (from profiles/kde-lite)" in caplog.text
 
@@ -499,8 +508,7 @@ def test_references_missing_module_named_by_chroot(caplog, tmp_path):
     )
 
     with caplog.at_level(logging.CRITICAL):
-        with pytest.raises(FllError):
-            audit._audit_references()
+        assert audit._audit_references() == ["module nosuch (from chroot kde)"]
 
     assert "module nosuch (from chroot kde)" in caplog.text
 
@@ -510,7 +518,155 @@ def test_references_missing_profile_is_fatal(caplog, tmp_path):
     audit = completeness_audit(tmp_path, share, profile=["nosuch"])
 
     with caplog.at_level(logging.CRITICAL):
-        with pytest.raises(FllError):
-            audit._audit_references()
+        assert audit._audit_references() == ["profile nosuch (from fll.conf)"]
 
     assert "profile nosuch (from fll.conf)" in caplog.text
+
+
+def test_shebang_interpreter_plain_shell():
+    assert shebang_interpreter("#!/bin/sh -e\n") == "sh"
+
+
+def test_shebang_interpreter_python():
+    """share/profiles/waydroid-kiosk.postinst is Python, not shell."""
+    assert shebang_interpreter("#!/usr/bin/python3\n") == "python3"
+
+
+def test_shebang_interpreter_env_resolves_past_env():
+    assert shebang_interpreter("#!/usr/bin/env python3\n") == "python3"
+
+
+def test_shebang_interpreter_env_skips_options():
+    assert shebang_interpreter("#!/usr/bin/env -S python3 -u\n") == "python3"
+
+
+def test_shebang_interpreter_absent():
+    assert shebang_interpreter("packages = foo\n") == ""
+
+
+def test_syntax_check_cmd_shell_uses_dash_n():
+    assert syntax_check_cmd("bash", "/x/y.postinst") == ["bash", "-n", "/x/y.postinst"]
+
+
+def test_syntax_check_cmd_python_compiles_without_writing_pyc():
+    """py_compile would drop a __pycache__ into share/profiles."""
+    cmd = syntax_check_cmd("python3", "/x/y.postinst")
+
+    assert cmd[0] == sys.executable
+    assert cmd[1] == "-c"
+    assert "py_compile" not in cmd[2]
+    assert cmd[3] == "/x/y.postinst"
+
+
+def test_syntax_check_cmd_unknown_interpreter():
+    """None means 'cannot check', so the caller warns instead of passing it."""
+    assert syntax_check_cmd("perl", "/x/y.postinst") is None
+    assert syntax_check_cmd("", "/x/y.postinst") is None
+
+
+def maint_script_audit(tmp_path, scripts):
+    """scripts maps 'profiles/foo.postinst' -> file contents."""
+    (tmp_path / "profiles").mkdir()
+    (tmp_path / "modules").mkdir()
+    for relpath, body in scripts.items():
+        (tmp_path / relpath).write_text(body)
+    opts = types.SimpleNamespace(
+        profiles=None, share=str(tmp_path), locales=["en_US"], config="fll.conf"
+    )
+    return FakeAudit({"chroots": {}}, [], opts=opts)
+
+
+def test_maint_scripts_clean_shell_passes(tmp_path):
+    audit = maint_script_audit(
+        tmp_path, {"modules/cli.postinst": "#!/bin/sh -e\necho hello\n"}
+    )
+
+    assert audit._audit_maint_scripts() == []
+
+
+def test_maint_scripts_broken_shell_reported(caplog, tmp_path):
+    audit = maint_script_audit(
+        tmp_path, {"modules/cli.postinst": "#!/bin/sh -e\nif true; then\n"}
+    )
+
+    with caplog.at_level(logging.CRITICAL):
+        assert audit._audit_maint_scripts() == ["modules/cli.postinst"]
+
+    assert "sh syntax error in modules/cli.postinst" in caplog.text
+
+
+def test_maint_scripts_python_not_judged_by_shell_grammar(tmp_path):
+    """The regression this guards: 'def f():' is a syntax error to dash, so a
+    blanket sh -n would fail a perfectly good Python script."""
+    audit = maint_script_audit(
+        tmp_path,
+        {"profiles/waydroid.postinst": "#!/usr/bin/python3\ndef f():\n    pass\n"},
+    )
+
+    assert audit._audit_maint_scripts() == []
+
+
+def test_maint_scripts_broken_python_reported(caplog, tmp_path):
+    audit = maint_script_audit(
+        tmp_path, {"profiles/waydroid.postinst": "#!/usr/bin/python3\ndef f(:\n"}
+    )
+
+    with caplog.at_level(logging.CRITICAL):
+        assert audit._audit_maint_scripts() == ["profiles/waydroid.postinst"]
+
+    assert "python3 syntax error in profiles/waydroid.postinst" in caplog.text
+
+
+def test_maint_scripts_unknown_interpreter_warns_not_fails(caplog, tmp_path):
+    audit = maint_script_audit(
+        tmp_path, {"modules/odd.postinst": "#!/usr/bin/perl\nprint 1;\n"}
+    )
+
+    with caplog.at_level(logging.WARNING):
+        assert audit._audit_maint_scripts() == []
+
+    assert "cannot syntax-check modules/odd.postinst" in caplog.text
+
+
+def test_maint_scripts_ignores_package_lists(tmp_path):
+    """Only .preinst/.postinst are scripts; a package list is a ConfigObj."""
+    audit = maint_script_audit(tmp_path, {"modules/cli": "packages = bat\n"})
+
+    assert audit._audit_maint_scripts() == []
+
+
+def test_preflight_reports_both_kinds_before_raising(caplog, tmp_path):
+    """One pass surfaces every static problem: fixing a bad reference should not
+    then reveal a broken script on the next run."""
+    (tmp_path / "profiles").mkdir()
+    (tmp_path / "modules").mkdir()
+    (tmp_path / "profiles" / "kde-lite").write_text('modules = """\n\tnosuch\n"""\n')
+    (tmp_path / "modules" / "cli.postinst").write_text("#!/bin/sh -e\nif true; then\n")
+    opts = types.SimpleNamespace(
+        profiles=None, share=str(tmp_path), locales=["en_US"], config="fll.conf"
+    )
+    conf = {"chroots": {"kde": chroot_conf(packages={"profile": ["kde-lite"]})}}
+    audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            audit._audit_preflight()
+
+    assert "module nosuch" in caplog.text
+    assert "modules/cli.postinst" in caplog.text
+    assert "2 problem(s) to fix" in caplog.text
+
+
+def test_preflight_clean_tree_does_not_raise(tmp_path):
+    (tmp_path / "profiles").mkdir()
+    (tmp_path / "modules").mkdir()
+    (tmp_path / "profiles" / "kde-lite").write_text("packages = foo\n")
+    (tmp_path / "modules" / "cli.postinst").write_text("#!/bin/sh -e\necho ok\n")
+    opts = types.SimpleNamespace(
+        profiles=None, share=str(tmp_path), locales=["en_US"], config="fll.conf"
+    )
+    conf = {"chroots": {"kde": chroot_conf(packages={"profile": ["kde-lite"]})}}
+
+    audit = FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
+
+    audit._audit_preflight()
