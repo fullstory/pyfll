@@ -148,9 +148,10 @@ class FLLBuilder(
         else:
             self.init_logger("INFO")
 
-        if self.opts.profiles and not self.opts.audit:
-            self.log.critical("--profiles is only meaningful with --audit")
-            raise FllError
+        for modifier in ("profiles", "completeness"):
+            if getattr(self.opts, modifier) and not self.opts.audit:
+                self.log.critical(f"--{modifier} is only meaningful with --audit")
+                raise FllError
 
         if self.opts.audit:
             # An audit never resolves source package URIs, so don't pay for
@@ -961,6 +962,14 @@ def main() -> None:
         nargs="+",
         metavar="<chroot>",
         help="Name of chroot(s) to build. Default: all",
+    )
+    cli.add_argument(
+        "--completeness",
+        action="store_true",
+        default=False,
+        help="With --audit, also report how completely the config exercises "
+        + "share/profiles and share/modules: profiles no chroot builds, and "
+        + "modules no build reaches. Default: %(default)s",
     )
     cli.add_argument(
         "-d",

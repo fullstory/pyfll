@@ -98,6 +98,10 @@ class AuditMixin:
         script or debconf failures at configure time, postinst scripts,
         initramfs generation or image assembly.
         """
+        self._audit_references()
+        if self.opts.completeness:
+            self._audit_completeness()
+
         targets = self._audit_targets()
 
         groups = {}
@@ -118,6 +122,130 @@ class AuditMixin:
             self.nuke_chroot(base)
 
         self._audit_report(results)
+
+    def _reference_graph(self) -> tuple:
+        """Walk the reference graph rooted at the config's chroots, returning
+        (built, named_by, by_profile).
+
+        built      - profile names some chroot builds
+        named_by   - module name -> chroots naming it directly
+        by_profile - module name -> profiles naming it, over every profile on
+                     disk, whether or not a chroot builds that profile
+
+        Two levels is the whole graph: a chroot names profiles and modules, a
+        profile names modules, and fll.module.spec has no `modules` key, so a
+        module cannot pull in another."""
+        built = set()
+        named_by = {}
+        for chroot in self.conf["chroots"]:
+            pkgs = self.conf["chroots"][chroot]["packages"]
+            built.update(pkgs["profile"])
+            for module in pkgs["modules"]:
+                named_by.setdefault(module, set()).add(f"chroot {chroot}")
+
+        profile_dir = os.path.join(self.opts.share, "profiles")
+        by_profile = {}
+        for name in sorted(p for p in os.listdir(profile_dir) if is_list_file(p)):
+            conf = ConfigObj(os.path.join(profile_dir, name))
+            for module in multiline_to_list(conf.get("modules", "")):
+                by_profile.setdefault(module, set()).add(name)
+
+        return built, named_by, by_profile
+
+    def _audit_references(self) -> None:
+        """Fail on any reference to a profile or module file that does not exist.
+
+        Runs before a chroot is bootstrapped, so a broken tree costs nothing to
+        discover, and covers every profile on disk rather than only the ones
+        being audited - more than expand_pkg_profile's per-profile check
+        reaches."""
+        profile_dir = os.path.join(self.opts.share, "profiles")
+        modules_dir = os.path.join(self.opts.share, "modules")
+        built, named_by, by_profile = self._reference_graph()
+        config_name = os.path.basename(self.opts.config)
+
+        missing = []
+        for module in sorted(set(named_by) | set(by_profile)):
+            if os.path.isfile(os.path.join(modules_dir, module)):
+                continue
+            origins = named_by.get(module, set()) | {
+                f"profiles/{p}" for p in by_profile.get(module, set())
+            }
+            missing.append(f"module {module} (from {', '.join(sorted(origins))})")
+        for profile in sorted(built):
+            if not os.path.isfile(os.path.join(profile_dir, profile)):
+                missing.append(f"profile {profile} (from {config_name})")
+        if missing:
+            self.log.critical(
+                f"{len(missing)} reference(s) name a file that does not exist:"
+            )
+            for item in missing:
+                self.log.critical(f"    {item}")
+            raise FllError
+
+    def _audit_completeness(self) -> None:
+        """Report how completely the config exercises share/{profiles,modules}.
+
+        Reachability starts at the config's chroots, not at "some file mentions
+        this name": a module reached only through a profile that no chroot
+        builds is not exercised by any build either, so the graph is walked.
+
+        Warnings only, and opt-in via --completeness. A personal config that
+        builds one chroot leaves almost every profile unbuilt, which is true but
+        useless to report; it is the shipped example config, meant to showcase
+        every build we are capable of, whose numbers should trend to zero."""
+        profile_dir = os.path.join(self.opts.share, "profiles")
+        modules_dir = os.path.join(self.opts.share, "modules")
+        profiles_on_disk = sorted(
+            p for p in os.listdir(profile_dir) if is_list_file(p)
+        )
+        modules_on_disk = sorted(m for m in os.listdir(modules_dir) if is_list_file(m))
+
+        built, named_by, by_profile = self._reference_graph()
+        config_name = os.path.basename(self.opts.config)
+
+        unbuilt = [p for p in profiles_on_disk if p not in built]
+        if unbuilt:
+            self.log.warning(
+                f"{len(unbuilt)} profile(s) no chroot in {config_name} builds: "
+                f"{' '.join(unbuilt)}"
+            )
+
+        reachable = set(named_by)
+        for module, profiles in by_profile.items():
+            if profiles & built:
+                reachable.add(module)
+
+        # The whitelist is read directly by the resolver, not listed as a module.
+        whitelist = os.path.basename(RECOMMENDS_WHITELIST)
+        unreachable = [
+            m for m in modules_on_disk if m not in reachable and m != whitelist
+        ]
+
+        # Split by what the fix is: a module held up only by an unbuilt profile
+        # becomes reachable the moment a chroot builds that profile, so it is
+        # the config's gap. One referenced nowhere at all is the module's own.
+        via_unbuilt = {}
+        orphaned = []
+        for module in unreachable:
+            profiles = sorted(by_profile.get(module, set()) & set(unbuilt))
+            if profiles:
+                via_unbuilt[module] = profiles
+            else:
+                orphaned.append(module)
+
+        if via_unbuilt:
+            self.log.warning(
+                f"{len(via_unbuilt)} module(s) reachable only through a profile "
+                f"no chroot builds:"
+            )
+            for module, profiles in sorted(via_unbuilt.items()):
+                self.log.warning(f"    {module} (via {', '.join(profiles)})")
+        if orphaned:
+            self.log.warning(
+                f"{len(orphaned)} module(s) no chroot or profile references at "
+                f"all: {' '.join(orphaned)}"
+            )
 
     def _audit_targets(self) -> list:
         """Return the AuditTargets for this run.

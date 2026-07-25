@@ -53,6 +53,8 @@ def chroot_conf(**overrides):
         "linux": "aptosid-amd64",
         "locales": [],
         "browser": [],
+        "profile": [],
+        "modules": [],
     }
     packages.update(overrides.pop("packages", {}))
     repos = overrides.pop(
@@ -364,3 +366,151 @@ def test_audit_target_dataclass_fields():
 
     assert (target.name, target.base, target.locales) == ("kde-lite", "kde", ["en_US"])
     assert target.profile is profile
+
+
+def make_share(tmp_path, profiles=None, modules=()):
+    """A minimal share/ tree: profiles maps name -> list of modules it names."""
+    (tmp_path / "profiles").mkdir()
+    (tmp_path / "modules").mkdir()
+    for name, mods in (profiles or {}).items():
+        body = "packages = foo\n"
+        if mods:
+            body += "modules = \"\"\"\n" + "".join(f"\t{m}\n" for m in mods) + '"""\n'
+        (tmp_path / "profiles" / name).write_text(body)
+    for name in modules:
+        (tmp_path / "modules" / name).write_text("packages = bar\n")
+    return str(tmp_path)
+
+
+def completeness_audit(tmp_path, share, profile=(), modules=()):
+    conf = {
+        "chroots": {
+            "kde": chroot_conf(packages={"profile": list(profile),
+                                         "modules": list(modules)})
+        }
+    }
+    opts = types.SimpleNamespace(
+        profiles=None, share=share, locales=["en_US"], config="/etc/fll.conf"
+    )
+    return FakeAudit(conf, ["kde"], profiles={"kde": FllProfile()}, opts=opts)
+
+
+def test_completeness_clean_tree_is_quiet(caplog, tmp_path):
+    share = make_share(tmp_path, {"kde-lite": ["kde-essential"]}, ["kde-essential"])
+    audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
+
+    with caplog.at_level(logging.WARNING):
+        audit._audit_completeness()
+
+    assert caplog.text == ""
+
+
+def test_references_clean_tree_does_not_raise(tmp_path):
+    share = make_share(tmp_path, {"kde-lite": ["kde-essential"]}, ["kde-essential"])
+
+    completeness_audit(tmp_path, share, profile=["kde-lite"])._audit_references()
+
+
+def test_completeness_warns_unbuilt_profiles(caplog, tmp_path):
+    share = make_share(tmp_path, {"kde-lite": [], "gnome": []}, [])
+    audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
+
+    with caplog.at_level(logging.WARNING):
+        audit._audit_completeness()
+
+    assert "1 profile(s) no chroot in fll.conf builds: gnome" in caplog.text
+
+
+def test_completeness_module_via_built_profile_is_reachable(caplog, tmp_path):
+    share = make_share(tmp_path, {"kde-lite": ["kde-essential"]}, ["kde-essential"])
+    audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
+
+    with caplog.at_level(logging.WARNING):
+        audit._audit_completeness()
+
+    assert "kde-essential" not in caplog.text
+
+
+def test_completeness_module_only_via_unbuilt_profile(caplog, tmp_path):
+    """The distinguishing case: some profile does name the module, but no chroot
+    builds that profile, so no build exercises it."""
+    share = make_share(
+        tmp_path, {"kde-lite": [], "gnome": ["gnome-desktop"]}, ["gnome-desktop"]
+    )
+    audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
+
+    with caplog.at_level(logging.WARNING):
+        audit._audit_completeness()
+
+    assert "reachable only through a profile no chroot builds" in caplog.text
+    assert "gnome-desktop (via gnome)" in caplog.text
+
+
+def test_completeness_module_referenced_nowhere(caplog, tmp_path):
+    share = make_share(tmp_path, {"kde-lite": []}, ["wine"])
+    audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
+
+    with caplog.at_level(logging.WARNING):
+        audit._audit_completeness()
+
+    assert "1 module(s) no chroot or profile references at all: wine" in caplog.text
+
+
+def test_completeness_module_named_by_chroot_is_reachable(caplog, tmp_path):
+    """A chroot may name a module directly, without any profile listing it."""
+    share = make_share(tmp_path, {"kde-lite": []}, ["firmware"])
+    audit = completeness_audit(
+        tmp_path, share, profile=["kde-lite"], modules=["firmware"]
+    )
+
+    with caplog.at_level(logging.WARNING):
+        audit._audit_completeness()
+
+    assert "firmware" not in caplog.text
+
+
+def test_completeness_recommends_whitelist_exempt(caplog, tmp_path):
+    """modules/recommends is read directly by the resolver, so nothing lists it
+    and it must not be reported as orphaned."""
+    share = make_share(tmp_path, {"kde-lite": []}, ["recommends"])
+    audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
+
+    with caplog.at_level(logging.WARNING):
+        audit._audit_completeness()
+
+    assert "recommends" not in caplog.text
+
+
+def test_references_missing_module_is_fatal(caplog, tmp_path):
+    share = make_share(tmp_path, {"kde-lite": ["nosuch"]}, [])
+    audit = completeness_audit(tmp_path, share, profile=["kde-lite"])
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            audit._audit_references()
+
+    assert "module nosuch (from profiles/kde-lite)" in caplog.text
+
+
+def test_references_missing_module_named_by_chroot(caplog, tmp_path):
+    share = make_share(tmp_path, {"kde-lite": []}, [])
+    audit = completeness_audit(
+        tmp_path, share, profile=["kde-lite"], modules=["nosuch"]
+    )
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            audit._audit_references()
+
+    assert "module nosuch (from chroot kde)" in caplog.text
+
+
+def test_references_missing_profile_is_fatal(caplog, tmp_path):
+    share = make_share(tmp_path, {}, [])
+    audit = completeness_audit(tmp_path, share, profile=["nosuch"])
+
+    with caplog.at_level(logging.CRITICAL):
+        with pytest.raises(FllError):
+            audit._audit_references()
+
+    assert "profile nosuch (from fll.conf)" in caplog.text

@@ -565,6 +565,17 @@ pyfll (2026.1) UNRELEASED; urgency=low
     package list. The list size is kept in brackets as context: one
     desktop profile selects 260 names but installs 1553 packages once
     dependencies are pulled in.
+  * --audit: stop with an error when a chroot or profile names a profile
+    or module file that does not exist, before any chroot is
+    bootstrapped. This covers every profile in share/profiles, not only
+    the ones being audited.
+  * --audit --completeness: report how completely a config exercises
+    share/profiles and share/modules. Lists profiles that no chroot
+    builds, and modules that no build reaches, either because only an
+    unbuilt profile names them or because nothing names them at all.
+    Handy for keeping fll.conf a showcase of every build we can make.
+    Off by default: a personal config that builds a single chroot leaves
+    most profiles unbuilt, which is true but not worth reporting.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
