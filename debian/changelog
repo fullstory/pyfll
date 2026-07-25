@@ -629,6 +629,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * fll.conf: fix the i386 minimal-x chroot, which named no profile and
     so silently built a KDE image from the spec default. Give both
     minimal-x chroots a browser, which only the i386 one had.
+  * fll.conf: spread the remaining unused modules across the example
+    chroots, pairing each with something it suits, and show the packages
+    option in use on the kodi-plasma chroot. Every module in
+    share/modules is now built by at least one example.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 
