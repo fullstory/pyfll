@@ -22,7 +22,6 @@ packages = """
 	pipewire-bin
 	pinentry-gnome3
 	#pqiv
-	python-dbus
 	qemu-system-x86
 	qpdfview
 	seahorse
