@@ -13,7 +13,6 @@ packages = """
 	e2fsprogs
 	gdisk
 	iputils-ping
-	isc-dhcp-client
 	iw
 	kbd
 	less
