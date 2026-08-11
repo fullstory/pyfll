@@ -25,7 +25,6 @@ packages = """
 		plymouth-themes
 	rsync
 	systemd-cron
-	systemd-cryptsetup
 	wget
 	wpasupplicant
 	xz-utils
