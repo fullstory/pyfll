@@ -4,6 +4,8 @@ desc = """
 
 packages = """
 	alsa-utils
+		alsa-topology-conf
+		alsa-ucm-conf
 	hdparm
 	irqbalance
 	laptop-detect
