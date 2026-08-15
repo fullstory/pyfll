@@ -82,7 +82,6 @@ packages = """
 	network-manager-applet
 	parole
 	pavucontrol
-	pipewire-pulse
 	pluma
 	qalculate-gtk
 	seahorse

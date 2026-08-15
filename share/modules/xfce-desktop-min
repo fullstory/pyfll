@@ -17,7 +17,6 @@ packages = """
 	libglib2.0-bin
 	mint-y-icons
 	pavucontrol
-	pipewire-pulse
 	shared-mime-info
 	slick-greeter
 	thunar-archive-plugin

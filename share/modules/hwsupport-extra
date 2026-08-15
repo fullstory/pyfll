@@ -13,6 +13,7 @@ packages = """
 	pipewire
 		libspa-0.2-bluetooth
 		libspa-0.2-libcamera
+	pipewire-alsa
 	pipewire-pulse
 	power-profiles-daemon
 	rfkill
