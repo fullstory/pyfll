@@ -659,6 +659,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * do not bind mount host resolv.conf while creating readonly
     filesystem images; no network is needed and the image must ship the
     staged resolv.conf symlink
+  * When a build fails, offer to upload logfiles and build configuration
+    to paste.debian.net (needs pastebinit) to help report the failure.
+    Use --no-report to disable the offer for unattended builds.
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

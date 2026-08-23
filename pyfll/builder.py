@@ -870,6 +870,63 @@ class FLLBuilder(
         finally:
             self._logfile_handler.removeFilter(logfile_filter)
 
+    def report_failure(self) -> None:
+        """On unsuccessful exit, offer to upload the build configuration and
+        logfiles to paste.debian.net (via pastebinit) so the failure can be
+        reported to the developers. Suppressed by --no-report or a
+        non-interactive stdin."""
+        if self.opts.no_report or not sys.stdin.isatty():
+            return
+        try:
+            answer = input(
+                "Upload logfiles and build configuration to "
+                "paste.debian.net to report this failure to the "
+                "developers? [Y/n] "
+            )
+        except (EOFError, KeyboardInterrupt):
+            return
+        if answer.strip().lower() in ("n", "no"):
+            return
+
+        if not shutil.which("pastebinit"):
+            self.log.error("pastebinit not found, unable to upload failure report")
+            return
+
+        files = []
+        if self.opts.config and os.path.isfile(self.opts.config):
+            files.append(self.opts.config)
+        if self.opts.output_dir:
+            files.extend(
+                sorted(
+                    glob.glob(
+                        os.path.join(self.opts.output_dir, f"*.{self.run_id}.log*")
+                    )
+                )
+            )
+        if not files:
+            self.log.error("no build configuration or logfiles found to upload")
+            return
+
+        urls = []
+        for filename in files:
+            try:
+                proc = subprocess.run(
+                    ["pastebinit", "-b", "paste.debian.net", "-i", filename],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+            except (OSError, subprocess.CalledProcessError) as err:
+                stderr = getattr(err, "stderr", None) or str(err)
+                self.log.error(f"pastebinit failed for {filename}: {stderr.strip()}")
+                continue
+            urls.append((filename, proc.stdout.strip()))
+
+        for filename, url in urls:
+            print(f"{os.path.basename(filename)}: {url}")
+        if urls:
+            print("Please share the above URLs with the developers.")
+
     def main(self) -> None:
         """Main loop."""
         self.init_cli_options()
@@ -1039,6 +1096,15 @@ def main() -> None:
         help="Write a configuration file for quickemu.",
     )
     cli.add_argument(
+        "-R",
+        "--no-report",
+        action="store_true",
+        default=False,
+        help="On unsuccessful exit, do not offer to upload build "
+        + "configuration and logfiles to paste.debian.net to report the "
+        + "failure to the developers. Default: prompt when interactive.",
+    )
+    cli.add_argument(
         "--profiles",
         nargs="+",
         metavar="<profile>",
@@ -1132,4 +1198,5 @@ def main() -> None:
     except KeyboardInterrupt:
         sys.exit(130)
     except FllError:
+        fll.report_failure()
         sys.exit(1)
