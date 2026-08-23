@@ -653,6 +653,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
     paths
   * skip auto-apt-proxy network wait; the build is already online when
     proxy detection runs
+  * create erofs images inside the build chroot, like squashfs; the
+    exclusion list now applies at scan time so live /proc, /sys and /dev
+    contents are skipped correctly
 
  -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
 

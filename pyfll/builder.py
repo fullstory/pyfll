@@ -28,7 +28,7 @@ from pyfll.exceptions import FllError
 from pyfll.gpt import run_gpthybrid
 from pyfll.isodd import upgrade_iso, write_iso
 from pyfll.profile import PackageProfileMixin
-from pyfll.util import strip_common_words, uuidgen
+from pyfll.util import exclusion_glob_to_regex, strip_common_words, uuidgen
 
 
 class FLLBuilder(
@@ -537,11 +537,12 @@ class FLLBuilder(
             )
             self.chroot_exec(chroot, cmd)
         elif self.conf["options"]["readonly_filesystem"] == "erofs":
-            image_file = os.path.join(self.temp, image_file)
             erofs_compression = self.conf["options"].get("erofs_compression")
             erofs_comp_level = self.conf["options"].get("erofs_comp_level")
             erofs_uuid = self.conf["chroots"][chroot].get("uuid")
-            cmd = ["mkfs.erofs", f"-U{erofs_uuid}", image_file, chroot_dir]
+            cmd = ["mkfs.erofs", f"-U{erofs_uuid}", image_file, "."]
+            # image is written inside the tree being packed; skip it
+            cmd.insert(1, f"--exclude-path={image_file}")
             if erofs_compression != "none":
                 if erofs_comp_level:
                     erofs_compression += f",{erofs_comp_level}"
@@ -549,20 +550,15 @@ class FLLBuilder(
             erofs_options = self.conf["options"].get("erofs_options")
             if erofs_options:
                 cmd.insert(1, f"{erofs_options}")
+            # evaluated at scan time inside the chroot, where proc, sys, dev
+            # and run are live mounts that host-side globbing cannot see
             with open(exclude_file) as ef:
-                for exclude in ef.readlines():
-                    exclude = exclude.rstrip()
-                    if "*" in exclude:
-                        excludes = glob.glob(os.path.join(chroot_dir, exclude))
-                        for ex in excludes:
-                            if os.path.exists(ex):
-                                cmd.insert(
-                                    1,
-                                    f"--exclude-path={ex.replace(chroot_dir + '/', '')}",
-                                )
-                    else:
-                        if os.path.exists(os.path.join(chroot_dir, exclude)):
-                            cmd.insert(1, f"--exclude-path={exclude}")
+                patterns = [
+                    exclusion_glob_to_regex(line)
+                    for line in ef.read().splitlines()
+                    if line
+                ]
+            cmd.insert(1, f"--exclude-regex=^({'|'.join(patterns)})$")
             if self.opts.debug:
                 cmd.insert(1, "-d9")
             else:
@@ -570,8 +566,7 @@ class FLLBuilder(
             self.log.info(
                 f"{chroot} - creating erofs ({erofs_compression}) filesystem..."
             )
-            self.exec_cmd(cmd)
-            shutil.move(image_file, chroot_dir)
+            self.chroot_exec(chroot, cmd)
 
     def stage_chroot(self, chroot: str) -> None:
         """Stage files for an chroot for final genisofs."""

@@ -17,7 +17,6 @@ It is the primary build tool behind [aptosid](http://aptosid.com/).
 | `python3-configobj` | Configuration parsing |
 | `cdebootstrap` \| `debootstrap` \| `mmdebstrap` | Bootstrap utility |
 | `xorriso` | ISO creation |
-| `squashfs-tools` \| `erofs-utils` | Read-only filesystem |
 | `gdisk` | GPT hybrid support |
 | `btrfs-progs` | btrfs subvolume management for the persist partition |
 | `mtools` | FAT image handling for EFI partition |
@@ -26,8 +25,7 @@ It is the primary build tool behind [aptosid](http://aptosid.com/).
 
 ```bash
 sudo apt install python3-debian python3-configobj gdisk xorriso \
-    cdebootstrap erofs-utils squashfs-tools mtools systemd-container \
-    btrfs-progs
+    cdebootstrap mtools systemd-container btrfs-progs
 ```
 
 ---

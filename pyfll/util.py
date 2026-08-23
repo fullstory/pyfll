@@ -33,6 +33,24 @@ def deduplicate_list(original_list: list) -> list:
     return sorted(set(original_list))
 
 
+def exclusion_glob_to_regex(pattern: str) -> str:
+    """Translate a rootfs exclusion glob to an anchored ERE fragment for
+    mkfs.erofs --exclude-regex. '*' matches within one path segment and, at
+    segment start, not a leading dot - mirroring mksquashfs -wildcards and
+    python glob semantics."""
+    fragment = ""
+    prev = "/"
+    for char in pattern:
+        if char == "*":
+            fragment += "([^/.][^/]*)?" if prev == "/" else "[^/]*"
+        elif char in ".^$+?()[]{}|\\":
+            fragment += "\\" + char
+        else:
+            fragment += char
+        prev = char
+    return fragment
+
+
 def multiline_to_list(lines: str) -> list:
     """Return stripped non-empty, non-comment strings from a multiline string."""
     return [
