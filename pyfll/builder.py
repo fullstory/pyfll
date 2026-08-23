@@ -535,7 +535,8 @@ class FLLBuilder(
             self.log.info(
                 f"{chroot} - creating squashfs ({squashfs_comp}) filesystem..."
             )
-            self.chroot_exec(chroot, cmd)
+            # no network needed; keep /etc/resolv.conf as staged on disk
+            self.chroot_exec(chroot, cmd, resolv_conf="off")
         elif self.conf["options"]["readonly_filesystem"] == "erofs":
             erofs_compression = self.conf["options"].get("erofs_compression")
             erofs_comp_level = self.conf["options"].get("erofs_comp_level")
@@ -566,7 +567,8 @@ class FLLBuilder(
             self.log.info(
                 f"{chroot} - creating erofs ({erofs_compression}) filesystem..."
             )
-            self.chroot_exec(chroot, cmd)
+            # no network needed; keep /etc/resolv.conf as staged on disk
+            self.chroot_exec(chroot, cmd, resolv_conf="off")
 
     def stage_chroot(self, chroot: str) -> None:
         """Stage files for an chroot for final genisofs."""

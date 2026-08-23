@@ -58,7 +58,13 @@ class ChrootExecMixin:
                 with self._procs_lock:
                     self._procs.discard(proc)
 
-    def _nspawn_cmd(self, chroot: str, args: list, capability: str = None) -> list:
+    def _nspawn_cmd(
+        self,
+        chroot: str,
+        args: list,
+        capability: str = None,
+        resolv_conf: str = "bind-host",
+    ) -> list:
         """Build the systemd-nspawn command line to run *args* in a chroot."""
         chroot_dir = os.path.join(self.temp, chroot)
         cmd = [
@@ -66,7 +72,7 @@ class ChrootExecMixin:
             "--quiet",
             f"--directory={chroot_dir}",
             "--as-pid2",
-            "--resolv-conf=bind-host",
+            f"--resolv-conf={resolv_conf}",
             "--timezone=off",
             "--restrict-address-families=AF_INET AF_INET6 AF_UNIX AF_NETLINK",
         ]
@@ -79,11 +85,19 @@ class ChrootExecMixin:
         return cmd
 
     def chroot_exec(
-        self, chroot: str, args: list, capability: str = None, quiet: bool = False
+        self,
+        chroot: str,
+        args: list,
+        capability: str = None,
+        quiet: bool = False,
+        resolv_conf: str = "bind-host",
     ) -> None:
         """Run command in a chroot via systemd-nspawn."""
         self.exec_cmd(
-            self._nspawn_cmd(chroot, args, capability=capability), quiet=quiet
+            self._nspawn_cmd(
+                chroot, args, capability=capability, resolv_conf=resolv_conf
+            ),
+            quiet=quiet,
         )
 
     def chroot_output(self, chroot: str, args: list, quiet: bool = False) -> str:

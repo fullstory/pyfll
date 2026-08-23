@@ -18,7 +18,7 @@ def _make_chroot_exec():
     ce._abort = threading.Event()
     ce._procs = set()
     ce._procs_lock = threading.Lock()
-    ce._nspawn_cmd = lambda chroot, args, capability=None: args
+    ce._nspawn_cmd = lambda chroot, args, capability=None, resolv_conf="bind-host": args
     return ce
 
 
