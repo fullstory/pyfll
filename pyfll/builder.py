@@ -552,7 +552,7 @@ class FLLBuilder(
             with open(exclude_file) as ef:
                 for exclude in ef.readlines():
                     exclude = exclude.rstrip()
-                    if exclude.find("*") > 0:
+                    if "*" in exclude:
                         excludes = glob.glob(os.path.join(chroot_dir, exclude))
                         for ex in excludes:
                             if os.path.exists(ex):
