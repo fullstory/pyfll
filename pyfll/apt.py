@@ -148,8 +148,13 @@ class AptMixin:
         if not auto_apt_proxy:
             return None
         try:
+            # network is already up by now; don't stall on wait-online
             result = subprocess.run(
-                [auto_apt_proxy], stdout=subprocess.PIPE, check=True
+                [auto_apt_proxy],
+                env={**os.environ, "AUTO_APT_PROXY_NO_WAIT_ONLINE": "1"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                check=True,
             )
         except (OSError, subprocess.CalledProcessError):
             self.log.warning("auto-apt-proxy failed; continuing without apt proxy")
