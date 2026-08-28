@@ -21,7 +21,7 @@
             keyring    = string(default=None)
 
             [[[[aptosid]]]]
-            uri        = string(default='http://aptosid.com/debian/')
+            uri        = string(default='http://aptosid.office-vienna.at/aptosid/debian/')
             cached     = string(default=None)
             suite      = string(default='sid')
             components = string(default='main fix.main')
