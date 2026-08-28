@@ -662,8 +662,11 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * When a build fails, offer to upload logfiles and build configuration
     to paste.debian.net (needs pastebinit) to help report the failure.
     Use --no-report to disable the offer for unattended builds.
+  * budgie-essential: add evolution-data-server, xdg-desktop-portal-gtk,
+    xdg-desktop-portal-wlr
+  * hwsupport-extra: add rtkit for pipewire realtime scheduling
 
- -- Kel Modderman <kelvmod@gmail.com>  Sat, 04 Jul 2026 10:41:10 +1000
+ -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
 pyfll (2013.01) hesperides; urgency=low
 

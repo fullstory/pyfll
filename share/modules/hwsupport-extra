@@ -15,6 +15,7 @@ packages = """
 		libspa-0.2-libcamera
 	pipewire-alsa
 	pipewire-pulse
+	rtkit
 	power-profiles-daemon
 	rfkill
 	snapper
