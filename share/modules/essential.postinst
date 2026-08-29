@@ -35,10 +35,18 @@ EOF
 	dpkg-reconfigure -fnoninteractive console-setup
 
 	# remember keep service blacklists in sync with fll-installer!
-	ENABLED_SERVICES="systemd-networkd systemd-resolved systemd-timesyncd"
+	ENABLED_SERVICES="systemd-resolved systemd-timesyncd"
 	DISABLED_SERVICES="systemd-networkd-wait-online"
 	MASKED_SERVICES=""
 	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
+
+	# NetworkManager owns the network when present; systemd-networkd
+	# is wanted only on minimal images without it
+	if [ -f /lib/systemd/system/NetworkManager.service ]; then
+		DISABLED_SERVICES="${DISABLED_SERVICES} systemd-networkd"
+	else
+		ENABLED_SERVICES="${ENABLED_SERVICES} systemd-networkd"
+	fi
 
 	# enable services wanted on the live CD
 	[ -n "${ENABLED_SERVICES}" ] && \

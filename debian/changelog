@@ -665,6 +665,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * budgie-essential: add evolution-data-server, xdg-desktop-portal-gtk,
     xdg-desktop-portal-wlr
   * hwsupport-extra: add rtkit for pipewire realtime scheduling
+  * Only enable systemd-networkd when NetworkManager is not present.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
