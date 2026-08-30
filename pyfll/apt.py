@@ -819,6 +819,9 @@ class AptMixin:
         self.chroot_exec(chroot, ["dpkg", "--purge", "fll-live-initramfs"])
         self.chroot_exec(chroot, ["apt-get", "clean"])
         self.chroot_exec(chroot, ["dpkg", "--clear-avail"])
+        # stamp /etc/.updated and /var/.updated so ConditionNeedsUpdate=
+        # units (ldconfig, hwdb, catalog) skip their rebuilds at boot
+        self.chroot_exec(chroot, ["/usr/lib/systemd/systemd-update-done"])
 
         chroot_dir = os.path.join(self.temp, chroot)
         for dirpath, dirnames, files in os.walk(os.path.join(chroot_dir, "var/log")):

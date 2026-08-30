@@ -666,6 +666,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
     xdg-desktop-portal-wlr
   * hwsupport-extra: add rtkit for pipewire realtime scheduling
   * Only enable systemd-networkd when NetworkManager is not present.
+  * Stamp /etc/.updated and /var/.updated (systemd-update-done) at the
+    end of chroot cleaning, so ConditionNeedsUpdate= units (ldconfig,
+    hwdb) skip their cache rebuilds on every live boot.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
