@@ -236,6 +236,11 @@ class AptMixin:
                 chroot_dir, "etc/apt/sources.list.d", dist_repo + ".sources"
             )
 
+            # info: the configured sources belong in every captured log
+            self.log.info(
+                f"repo {dist_repo}: {repo_uri} {repo['suite']}"
+                f" {repo['components']}"
+            )
             self.log.debug(f"creating {sources_file}")
             try:
                 with open(sources_file, "w") as sources_file_fh:

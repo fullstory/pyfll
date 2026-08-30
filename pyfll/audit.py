@@ -517,7 +517,7 @@ class AuditMixin:
             if len(files) > 1
         }
         for pkg, files in sorted(result.duplicates.items()):
-            self.log.debug(f"{target.name} - {pkg} declared in {', '.join(files)}")
+            self.log.warning(f"{target.name} - {pkg} declared in {', '.join(files)}")
 
         result.debconf = self._audit_debconf(state, profile)
         for line in result.debconf:

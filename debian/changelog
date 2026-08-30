@@ -672,6 +672,13 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Install packages with dpkg --force-unsafe-io: a build chroot is
     discarded on any failure, so per-file fsyncs buy nothing and cost
     real time on disk-backed build areas.
+  * Log duplicate package declarations at warning, not debug: which
+    lists re-declare a package is actionable lint, and the buildbot
+    publishes audit output where debug lines never reach.
+  * Log each chroot's configured repos (uri, suite, components) at info:
+    the buildbot captures phase logs for LLM analysis, and a resolution
+    failure is unexplainable without knowing which components were
+    configured.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
