@@ -780,7 +780,7 @@ class FLLBuilder(
         for artifact in (".vmlinuz", ".initrd", ".boot"):
             os.chmod(base + artifact, 0o644)
             os.chown(base + artifact, self.opts.uid, self.opts.gid)
-        self.log.info(f"boot artifacts: {os.path.basename(base)}.boot")
+        self.log.info(f"{chroot} - writing boot artifacts...")
 
     def write_quickemu_conf(self) -> None:
         if not self.opts.quickemu:

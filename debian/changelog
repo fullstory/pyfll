@@ -686,6 +686,8 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Repo logging follows the chroot-prefix convention: debug in the
     build path (the per-chroot build log captures it), info once per
     audited chroot definition - no more console noise on every build.
+  * The boot artifacts log line carries the chroot prefix like its
+    neighbours.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
