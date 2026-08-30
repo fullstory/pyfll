@@ -683,6 +683,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
     <name>.<chroot>.vmlinuz, .initrd, and a .boot record with the boot
     cmdline and the baked desktop sessions - boot validation and
     direct/net booters no longer disassemble the image.
+  * Repo logging follows the chroot-prefix convention: debug in the
+    build path (the per-chroot build log captures it), info once per
+    audited chroot definition - no more console noise on every build.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
