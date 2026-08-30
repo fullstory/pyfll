@@ -669,6 +669,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Stamp /etc/.updated and /var/.updated (systemd-update-done) at the
     end of chroot cleaning, so ConditionNeedsUpdate= units (ldconfig,
     hwdb) skip their cache rebuilds on every live boot.
+  * Install packages with dpkg --force-unsafe-io: a build chroot is
+    discarded on any failure, so per-file fsyncs buy nothing and cost
+    real time on disk-backed build areas.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 

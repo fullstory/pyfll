@@ -78,6 +78,8 @@ class AptMixin:
         aptget.extend(["-o", "Dpkg::Use-Pty=0"])
         aptget.extend(["-o", "Dpkg::Progress-Fancy=0"])
         aptget.extend(["-o", "APT::Color=0"])
+        # a build chroot is discarded on any failure: skip dpkg's fsyncs
+        aptget.extend(["-o", "Dpkg::Options::=--force-unsafe-io"])
 
         apt_recommends = self.conf["options"].get("apt_recommends", "no")
         if apt_recommends == "no":
