@@ -754,6 +754,34 @@ class FLLBuilder(
             self.log.debug("forcing readonly_filesystem=erofs for rootfs")
             self.conf["options"]["readonly_filesystem"] = "erofs"
 
+    def write_boot_artifacts(self, chroot: str) -> None:
+        """Publish direct-boot artifacts beside the ISO: the chroot's kernel
+        and initramfs as <name>.<chroot>.vmlinuz/.initrd, and a
+        <name>.<chroot>.boot record carrying the boot cmdline (desktop=
+        excluded: the booter appends its session) and the baked desktop
+        sessions, default first - so nothing downstream has to disassemble
+        the image to boot it directly."""
+        distro = self.conf["distro"]["FLL_DISTRO_NAME"]
+        base = os.path.join(
+            self.opts.output_dir,
+            f"{distro}-{self.timestamp}.{self.run_id}.{chroot}",
+        )
+        chroot_dir = os.path.join(self.temp, chroot)
+        vmlinuz = glob.glob(os.path.join(chroot_dir, "boot", "vmlinuz-*"))
+        initrd = glob.glob(os.path.join(chroot_dir, "boot", "initrd.img-*"))
+        if len(vmlinuz) != 1 or len(initrd) != 1:
+            self.log.critical("could not find kernel/initramfs to publish")
+            raise FllError
+        shutil.copy(vmlinuz[0], f"{base}.vmlinuz")
+        shutil.copy(initrd[0], f"{base}.initrd")
+        with open(f"{base}.boot", "w") as boot_fh:
+            boot_fh.write(f"cmdline={self.config_boot_cmdline(distro, chroot)}\n")
+            boot_fh.write(f"sessions={' '.join(self.ordered_desktops(chroot))}\n")
+        for artifact in (".vmlinuz", ".initrd", ".boot"):
+            os.chmod(base + artifact, 0o644)
+            os.chown(base + artifact, self.opts.uid, self.opts.gid)
+        self.log.info(f"boot artifacts: {os.path.basename(base)}.boot")
+
     def write_quickemu_conf(self) -> None:
         if not self.opts.quickemu:
             return
@@ -823,6 +851,7 @@ class FLLBuilder(
             self.clean_chroot(chroot)
             self.mkreadonlyfs_chroot(chroot)
             self.stage_chroot(chroot)
+            self.write_boot_artifacts(chroot)
             self.nuke_chroot(chroot)
         finally:
             self.log.removeHandler(handler)

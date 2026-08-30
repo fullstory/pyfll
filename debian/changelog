@@ -679,6 +679,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
     the buildbot captures phase logs for LLM analysis, and a resolution
     failure is unexplainable without knowing which components were
     configured.
+  * Publish direct-boot artifacts beside the ISO:
+    <name>.<chroot>.vmlinuz, .initrd, and a .boot record with the boot
+    cmdline and the baked desktop sessions - boot validation and
+    direct/net booters no longer disassemble the image.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
