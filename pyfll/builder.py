@@ -758,9 +758,10 @@ class FLLBuilder(
         """Publish direct-boot artifacts beside the ISO: the chroot's kernel
         and initramfs as <name>.<chroot>.vmlinuz/.initrd, and a
         <name>.<chroot>.boot record carrying the boot cmdline (desktop=
-        excluded: the booter appends its session) and the baked desktop
-        sessions, default first - so nothing downstream has to disassemble
-        the image to boot it directly."""
+        excluded: the booter appends its session), the baked desktop
+        sessions, default first, and the bootloader the image was built
+        with - so nothing downstream has to disassemble the image to boot
+        it directly or to learn how it boots."""
         distro = self.conf["distro"]["FLL_DISTRO_NAME"]
         base = os.path.join(
             self.opts.output_dir,
@@ -777,6 +778,7 @@ class FLLBuilder(
         with open(f"{base}.boot", "w") as boot_fh:
             boot_fh.write(f"cmdline={self.config_boot_cmdline(distro, chroot)}\n")
             boot_fh.write(f"sessions={' '.join(self.ordered_desktops(chroot))}\n")
+            boot_fh.write(f"bootloader={self.conf['options']['bootloader']}\n")
         for artifact in (".vmlinuz", ".initrd", ".boot"):
             os.chmod(base + artifact, 0o644)
             os.chown(base + artifact, self.opts.uid, self.opts.gid)

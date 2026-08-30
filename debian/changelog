@@ -691,6 +691,8 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Multichroot iso names keep each chroot's identity: 'minimal' with
     'minimal-x' named the pair 'minimal+x'. Any name prefixing another
     was affected, such as kde with kde-lite.
+  * Boot record names the bootloader alongside the cmdline and sessions,
+    so consumers need not open the image to learn how it boots.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
