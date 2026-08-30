@@ -66,7 +66,8 @@ def strip_common_words(previous: str, current: str, sep: str = "-") -> str:
     previous='debian-sid-amd64-labwc', current='debian-sid-amd64-lxqt' this
     yields 'lxqt' (the shared 'debian','sid','amd64' words drop) -- not 'xqt',
     which a character-level common-prefix would wrongly produce from the shared
-    leading 'l'."""
+    leading 'l'. Nothing is stripped when one name wholly prefixes the other
+    ('minimal' and 'minimal-x'): those words are identity, not boilerplate."""
     prev_words = previous.split(sep)
     cur_words = current.split(sep)
     common = 0
@@ -74,6 +75,8 @@ def strip_common_words(previous: str, current: str, sep: str = "-") -> str:
         if p != c:
             break
         common += 1
+    if common >= len(prev_words) or common >= len(cur_words):
+        return current
     return sep.join(cur_words[common:])
 
 

@@ -688,6 +688,9 @@ pyfll (2026.1) UNRELEASED; urgency=low
     audited chroot definition - no more console noise on every build.
   * The boot artifacts log line carries the chroot prefix like its
     neighbours.
+  * Multichroot iso names keep each chroot's identity: 'minimal' with
+    'minimal-x' named the pair 'minimal+x'. Any name prefixing another
+    was affected, such as kde with kde-lite.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 

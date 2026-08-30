@@ -43,6 +43,19 @@ def test_strip_common_words_multiword_suffix():
     assert strip_common_words("debian-sid-amd64-x", "debian-sid-arm64-y") == "arm64-y"
 
 
+def test_strip_common_words_whole_name_is_not_boilerplate():
+    # a prefixing name is identity: this pair used to name itself 'minimal+x'
+    assert strip_common_words("minimal", "minimal-x") == "minimal-x"
+    assert strip_common_words("kde", "kde-lite") == "kde-lite"
+    assert strip_common_words("minimal-x", "minimal-x-extra") == "minimal-x-extra"
+
+
+def test_strip_common_words_never_empties_a_name():
+    # reversed, the result used to be empty
+    assert strip_common_words("minimal-x", "minimal") == "minimal"
+    assert strip_common_words("debian-sid-amd64", "debian-sid") == "debian-sid"
+
+
 def _excluded(pattern, path):
     # anchored fullmatch, as builder wraps fragments in ^(...)$
     return re.fullmatch(exclusion_glob_to_regex(pattern), path) is not None
