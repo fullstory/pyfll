@@ -148,23 +148,15 @@ def detect_bootloader(
     return None
 
 
-def read_iso_persist_uuids(
+def read_iso_boot_configs(
     iso: str, verbose: bool = False, log_fn=print
-) -> tuple[str | None, str | None]:
-    """Return (persist_uuid, persist_luks_uuid) baked into the ISO's boot config.
+) -> list[str]:
+    """Return the text of the boot config files baked into *iso*.
 
     Reads grub's kernels.cfg from the ISO9660 layer when present, otherwise the
-    grub-efi/systemd-boot/rEFInd config files from inside efi.img. Either value
-    is None if absent (persist_luks_uuid only exists for encrypted builds).
+    grub-efi/systemd-boot/rEFInd config files from inside efi.img. Empty when
+    none could be extracted.
     """
-
-    def grep(text: str) -> tuple[str | None, str | None]:
-        pu = re.search(r"persist_uuid=(\S+)", text)
-        plu = re.search(r"persist_luks_uuid=(\S+)", text)
-        return (pu.group(1) if pu else None, plu.group(1) if plu else None)
-
-    persist_uuid = None
-    persist_luks_uuid = None
     with tempfile.TemporaryDirectory() as tmp:
         # grub (BIOS/EFI hybrid): kernels.cfg lives on the ISO9660 layer
         kernels_cfg = os.path.join(tmp, "kernels.cfg")
@@ -178,7 +170,7 @@ def read_iso_persist_uuids(
             pass
         if os.path.isfile(kernels_cfg):
             with open(kernels_cfg) as f:
-                return grep(f.read())
+                return [f.read()]
 
         # ESP-based bootloaders: pull config files out of efi.img
         efi_img = os.path.join(tmp, "efi.img")
@@ -188,9 +180,9 @@ def read_iso_persist_uuids(
                 verbose=verbose, log_fn=log_fn,
             )
         except (subprocess.CalledProcessError, OSError):
-            return None, None
+            return []
         if not os.path.isfile(efi_img):
-            return None, None
+            return []
 
         texts: list[str] = []
 
@@ -246,14 +238,36 @@ def read_iso_persist_uuids(
             with open(refind_conf) as f:
                 texts.append(f.read())
 
-        for text in texts:
-            pu, plu = grep(text)
-            if pu and not persist_uuid:
-                persist_uuid = pu
-            if plu and not persist_luks_uuid:
-                persist_luks_uuid = plu
+    return texts
+
+
+def read_iso_persist_uuids(
+    iso: str, verbose: bool = False, log_fn=print
+) -> tuple[str | None, str | None]:
+    """Return (persist_uuid, persist_luks_uuid) baked into the ISO's boot config.
+
+    Either value is None if absent (persist_luks_uuid only exists for
+    encrypted builds).
+    """
+    persist_uuid = None
+    persist_luks_uuid = None
+    for text in read_iso_boot_configs(iso, verbose=verbose, log_fn=log_fn):
+        pu = re.search(r"persist_uuid=(\S+)", text)
+        plu = re.search(r"persist_luks_uuid=(\S+)", text)
+        if pu and not persist_uuid:
+            persist_uuid = pu.group(1)
+        if plu and not persist_luks_uuid:
+            persist_luks_uuid = plu.group(1)
 
     return persist_uuid, persist_luks_uuid
+
+
+def iso_has_rootfs_uuid(iso: str, verbose: bool = False, log_fn=print) -> bool:
+    """Whether *iso* boots its rootfs partition by UUID, which only erofs does."""
+    return any(
+        re.search(r"rootfs_uuid=\S+", text)
+        for text in read_iso_boot_configs(iso, verbose=verbose, log_fn=log_fn)
+    )
 
 
 def find_esp_partition(
@@ -645,6 +659,15 @@ def write_iso(
     bootloader = None
 
     if persist:
+        # only erofs publishes a rootfs_uuid; a squashfs image boots by
+        # mounting the iso9660 container on the parent device, which leaves
+        # the persist partition behind it unreachable
+        if not iso_has_rootfs_uuid(iso, verbose=verbose, log_fn=log_fn):
+            raise FllError(
+                "error: no rootfs_uuid in the ISO's boot config; a persist\n"
+                "       partition is only reachable from a rootfs booted by\n"
+                "       UUID, which needs readonly_filesystem=erofs"
+            )
         log_fn(f"detecting bootloader in {iso}...")
         bootloader = detect_bootloader(iso, verbose=verbose, log_fn=log_fn)
         if bootloader is None:
