@@ -338,6 +338,18 @@ class FLLBuilder(
                 self.log.debug(f"{chroot} - setting {boot_theme} plymouth theme")
                 filehandle.write("[Daemon]\n")
                 filehandle.write(f"Theme={boot_theme}\n")
+            elif filename == "/etc/initramfs-tools/conf.d/fll-compress":
+                comp = self.conf["options"]["initramfs_comp"]
+                comp = {"lzo": "lzop"}.get(comp, comp)
+                self.log.debug(f"{chroot} - setting {comp} initramfs compression")
+                path = ":".join(
+                    os.path.join(chroot_dir, d) for d in ("usr/bin", "bin")
+                )
+                if not shutil.which(comp, path=path):
+                    self.log.warning(
+                        f"{chroot} - no {comp} in chroot, initramfs will be gzip"
+                    )
+                filehandle.write(f"COMPRESS={comp}\n")
 
         if new_file:
             os.chmod(chroot_filename, mode)
@@ -365,6 +377,12 @@ class FLLBuilder(
 
         self.write_file(chroot, "/etc/motd.tail")
         self.write_file(chroot, "/etc/plymouth/plymouthd.conf")
+
+        if (
+            self.conf["options"]["initramfs_tool"] == "initramfs-tools"
+            and self.conf["options"].get("initramfs_comp")
+        ):
+            self.write_file(chroot, "/etc/initramfs-tools/conf.d/fll-compress")
 
         self.write_ssh_authorized_keys(chroot)
         self.configure_calamares(chroot)
