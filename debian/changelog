@@ -697,6 +697,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
     supported in persist mode.
   * Ensure initramfs-tools ships alongside busybox or else no boot.
   * Support compression for initramfs-tools.
+  * essential: add mount - cannot boot much without it!
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
