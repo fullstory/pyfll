@@ -12,7 +12,6 @@ packages = """
 	fll-live-initscripts
 	gnome-keyring
 	gnome-session
-	initramfs-tools
 	iputils-ping
 	k3b
 	kontact

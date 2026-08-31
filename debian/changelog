@@ -695,6 +695,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
     so consumers need not open the image to learn how it boots.
   * isodd --persist: refuse an iso with no rootfs_uuid. only erofs is
     supported in persist mode.
+  * Ensure initramfs-tools ships alongside busybox or else no boot.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
