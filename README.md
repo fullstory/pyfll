@@ -297,15 +297,17 @@ Browsers are checked as targets of their own, one per browser named anywhere in 
 ### Reading the report
 
 ```
-audit summary - 3/3 clean:
+audit summary - 4/4 clean:
   ok   kde-lite: 1553 package(s) to install (260 selected), 1 duplicate declaration(s)
+  ok   kodi: 1482 package(s) to install (612 selected), 3 cross-profile overlap(s)
   ok   browser:chromium: 174 package(s) to install (3 selected)
   ok   browser:firefox: 113 package(s) to install (3 selected)
 ```
 
 - the first number is how many packages apt would really install, dependencies included
 - **selected** is how many package names the lists actually asked for
-- **duplicate declaration(s)** means a package is named in more than one file. It still installs, so this is only a tidiness note.
+- **duplicate declaration(s)** means a package is named in more than one file of the same package profile. It still installs, so this is only a tidiness note.
+- **cross-profile overlap(s)** counts packages a chroot's several profiles each name for themselves, in files of their own. Every profile has to work when built on its own, so this is expected and no file is named. A package the profiles share through one and the same module is a single declaration and is not counted.
 
 A failing target reports what went wrong and, where it can, which profile or module file asked for the offending package.
 

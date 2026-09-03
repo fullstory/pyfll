@@ -704,3 +704,22 @@ def test_audit_preflight_runs_before_any_bootstrap(caplog, tmp_path, kind):
             audit.audit()
 
     assert bootstrapped == []
+
+
+def test_report_counts_cross_profile_overlaps(caplog):
+    """A chroot combining package profiles declares shared packages once per
+    profile on purpose, so the overlap is counted, never named."""
+    with caplog.at_level(logging.INFO):
+        FakeAudit()._audit_report(
+            [AuditResult("kodi", install=1482, selected=612, overlaps=5)]
+        )
+
+    assert "5 cross-profile overlap(s)" in caplog.text
+    assert "duplicate declaration(s)" not in caplog.text
+
+
+def test_report_omits_overlaps_when_none(caplog):
+    with caplog.at_level(logging.INFO):
+        FakeAudit()._audit_report([AuditResult("kde", install=12, selected=3)])
+
+    assert "overlap" not in caplog.text

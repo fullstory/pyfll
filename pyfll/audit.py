@@ -97,6 +97,7 @@ class AuditResult:
     cascade: list = field(default_factory=list)
     debconf: list = field(default_factory=list)
     duplicates: dict = field(default_factory=dict)
+    overlaps: int = 0
     error: str = ""
 
     @property
@@ -518,11 +519,11 @@ class AuditMixin:
             result.error = "package selection failed"
             return result
 
-        result.duplicates = {
-            pkg: sorted(files)
-            for pkg, files in profile.sources.items()
-            if len(files) > 1
-        }
+        # Only redundancy inside one profile's own closure is a finding: a
+        # chroot combining profiles declares a shared package once per profile
+        # on purpose, so that overlap is counted and left alone.
+        result.duplicates = profile.duplicates
+        result.overlaps = len(profile.overlaps)
         for pkg, files in sorted(result.duplicates.items()):
             self.log.warning(f"{target.name} - {pkg} declared in {', '.join(files)}")
 
@@ -614,6 +615,8 @@ class AuditMixin:
                 if result.duplicates
                 else ""
             )
+            if result.overlaps:
+                duplicates += f", {result.overlaps} cross-profile overlap(s)"
             if result.ok:
                 # Lead with what apt would really do; the selection size is
                 # context, not the package count.

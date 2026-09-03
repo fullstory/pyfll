@@ -63,6 +63,7 @@ class FllProfile:
         debconf       - debconf pre-seed lines loaded pre-installation
         packages      - Debian package names
         sources       - package name -> set of profile/module files declaring it
+        closures      - one sources dict per merged package profile
         recommended_by - recommended package -> set of packages that recommend it
         flatpaks      - flatpak app IDs from flathub
         flatpaks_beta - flatpak app IDs from flathub-beta
@@ -76,6 +77,7 @@ class FllProfile:
     debconf: set = field(default_factory=set)
     packages: set = field(default_factory=set)
     sources: dict = field(default_factory=dict)
+    closures: list = field(default_factory=list)
     recommended_by: dict = field(default_factory=dict)
     flatpaks: set = field(default_factory=set)
     flatpaks_beta: set = field(default_factory=set)
@@ -92,8 +94,41 @@ class FllProfile:
         if source:
             self.sources.setdefault(name, set()).add(source)
 
+    @property
+    def duplicates(self) -> dict:
+        """Packages named in more than one file of a single profile closure."""
+        dupes = {}
+        for closure in self.closures or [self.sources]:
+            for name, origins in closure.items():
+                if len(origins) > 1:
+                    dupes.setdefault(name, set()).update(origins)
+        return {name: sorted(origins) for name, origins in dupes.items()}
+
+    @property
+    def overlaps(self) -> dict:
+        """Packages a chroot's several profiles each declare for themselves, in
+        files of their own. Expected by design - every profile has to work when
+        built on its own - so this is overlap, not redundancy. A package the
+        closures share through one and the same file is a single declaration
+        expanded twice and is not counted."""
+        dupes = self.duplicates
+        counts = {}
+        for closure in self.closures:
+            for name, origins in closure.items():
+                seen = counts.setdefault(name, [0, set()])
+                seen[0] += 1
+                seen[1].update(origins)
+        return {
+            name: sorted(origins)
+            for name, (count, origins) in counts.items()
+            if count > 1 and len(origins) > 1 and name not in dupes
+        }
+
     def merge(self, other):
-        """Add all items from another FllProfile into this one."""
+        """Add all items from another FllProfile into this one. Each profile
+        merged in is one closure, kept apart so overlap between profiles can be
+        told from redundancy inside one."""
+        self.closures.extend(other.closures or [other.sources])
         self.debconf.update(other.debconf)
         self.packages.update(other.packages)
         for name, origins in other.sources.items():

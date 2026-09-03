@@ -9,6 +9,7 @@ import pytest
 
 from pyfll.exceptions import FllError
 from pyfll.profile import (
+    FllProfile,
     PackageProfileMixin,
     parse_dependency_groups,
     source_pkg_specs,
@@ -338,3 +339,57 @@ def test_read_configobj_validates_when_configspec_given(tmp_path):
 
     with pytest.raises(FllError):
         reader._read_configobj(str(incomplete), configspec=str(spec))
+
+
+def expanded(*declarations):
+    """An FllProfile as expand_pkg_profile returns one: packages recorded
+    against the file that declared them, no closures yet."""
+    profile = FllProfile()
+    for name, source in declarations:
+        profile.add_package(name, source)
+    return profile
+
+
+def test_duplicates_within_a_single_profile():
+    profile = expanded(("mpv", "modules/a"), ("mpv", "modules/b"))
+
+    assert profile.duplicates == {"mpv": ["modules/a", "modules/b"]}
+    assert profile.overlaps == {}
+
+
+def test_merged_profiles_overlap_rather_than_duplicate():
+    """kodi and kde-lite each name sddm so either builds on its own; that is
+    expected overlap, not a duplicate declaration to clean up."""
+    chroot = FllProfile()
+    chroot.merge(expanded(("sddm", "profiles/kodi-flatpak")))
+    chroot.merge(expanded(("sddm", "modules/kde-essential")))
+
+    assert chroot.duplicates == {}
+    assert chroot.overlaps == {
+        "sddm": ["modules/kde-essential", "profiles/kodi-flatpak"]
+    }
+
+
+def test_duplicate_inside_one_closure_survives_the_merge():
+    """Two files of the same profile naming one package is still a finding
+    when that profile is merged alongside another."""
+    chroot = FllProfile()
+    chroot.merge(expanded(("mesa-vulkan-drivers", "modules/steam"),
+                          ("mesa-vulkan-drivers", "modules/xserver")))
+    chroot.merge(expanded(("mesa-vulkan-drivers", "modules/kodi-essential")))
+
+    assert chroot.duplicates == {
+        "mesa-vulkan-drivers": ["modules/steam", "modules/xserver"]
+    }
+    assert chroot.overlaps == {}
+
+
+def test_shared_module_is_not_an_overlap():
+    """Both profiles pull modules/essential, so adduser reaches the chroot
+    through one file expanded twice - one declaration, nothing to count."""
+    chroot = FllProfile()
+    chroot.merge(expanded(("adduser", "modules/essential")))
+    chroot.merge(expanded(("adduser", "modules/essential")))
+
+    assert chroot.duplicates == {}
+    assert chroot.overlaps == {}

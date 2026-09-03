@@ -698,6 +698,10 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Ensure initramfs-tools ships alongside busybox or else no boot.
   * Support compression for initramfs-tools.
   * essential: add mount - cannot boot much without it!
+  * audit: a package that two of a chroot's profiles each name is no
+    longer reported as a duplicate declaration. Every profile has to
+    work when built on its own, so that overlap is expected and is now
+    only counted.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 
