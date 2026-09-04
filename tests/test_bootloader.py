@@ -103,6 +103,25 @@ def test_config_boot_cmdline_grub_omits_lang_tz(tmp_path, monkeypatch):
     assert "tz=" not in grub
 
 
+def test_config_boot_cmdline_chroot_override_replaces_global(tmp_path):
+    """A chroot's boot_cmdline replaces the global one outright: an appliance
+    image needs to drop options the global default carries, not just add to
+    them. An empty (spec default) value falls back to the global."""
+    bl = _make_arm64_bootloader(tmp_path)
+    bl.conf["options"]["boot_cmdline"] = "quiet splash"
+
+    bl.conf["chroots"]["arm64chroot"]["packages"]["boot_cmdline"] = ""
+    assert "quiet splash" in bl.config_boot_cmdline("aptosid", "arm64chroot")
+
+    bl.conf["chroots"]["arm64chroot"]["packages"]["boot_cmdline"] = "ocs_live_batch=no"
+    override = bl.config_boot_cmdline("aptosid", "arm64chroot")
+    assert "ocs_live_batch=no" in override
+    assert "quiet" not in override
+    assert "splash" not in override
+    # the image_dir/image_file/uuid preamble is not part of the override
+    assert "iso_uuid=" in override
+
+
 def test_grub_efi_variable_cfg_preseeds_locale(tmp_path, monkeypatch):
     """When lang/tz are preseeded, variable.cfg must set the grub locale-menu
     vars so the menu reflects them (and $kopts carries them), and kernels.cfg

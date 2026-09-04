@@ -1,0 +1,36 @@
+desc = """
+	Clonezilla bare metal imaging appliance. The clonezilla/drbl toolchain
+	plus the imaging engines, filesystem tools, parallel compressors and
+	transports its save/restore wizard offers but only recommends or
+	suggests. Paired with clonezilla.postinst, which wires the live media
+	autostart on tty1.
+"""
+
+packages = """
+	cifs-utils
+	clonezilla
+	ecryptfs-utils
+	exfatprogs
+	f2fs-tools
+	fbterm
+	gocryptfs
+	jfsutils
+	lbzip2
+	lvm2
+	lz4
+	mdadm
+	memtester
+	network-manager
+	nfs-common
+	ntfsprogs-plus
+	openssh-client
+	openssh-server
+	partclone
+	partimage
+	pbzip2
+	plzip
+	pv
+	sshfs
+	udpcast
+	xfsprogs
+"""

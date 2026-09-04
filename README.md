@@ -77,6 +77,16 @@ editor fll.local.conf
 
 Multiple chroots can be defined in one config file. Each produces its own squashfs or erofs image on the ISO — useful for shipping multiple desktop flavours from a single build run.
 
+### Per-chroot boot cmdline
+
+A chroot may set its own `boot_cmdline`, which **replaces** the global `[options] boot_cmdline` for that chroot's boot menu entries rather than extending it. This lets an appliance image drop what the general purpose default carries as well as add its own options:
+
+```ini
+  [[[ packages ]]]
+  profile      = clonezilla
+  boot_cmdline = systemd.show_status=1 ocs_live_run=ocs-live-general
+```
+
 ### Key global options
 
 ```ini

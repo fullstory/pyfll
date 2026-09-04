@@ -916,7 +916,12 @@ class BootloaderMixin:
 
     def config_boot_cmdline(self, distro: str, chroot: str, include_locale: bool = True) -> str:
         image_dir = self.conf["distro"]["FLL_IMAGE_DIR"]
-        cmdline = self.conf["options"].get("boot_cmdline")
+        # a chroot's boot_cmdline replaces the global one rather than extending
+        # it, so an appliance image can drop what the general purpose default
+        # carries (quiet, splash) as well as add its own options
+        cmdline = self.conf["chroots"][chroot]["packages"].get("boot_cmdline")
+        if not cmdline:
+            cmdline = self.conf["options"].get("boot_cmdline")
         rootfs_uuid = self.conf["chroots"][chroot].get("uuid")
         # grub preseeds lang/tz via the locale menu (variable.cfg + $kopts), so
         # its writers pass include_locale=False to avoid baking them twice.
