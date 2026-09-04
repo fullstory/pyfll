@@ -11,6 +11,7 @@
         browser  = force_list(default=list())
         modules  = force_list(default=list('firmware'))
         locales  = force_list(default=list())
+        boot_cmdline = string(default='')
 
         [[[repos]]]
             [[[[debian]]]]

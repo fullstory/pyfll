@@ -1,0 +1,19 @@
+desc = """
+	Clonezilla imaging appliance. Boots straight into the Clonezilla
+	save/restore wizard on tty1 - no display manager and no desktop
+	session. Every console autologins the live user, so a shell is a VT
+	switch away. Networking is NetworkManager (nmtui) for ssh, samba and
+	nfs image repositories.
+"""
+
+modules = """
+	clonezilla
+	distro
+	distro-tools
+	essential
+	hwsupport-essential
+	utils-essential
+"""
+
+packages = """
+"""

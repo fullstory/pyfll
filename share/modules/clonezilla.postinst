@@ -1,0 +1,184 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+OCS_HOOK=/usr/share/drbl/setup/files/ocs/live-hook
+
+do_postinst() {
+	say 'Installing clonezilla live startup scripts into /etc/ocs'
+	# clonezilla ships the live appliance assets but leaves installing them to
+	# ocs-live-hook, which only knows how to build a debian-live image
+	install -d -m 0755 /etc/ocs
+	cp -a "${OCS_HOOK}/start-ocs-live" "${OCS_HOOK}/stop-ocs-live" /etc/ocs/
+	cp -a /usr/share/drbl/setup/files/ocs/ocs-live.d /etc/ocs/
+
+	say 'Writing /etc/ocs/ocs-live.conf'
+	cat > /etc/ocs/ocs-live.conf <<EOF
+# Clonezilla live settings, read after /etc/drbl/drbl-ocs.conf so these win.
+# S03prep-drbl-clonezilla rewrites the values below from any ocs_* boot
+# parameter, so anything here is only the default.
+
+# Program the appliance runs. ocs-live-general is the save/restore wizard.
+ocs_live_run="ocs-live-general"
+
+# Extra ocs-sr parameters, honoured only when ocs_live_run=ocs-live-restore.
+ocs_live_extra_param=""
+
+# Interactive rather than unattended.
+ocs_live_batch="no"
+
+# Empty: the wizard asks for language and keyboard on first run.
+ocs_lang=""
+
+# Empty: the wizard runs on /dev/tty1.
+ocs_live_run_tty=""
+
+# fll mounts the live medium under /run/fll and names the rootfs image after
+# the distro, so clonezilla's own search for filesystem.squashfs finds nothing
+# and ocs-live-run-menu refuses to start. fll-ocs-live-prep publishes the
+# medium below under the name it looks for.
+live_media_path_chklist="/run/live/medium"
+EOF
+
+	say 'Writing /etc/ocs/fll-ocs-live-prep'
+	cat > /etc/ocs/fll-ocs-live-prep <<'EOF'
+#!/bin/sh -e
+# Bridge fll's live media conventions to the ones clonezilla live assumes.
+# Runs before start-ocs-live, whose S03prep-drbl-clonezilla depends on both.
+
+. /etc/default/distro
+
+# clonezilla finds the sudo capable live account by grepping sudoers for that
+# exact spec; fll_adduser writes ALL=(ALL:ALL), which does not match.
+cat > "/etc/sudoers.d/16_${FLL_LIVE_USER}_clonezilla" <<SUDOERS
+${FLL_LIVE_USER} ALL=(ALL) NOPASSWD: ALL
+SUDOERS
+chmod 0440 "/etc/sudoers.d/16_${FLL_LIVE_USER}_clonezilla"
+
+# Publish the live medium where clonezilla looks for it. fll.initramfs leaves a
+# fixed name symlink to the rootfs image beside the medium mount, so the image
+# only has to be renamed to the one clonezilla searches for.
+mkdir -p /run/live/medium
+for fstype in squashfs erofs; do
+	[ -e "/run/fll/${fstype}" ] || continue
+	ln -sf "/run/fll/${fstype}" /run/live/medium/filesystem.squashfs
+done
+EOF
+	chmod 0755 /etc/ocs/fll-ocs-live-prep
+
+	say 'Adding the clonezilla program paths to the login PATH'
+	# clonezilla lives in /usr/sbin and drbl's script dirs, none of which are on
+	# a non-root PATH. The live user's .bash_profile guards the wizard behind
+	# "type ocs-live-run-menu", so without this it silently drops to a shell.
+	# ocs-live-hook appends the same paths to /etc/profile when building a
+	# debian-live image.
+	cat > /etc/profile.d/clonezilla-path.sh <<'EOF'
+case ":${PATH}:" in
+	*:/usr/share/drbl/sbin:*)
+		;;
+	*)
+		PATH="${PATH}:/sbin:/usr/sbin:/usr/share/drbl/sbin:/usr/share/drbl/bin"
+		export PATH
+		;;
+esac
+EOF
+
+	say 'Writing systemd units for the clonezilla appliance'
+	cat > /etc/systemd/system/fll-ocs-live-prep.service <<EOF
+[Unit]
+Description=Prepare clonezilla live compatibility on fll live media
+ConditionPathIsDirectory=/run/fll
+After=fll-home.service
+Before=start-ocs-live.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/ocs/fll-ocs-live-prep
+
+[Install]
+WantedBy=getty.target
+EOF
+
+	# adapted from ${OCS_HOOK}/systemd/ocs-live/start-ocs-live.service: the
+	# shipped unit gates on live-boot's boot=live, and its live-config.service
+	# ordering is fll-home.service here
+	cat > /etc/systemd/system/start-ocs-live.service <<EOF
+[Unit]
+Description=Clonezilla live startup service
+ConditionPathExists=/etc/ocs/start-ocs-live
+ConditionPathIsDirectory=/run/fll
+After=fll-home.service fll-ocs-live-prep.service systemd-user-sessions.service
+Before=getty@tty1.service
+Before=serial-getty@ttyS0.service serial-getty@ttyS1.service serial-getty@ttyS2.service serial-getty@ttyS3.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/ocs/start-ocs-live start
+
+[Install]
+WantedBy=getty.target
+EOF
+
+	say 'Configuring autologin for the live user on tty1-6 and serial consoles'
+	# the live user has no password, so every console needs autologin to be
+	# usable at all; ocs-live-run-menu starts the wizard on tty1 only
+	for tty in 1 2 3 4 5 6; do
+		install -d -m 0755 "/etc/systemd/system/getty@tty${tty}.service.d"
+		cat > "/etc/systemd/system/getty@tty${tty}.service.d/autologin.conf" <<EOF
+[Service]
+EnvironmentFile=/etc/default/distro
+ExecStart=
+ExecStart=-/sbin/agetty --autologin \${FLL_LIVE_USER} --noclear %I
+EOF
+	done
+	for tty in 0 1 2 3; do
+		install -d -m 0755 "/etc/systemd/system/serial-getty@ttyS${tty}.service.d"
+		cat > "/etc/systemd/system/serial-getty@ttyS${tty}.service.d/autologin.conf" <<EOF
+[Service]
+EnvironmentFile=/etc/default/distro
+ExecStart=
+ExecStart=-/sbin/agetty -L --autologin \${FLL_LIVE_USER} -s %I 115200,38400,9600 \$TERM
+EOF
+	done
+
+	say 'Disabling sudo use_pty'
+	# with use_pty sudo spawns a new pts, so the wizard's check of the tty it
+	# was started on fails and it runs twice
+	echo 'Defaults !use_pty' > /etc/sudoers.d/no_pty
+	chmod 0440 /etc/sudoers.d/no_pty
+
+	say 'Silencing systemd boot status'
+	# status messages scribble over the wizard's dialog windows
+	install -d -m 0755 /etc/systemd/system.conf.d
+	printf '[Manager]\nShowStatus=no\n' \
+		> /etc/systemd/system.conf.d/10-clonezilla.conf
+
+	say 'Ignoring the lid switch'
+	# a laptop must not suspend mid-clone
+	install -d -m 0755 /etc/systemd/logind.conf.d
+	cat > /etc/systemd/logind.conf.d/10-clonezilla.conf <<EOF
+[Login]
+HandleLidSwitch=ignore
+HandleLidSwitchExternalPower=ignore
+HandleLidSwitchDocked=ignore
+EOF
+
+	say 'Enabling clonezilla live services'
+	systemctl enable fll-ocs-live-prep.service
+	systemctl enable start-ocs-live.service
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
