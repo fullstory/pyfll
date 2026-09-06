@@ -709,6 +709,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
   * Add clonezilla appliance profile: a bare metal imaging image that
     boots straight into the Clonezilla save/restore wizard on tty1, with
     no display manager or desktop session.
+  * clonezilla: skip the wizard's language and keyboard chooser.
 
  -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
 

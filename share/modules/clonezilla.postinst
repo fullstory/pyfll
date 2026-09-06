@@ -29,8 +29,9 @@ ocs_live_extra_param=""
 # Interactive rather than unattended.
 ocs_live_batch="no"
 
-# Empty: the wizard asks for language and keyboard on first run.
+# Both filled in at boot by fll-ocs-live-prep, from what fll already resolved.
 ocs_lang=""
+live_keyboard_layouts=""
 
 # Empty: the wizard runs on /dev/tty1.
 ocs_live_run_tty=""
@@ -65,6 +66,37 @@ for fstype in squashfs erofs; do
 	[ -e "/run/fll/${fstype}" ] || continue
 	ln -sf "/run/fll/${fstype}" /run/live/medium/filesystem.squashfs
 done
+
+# Replace KEY="value" in ocs-live.conf, appending it when not already there.
+ocs_conf_set() {
+	if grep -q "^[[:space:]]*${1}=" /etc/ocs/ocs-live.conf; then
+		sed -i "s|^[[:space:]]*${1}=.*|${1}=\"${2}\"|" /etc/ocs/ocs-live.conf
+	else
+		printf '%s="%s"\n' "${1}" "${2}" >> /etc/ocs/ocs-live.conf
+	fi
+}
+
+# fll resolved the language and keyboard from the boot menu (or the lang= and
+# keytable= cheatcodes) before this ran, so clonezilla need not ask again:
+# ocs-lang-kbd-conf prompts only while either of these two is unset. Run
+# "ocs-lang-kbd-conf -f" to get the chooser back.
+LANG=""
+[ -r /etc/default/locale ] && . /etc/default/locale
+if [ -z "${LANG}" ] && [ -r /etc/locale.conf ]; then
+	. /etc/locale.conf
+fi
+# drbl names its message catalogues en_US.UTF-8, not en_US.utf8, and falls back
+# to English without complaint for a language it ships no catalogue for.
+ocs_lang="$(printf '%s' "${LANG}" | sed 's/\.utf8$/.UTF-8/')"
+if [ -z "${ocs_lang}" ] || [ ! -f "/usr/share/drbl/lang/bash/${ocs_lang}" ]; then
+	ocs_lang="en_US.UTF-8"
+fi
+
+XKBLAYOUT=""
+[ -r /etc/default/keyboard ] && . /etc/default/keyboard
+
+ocs_conf_set ocs_lang "${ocs_lang}"
+ocs_conf_set live_keyboard_layouts "${XKBLAYOUT:-us}"
 EOF
 	chmod 0755 /etc/ocs/fll-ocs-live-prep
 
