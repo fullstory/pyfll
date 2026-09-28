@@ -34,12 +34,12 @@ packages = """
 		plasma-integration
 		qt6-svg-plugins
 		systemsettings
+	plasma-login-manager
 	plasma-nm
 	plasma-pa
 		libcanberra-pulse
 	plasma-workspace
 	powerdevil
-	sddm
 	sddm-theme-breeze
 	xdg-desktop-portal-kde
 """

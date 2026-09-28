@@ -1,4 +1,4 @@
-pyfll (2026.1) UNRELEASED; urgency=low
+pyfll (2026.1) hesperides; urgency=low
 
   * NOT RELEASED YET
 
@@ -310,6 +310,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
     ship the corresponding userspace tools.
   * drop isc-dhcp-client, it's no longer in Debian - we might need to include
     dhcpcd-base or dhcpcd instead (let's wait and see).
+  * test plasma-login-manager for KDE based builds.
 
   [ Kel Modderman ]
   * Remove gpm from cli package module.
@@ -711,7 +712,7 @@ pyfll (2026.1) UNRELEASED; urgency=low
     no display manager or desktop session.
   * clonezilla: skip the wizard's language and keyboard chooser.
 
- -- Kel Modderman <kelvmod@gmail.com>  Fri, 28 Aug 2026 22:28:14 +1000
+ -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 28 Sep 2026 16:05:38 +0200
 
 pyfll (2013.01) hesperides; urgency=low
 
