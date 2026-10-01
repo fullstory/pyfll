@@ -17,6 +17,7 @@ modules = """
 """
 
 packages = """
+	fll-live-initscripts-networkd-dummy
 """
 
 desktops = """
