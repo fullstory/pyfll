@@ -250,6 +250,8 @@ class PackageProfileMixin:
                 pkg_profile.packages.add("grub-efi-arm64-bin")
         elif bootloader == "systemd-boot":
             pkg_profile.packages.update(["systemd-boot", "systemd-boot-efi"])
+            # optical boot pulls in systemd-loop@, which runs systemd-dissect
+            pkg_profile.packages.add("systemd-container")
         elif bootloader == "refind":
             pkg_profile.packages.add("refind")
             pkg_profile.debconf.add("refind refind/install_to_esp boolean false")

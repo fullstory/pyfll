@@ -714,6 +714,8 @@ pyfll (2026.1) hesperides; urgency=low
   * lxqt-stripped: add fll-live-initscripts-networkd-dummy, it had no
     wired network.
   * add plasma-bigscreen to kde-basic.
+  * systemd-boot images: add systemd-container, so systemd-loop@ works
+    when booted from CD/DVD.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 28 Sep 2026 16:05:38 +0200
 
