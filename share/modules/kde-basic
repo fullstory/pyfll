@@ -12,6 +12,7 @@ packages = """
 	kdeconnect
 	kmenuedit
 	okular
+	plasma-bigpicture
 	plasma-browser-integration
 	plasma-firewall
 	print-manager
