@@ -238,7 +238,6 @@ def _make_profile_expander(browser):
         },
         "options": {
             "readonly_filesystem": "squashfs",
-            "initramfs_tool": "dracut",
             "bootloader": "grub-efi",
         },
     }

@@ -5,10 +5,7 @@ import logging
 import os
 import types
 
-import pytest
-
 from pyfll.apt import AptMixin, apt_spec_name, count_apt_actions, proxy_uri
-from pyfll.exceptions import FllError
 
 # _parse_apt_problems/_conflict_subjects don't touch self; call unbound.
 mixin = AptMixin()
@@ -214,31 +211,17 @@ def test_zero_logs_handles_chroot_name_embedded_in_build_path(tmp_path):
     assert written == [os.path.join("var", "log", "apt", "history.log")]
 
 
-def _make_apt_for_initramfs(initramfs_tool):
+def _make_apt_for_initramfs():
     profile = AptMixin.__new__(AptMixin)
     profile.log = logging.getLogger("test_create_initramfs")
-    profile.conf = {"options": {"initramfs_tool": initramfs_tool}}
+    profile.conf = {"options": {}}
     profile.opts = types.SimpleNamespace(verbose=False, debug=False, quiet=False)
     profile.detect_linux_version = lambda chroot: ["6.1.0-amd64"]
     return profile
 
 
-def test_create_initramfs_unknown_tool_raises_fllerror_not_exec_empty_string():
-    """cmd used to default to "" and get exec'd as-is on an unrecognised
-    initramfs_tool, crashing with an unhandled FileNotFoundError instead of
-    a clean FllError."""
-    profile = _make_apt_for_initramfs("mkinitcpio")
-    calls = []
-    profile.chroot_exec = lambda chroot, cmd: calls.append(cmd)
-
-    with pytest.raises(FllError):
-        profile.create_initramfs("chroot")
-
-    assert calls == []
-
-
-def test_create_initramfs_dracut_still_works():
-    profile = _make_apt_for_initramfs("dracut")
+def test_create_initramfs_runs_dracut():
+    profile = _make_apt_for_initramfs()
     calls = []
     profile.chroot_exec = lambda chroot, cmd: calls.append(cmd)
 

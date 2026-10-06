@@ -232,11 +232,7 @@ class PackageProfileMixin:
         elif ro_fs == "erofs":
             pkg_profile.packages.add("erofs-utils")
 
-        initramfs_tool = self.conf["options"]["initramfs_tool"]
-        pkg_profile.packages.add(initramfs_tool)
-        if initramfs_tool == "initramfs-tools":
-            # klibc-utils lacks grep/sed/chmod/cp that fll.initramfs needs
-            pkg_profile.packages.add("busybox")
+        pkg_profile.packages.add("dracut")
 
         bootloader = self.conf["options"]["bootloader"]
         if bootloader == "grub" or bootloader == "grub-efi":

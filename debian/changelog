@@ -716,6 +716,7 @@ pyfll (2026.1) hesperides; urgency=low
   * add plasma-bigscreen to kde-basic.
   * systemd-boot images: add systemd-container, so systemd-loop@ works
     when booted from CD/DVD.
+  * Remove support for initramfs-tools.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 28 Sep 2026 16:05:38 +0200
 

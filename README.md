@@ -93,7 +93,6 @@ A chroot may set its own `boot_cmdline`, which **replaces** the global `[options
 [ options ]
 bootloader          = grub          # grub | grub-efi | refind | systemd-boot
 bootstrapper        = mmdebstrap    # cdebootstrap | debootstrap | mmdebstrap
-initramfs_tool      = dracut        # dracut | initramfs-tools
 readonly_filesystem = squashfs      # squashfs | erofs
 squashfs_comp       = zstd          # gzip | lz4 | lzo | xz | zstd
 apt_recommends      = no

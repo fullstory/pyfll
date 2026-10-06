@@ -338,18 +338,6 @@ class FLLBuilder(
                 self.log.debug(f"{chroot} - setting {boot_theme} plymouth theme")
                 filehandle.write("[Daemon]\n")
                 filehandle.write(f"Theme={boot_theme}\n")
-            elif filename == "/etc/initramfs-tools/conf.d/fll-compress":
-                comp = self.conf["options"]["initramfs_comp"]
-                comp = {"lzo": "lzop"}.get(comp, comp)
-                self.log.debug(f"{chroot} - setting {comp} initramfs compression")
-                path = ":".join(
-                    os.path.join(chroot_dir, d) for d in ("usr/bin", "bin")
-                )
-                if not shutil.which(comp, path=path):
-                    self.log.warning(
-                        f"{chroot} - no {comp} in chroot, initramfs will be gzip"
-                    )
-                filehandle.write(f"COMPRESS={comp}\n")
 
         if new_file:
             os.chmod(chroot_filename, mode)
@@ -377,12 +365,6 @@ class FLLBuilder(
 
         self.write_file(chroot, "/etc/motd.tail")
         self.write_file(chroot, "/etc/plymouth/plymouthd.conf")
-
-        if (
-            self.conf["options"]["initramfs_tool"] == "initramfs-tools"
-            and self.conf["options"].get("initramfs_comp")
-        ):
-            self.write_file(chroot, "/etc/initramfs-tools/conf.d/fll-compress")
 
         self.write_ssh_authorized_keys(chroot)
         self.configure_calamares(chroot)
@@ -430,8 +412,8 @@ class FLLBuilder(
 
     def configure_calamares(self, chroot: str) -> None:
         """Bake the live-media-derived Calamares settings into the chroot so
-        /etc/calamares matches this rootfs's readonly filesystem, initramfs
-        tool, and bootloader.
+        /etc/calamares matches this rootfs's readonly filesystem and
+        bootloader.
 
         Done here rather than in fll.initramfs at boot: these are properties of
         the rootfs, known at build time, and editing the config at boot copies
@@ -445,7 +427,6 @@ class FLLBuilder(
             return
 
         fstype = self.conf["options"]["readonly_filesystem"]
-        initramfs_tool = self.conf["options"]["initramfs_tool"]
         bootloader = self.conf["options"]["bootloader"]
 
         def edit(relpath: str, subs: list) -> None:
@@ -463,20 +444,6 @@ class FLLBuilder(
 
         # readonly_fstype: unpackfsc source/sourcefs placeholder
         edit("modules/unpackfsc.conf", [(r"FLL_READONLY_FSTYPE", fstype)])
-
-        # initramfs tool: config targets dracut by default; retarget for
-        # initramfs-tools (dracutlukscfg first, so the bare 'dracut' swap that
-        # follows does not corrupt it)
-        if initramfs_tool == "initramfs-tools":
-            edit("settings.conf", [
-                (r"dracutlukscfg", "initramfscfg"),
-                (r"dracut", "initramfs"),
-            ])
-            # initramfs-tools ignores the crypttab keyfile without this option
-            # (dracut reads it natively and needs no option)
-            edit("modules/fstab.conf", [
-                (r"^crypttabOptions:.*", "crypttabOptions: luks,keyscript=/bin/cat"),
-            ])
 
         # bootloader: config defaults to grub (covers grub and grub-efi)
         if bootloader == "systemd-boot":
@@ -499,8 +466,7 @@ class FLLBuilder(
             ])
 
         self.log.debug(
-            f"configured calamares: fstype={fstype} "
-            f"initramfs_tool={initramfs_tool} bootloader={bootloader}"
+            f"configured calamares: fstype={fstype} bootloader={bootloader}"
         )
 
     def hashsum(self, filename: str) -> str:

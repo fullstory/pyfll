@@ -34,7 +34,6 @@ def _make_arm64_bootloader(tmp_path):
             "boot_timeout": "-1",
             "boot_cmdline": "",
             "readonly_filesystem": "squashfs",
-            "initramfs_tool": "initramfs-tools",
         },
         "chroots": {
             "arm64chroot": {

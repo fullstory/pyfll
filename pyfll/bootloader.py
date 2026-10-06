@@ -942,9 +942,6 @@ class BootloaderMixin:
                 cmdline += f" persist_uuid={self.persist_uuid}"
                 if self.opts.encrypt:
                     cmdline += f" persist_luks_uuid={self.persist_luks_uuid}"
-        if self.conf["options"]["initramfs_tool"] == "initramfs-tools":
-            cmdline = "boot=fll " + cmdline
-        elif self.conf["options"]["initramfs_tool"] == "dracut":
-            cmdline = "systemd.gpt_auto=0 SYSTEMD_SULOGIN_FORCE=1 " + cmdline
+        cmdline = "systemd.gpt_auto=0 SYSTEMD_SULOGIN_FORCE=1 " + cmdline
         self.log.debug(f"boot_cmdline: {cmdline}")
         return cmdline
