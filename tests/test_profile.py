@@ -392,3 +392,19 @@ def test_shared_module_is_not_an_overlap():
 
     assert chroot.duplicates == {}
     assert chroot.overlaps == {}
+
+
+def test_expand_pkg_profile_arm64_grub_efi(tmp_path):
+    """arm64 boots grub-efi only: its grub binary package and kernel follow
+    the arch, and grub-pc (BIOS) never appears."""
+    profile_file = tmp_path / "minimal"
+    profile_file.write_text("packages = hello\n")
+    profile = _make_profile_expander([])
+    profile.conf["chroots"]["kde"]["packages"]["arch"] = "arm64"
+    profile.conf["chroots"]["kde"]["packages"]["linux"] = "aptosid-arm64"
+
+    pkg_profile = profile.expand_pkg_profile("kde", str(profile_file), str(tmp_path))
+
+    assert "grub-efi-arm64-bin" in pkg_profile.packages
+    assert "linux-image-aptosid-arm64" in pkg_profile.packages
+    assert "grub-pc" not in pkg_profile.packages

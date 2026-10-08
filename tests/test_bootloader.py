@@ -156,3 +156,34 @@ def test_grub_efi_variable_cfg_no_locale_when_unset(tmp_path):
     assert "def_timezone" not in variable_cfg
     assert "bootlang" not in variable_cfg
     assert "locales/" not in variable_cfg
+
+
+def test_stage_grub_efi_arm64_creates_bootaa64(tmp_path, monkeypatch):
+    """An arm64 chroot carries /usr/lib/grub/arm64-efi and nothing else, so
+    the efitypes table must know it, or stage_grub_efi finds no EFI dir and
+    aborts the build."""
+    bl = _make_arm64_bootloader(tmp_path)
+    bl.opts.share = os.path.join(os.path.dirname(__file__), os.pardir, "share")
+    chroot_dir = tmp_path / "arm64chroot"
+    grub_dir = chroot_dir / "usr/lib/grub/arm64-efi"
+    grub_dir.mkdir(parents=True)
+    (grub_dir / "normal.mod").write_text("")
+    (chroot_dir / "fll").mkdir()
+    (chroot_dir / "boot").mkdir()
+    (chroot_dir / "boot/vmlinuz-7.2.0-aptosid-arm64").write_text("")
+    (chroot_dir / "boot/initrd.img-7.2.0-aptosid-arm64").write_text("")
+    monkeypatch.setattr(pyfll.bootloader, "write_grub_locale_data", lambda *a: None)
+
+    calls = []
+
+    def fake_chroot_exec(chroot, cmd):
+        calls.append(cmd)
+        (chroot_dir / "fll/bootaa64.efi").write_text("")
+
+    bl.chroot_exec = fake_chroot_exec
+
+    bl.stage_grub_efi("arm64chroot")
+
+    assert (tmp_path / "staging/efi/EFI/BOOT/bootaa64.efi").is_file()
+    assert (tmp_path / "staging/efi/boot/grub/arm64-efi/normal.mod").is_file()
+    assert calls[0][:3] == ["grub-mkimage", "-O", "arm64-efi"]

@@ -182,6 +182,20 @@ class FLLBuilder(
         fll_config_spec = os.path.join(self.opts.share, "fll.conf.spec")
         self.conf = ConfigObj(self.opts.config, configspec=fll_config_spec)
         self.validate_configobj(self.conf)
+        self.validate_bootloader_arch()
+
+    def validate_bootloader_arch(self) -> None:
+        """The grub bootloader stages an i386-pc El Torito image, so it needs
+        an x86 chroot; other arches boot grub-efi."""
+        if self.conf["options"]["bootloader"] != "grub":
+            return
+        for chroot, section in self.conf["chroots"].items():
+            arch = section["packages"]["arch"]
+            if arch not in ("amd64", "i386"):
+                self.log.critical(
+                    f"{chroot}: bootloader grub is x86 only, use grub-efi for {arch}"
+                )
+                raise FllError
 
     def validate_configobj(self, obj: ConfigObj) -> None:
         self.log.debug(f"validating {obj.filename}")
@@ -504,7 +518,10 @@ class FLLBuilder(
             if squashfs_comp in ["gzip", "lz4", "lzo", "xz", "zstd"]:
                 cmd.extend(["-comp", squashfs_comp])
                 if squashfs_comp == "xz":
-                    cmd.extend(["-Xbcj", "x86"])
+                    arch = self.conf["chroots"][chroot]["packages"]["arch"]
+                    bcj = {"amd64": "x86", "i386": "x86", "arm64": "arm64"}.get(arch)
+                    if bcj:
+                        cmd.extend(["-Xbcj", bcj])
 
             squashfs_processors = self.conf["options"].get("squashfs_processors")
             if squashfs_processors:

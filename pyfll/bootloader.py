@@ -164,7 +164,11 @@ class BootloaderMixin:
                 eltorito_dst,
             )
 
-        efitypes = {"x86_64-efi": "bootx64", "i386-efi": "bootia32"}
+        efitypes = {
+            "x86_64-efi": "bootx64",
+            "i386-efi": "bootia32",
+            "arm64-efi": "bootaa64",
+        }
 
         have_efi = any(
             os.path.isdir(os.path.join(chroot_dir, f"usr/lib/grub/{efitype}"))
@@ -268,7 +272,11 @@ class BootloaderMixin:
         chroot_dir = os.path.join(self.temp, chroot)
         stage_dir = os.path.join(self.temp, "staging")
 
-        efitypes = {"x86_64-efi": "bootx64", "i386-efi": "bootia32"}
+        efitypes = {
+            "x86_64-efi": "bootx64",
+            "i386-efi": "bootia32",
+            "arm64-efi": "bootaa64",
+        }
         have_efi = any(
             os.path.isdir(os.path.join(chroot_dir, f"usr/lib/grub/{efitype}"))
             for efitype in efitypes

@@ -127,3 +127,57 @@ def test_report_failure_missing_pastebinit(tmp_path, monkeypatch, caplog):
     with caplog.at_level(logging.ERROR, logger="test_builder"):
         b.report_failure()
     assert "pastebinit not found" in caplog.text
+
+
+SHARE_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "share")
+
+
+@pytest.mark.parametrize(
+    "arch, bcj",
+    [("amd64", "x86"), ("i386", "x86"), ("arm64", "arm64"), ("riscv64", None)],
+)
+def test_squashfs_xz_bcj_filter_follows_arch(tmp_path, arch, bcj):
+    """The xz BCJ filter is a branch-call-jump converter for one instruction
+    set; the wrong one makes the image larger, not invalid, so it must follow
+    the chroot's arch and be left out where xz has none."""
+    b = FLLBuilder.__new__(FLLBuilder)
+    b.log = logging.getLogger("test_builder")
+    b.temp = str(tmp_path)
+    b.opts = argparse.Namespace(share=SHARE_DIR)
+    b.conf = {
+        "options": {"readonly_filesystem": "squashfs", "squashfs_comp": "xz"},
+        "chroots": {"c": {"packages": {"arch": arch}}},
+    }
+    b.get_distro_imagefile = lambda chroot: "/c.squashfs"
+    os.makedirs(tmp_path / "c/fll")
+    calls = []
+    b.chroot_exec = lambda chroot, cmd, resolv_conf=None: calls.append(cmd)
+
+    b.mkreadonlyfs_chroot("c")
+
+    cmd = calls[0]
+    if bcj:
+        assert cmd[cmd.index("-Xbcj") + 1] == bcj
+    else:
+        assert "-Xbcj" not in cmd
+
+
+@pytest.mark.parametrize(
+    "bootloader, arch, ok",
+    [("grub", "amd64", True), ("grub", "i386", True), ("grub", "arm64", False),
+     ("grub-efi", "arm64", True)],
+)
+def test_validate_bootloader_arch(bootloader, arch, ok):
+    """grub means the BIOS+EFI hybrid with an i386-pc El Torito image, which
+    only x86 can stage; the config must say so before any chroot is built."""
+    b = FLLBuilder.__new__(FLLBuilder)
+    b.log = logging.getLogger("test_builder")
+    b.conf = {
+        "options": {"bootloader": bootloader},
+        "chroots": {"c": {"packages": {"arch": arch}}},
+    }
+    if ok:
+        b.validate_bootloader_arch()
+    else:
+        with pytest.raises(FllError):
+            b.validate_bootloader_arch()
