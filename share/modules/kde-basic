@@ -10,7 +10,6 @@ packages = """
 	kde-spectacle
 	kcalc
 	kdeconnect
-	kmenuedit
 	okular
 	plasma-bigscreen
 	plasma-browser-integration
