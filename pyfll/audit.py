@@ -154,10 +154,13 @@ class AuditMixin:
             # info: a resolution verdict is unexplainable without knowing
             # which archive components were configured
             for name, repo in self.conf["chroots"][base]["repos"].items():
-                self.log.info(
-                    f"{base} - repo {name}: {repo.get('uri')}"
-                    f" {repo.get('suite')} {repo.get('components')}"
-                )
+                if repo.get("sources_uri"):
+                    self.log.info(f"{base} - repo {name}: {repo['sources_uri']}")
+                else:
+                    self.log.info(
+                        f"{base} - repo {name}: {repo.get('uri')}"
+                        f" {repo.get('suite')} {repo.get('components')}"
+                    )
             self._audit_bootstrap(base)
             self._audit_recommends_whitelist(base)
             for target in group:
