@@ -62,7 +62,6 @@ packages = """
 	mate-screensaver-common
 	mate-sensors-applet
 	mate-sensors-applet-common
-	mate-sensors-applet-nvidia
 	mate-submodules-source
 	mate-system-monitor
 	mate-system-monitor-common
@@ -87,6 +86,14 @@ packages = """
 	seahorse
 	slick-greeter
 	zoitechat
+"""
+
+packages_amd64 = """
+	mate-sensors-applet-nvidia
+"""
+
+packages_i386 = """
+	mate-sensors-applet-nvidia
 """
 
 desktops = """

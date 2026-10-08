@@ -18,7 +18,6 @@ packages = """
 	libnss-mdns
 	man-db
 	manpages
-	memtest86+
 	module-assistant
 	mtools
 	ntfsprogs-plus
@@ -39,4 +38,12 @@ packages = """
 	xfsprogs
 	xorriso
 	zip
+"""
+
+packages_amd64 = """
+	memtest86+
+"""
+
+packages_i386 = """
+	memtest86+
 """

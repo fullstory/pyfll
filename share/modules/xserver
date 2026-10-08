@@ -10,7 +10,6 @@ packages = """
 	fonts-liberation
 	fonts-noto
 	fonts-noto-color-emoji
-	intel-media-va-driver
 	libgl1-mesa-dri
 	mesa-utils
 	mesa-vulkan-drivers
@@ -23,6 +22,11 @@ packages = """
 	xutils
 """
 
+packages_amd64 = """
+	intel-media-va-driver
+"""
+
 packages_i386 = """
+	intel-media-va-driver
 	xserver-xorg-video-intel
 """
