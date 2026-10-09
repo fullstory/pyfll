@@ -315,3 +315,164 @@ def test_apt_spec_name_arch_qualified_deselection():
     available = {"libegl1", "libegl1:i386"}
 
     assert apt_spec_name("libegl1:i386-", available) == "libegl1:i386"
+
+
+KEYRING = "aptosid-archive-keyring"
+
+
+def make_host_keyring(host, layout="file-symlink", name=KEYRING):
+    """Lay out a keyring under the fake build host root *host*: the aptosid
+    package's symlink to a file, a symlink to a directory, or a plain file."""
+    keyrings = host / "usr/share/keyrings"
+    keyrings.mkdir(parents=True, exist_ok=True)
+    pkg_dir = host / "usr/share" / name
+    if layout == "file-symlink":
+        pkg_dir.mkdir()
+        (pkg_dir / f"{name}.gpg").write_bytes(b"KEY")
+        (keyrings / f"{name}.gpg").symlink_to(f"../{name}/{name}.gpg")
+    elif layout == "dir-symlink":
+        (pkg_dir / "apt").mkdir(parents=True)
+        (pkg_dir / "apt" / "key.asc").write_bytes(b"KEY")
+        (keyrings / f"{name}.gpg").symlink_to(f"../{name}/apt")
+    else:
+        (keyrings / f"{name}.gpg").write_bytes(b"KEY")
+
+
+def make_apt_for_prime(tmp_path, monkeypatch, repos):
+    host = tmp_path / "host"
+    host.mkdir()
+    monkeypatch.setattr("pyfll.apt.HOST_ROOT", str(host))
+    (tmp_path / "build" / "chroot").mkdir(parents=True)
+
+    calls = []
+    profile = AptMixin.__new__(AptMixin)
+    profile.temp = str(tmp_path / "build")
+    profile.log = logging.getLogger("test_prime_apt")
+    profile.opts = types.SimpleNamespace(binary=True)
+    profile.conf = {
+        "options": {},
+        "chroots": {"chroot": {"packages": {"distro": "debian"}, "repos": repos}},
+    }
+    profile.write_apt_lists = lambda chroot, cached=False, src_uri=False: None
+    profile.apt_get = lambda chroot, command, args=None, insecure=False: calls.append(
+        (command, args, insecure)
+    )
+    return profile, host, tmp_path / "build" / "chroot", calls
+
+
+def test_prime_apt_no_keyring_unchanged(tmp_path, monkeypatch):
+    profile, host, chroot_dir, calls = make_apt_for_prime(
+        tmp_path, monkeypatch, {"debian": {"uri": "http://deb.debian.org/debian"}}
+    )
+
+    profile.prime_apt("chroot")
+
+    assert calls == [("update", None, False), ("dist-upgrade", None, False)]
+    assert not (chroot_dir / "usr").exists()
+
+
+def test_prime_apt_seeds_host_keyring(tmp_path, monkeypatch, caplog):
+    """With the keyring on the build host, no apt call is insecure and the
+    package installs from the already verified repo."""
+    profile, host, chroot_dir, calls = make_apt_for_prime(
+        tmp_path, monkeypatch, {"aptosid": {"keyring": KEYRING}}
+    )
+    make_host_keyring(host)
+
+    profile.prime_apt("chroot")
+
+    assert calls == [
+        ("update", None, False),
+        ("install", [KEYRING], False),
+        ("dist-upgrade", None, False),
+    ]
+    link = chroot_dir / f"usr/share/keyrings/{KEYRING}.gpg"
+    # same link the package ships, so dpkg replaces it in place
+    assert os.readlink(link) == f"../{KEYRING}/{KEYRING}.gpg"
+    assert link.read_bytes() == b"KEY"
+    assert not (chroot_dir / f"usr/share/{KEYRING}/{KEYRING}.gpg").is_symlink()
+    assert "trusted on first use" not in caplog.text
+
+
+def test_prime_apt_seeds_directory_keyring(tmp_path, monkeypatch):
+    profile, host, chroot_dir, calls = make_apt_for_prime(
+        tmp_path, monkeypatch, {"aptosid": {"keyring": KEYRING}}
+    )
+    make_host_keyring(host, layout="dir-symlink")
+
+    profile.prime_apt("chroot")
+
+    link = chroot_dir / f"usr/share/keyrings/{KEYRING}.gpg"
+    assert os.readlink(link) == f"../{KEYRING}/apt"
+    assert (link / "key.asc").read_bytes() == b"KEY"
+    assert not any(insecure for _, _, insecure in calls)
+
+
+def test_prime_apt_seeds_plain_keyring_file(tmp_path, monkeypatch):
+    profile, host, chroot_dir, calls = make_apt_for_prime(
+        tmp_path, monkeypatch, {"aptosid": {"keyring": KEYRING}}
+    )
+    make_host_keyring(host, layout="plain")
+
+    profile.prime_apt("chroot")
+
+    seeded = chroot_dir / f"usr/share/keyrings/{KEYRING}.gpg"
+    assert not seeded.is_symlink()
+    assert seeded.read_bytes() == b"KEY"
+    assert not any(insecure for _, _, insecure in calls)
+
+
+def test_prime_apt_missing_keyring_trusted_on_first_use(tmp_path, monkeypatch, caplog):
+    profile, host, chroot_dir, calls = make_apt_for_prime(
+        tmp_path, monkeypatch, {"aptosid": {"keyring": KEYRING}}
+    )
+
+    with caplog.at_level(logging.WARNING, logger="test_prime_apt"):
+        profile.prime_apt("chroot")
+
+    assert calls == [
+        ("update", None, True),
+        ("install", [KEYRING], True),
+        ("update", None, False),
+        ("dist-upgrade", None, False),
+    ]
+    assert f"{KEYRING} not on build host, trusted on first use" in caplog.text
+    assert not (chroot_dir / "usr").exists()
+
+
+def test_prime_apt_mixed_keyrings(tmp_path, monkeypatch, caplog):
+    """Only the keyring the host lacks takes the insecure path."""
+    profile, host, chroot_dir, calls = make_apt_for_prime(
+        tmp_path,
+        monkeypatch,
+        {
+            "debian": {"uri": "http://deb.debian.org/debian"},
+            "aptosid": {"keyring": KEYRING},
+            "extra": {"keyring": "extra-archive-keyring"},
+        },
+    )
+    make_host_keyring(host)
+
+    with caplog.at_level(logging.WARNING, logger="test_prime_apt"):
+        profile.prime_apt("chroot")
+
+    assert calls == [
+        ("update", None, True),
+        ("install", ["extra-archive-keyring"], True),
+        ("update", None, False),
+        ("install", [KEYRING], False),
+        ("dist-upgrade", None, False),
+    ]
+    assert "extra-archive-keyring not on build host" in caplog.text
+    assert KEYRING + " not on build host" not in caplog.text
+
+
+def test_seed_keyring_keeps_existing_chroot_keyring(tmp_path, monkeypatch):
+    """A keyring the bootstrap already installed is left alone."""
+    profile, host, chroot_dir, calls = make_apt_for_prime(tmp_path, monkeypatch, {})
+    keyrings = chroot_dir / "usr/share/keyrings"
+    keyrings.mkdir(parents=True)
+    (keyrings / "debian-archive-keyring.gpg").write_bytes(b"CHROOT")
+
+    assert profile._seed_keyring("chroot", "debian-archive-keyring")
+    assert (keyrings / "debian-archive-keyring.gpg").read_bytes() == b"CHROOT"

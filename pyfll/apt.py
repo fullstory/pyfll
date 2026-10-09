@@ -11,6 +11,8 @@ from pyfll.exceptions import FllError
 from pyfll.profile import RECOMMENDS_WHITELIST
 from pyfll.util import deduplicate_list
 
+HOST_ROOT = "/"
+
 
 def apt_spec_name(spec: str, available: set) -> str | None:
     """Resolve an apt-get install argument to the package name it refers to,
@@ -291,10 +293,18 @@ class AptMixin:
         self.write_apt_lists(chroot, cached=True, src_uri=src_uri)
 
         keyrings = list()
+        seeded = list()
         for dist_repo in self.conf["chroots"][chroot]["repos"].keys():
             repo = self.conf["chroots"][chroot]["repos"][dist_repo]
             keyring = repo.get("keyring")
-            if keyring:
+            if not keyring:
+                continue
+            if self._seed_keyring(chroot, keyring):
+                seeded.append(keyring)
+            else:
+                self.log.warning(
+                    f"{chroot} - {keyring} not on build host, trusted on first use"
+                )
                 keyrings.append(keyring)
 
         if keyrings:
@@ -302,7 +312,41 @@ class AptMixin:
             self.apt_get(chroot, "install", args=keyrings, insecure=True)
 
         self.apt_get(chroot, "update")
+        if seeded:
+            self.apt_get(chroot, "install", args=seeded)
         self.apt_get(chroot, "dist-upgrade")
+
+    def _seed_keyring(self, chroot: str, keyring: str) -> bool:
+        """Copy the build host's /usr/share/keyrings/<keyring>.gpg into the
+        chroot, so the first apt update verifies the repo it signs. A symlink
+        is mirrored as a symlink beside its resolved target, the layout dpkg
+        later unpacks over. Returns False when the host lacks the keyring."""
+        path = f"usr/share/keyrings/{keyring}.gpg"
+        chroot_dir = os.path.join(self.temp, chroot)
+        dest = os.path.join(chroot_dir, path)
+        if os.path.lexists(dest):
+            return True
+
+        host_path = os.path.join(HOST_ROOT, path)
+        source = os.path.realpath(host_path)
+        if not os.path.exists(source):
+            return False
+
+        target = os.path.join(chroot_dir, os.path.relpath(source, HOST_ROOT))
+        self.log.debug(f"{chroot} - seeding {path} from build host")
+        try:
+            if os.path.isdir(source):
+                shutil.copytree(source, target, dirs_exist_ok=True)
+            else:
+                os.makedirs(os.path.dirname(target), exist_ok=True)
+                shutil.copy(source, target)
+            if target != dest:
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                os.symlink(os.path.relpath(source, os.path.dirname(host_path)), dest)
+        except OSError:
+            self.log.exception(f"failed to seed keyring: {path}")
+            raise FllError
+        return True
 
     def dpkg_divert(self, chroot: str) -> None:
         """Divert some facilities and replace temporaily with /bin/true (or
