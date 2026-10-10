@@ -23,11 +23,34 @@ It is the primary build tool behind [aptosid](http://aptosid.com/).
 | `mtools` | FAT image handling for EFI partition |
 | `systemd-container` | Chroot execution via `systemd-nspawn` |
 | `cryptsetup` | LUKS2 encryption of the persist partition (optional) |
+| `qemu-user-binfmt` | Building for a foreign architecture, e.g. arm64 on amd64 (optional) |
 
 ```bash
 sudo apt install python3-debian python3-configobj gdisk xorriso wget \
     cdebootstrap mtools systemd-container btrfs-progs
 ```
+
+### Building for another architecture
+
+A chroot's `arch` selects its architecture; there is no command line option. An arm64 ISO builds on an amd64 host under qemu user mode emulation:
+
+```bash
+sudo apt install qemu-user-binfmt mmdebstrap
+```
+
+`qemu-user-binfmt` registers qemu with binfmt_misc using the fix-binary flag, so arm64 binaries run inside the chroot and under `systemd-nspawn` with nothing copied in. Every bootstrapper works, but emulated, `mmdebstrap` is several times faster than `cdebootstrap`. Starting from the [minimal chroot definition](#minimal-chroot-definition), change:
+
+```ini
+[ options ]
+bootstrapper = mmdebstrap
+bootloader   = grub-efi         # grub is x86 only
+
+  [[[ packages ]]]
+  arch     = arm64
+  linux    = arm64
+```
+
+Expect an emulated build to take longer than a native one: dracut and the compressed image, both run inside the chroot, account for most of it.
 
 ---
 
