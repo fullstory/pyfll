@@ -12,7 +12,9 @@ modules = """
 
 packages = """
 	kodi-session-aptosid
-	sddm
+	plasma-bigscreen
+	plasma-keyboard
+	plasma-login-manager
 """
 
 flatpaks = """

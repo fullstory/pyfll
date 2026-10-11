@@ -719,6 +719,13 @@ pyfll (2026.1) hesperides; urgency=low
   * Remove support for initramfs-tools.
   * Seed repo keyrings from the build host, so apt verifies the first
     update.
+  * kodi-flatpak profile: add plasma-bigscreen and plasma-keyboard so
+    the Kodi/Plasma appliance toggle lands in the Bigscreen TV launcher.
+  * kodi-flatpak profile: switch the display manager from sddm to
+    plasma-login-manager (fll_desktop and calamares already configure
+    plasmalogin autologin).
+  * kodi-flatpak profile: drop the postinst that made the display
+    manager wait for network-online; it was an unsuccessful experiment.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 28 Sep 2026 16:05:38 +0200
 
