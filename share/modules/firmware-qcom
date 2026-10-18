@@ -1,0 +1,10 @@
+desc = """
+	Qualcomm SoC firmware (GPU, video, audio DSP) for arm64 boards such as
+	the Radxa Dragon Q6A. Around 500 MB installed, so it is opt-in rather
+	than part of the firmware module. The non-free-firmware section of the
+	debian repository is required.
+"""
+
+packages_arm64 = """
+	firmware-qcom-soc
+"""

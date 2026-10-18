@@ -726,6 +726,9 @@ pyfll (2026.1) hesperides; urgency=low
     plasmalogin autologin).
   * kodi-flatpak profile: drop the postinst that made the display
     manager wait for network-online; it was an unsuccessful experiment.
+  * Add the opt-in firmware-qcom module: Qualcomm SoC firmware for arm64
+    boards such as the Radxa Dragon Q6A, too large for the firmware
+    module.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 28 Sep 2026 16:05:38 +0200
 
