@@ -64,6 +64,7 @@ class ChrootExecMixin:
         args: list,
         capability: str = None,
         resolv_conf: str = "bind-host",
+        bind_ro: str = None,
     ) -> list:
         """Build the systemd-nspawn command line to run *args* in a chroot."""
         chroot_dir = os.path.join(self.temp, chroot)
@@ -78,6 +79,8 @@ class ChrootExecMixin:
         ]
         if capability:
             cmd.append(f"--capability={capability}")
+        if bind_ro:
+            cmd.append(f"--bind-ro={bind_ro}")
         for key, value in self.env.items():
             cmd.append(f"--setenv={key}={value}")
         cmd.append("--")
@@ -91,11 +94,16 @@ class ChrootExecMixin:
         capability: str = None,
         quiet: bool = False,
         resolv_conf: str = "bind-host",
+        bind_ro: str = None,
     ) -> None:
         """Run command in a chroot via systemd-nspawn."""
         self.exec_cmd(
             self._nspawn_cmd(
-                chroot, args, capability=capability, resolv_conf=resolv_conf
+                chroot,
+                args,
+                capability=capability,
+                resolv_conf=resolv_conf,
+                bind_ro=bind_ro,
             ),
             quiet=quiet,
         )

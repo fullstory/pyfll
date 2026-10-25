@@ -542,7 +542,9 @@ class FLLBuilder(
             erofs_compression = self.conf["options"].get("erofs_compression")
             erofs_comp_level = self.conf["options"].get("erofs_comp_level")
             erofs_uuid = self.conf["chroots"][chroot].get("uuid")
-            cmd = ["mkfs.erofs", f"-U{erofs_uuid}", image_file, "."]
+            # a plain bind of the root: no live proc, sys, dev or run beneath
+            rootfs = "/fll/rootfs"
+            cmd = ["mkfs.erofs", f"-U{erofs_uuid}", image_file, rootfs]
             # image is written inside the tree being packed; skip it
             cmd.insert(1, f"--exclude-path={image_file}")
             if erofs_compression != "none":
@@ -552,8 +554,7 @@ class FLLBuilder(
             erofs_options = self.conf["options"].get("erofs_options")
             if erofs_options:
                 cmd.insert(1, f"{erofs_options}")
-            # evaluated at scan time inside the chroot, where proc, sys, dev
-            # and run are live mounts that host-side globbing cannot see
+            # evaluated at scan time inside the chroot, not by host-side globbing
             with open(exclude_file) as ef:
                 patterns = [
                     exclusion_glob_to_regex(line)
@@ -569,7 +570,9 @@ class FLLBuilder(
                 f"{chroot} - creating erofs ({erofs_compression}) filesystem..."
             )
             # no network needed; keep /etc/resolv.conf as staged on disk
-            self.chroot_exec(chroot, cmd, resolv_conf="off")
+            self.chroot_exec(
+                chroot, cmd, resolv_conf="off", bind_ro=f"+/:{rootfs}:norbind"
+            )
 
     def stage_chroot(self, chroot: str) -> None:
         """Stage files for an chroot for final genisofs."""

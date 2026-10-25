@@ -729,6 +729,9 @@ pyfll (2026.1) hesperides; urgency=low
   * Add the opt-in firmware-qcom module: Qualcomm SoC firmware for arm64
     boards such as the Radxa Dragon Q6A, too large for the firmware
     module.
+  * erofs: build the image from a plain bind of the chroot, as
+    mkfs.erofs scanned the live /sys, where kernel 7.3 has a directory
+    it cannot read.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 28 Sep 2026 16:05:38 +0200
 

@@ -162,6 +162,31 @@ def test_squashfs_xz_bcj_filter_follows_arch(tmp_path, arch, bcj):
         assert "-Xbcj" not in cmd
 
 
+def test_erofs_packs_a_plain_bind_of_the_root(tmp_path):
+    """mkfs.erofs's xattr pre-scan walks its whole source, exclusions or not,
+    and a sysfs directory it cannot read fails the build (7.3's realtek PHY
+    driver name has a '/'). A norbind of the root leaves nspawn's proc, sys,
+    dev and run behind."""
+    b = FLLBuilder.__new__(FLLBuilder)
+    b.log = logging.getLogger("test_builder")
+    b.temp = str(tmp_path)
+    b.opts = argparse.Namespace(share=SHARE_DIR, debug=False)
+    b.conf = {
+        "options": {"readonly_filesystem": "erofs", "erofs_compression": "zstd"},
+        "chroots": {"c": {"uuid": "u"}},
+    }
+    b.get_distro_imagefile = lambda chroot: "aptosid.c"
+    calls = []
+    b.chroot_exec = lambda chroot, cmd, **kw: calls.append((cmd, kw))
+
+    b.mkreadonlyfs_chroot("c")
+
+    cmd, kw = calls[0]
+    assert kw["bind_ro"] == "+/:/fll/rootfs:norbind"
+    assert cmd[-2:] == ["aptosid.c", "/fll/rootfs"]
+    assert "--exclude-path=aptosid.c" in cmd
+
+
 @pytest.mark.parametrize(
     "bootloader, arch, ok",
     [("grub", "amd64", True), ("grub", "i386", True), ("grub", "arm64", False),
