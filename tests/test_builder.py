@@ -206,3 +206,24 @@ def test_validate_bootloader_arch(bootloader, arch, ok):
     else:
         with pytest.raises(FllError):
             b.validate_bootloader_arch()
+
+
+def test_configuration_written_back_as_utf8(tmp_path):
+    """A non-ASCII comment in fll.conf must survive write_configuration,
+    which runs after the ISO is made."""
+    config = tmp_path / "fll.conf"
+    config.write_text("# Radxa Dragon Q6A, README §2b\n[chroots]\n    [[c]]\n",
+                      encoding="utf-8")
+    b = FLLBuilder.__new__(FLLBuilder)
+    b.log = logging.getLogger("test_builder")
+    b.timestamp = "202601010000"
+    b.run_id = "cafe0123"
+    b.opts = argparse.Namespace(
+        config=str(config),
+        share=os.path.join(os.path.dirname(__file__), os.pardir, "share"),
+        output_dir=str(tmp_path), uid=os.getuid(), gid=os.getgid(),
+    )
+    b.init_configuration()
+    b.write_configuration()
+    written = tmp_path / "aptosid-202601010000.cafe0123.fll.conf"
+    assert "§2b" in written.read_text(encoding="utf-8")

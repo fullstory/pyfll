@@ -180,7 +180,9 @@ class FLLBuilder(
         """Parse build configuration file and return it in a dict."""
         self.log.info(f"reading configuration file: {self.opts.config}")
         fll_config_spec = os.path.join(self.opts.share, "fll.conf.spec")
-        self.conf = ConfigObj(self.opts.config, configspec=fll_config_spec)
+        self.conf = ConfigObj(
+            self.opts.config, configspec=fll_config_spec, encoding="utf-8"
+        )
         self.validate_configobj(self.conf)
         self.validate_bootloader_arch()
 
