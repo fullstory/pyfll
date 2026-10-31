@@ -13,6 +13,7 @@ packages = """
 	lsscsi
 	lvm2
 	mdadm
+	nvme-cli
 	openfwwf
 	pciutils
 	udev
