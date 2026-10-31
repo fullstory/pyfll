@@ -5,6 +5,9 @@ desc = """
 	debian repository is required.
 """
 
+packages = """
+"""
+
 packages_arm64 = """
 	firmware-qcom-soc
 """
