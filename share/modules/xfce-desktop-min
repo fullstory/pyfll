@@ -22,7 +22,6 @@ packages = """
 	thunar-archive-plugin
 	thunar-media-tags-plugin
 	thunar-volman
-	trayer
 	xarchiver
 	xbitmaps
 	xfce4
