@@ -16,6 +16,7 @@ packages = """
 	nvme-cli
 	openfwwf
 	pciutils
+	smartmontools
 	udev
 	usbutils
 	wireless-regdb

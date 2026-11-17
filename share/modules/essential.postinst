@@ -36,7 +36,7 @@ EOF
 
 	# remember keep service blacklists in sync with fll-installer!
 	ENABLED_SERVICES="systemd-resolved systemd-timesyncd"
-	DISABLED_SERVICES="systemd-networkd-wait-online"
+	DISABLED_SERVICES="systemd-networkd-wait-online smartmontools"
 	MASKED_SERVICES=""
 	SERVICE_BLACKLIST="rsync ssh lirc mysql postfix"
 
