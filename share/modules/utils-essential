@@ -27,6 +27,7 @@ packages = """
 	systemd-cron
 	systemd-cryptsetup
 	wget
+	wireguard-tools
 	wpasupplicant
 	xz-utils
 	zstd
