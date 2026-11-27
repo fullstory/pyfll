@@ -734,6 +734,8 @@ pyfll (2026.1) hesperides; urgency=low
     it cannot read.
   * hwsupport-printscan: let cupsd notify systemd through AppArmor's
     disconnected path, as cups otherwise times out every boot.
+  * xserver: add dbus-user-session, as mate had no user bus for pipewire
+    and AT-SPI.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 28 Sep 2026 16:05:38 +0200
 
