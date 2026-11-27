@@ -732,6 +732,8 @@ pyfll (2026.1) hesperides; urgency=low
   * erofs: build the image from a plain bind of the chroot, as
     mkfs.erofs scanned the live /sys, where kernel 7.3 has a directory
     it cannot read.
+  * hwsupport-printscan: let cupsd notify systemd through AppArmor's
+    disconnected path, as cups otherwise times out every boot.
 
  -- Stefan Lippers-Hollmann <s.l-h@gmx.de>  Mon, 28 Sep 2026 16:05:38 +0200
 

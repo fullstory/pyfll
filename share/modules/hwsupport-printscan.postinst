@@ -1,0 +1,25 @@
+#!/bin/sh -e
+
+say() {
+	echo "I: $@..."
+}
+
+do_postinst() {
+	if [ -x /usr/sbin/apparmor_parser ]; then
+		say "Allowing cupsd to notify systemd through a disconnected path"
+		cat >> /etc/apparmor.d/local/usr.sbin.cupsd <<EOF
+/systemd/notify w,
+EOF
+	fi
+}
+
+case "${1}" in
+	postinst)
+		do_postinst
+		;;
+	*)
+		echo "Usage: ${0} postinst"
+		;;
+esac
+
+:
